@@ -99,26 +99,9 @@ drawing \emph{proves} that a graph is planar; you can point at it. A drawing
 with crossings proves nothing at all --- it may just be a bad drawing of a
 perfectly planar graph. \Cref{fig:planar-vs-plane} shows the same phenomenon on
 $K_{3,3}$ minus an edge: drawn one way it looks hopelessly tangled, drawn
-another way it is visibly plane. Establishing that a
-graph is \emph{not} planar therefore needs an argument about all possible
-drawings at once, which is what \cref{sec:planar-minors,sec:planar-k33warmup}
-are for.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.62\textwidth]{planar-vs-plane}
-\caption{$K_{3,3}$ with one edge removed, drawn twice. The left drawing has
-crossings; the right one does not. Only the right drawing carries information
-about the graph --- a drawing with crossings never witnesses non-planarity, it
-only witnesses its own clumsiness.}
-\label{fig:planar-vs-plane}
-\todo{The two drawings are isomorphic but not identically labelled: the left
-one omits the edge $\{1,6\}$, the right one omits $\{3,4\}$. Since the vertices
-carry visible labels, a reader who checks will find they do not match. Swapping
-the labels $1 \leftrightarrow 3$ and $4 \leftrightarrow 6$ in the right-hand
-drawing makes the two agree exactly, after which the caption can go back to
-saying ``one graph, drawn twice''.}
-\end{figure}
+another way it is visibly plane. Establishing that a graph is \emph{not} planar
+therefore needs an argument about all possible drawings at once, which is what
+\cref{sec:planar-minors,sec:planar-k33warmup} are for.
 
 \begin{definition}[Faces]
 Let $G$ be a plane graph. Removing the drawing from the plane leaves a
@@ -126,6 +109,24 @@ collection of connected open regions, called the \emph{faces} of the
 embedding. Exactly one of them is unbounded; it is the \emph{outer face}, and
 the others are the \emph{interior faces}.
 \end{definition}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{planar-vs-plane}
+\caption{$K_{3,3}$ with one edge removed, drawn twice. The left drawing has
+crossings; the right one does not. Only the right drawing carries information
+about the graph --- a drawing with crossings never witnesses non-planarity, it
+only witnesses its own clumsiness. In the right drawing the faces are shaded:
+$f_1$, $f_2$, $f_3$ are the interior faces and $f_4$ is the outer face. Nothing
+in the left drawing corresponds to them; faces exist only once an embedding is
+fixed.}
+\label{fig:planar-vs-plane}
+\todo{The two drawings are still not identically labelled: the left one omits
+the edge $\{1,6\}$, the right one omits $\{3,4\}$. They are isomorphic, but the
+labels are visible, so a reader who checks will find they do not match.
+Swapping $1 \leftrightarrow 3$ and $4 \leftrightarrow 6$ in the right-hand
+drawing fixes it, after which the caption can say ``one graph, drawn twice''.}
+\end{figure}
 
 A useful bookkeeping fact, with one exception that will bite us if we ignore
 it: \emph{every edge is incident to exactly two faces} --- except a
@@ -138,10 +139,11 @@ twice.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{35mm}{A small plane graph containing a bridge. Highlight the
-bridge and shade the single face that touches it on both sides, next to a
-normal edge with its two distinct faces shaded in different colours.}
-\caption{An edge has two sides; a bridge has the same face on both of them.}
+\includegraphics[width=0.5\textwidth]{planar-bridge}
+\caption{The highlighted edge is a bridge: deleting it disconnects the graph.
+Every other edge here has two different faces on its two sides. The bridge does
+not: walk around it and you stay in the outer face the whole way, so it borders
+one face rather than two.}
 \label{fig:planar-bridge}
 \end{figure}
 
@@ -190,14 +192,12 @@ visits is a cycle.)
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{The two inductive steps of Euler's formula, side by side.
-Left: a plane graph with a cycle edge $e$ highlighted, and an arrow to the same
-graph with $e$ deleted, showing the two shaded faces merging into one shaded
-face ($m$ and $f$ both drop by one). Right: a graph with a degree-1 vertex $v$
-highlighted, and an arrow to the graph with $v$ deleted ($n$ and $m$ both drop
-by one, $f$ unchanged).}
-\caption{Deleting a cycle edge merges two faces; deleting a pendant vertex
-changes no face.}
+\includegraphics[width=0.72\textwidth]{planar-euler-induction}
+\caption{The two inductive steps. Left: $e$ lies on a cycle, so its two sides
+belong to different faces and deleting it merges them --- $m$ and $f$ both drop
+by one. Right: $e$ hangs off a degree-$1$ vertex, so both its sides lie on the
+same face and deleting the vertex changes no face --- $n$ and $m$ both drop by
+one.}
 \label{fig:planar-euler-induction}
 \end{figure}
 

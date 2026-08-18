@@ -305,12 +305,11 @@ a sequence of the following operations:
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{IMPORTANT. Reproduce the edge-contraction example from
-Johan and Jesper's notes. Left: a graph on vertices $a,b,c,d,e,f,g,h,i$ with the edge
-$\{d,e\}$ highlighted. Right: the result of contracting it, with $d$ and $e$
-merged into a single vertex labelled $de$ inheriting all their edges. Keep the
-same layout on both sides so the eye can follow what moved.}
-\caption{Edge contraction: $\{d,e\}$ is contracted to a single vertex $de$.}
+\includegraphics[width=0.9\textwidth]{planar-contraction}
+\caption{Contracting the edge $\{d,e\}$. The new vertex $de$ inherits every
+neighbour of $d$ and every neighbour of $e$; nothing else about the graph
+changes. Note what contraction is not: it is not deletion of a vertex, and the
+rest of the graph --- here drawn as the two blobs --- is untouched.}
 \label{fig:planar-contraction}
 \end{figure}
 
@@ -364,7 +363,7 @@ the $K_{3,3}$ edge count $m = 9 > 8 = 2n-4$ as an annotation.}
 \begin{figure}[ht]
 \centering
 \figplaceholder{55mm}{IMPORTANT --- classroom exercise. Reproduce the two
-``planar or not?'' graphs from Johan and Jesper's notes. These are meant to be worked on
+``planar or not?'' graphs from Jesper and Johan's slides. These are meant to be worked on
 live: students should either find a crossing-free drawing or exhibit a $K_5$ /
 $K_{3,3}$ minor. Leave enough white space next to each for students to redraw.}
 \caption{Planar or not? Decide for each, and justify with a drawing or a
@@ -789,7 +788,7 @@ $C$ except at its attachments.
 \begin{figure}[ht]
 \centering
 \figplaceholder{60mm}{IMPORTANT --- this is the central picture of the section.
-Reproduce the three-panel figure from Johan and Jesper's notes. Panel 1 ``Segments'': a cycle $C$ drawn as a
+Reproduce the three-panel figure from Jesper and Johan's slides. Panel 1 ``Segments'': a cycle $C$ drawn as a
 circle with several segments hanging off it --- at least one chord, and at
 least two segments coming from components of $G - V(C)$, with their attachment
 vertices marked on the circle. Label the segments $S_1,\dots,S_k$. Panel 2
@@ -813,7 +812,7 @@ The \emph{interlacement graph} $I$ has one vertex per segment, with an edge
 between two segments exactly when they conflict.
 \end{definition}
 
-\begin{remark}[A case Johan and Jesper's notes gloss over]\label{rem:planar-threeattach}
+\begin{remark}[A case the slides gloss over]\label{rem:planar-threeattach}
 There is a second way two segments can fail to share a side: if they have
 \emph{three or more attachments in common}. Suppose $S$ and $S'$ both attach at
 $a,b,c$. Drawing $S$ inside $C$ cuts the disc into three regions, each of whose
@@ -966,7 +965,7 @@ and run in linear time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{IMPORTANT. Reproduce and extend the picture in Johan and Jesper's notes for
+\figplaceholder{60mm}{IMPORTANT. Reproduce and extend the picture in Jesper and Johan's slides for
 Lemma~\ref{lem:planar-sepcycle}. Draw the cycle $C$ as a circle with the two
 consecutive attachments $u$ and $v$ marked, the two arcs labelled $A$ (the one
 carrying the other attachments) and $B$ (the empty one), and the single segment
@@ -1403,7 +1402,7 @@ all four corners get the same colour, and one in which they use two colours
 \begin{figure}[ht]
 \centering
 \figplaceholder{60mm}{IMPORTANT --- the notes cannot substitute for this
-picture. Reproduce the gadget $W$ exactly as drawn in Johan and Jesper's notes: the planar
+picture. Reproduce the gadget $W$ exactly as drawn in Jesper and Johan's slides: the planar
 graph with the four corners $a$, $a'$ (left/right) and $b$, $b'$ (top/bottom)
 and its interior triangles. Alongside it, show the two essentially different
 $3$-colourings referred to in Claim~\ref{claim:planar-gadget}: (i) all four corners
@@ -1457,7 +1456,7 @@ The construction is clearly computable in polynomial time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{Two panels, following Johan and Jesper's notes. Left: a single crossing
+\figplaceholder{55mm}{Two panels, following Jesper and Johan's slides. Left: a single crossing
 of two edges $a$--$a'$ and $b$--$b'$, with an arrow to the same picture with the
 crossing replaced by the gadget $W$ (drawn as a box with four corners
 labelled). Right: the multiple-crossings case --- one long edge from $a$ to
@@ -1511,10 +1510,10 @@ hardness comes straight through.
 \label{sec:planar-further-reading}
 %==============================================================================
 
-The presentation in this chapter grew out of lecture material by Johan and
-Jesper, to whom the choice of topics and several of the arguments --- the
-segment-and-interlacement planarity test and the crossover gadget in
-particular --- are due.
+The presentation in this chapter grew out of the course slides of Jesper
+Nederlof and Johan van Rooij, to whom the choice of topics and several of the
+arguments --- the segment-and-interlacement planarity test and the crossover
+gadget in particular --- are due.
 
 \begin{itemize}[leftmargin=*]
   \item J.~Hopcroft and R.~E.~Tarjan. Efficient planarity testing. \emph{Journal of the ACM}, 21(4):549--568, 1974.

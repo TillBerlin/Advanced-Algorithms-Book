@@ -52,7 +52,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🔲 |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🔲 |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
-| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 20 figures open |
+| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 19 figures open |
 | 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
 
 ### Part II — Real Computation and the Existential Theory of the Reals
@@ -191,7 +191,9 @@ Conventions:
   notes written with the explicit `Section~\ref{...}` style, which is left as
   it is; both render the same.
 - Source material is credited in the chapter's "Notes and further reading"
-  section, not inline. Chapter 5's material is due to Johan and Jesper.
+  section, not inline. The book as a whole is based on the course slides of
+  Jesper Nederlof and Johan van Rooij (see the preface); the chapters on real
+  models of computation are based on lecture notes by Tillmann Miltzow.
 - Labels carry the chapter's topic as a prefix — `sec:planar-euler`,
   `thm:planar-pst`, `fig:planar-k33-cycle` — so that labels never collide
   across chapters.
@@ -229,11 +231,11 @@ PDF as an artefact.
 
 ### Chapter 5 — Planar Graphs
 
-- **20 figure placeholders.** The chapter is a visual one and several arguments
+- **19 figure placeholders.** The chapter is a visual one and several arguments
   (segments and interlacement, the crossover gadget, the five-colour Kempe
   chain) are hard to follow without the picture. The placeholders marked
-  IMPORTANT in their brief are the ones to draw first. Figures 5.1, 5.2 and 5.3
-  are done; 5.1 still carries a `\todo` about its vertex labels.
+  IMPORTANT in their brief are the ones to draw first. Figures 5.1--5.4 are
+  done; 5.1 still carries a `\todo` about its vertex labels.
 - **Two constants are unverified.** The $\tfrac{9}{10}$ and $11$ in the
   statement of the planar separator theorem, and the $\sqrt n / 20$ in the
   matching lower bound for the grid, were reconstructed when the text was

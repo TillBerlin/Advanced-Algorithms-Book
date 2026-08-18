@@ -1,13 +1,10 @@
 %% Chapter 5: Planar Graphs
-%% Status: drafted from the lecture notes; figures are still placeholders.
+%% Status: drafted; most figures are still placeholders.
 %%
 %% Integrated from planar-graphs-notes.tex (kept in material/notes/ for
-%% reference).  Two things are still open:
-%%   - 23 figures are \figplaceholder boxes.  Drop the artwork into
-%%     book/figures/ and replace the placeholder line, keeping the surrounding
-%%     \caption and \label.  See book/figures/README.md.
-%%   - Lines flagged %% CHECK AGAINST SLIDE are reconstructions of formulas
-%%     that pdftotext dropped; they need checking against the original deck.
+%% reference).  Still open: 22 figures are \figplaceholder boxes.  Drop the
+%% artwork into book/figures/ and replace the placeholder line, keeping the
+%% surrounding \caption and \label.  See book/figures/README.md.
 
 \chapter{Planar Graphs}
 \label{ch:planar}
@@ -97,23 +94,38 @@ drawing. The same planar graph has many essentially different embeddings, and
 several of the quantities we are about to define --- faces, in particular ---
 depend on the embedding rather than on the graph.
 
+This cuts both ways, and the asymmetry is worth pausing on. A crossing-free
+drawing \emph{proves} that a graph is planar; you can point at it. A drawing
+with crossings proves nothing at all --- it may just be a bad drawing of a
+perfectly planar graph. \Cref{fig:planar-vs-plane} shows the same phenomenon on
+$K_{3,3}$ minus an edge: drawn one way it looks hopelessly tangled, drawn
+another way it is visibly plane. Establishing that a
+graph is \emph{not} planar therefore needs an argument about all possible
+drawings at once, which is what \cref{sec:planar-minors,sec:planar-k33warmup}
+are for.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{planar-vs-plane}
+\caption{$K_{3,3}$ with one edge removed, drawn twice. The left drawing has
+crossings; the right one does not. Only the right drawing carries information
+about the graph --- a drawing with crossings never witnesses non-planarity, it
+only witnesses its own clumsiness.}
+\label{fig:planar-vs-plane}
+\todo{The two drawings are isomorphic but not identically labelled: the left
+one omits the edge $\{1,6\}$, the right one omits $\{3,4\}$. Since the vertices
+carry visible labels, a reader who checks will find they do not match. Swapping
+the labels $1 \leftrightarrow 3$ and $4 \leftrightarrow 6$ in the right-hand
+drawing makes the two agree exactly, after which the caption can go back to
+saying ``one graph, drawn twice''.}
+\end{figure}
+
 \begin{definition}[Faces]
 Let $G$ be a plane graph. Removing the drawing from the plane leaves a
 collection of connected open regions, called the \emph{faces} of the
 embedding. Exactly one of them is unbounded; it is the \emph{outer face}, and
 the others are the \emph{interior faces}.
 \end{definition}
-
-\begin{figure}[ht]
-\centering
-\figplaceholder{45mm}{Left: a graph drawn with crossings. Right: the same graph
-redrawn without crossings, with the faces shaded and labelled $f_1,\dots,f_k$,
-and the outer face marked. The point of the picture is that the left drawing
-does not prove the graph is non-planar --- it only proves that \emph{this
-drawing} is bad.}
-\caption{Planar is a property of the graph; the faces belong to the drawing.}
-\label{fig:planar-vs-plane}
-\end{figure}
 
 A useful bookkeeping fact, with one exception that will bite us if we ignore
 it: \emph{every edge is incident to exactly two faces} --- except a
@@ -294,7 +306,7 @@ a sequence of the following operations:
 \begin{figure}[ht]
 \centering
 \figplaceholder{50mm}{IMPORTANT. Reproduce the edge-contraction example from
-the slides. Left: a graph on vertices $a,b,c,d,e,f,g,h,i$ with the edge
+Johan and Jesper's notes. Left: a graph on vertices $a,b,c,d,e,f,g,h,i$ with the edge
 $\{d,e\}$ highlighted. Right: the result of contracting it, with $d$ and $e$
 merged into a single vertex labelled $de$ inheriting all their edges. Keep the
 same layout on both sides so the eye can follow what moved.}
@@ -352,7 +364,7 @@ the $K_{3,3}$ edge count $m = 9 > 8 = 2n-4$ as an annotation.}
 \begin{figure}[ht]
 \centering
 \figplaceholder{55mm}{IMPORTANT --- classroom exercise. Reproduce the two
-``planar or not?'' graphs from the slides. These are meant to be worked on
+``planar or not?'' graphs from Johan and Jesper's notes. These are meant to be worked on
 live: students should either find a crossing-free drawing or exhibit a $K_5$ /
 $K_{3,3}$ minor. Leave enough white space next to each for students to redraw.}
 \caption{Planar or not? Decide for each, and justify with a drawing or a
@@ -515,6 +527,28 @@ in the fast algorithms anyway.
 
 As noted in Remark~\ref{rem:planar-no-algo}, Kuratowski's theorem is of no direct
 help. We need a constructive strategy.
+
+Before we start, we record the one fact about the plane that the whole
+algorithm rests on.
+
+\begin{theorem}[Jordan curve theorem]\label{thm:planar-jordan}
+Let $\gamma$ be a simple closed curve in the plane. Then $\R^2 \setminus \gamma$
+has exactly two connected components, one bounded and one unbounded, and
+$\gamma$ is the boundary of both. In particular, any curve joining a point of
+the bounded component to a point of the unbounded one meets $\gamma$.
+\end{theorem}
+
+We will use this constantly and without further comment: a cycle drawn without
+crossings has an inside and an outside, and nothing gets from one to the other
+without crossing it. That statement is so obviously true that it is worth
+saying explicitly why we are not proving it. It is a theorem of topology, not
+of combinatorics, and the honest proofs go through machinery we do not develop
+here --- typically a homology or winding-number argument, or for the
+polygonal special case a careful parity argument on a generic ray. None of
+these techniques has anything to do with the rest of this book, and the
+statement is not the kind of thing one should prove by drawing a convincing
+picture: the general version covers curves far wilder than anything we will
+draw. We take it on trust and get on with the algorithm.
 
 \subsection{Warm-up: showing \texorpdfstring{$K_{3,3}$}{K33} is not planar by
 hand}\label{sec:planar-k33warmup}
@@ -755,7 +789,7 @@ $C$ except at its attachments.
 \begin{figure}[ht]
 \centering
 \figplaceholder{60mm}{IMPORTANT --- this is the central picture of the section.
-Reproduce the three-panel slide. Panel 1 ``Segments'': a cycle $C$ drawn as a
+Reproduce the three-panel figure from Johan and Jesper's notes. Panel 1 ``Segments'': a cycle $C$ drawn as a
 circle with several segments hanging off it --- at least one chord, and at
 least two segments coming from components of $G - V(C)$, with their attachment
 vertices marked on the circle. Label the segments $S_1,\dots,S_k$. Panel 2
@@ -779,8 +813,7 @@ The \emph{interlacement graph} $I$ has one vertex per segment, with an edge
 between two segments exactly when they conflict.
 \end{definition}
 
-\begin{remark}[A case the slide glosses over]\label{rem:planar-threeattach}
-%% CHECK AGAINST SLIDE: the slide states only the interleaving condition.
+\begin{remark}[A case Johan and Jesper's notes gloss over]\label{rem:planar-threeattach}
 There is a second way two segments can fail to share a side: if they have
 \emph{three or more attachments in common}. Suppose $S$ and $S'$ both attach at
 $a,b,c$. Drawing $S$ inside $C$ cuts the disc into three regions, each of whose
@@ -933,7 +966,7 @@ and run in linear time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{IMPORTANT. Reproduce and extend the slide picture for
+\figplaceholder{60mm}{IMPORTANT. Reproduce and extend the picture in Johan and Jesper's notes for
 Lemma~\ref{lem:planar-sepcycle}. Draw the cycle $C$ as a circle with the two
 consecutive attachments $u$ and $v$ marked, the two arcs labelled $A$ (the one
 carrying the other attachments) and $B$ (the empty one), and the single segment
@@ -1027,7 +1060,6 @@ is large.
 Let $G = (V,E)$ be a planar graph on $n$ vertices. Then $G$ has a
 $\tfrac{9}{10}$-balanced separator of size at most $11\sqrt{n}$.
 Moreover, such a separator can be found in polynomial time.
-%% CHECK AGAINST SLIDE: the constants 9/10 and 11 are as stated on the slide.
 \end{theorem}
 
 Several proofs exist. The classical one is due to Lipton and Tarjan (1979),
@@ -1054,7 +1086,6 @@ big survives.}
 \begin{proposition}\label{prop:planar-gridtight}
 The $\sqrt{n} \times \sqrt{n}$ grid has no $\tfrac{9}{10}$-balanced separator
 of size $\sqrt{n}/20$.
-%% CHECK AGAINST SLIDE: constant 1/20 recovered from context.
 \end{proposition}
 
 So Theorem~\ref{thm:planar-pst} is optimal up to the constant factor, and no cleverer
@@ -1115,7 +1146,8 @@ visible --- that variation is what the proof exploits.}
 \end{figure}
 
 \begin{proof}[Sketch, for Theorem~\ref{thm:planar-pst}]
-This material was not covered in the lecture and is optional reading.
+This material goes beyond what is covered in the lecture and is optional
+reading.
 Fix a disk representation of $G$ as given by Theorem~\ref{thm:planar-koebe}.
 
 Let $D$ be the smallest circle containing at least $n/10$ of the disk centres.
@@ -1300,26 +1332,6 @@ qualitative change: under the Exponential Time Hypothesis, $2^{o(\sqrt n)}$ is
 impossible for these problems, so $\sqrt n$ in the exponent is the truth.
 \end{remark}
 
-\subsection{From independent set to \texorpdfstring{$3$-colouring}{3-colouring}}
-\label{sec:planar-3col-subexp}
-
-\todo{Write this subsection. The lecture notes develop the separator technique
-on \MIS; the exam pool (question~5, item~7) asks for the same bound for
-$\ThreeCol$, so the variant has to be written out explicitly.
-
-The template of \cref{thm:planar-mis} carries over almost verbatim. The only
-change is what we guess on the separator: instead of guessing which vertices of
-$S$ enter the solution, guess the colour of each vertex of $S$, which costs
-$3^{|S|} = 2^{\bigoh{\sqrt n}}$ instead of $2^{|S|}$. Each component of
-$G - S$ is then a $3$-colouring instance in which some vertices carry
-pre-coloured neighbours, so the recursive calls must solve list-colouring
-instances rather than plain $3$-colouring; state that generalisation before
-recursing. Note that the subproblems are no longer independent in the naive
-sense --- they share the fixed colouring of $S$ --- but for a \emph{fixed}
-guess they are, which is all the recursion needs. The recurrence and the
-$n \le 2^{c\sqrt n}$ bookkeeping at the end of \cref{sec:planar-mis} are
-unchanged up to constants.}
-
 %==============================================================================
 \section{What stays hard on planar graphs}\label{sec:planar-hardness}
 %==============================================================================
@@ -1391,7 +1403,7 @@ all four corners get the same colour, and one in which they use two colours
 \begin{figure}[ht]
 \centering
 \figplaceholder{60mm}{IMPORTANT --- the notes cannot substitute for this
-picture. Reproduce the gadget $W$ exactly as drawn on the slides: the planar
+picture. Reproduce the gadget $W$ exactly as drawn in Johan and Jesper's notes: the planar
 graph with the four corners $a$, $a'$ (left/right) and $b$, $b'$ (top/bottom)
 and its interior triangles. Alongside it, show the two essentially different
 $3$-colourings referred to in Claim~\ref{claim:planar-gadget}: (i) all four corners
@@ -1445,7 +1457,7 @@ The construction is clearly computable in polynomial time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{Two panels, following the slides. Left: a single crossing
+\figplaceholder{55mm}{Two panels, following Johan and Jesper's notes. Left: a single crossing
 of two edges $a$--$a'$ and $b$--$b'$, with an arrow to the same picture with the
 crossing replaced by the gadget $W$ (drawn as a box with four corners
 labelled). Right: the multiple-crossings case --- one long edge from $a$ to
@@ -1498,6 +1510,11 @@ hardness comes straight through.
 \section{Notes and further reading}
 \label{sec:planar-further-reading}
 %==============================================================================
+
+The presentation in this chapter grew out of lecture material by Johan and
+Jesper, to whom the choice of topics and several of the arguments --- the
+segment-and-interlacement planarity test and the crossover gadget in
+particular --- are due.
 
 \begin{itemize}[leftmargin=*]
   \item J.~Hopcroft and R.~E.~Tarjan. Efficient planarity testing. \emph{Journal of the ACM}, 21(4):549--568, 1974.
@@ -1594,7 +1611,7 @@ agree.
   \cref{sec:planar-colouring}; item~5 ($K_{3,3}$ by an elementary argument) is
   \cref{sec:planar-k33warmup}, with a second, purely counting proof in
   Exercise~1; item~6 (the planar separator theorem) is
-  \cref{sec:planar-pst}; item~7 ($3$-colouring in $2^{\bigoh{\sqrt n}}$
-  time) is \cref{sec:planar-3col-subexp}; item~8 (NP-hardness of planar
+  \cref{sec:planar-pst}; item~7 (independent set in
+  $2^{\bigoh{\sqrt n}}$ time) is \cref{sec:planar-mis}; item~8 (NP-hardness of planar
   $3$-colouring) is \cref{sec:planar-3col}.
 \end{poolquestions}

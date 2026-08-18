@@ -1,0 +1,25 @@
+name: Build book
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: texlive/texlive:latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile
+        run: |
+          cd book
+          latexmk -pdf -interaction=nonstopmode -halt-on-error main.tex
+      - name: Report remaining TODOs
+        if: always()
+        run: |
+          count=$(grep -rho '\\todo{' book --include='*.tex' | wc -l)
+          echo "Remaining \\todo markers: $count" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: advanced-algorithms-book
+          path: book/main.pdf

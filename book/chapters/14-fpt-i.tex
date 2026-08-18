@@ -1,0 +1,60 @@
+%% Chapter 14: Parameterized Algorithms I
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Parameterized Algorithms I}
+\label{ch:fpt-i}
+
+Parameterized complexity refuses to measure the difficulty of an instance by its
+length alone. Instead we isolate a parameter $k$ --- the size of the solution,
+the treewidth, the number of allowed edits --- and ask for algorithms whose
+exponential behaviour is confined to $k$. Astonishingly often, this works.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item define parameterized problems, FPT, XP and para-NP-hardness;
+  \item explain the general idea of a branching algorithm in the parameterized setting;
+  \item define \lang{Vertex Cover} and solve it in FPT time by branching;
+  \item define \lang{Cluster Editing} and give a branching algorithm for it;
+  \item give a para-NP-complete parameterized problem;
+  \item define kernels and prove that a problem is FPT if and only if it has a kernel;
+  \item give an $O(k^2)$ kernel for \lang{Vertex Cover};
+  \item define \lang{Convex String Recoloring} and give it an $O(k^2)$ kernel;
+  \item define \lang{Directed $k$-Path} and solve it in polynomial time on acyclic graphs;
+  \item define constant one-sided error algorithms and give one for \lang{Directed $k$-Path} in $O(k^k n^c)$ time.
+\end{itemize}
+
+\section{Parameterized problems}
+\label{sec:fpt-definitions}
+
+\todo{Write this section.}
+% Planned content: FPT, XP, para-NP-hardness, and the relations between them.
+
+\section{Bounded search trees}
+\label{sec:fpt-branching}
+
+\todo{Write this section.}
+% Planned content: \lang{Vertex Cover} in $\Ostar(2^k)$ time and \lang{Cluster Editing} in $\Ostar(3^k)$ time.
+
+\section{Kernelization}
+\label{sec:kernels}
+
+\todo{Write this section.}
+% Planned content: Definition, the equivalence of FPT and kernelizability, the $O(k^2)$ kernel for \lang{Vertex Cover}, and \lang{Convex String Recoloring}.
+
+\section{Colour coding and random separation}
+\label{sec:colour-coding}
+
+\todo{Write this section.}
+% Planned content: \lang{Directed $k$-Path}: easy on DAGs, and a one-sided-error randomized algorithm in general.
+
+\section{Exercises}
+\label{sec:ex-fpt-i}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{15}{Parameterized complexity}All eleven items are covered by \cref{sec:fpt-definitions,sec:fpt-branching,sec:kernels,sec:colour-coding}.
+\end{poolquestions}

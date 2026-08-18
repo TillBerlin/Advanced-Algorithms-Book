@@ -1,0 +1,77 @@
+%% Chapter 5: Planar Graphs
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Planar Graphs}
+\label{ch:planar}
+
+Planarity is the prototypical example of structure that an algorithm can
+exploit. From Euler's formula we get sparsity, from sparsity colouring
+algorithms, and from the separator theorem subexponential algorithms for
+problems that are NP-hard in general --- including on planar graphs themselves.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item state and prove Euler's formula;
+  \item derive $m \le 3n-6$ and the existence of a vertex of degree at most $5$;
+  \item define minors and state Kuratowski's and Wagner's theorems;
+  \item prove that planar graphs are $5$-colourable;
+  \item give an elementary proof that $K_{3,3}$ is not planar;
+  \item state the planar separator theorem and use it to solve $3$-colouring in $2^{O(\sqrt n)}$ time;
+  \item prove that $3$-colouring remains NP-hard on planar graphs.
+\end{itemize}
+
+\section{Plane graphs and embeddings}
+\label{sec:plane-graphs}
+
+\todo{Write this section.}
+
+\section{Euler's formula}
+\label{sec:euler-formula}
+
+\todo{Write this section.}
+
+\section{Sparsity and its consequences}
+\label{sec:planar-sparsity}
+
+\todo{Write this section.}
+% Planned content: $m \le 3n-6$, average degree below $6$, and the $6$-colouring algorithm.
+
+\section{Five-colouring}
+\label{sec:five-colouring}
+
+\todo{Write this section.}
+% Planned content: Kempe chains.
+
+\section{Forbidden minors}
+\label{sec:minors}
+
+\todo{Write this section.}
+% Planned content: Minors and topological minors; $K_5$ and $K_{3,3}$; Kuratowski and Wagner. An elementary counting proof that $K_{3,3}$ is not planar.
+
+\section{The planar separator theorem}
+\label{sec:planar-separator}
+
+\todo{Write this section.}
+
+\section{\texorpdfstring{Divide and conquer: $3$-colouring in $2^{O(\sqrt n)}$ time}{Divide and conquer: 3-colouring in subexponential time}}
+\label{sec:planar-subexponential}
+
+\todo{Write this section.}
+
+\section{\texorpdfstring{Hardness: planar $3$-colouring}{Hardness: planar 3-colouring}}
+\label{sec:planar-3col-hard}
+
+\todo{Write this section.}
+% Planned content: The crossover gadget and the reduction from general $3$-colouring.
+
+\section{Exercises}
+\label{sec:ex-planar}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{5}{Planar Graphs}The eight items correspond to \cref{sec:euler-formula,sec:planar-sparsity,sec:minors,sec:five-colouring,sec:planar-separator,sec:planar-subexponential,sec:planar-3col-hard}.
+\end{poolquestions}

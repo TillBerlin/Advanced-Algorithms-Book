@@ -1,0 +1,77 @@
+% ===========================================================================
+%  Advanced Algorithms
+%  A textbook for the course Advanced Algorithms at Utrecht University.
+%
+%  Build with:  latexmk -pdf main.tex        (from inside book/)
+%           or:  make            (from the repository root)
+%
+%  To add a chapter: create book/chapters/NN-name.tex and \include it below,
+%  in the right part.  Keep the numeric prefix in sync with the reading order.
+% ===========================================================================
+\documentclass[11pt,a4paper,openany]{book}
+
+\input{preamble}
+
+\title{\Huge Advanced Algorithms\\[1ex]
+       \large A course book for Utrecht University}
+\author{Till Miltzow \and Johan van Rooij}
+\date{Draft of \today}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\include{frontmatter/preface}
+\tableofcontents
+
+\mainmatter
+
+% ---------------------------------------------------------------------------
+\part{Combinatorial Algorithms}
+% ---------------------------------------------------------------------------
+\include{chapters/01-introduction}
+\include{chapters/02-stable-marriage}
+\include{chapters/03-maximum-flow}
+\include{chapters/04-minimum-cost-flow}
+\include{chapters/05-planar-graphs}
+\include{chapters/06-matching}
+
+% ---------------------------------------------------------------------------
+\part{Real Computation and the Existential Theory of the Reals}
+% ---------------------------------------------------------------------------
+\include{chapters/07-real-models-of-computation}
+\include{chapters/08-existential-theory-of-the-reals}
+\include{chapters/09-geometric-er-completeness}
+
+% ---------------------------------------------------------------------------
+\part{Exact Exponential-Time Algorithms}
+% ---------------------------------------------------------------------------
+\include{chapters/10-exact-algorithms-i}
+\include{chapters/11-exact-algorithms-ii}
+
+% ---------------------------------------------------------------------------
+\part{Approximation Algorithms}
+% ---------------------------------------------------------------------------
+\include{chapters/12-approximation-i}
+\include{chapters/13-approximation-ii}
+
+% ---------------------------------------------------------------------------
+\part{Parameterized Algorithms and Complexity}
+% ---------------------------------------------------------------------------
+\include{chapters/14-fpt-i}
+\include{chapters/15-treewidth}
+\include{chapters/16-hardness-of-approximation-and-fpt}
+\include{chapters/17-kernelization}
+\include{chapters/18-randomized-algorithms}
+
+% ---------------------------------------------------------------------------
+\appendix
+% ---------------------------------------------------------------------------
+\include{appendix/a-pool-questions}
+\include{appendix/b-preliminaries}
+
+\backmatter
+% \bibliographystyle{plain}
+% \bibliography{references}
+
+\end{document}

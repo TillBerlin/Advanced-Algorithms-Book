@@ -1,0 +1,54 @@
+\chapter*{Preface}
+\addcontentsline{toc}{chapter}{Preface}
+
+This book accompanies the course \emph{Advanced Algorithms} at Utrecht
+University. It is written for students who have seen a first algorithms course:
+we assume familiarity with asymptotic notation, basic graph algorithms, dynamic
+programming, and the notions of \textbf{P}, \textbf{NP} and NP-completeness.
+Everything beyond that is developed from scratch.
+
+\section*{What this book is about}
+
+A first algorithms course teaches you how to solve problems that admit
+efficient algorithms. This book is about what to do when a problem does
+\emph{not} admit one --- and about the surprisingly rich set of tools that has
+been developed for exactly that situation. Broadly, there are four answers, and
+they make up the four main parts of this book after the introductory part on
+combinatorial algorithms:
+
+\begin{itemize}
+  \item \textbf{Solve the problem exactly anyway,} but accept super-polynomial
+        running time --- and then fight for the base of the exponent
+        (Part III).
+  \item \textbf{Give up on optimality} and settle for a solution that is
+        provably close to optimal (Part IV).
+  \item \textbf{Give up on generality} and exploit structure in the input:
+        a small parameter, or bounded treewidth (Part V).
+  \item \textbf{Give up on determinism} and use randomness (Chapter on
+        randomized algorithms).
+\end{itemize}
+
+Running through all of this is a complexity-theoretic thread. For each
+technique we also ask when it \emph{cannot} work: hardness of approximation,
+W[1]-hardness, and --- in Part II --- the class $\ER$, which captures problems
+whose natural formulation quantifies over real numbers.
+
+\section*{How to use this book}
+
+The course is examined using the
+\href{https://openpoolexams.science.uu.nl/}{open pool exam method}: the pool of
+possible exam questions is published in advance, and at least $30\%$ of the
+questions on the midterm and final exam are taken \emph{verbatim} from that
+pool. The pool is reproduced in \cref{app:pool}.
+
+This shapes the book. Every chapter ends with a section listing the pool
+questions it covers, and the material needed to answer those questions is
+developed in the body of that chapter. If you can answer every pool question
+using only this book, you have understood the course. The pool is a floor, not
+a ceiling: the remaining exam questions test the same material on problems you
+have not seen before, which is what the exercises in each chapter are for.
+
+\section*{Acknowledgements}
+
+\todo{Acknowledgements: teaching assistants, students who reported errata,
+sources for individual chapters.}

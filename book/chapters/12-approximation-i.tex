@@ -1,0 +1,65 @@
+%% Chapter 12: Approximation Algorithms I
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Approximation Algorithms I}
+\label{ch:approx-i}
+
+An approximation algorithm runs in polynomial time and returns a solution
+together with a proof that it is not far from optimal. The art is in the proof:
+we must compare against an optimum we cannot compute, so every approximation
+guarantee rests on a lower bound (or upper bound) on $\OPT$ that we can reason
+about.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item define approximation ratios for minimisation and maximisation problems;
+  \item analyse greedy approximation algorithms and prove their ratios;
+  \item give and analyse the $2$-approximation and Christofides' algorithm for metric \lang{TSP};
+  \item adapt the metric \lang{TSP} arguments to a near-symmetric asymmetric instance.
+\end{itemize}
+
+\section{What an approximation guarantee is}
+\label{sec:approx-definitions}
+
+\todo{Write this section.}
+% Planned content: Absolute versus relative error, and the role of bounds on $\OPT$.
+
+\section{Greedy algorithms}
+\label{sec:greedy-approx}
+
+\todo{Write this section.}
+% Planned content: Vertex cover in factor $2$; set cover in factor $\ln n$.
+
+\section{Local search}
+\label{sec:local-search}
+
+\todo{Write this section.}
+
+\section{Metric TSP}
+\label{sec:metric-tsp}
+
+\todo{Write this section.}
+% Planned content: The double-tree $2$-approximation and Christofides' $3/2$-approximation.
+
+\section{Asymmetric instances}
+\label{sec:asymmetric-tsp}
+
+\todo{Write this section.}
+% Planned content: When $d(i,j) \le 2 d(j,i)$ the metric arguments survive at a constant loss.
+
+\section{Scheduling and load balancing}
+\label{sec:scheduling-approx}
+
+\todo{Write this section.}
+
+\section{Exercises}
+\label{sec:ex-approx-i}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{13}{Approximation non-symmetric TSP}Covered in \cref{sec:asymmetric-tsp}.
+\end{poolquestions}

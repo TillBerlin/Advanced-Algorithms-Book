@@ -1,0 +1,235 @@
+===PAGE 1 ===
+DRAFT: Open Pool Questions
+Advanced Algorithms
+At least 30% of the final (and midterm) exam questions will be drawnverbatimfrom this pool.
+Lecture 1: Stable Marriage
+Question 1.Stable Matchings
+This set of questions captures the learning goals of the first lecture on the stable marriage problem.
+1. Define an Euler Tour and show that every connected graph with all even degrees must have an
+Euler Tour.
+2. Define the term stable marriage problem, blocking pair and stable matching.
+3. Define the Greedy Algorithm as in the lecture and show that it might run forever.
+4. Explain the Gale Shapeley algorithm and show that it returns a stable matching.
+5. Define a men optimal stable matching. and show that the Gale Shapeley algorithm returns a
+men optimal stable matching.
+Lecture 2: Min Flow Max Cut
+Question 2.Minimum Vertex Cut
+Show that determining the maximum flow in a network with arc and vertex capacity constraints
+can be reduced to an ordinary maximum-flow problem on a flow network of comparable size.
+Question 3.Escaping a Grid
+Ann×ngrid is an undirected graph consisting ofnrows andncolumns of vertices as shown in
+the figure. We denote the vertex in theith row andjth column byv i,j. All vertices in a grid have
+exactly four neighbours, except for theboundarypoints, which are the verticesv i,j withi= 1,i=n,
+j= 1 orj=n.
+Givenm≤n 2 starting pointsv x1,y1,...,v xm,ym in the grid, thegrid escape problemis to determine
+if there aremvertex disjoint paths from the starting points to anymdifferent points in the boundary.
+Figure 1: Grids for the grid escape problem. Starting points are the larger black disks; other grid
+vertices are smaller circles. The first grid is shown with a solution the the grid escape problem; the
+second has no solution
+Describe an algorithm with running time polynomial innthat solves the escape problem and
+analyse its running time. (Be careful thatnandmdescribe the size of the grid and number of
+starting points, not the number of vertices and arcs as usual).
+Lecture 3: Min Flow Max Cut
+1
+===PAGE 2 ===
+Question 4.Phasing out capital equipment
+A shipping company wants to phase out a fleet of (homogeneous) general cargo ships over a period
+ofpyears. Its objective is to maximize its cash assets at the end of thepyears by considering the
+possibility to prematurely selling ships and temporary replacing them by ships they rent.
+The company faces a non-increasing demand for ships: every year, the number of ships needed is
+at most the number needed the previous year. Letd(i) be the number of ships needed in yeari. The
+company can possibly have more thand(i) ships in yeari, but may not have less than these.
+If a ship is sold in yeari, this yieldss i euros. Each ship the company has in yearigivesr i euros
+as profit. If the company has less thand(i) ships in yeari, it must hire additional ships. This costs
+hi in yeari. Assume thath i>r i for eachi.
+The company wants to meet its commitments (have sufficient ships either owned or rented each
+year), and have as much cash assets as possible at the end of thepth year.
+Formulate this problem as a minimum cost flow problem.
+(Exercise 9.6 from Network Flows, Ahuja, Magnanti, Orlin.)
+Lecture 4: Planar Graphs
+Question 5.Planar Graphs
+This set of questions captures the learning goals of the lecture on the planar graphs. We assume
+thatGis a planar graph onnvertices andmedges.
+1. Give and proof the Euler Formula.
+2. Show thatm≤3n−6 and the average degree below 6.
+3. Define graph minors and state the Kuratowski theorem.
+4. Show that planar graphs are 5-colorable.
+5. Show thatK 33 is non-planar in an elementary way.
+6. State the Planar Separator Theorem.
+7. Show that 3-coloring can be solved in 2 O(√n) time on planar graphs.
+8. Show that 3-coloring is NP-hard for planar graphs.
+Lecture 5: Real Models of Computation
+Question 6.Real Models of Computation
+This set of questions captures the learning goals of the lecture on real models of computation.
+1. Explain a program on a word RAM. (Not a formal definition.)
+2. Explain a Turing machine. (Not a formal definition.)
+3. Give a comparison of advantages and disadvantages of the two models.
+4. Explain what a program on a real RAM is and give both a motivation and concerns about this
+model of computation.
+5. Show how to computek! inO(log 2k) time on a real RAM that is allowed to use rounding.
+6. Show how to compute the greatest common divisor gcd(a,b) of two numbers inO(min loga,logb)
+time on a real RAM that is allowed to use rounding.
+7. Show that we can find a factor of a number in polynomial time on the real RAM that is allowed
+to use rounding. You are allowed to use the the answer of the previous two questions.
+8. Define a straight line program andPosSLP.
+9. Show that P PosSLP = PR.
+Lecture 6: Matching
+2
+===PAGE 3 ===
+Figure 2: A graph with a cycle cover and a graph without a cycle cover
+Question 7.
+Consider the following problem:
+Partition into Cycles
+Instance:Undirected graphG= (V,E).
+Question:Can we partitionGinto cycles, i.e., is there a collection of simple cycles
+C1,...C r inG, such that each vertex belongs to exactly one of the cycles in the collec-
+tion?
+Give a polynomial time algorithm that solves this problem.
+Lecture 7: Existential Theory of the Reals
+Question 8.Existential Theory of the Reals
+This set of questions captures the learning goals of the first lecture on the existential theory of the
+reals.
+1. Give a definition of the algorithmic problemETRand the complexity class∃Rbased on this
+definition.
+2. Give the machine model description of∃Rand a sketch of a proof that it is equivalent with the
+logic based definition.
+3. Show that NP⊆∃R.
+4. Define the order types and the order type problem. Give a motivation to study order types.
+5. DefineETR-AMas in the lecture and show that it is∃R-complete.
+6. Define thePartial Order Type Problem. Suppose that we can use order-types to also
+enforce pairs of lines, defined by two points each, to be parallel. Show that thePartial Order
+Type Problemis∃R-complete.
+Lecture 8: Exact Exponential-Time Algorithms
+Question 9.Exact Algorithm for Exact 3-SAT
+Suppose we have a set of Boolean variablesx 1,...,x n, a set of clauses, where each clause is a
+subset of{x 1,...,x n,not(x 1), . . . , not(xn)}, and each clause has at most three literals (elements). In
+theExact 3-Satisfiability, we want to determine if there exists a truth assignment such that each
+clause hasexactlyone true literal.
+For instance, if we have clauses{x 1,x 2,x 3},{not(x 1),x 2,x 4}, then settingx 1 to true,x 2 to false,
+x3 to false, andx 4 to true is a solution. Also, settingx 1 andx 2 to true does not lead to a solution, as
+the first clause has two literals that are true.
+1. Show that we can create a reduction rule using polynomial time that transforms an instance
+ofExact 3-Satisfiabilityinto an equivalent smaller instance ofExact 3-Satisfiability
+where all clauses have size two or three. (Smaller means, not increasing the number of variables
+or clauses)
+3
+===PAGE 4 ===
+2. Show that we can create a reductio rule using polynomial time that transforms an instance of
+Exact 3-Satisfiabilityinto an equivalent smaller instance ofExact 3-Satisfiabilitywhere
+all clauses have size exactly three. (Smaller means, not increasing the number of variables or
+clauses)
+3. Give an exponential-time algorithm that solves theExact 3-satisfiabilityproblem. Analyse
+the time of your algorithm. Your algorithm should useO ∗(cn) time for somec<2.
+Question 10.Bisection Width
+Consider the following problem.
+Given:GraphG= (V,E), with|V|even.
+Question:Find a partition ofVinto two setsV 1,V 2, with|V 1|=|V 2|=|V|/2, such that
+the number of edges with one endpoint inV 1 and one endpoint inV 2 is as small as
+possible.
+This problem is NP-complete, and anO∗(2n) algorithm is trivial. Find an efficient exact algorithm
+for this problem with running timeO ∗(cn) for somec<2.
+Lecture 9: Existential Theory of the Reals
+Question 11.Exact Algorithm for Exact 3-SAT
+1. Describe point-line duality.
+2. Show the above-below property of point-line duality.
+3. Define the cyclic order of a point with respect to a point set. Describe what the cyclic order
+corresponds to in the dual.
+4. Define geometric intersection graphs and unit disk graphs in particular.
+5. Show that deciding whether a given graph is a unit disk intersection graph is∃R-complete.
+6. Show thatOptimal Curve Straighteningproblem is∃R-complete.
+Lecture 10: Inclusion/Exclusion & Approximation
+Question 12.Inclusion/exclusion for set cover
+LetUbe any set of sizem(m=|U|), and letFbe a set of subsets ofU. A set coverC⊂Fis
+a set of sets that together cover all sets inU, i.e., S
+S∈CS=U. A minimum set cover is a set cover
+using the smallest number of sets fromFas possible.
+Give anO ∗(2m) time and polynomial-space algorithm that counts the number of minimum set
+covers ofF.
+Question 13.Approximation non-symmetric TSP
+Suppose we have an instance ofTravelling Salesman Problemthat is not symmetric but still
+fulfils the triangle inequality. I.e., batery usage by an electric car in an mountainous area. We know
+that for every two citiesiandj, we have thatd(i,j)≤2d(j,i), and of course,d(j,i)≤2d(i,j).
+Give ac-approximation algorithm for this problem that runs in polynomial time.
+Lecture 11: Approximation Algorithms II
+4
+===PAGE 5 ===
+Question 14.Approximating Steiner Tree
+LetG= (V,E) be an undirected connected graph, letT⊆Vbe set of vertices called theterminals,
+and letN=V\Tbe the non-terminal vertices. In theSteiner Treeproblem, we are asked to
+compute a minimum-size set of edgesS⊆Esuch thatSconnects all vertices inT. That is, if we let
+V(S) be the set of endpoints of edges inS, then (V(S),S) is a tree withT⊆V(S)⊆Vconnecting
+the vertices inT, where it is allowed to use vertices fromNas intermediate vertices in the tree.
+1. Prove that the procedure below is a 2-approximation toSteiner Tree.
+Define the complete graphG T = (T,F) to be a graph on the terminal verticesT, withF=
+{{u,v}:u∈T,v∈T,u̸=v}and cost functionc:F→N, where the cost of edge{t 1,t 2}∈F
+equals the length of the shortest path fromt1 tot 2 in the original graphG. Also, defineP({t 1,t 2})
+be the set of edges underlying such a shortest path fromt 1 tot 2 inG.
+Consider the following algorithm for Steiner tree: givenG= (V,E) andT, first computeG T
+and a minimum spanning treeM⊆FonG T w.r.t. to the cost functionc, and then output the
+edge set: [
+m∈M
+P(m)
+Note that a minimum spanning tree is a minimum cost edge set connectingallvertices in the
+graph.
+2. Prove that there is no FPTAS for Steiner tree unlessP=NP.
+You do not need part 1 to prove this, and partial points will be awarded if you prove the weaker
+statement that no additive-constant-factor approximation exists unlessP=NP.
+Lecture 12: Parametrized Complexity I
+Question 15.
+1. Define a parameterized problem, FPT, XP, and para-NP-hard.
+2. Describe the idea of a branching algorithm in general.
+3. DefineVertex Coverand show thatVertex Covercan be solved in FPT time using a
+branching algorithm.
+4. DefineCluster Editingand give a branching algorithm for it.
+5. Give one parameterized problem that is para-NP-complete.
+6. Define the notion of a kernel.
+7. Show that a problem is FPT if and only if it has a kernel.
+8. Show thatVertex Coverhas a kernel of sizeO(k 2).
+9. DefineConvex String Recoloringand show that it has a kernel of sizeO(k 2).
+10. Define theDirectedk-Pathproblem and acyclic graphs. Show thatDirectedk-Pathcan
+be solved in polynomial time on acyclic graphs.
+11. Explain what a constant one-sided error algorithm is. Show that there is a constant one-sided
+error algorithm forDirectedk-Pathwith running timeO(k k·n c, for some suitable constantc.
+Lecture 13: Treewidth
+Question 16.Treewidth of grid graphs
+Thepbyqgrid graphGR p×q is the graph (Vp×q,E p×q), withV p×q ={v i,j|1≤i≤p∧1≤j≤q},
+andE p×q ={{v i,j,v i+1,j}|1≤i<p∧1≤j≤q}∪{{v i,j,v i+1,j}|1≤i<p∧1≤j≤q}.
+Show, by giving a construction of a tree decomposition, that the treewidth of apbyqgrid graph
+withp≤qis at mostp.
+5
+===PAGE 6 ===
+Question 17.Treewidth and cliques
+A clique in a graphG= (V,E) is a subset of the verticesC⊆Vsuch that for any pair of vertices
+c1,c 2∈Ctheir is an edge between the vertices inG:{c 1,c 2}∈E.
+Show that for any tree decompositionTofG,Tmust have a bagX i for whichC⊆X i. Conclude
+that the treewidth ofGis a least|C|−1.
+Lecture 14: Complexity for Approximation and FPT
+Question 18.L-reduction for Maximum Cut on Multigraphs
+We consider the approximation complexity of theMax Cut on Multigraphsproblem and the
+Max Not-All-Equal 3-SATproblem.
+A multigraphG= (V,E) is a graph that can contain multiple identical edges. Given a multigraph
+G= (V,E), a cut (V 1,V 2) inGis a partitioning of the verticesVinto two setsV 1,V 2 (V1∩V 2 =∅,
+V1∪V 2 =V). The value of the cut (V 1,V 2) is the number of edges (u,v)∈Ewith one endpoint in
+V1 and one endpoint inV 2. In theMax Cut on Multigraphsproblem, we are given a multigraph
+and we are asked to compute a cut with maximum value. See Figure 3 for an example.
+Figure 3: Example of a multigraph with a cut defined by the white and the grey vertices. This is not
+a cut of maximum value.
+In theMax Not-All-Equal 3-SATproblem, we are given a set of variablesXand a set of
+clausesCover the variablesX(clauses that can have literalsxand¬xfor variablesx∈X), where
+each clause consists ofexactly two or three literals. In this problem, a clauseC∈Cis satisfied by
+a truth assignmentϕ, if at least one literal inCis made true byϕand at least one literal inCis
+made false byϕ. The question in this problem is to compute a truth assignment that satisfies the
+maximum number of clauses. In this question you may use the fact thatMax Not-All-Equal
+3-SATis APX-complete.
+Prove thatMax Cut on Multigraphsis APX-hard by giving an L-reduction fromMax Not-
+All-Equal 3-SAT.
+Lecture 15: Kernelization and Randomized Algorithms
+Question 19.Vertex Cover Kernel
+•DefineInteger Linear Programmingand show howVertex Covercan be encoded as an
+Integer Linear Programming.
+•Show thatVertex Coverhas a linear sized kernel. (If this question comes up in the exam, we
+will ask for only part of the proof.)
+•Define 2list coloringand show that it can be solved in polynomial time.
+•Using the answer to the previous question describe a randomized constant one-sided error for
+3-coloringa graph with runtimO(1.5 n).
+6

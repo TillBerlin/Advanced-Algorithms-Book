@@ -31,3 +31,4 @@ is the live version, so edits belong there, not here.
 | File | Integrated into |
 | --- | --- |
 | `notes/planar-graphs-notes.tex` | `book/chapters/05-planar-graphs.tex` |
+| `notes/stable-marriage-notes.tex` | `book/chapters/02-stable-marriage.tex` |

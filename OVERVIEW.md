@@ -49,7 +49,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
-| 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🔲 |
+| 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🟡 stable marriage drafted; Euler tours + 19 figures open |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🔲 |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
 | 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 19 figures open |
@@ -229,13 +229,23 @@ PDF as an artefact.
 
 ## Open work in drafted chapters
 
+### Chapter 2 — Combinatorics via Algorithms and Stable Marriage
+
+- **The Euler tour half is not written.** The integrated notes cover stable
+  marriage only. `\todo` markers hold the two opening sections: the
+  proof-by-algorithm theme, and Euler tours with Hierholzer's algorithm. Until
+  they are written, item 1 of pool question 1 is not answered anywhere in the
+  book.
+- **19 figure placeholders**, including a portrait of Lloyd Shapley whose
+  licence terms need checking before use.
+
 ### Chapter 5 — Planar Graphs
 
 - **19 figure placeholders.** The chapter is a visual one and several arguments
   (segments and interlacement, the crossover gadget, the five-colour Kempe
   chain) are hard to follow without the picture. The placeholders marked
   IMPORTANT in their brief are the ones to draw first. Figures 5.1--5.4 are
-  done; 5.1 still carries a `\todo` about its vertex labels.
+  done and checked.
 - **Two constants are unverified.** The $\tfrac{9}{10}$ and $11$ in the
   statement of the planar separator theorem, and the $\sqrt n / 20$ in the
   matching lower bound for the grid, were reconstructed when the text was

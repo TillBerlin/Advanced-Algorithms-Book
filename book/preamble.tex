@@ -97,6 +97,10 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 % Frequently used problem names.
+\newcommand{\Men}{\mathcal{M}}
+\newcommand{\Women}{\mathcal{W}}
+\newcommand{\pr}[1]{\succ_{#1}}   % w \pr{m} w' reads "m prefers w to w'"
+\newcommand{\GS}{\lang{Gale--Shapley}}
 \newcommand{\ThreeCol}{\lang{3-Coloring}}
 \newcommand{\PlanarThreeCol}{\lang{Planar-3-Coloring}}
 \newcommand{\MIS}{\lang{Max-Independent-Set}}
@@ -119,7 +123,7 @@
 % Every chapter closes with the list of open-pool questions it is responsible
 % for.  Usage:
 %   \begin{poolquestions}
-%     \poolq{1}{Stable Matchings} Covered in \cref{sec:gale-shapley}.
+%     \poolq{1}{Stable Matchings} Covered in \cref{sec:sm-gs}.
 %   \end{poolquestions}
 \newenvironment{poolquestions}
   {\section{Open pool questions covered by this chapter}%

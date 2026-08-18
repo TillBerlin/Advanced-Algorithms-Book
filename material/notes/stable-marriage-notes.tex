@@ -1,59 +1,108 @@
-%% Chapter 2: Combinatorics via Algorithms and Stable Marriage
-%% Status: the stable marriage half is drafted; the Euler tour half is not.
-%%
-%% The stable marriage sections are integrated from stablemarriagenotes.tex
-%% (kept in material/notes/).  19 figures are still \figplaceholder boxes --
-%% drop the artwork into book/figures/ and replace the placeholder line,
-%% keeping the surrounding \caption and \label.  See book/figures/README.md.
-
-\chapter{Combinatorics via Algorithms and Stable Marriage}
-\label{ch:stable-marriage}
-
-Many combinatorial theorems are most cleanly proved by exhibiting an algorithm
-and arguing that it terminates with the desired object. This chapter develops
-that idea on two examples: Euler tours, where an algorithm proves a classical
-characterisation, and stable matchings, where the Gale--Shapley algorithm proves
-that a stable matching always exists.
-
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define an Euler tour and prove that a connected graph has one if and only if every degree is even;
-  \item define the stable marriage problem, blocking pairs and stable matchings;
-  \item state the greedy algorithm and show that it need not terminate;
-  \item state the Gale--Shapley algorithm and prove that it returns a stable matching;
-  \item define a men-optimal stable matching and prove that Gale--Shapley computes one.
-\end{itemize}
-
 %==============================================================================
-\section{Proving theorems with algorithms}
-\label{sec:combinatorics-via-algorithms}
+%  Lecture Notes: The Stable Marriage Problem
+%  Advanced Algorithms 2026 -- Lecture 1
+%
+%  These notes accompany the slide deck "The Stable Marriage Problem"
+%  (Algorithms and Networks, Johan M. M. van Rooij & Jesper Nederlof).
+%
+%  ---------------------------------------------------------------------------
+%  FIGURES
+%  ---------------------------------------------------------------------------
+%  This file contains NO images.  Every place where a picture would help is
+%  marked with a \figplaceholder{<height>}{<description of the picture>}
+%  inside a normal figure environment, so the document compiles as-is and
+%  prints a framed grey box describing what should be drawn there.
+%
+%  To insert a real figure later, simply replace
+%      \figplaceholder{45mm}{...description...}
+%  by
+%      \includegraphics[width=0.8\textwidth]{myfigure}
+%  and keep the surrounding \caption / \label untouched, so that all
+%  cross-references in the text keep working.
+%
+%  Search for "figplaceholder" to find them all; there are 17.
 %==============================================================================
 
-\todo{Write this section: the theme that ties the chapter together. An
-existence theorem can be proved by giving a procedure and showing it halts with
-what was wanted; the two running examples are Euler tours below and
-Gale--Shapley in \cref{sec:sm-gs}.}
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=3cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+            urlcolor=blue!50!black]{hyperref}
+
+%------------------------------------------------------------------ theorems --
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{observation}[theorem]{Observation}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{intuition}{Intuition}
+
+%------------------------------------------------------------------- macros ---
+\newcommand{\Men}{\mathcal{M}}
+\newcommand{\Women}{\mathcal{W}}
+\newcommand{\pr}[1]{\succ_{#1}}          % w \pr{m} w'  reads "m prefers w to w'"
+\newcommand{\GS}{\textsc{Gale--Shapley}}
+\newcommand{\bigoh}[1]{\mathcal{O}\!\left(#1\right)}
+
+% Figure placeholder: #1 = height, #2 = description of the intended picture.
+\newcommand{\figplaceholder}[2]{%
+  \setlength{\fboxsep}{6pt}%
+  \fcolorbox{gray!60}{gray!8}{%
+    \parbox[c][#1][c]{0.86\textwidth}{%
+      \centering\small\itshape\color{black!65}%
+      [\,figure placeholder\,]\par\vspace{0.6em}#2}}}
+
+\title{\bfseries The Stable Marriage Problem\\[0.4em]
+       \large Lecture Notes -- Advanced Algorithms 2026, Lecture 1}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-3.5em}
+
+\begin{center}
+\begin{minipage}{0.86\textwidth}
+\small
+These notes follow the lecture slides \emph{The Stable Marriage Problem}
+by Johan M.\,M.\ van Rooij and Jesper Nederlof (\emph{Algorithms and
+Networks}). They cover the same material, but with the arguments written out
+in full, together with the informal reasoning that usually gets spoken rather
+than projected. Nothing here goes beyond the content of the lecture; the short
+outlook in Section~\ref{sec:outlook} is the only part that is explicitly
+non-examinable.
+\end{minipage}
+\end{center}
+\vspace{1em}
+
+\tableofcontents
+\bigskip
 
 %==============================================================================
-\section{Euler tours}
-\label{sec:euler-tours}
-%==============================================================================
-
-\todo{Write this section. Definition of an Euler tour; the characterisation
-that a connected graph has one if and only if every vertex has even degree;
-Hierholzer's algorithm as the constructive proof of the hard direction. This is
-item~1 of pool question~1 and is not yet covered anywhere in the book.}
-
-%==============================================================================
-\section{Stable marriage: markets that clear themselves}
+\section{Introduction: markets that clear themselves}
 %==============================================================================
 
 Most of the algorithmic problems you have met so far come with a built-in
 notion of what a good solution is: shortest, cheapest, largest, fastest. You
-write down an objective function, and then you optimise it. This chapter is
+write down an objective function, and then you optimise it. This lecture is
 about a problem where the interesting question is not \emph{how good} a
 solution is, but whether it is \emph{self-enforcing} --- whether the people
 involved will actually go along with it once you hand it to them.
@@ -72,10 +121,10 @@ Is there a pairing that nobody has an incentive to walk away from?
 A pairing with this property is called \emph{stable}. The question of whether
 one always exists, and how to find it, was answered in 1962 by David Gale and
 Lloyd Shapley in a paper with the memorable title \emph{``College Admissions
-and the Stability of Marriage''}. Their answer is a
+and the Stability of Marriage''} \cite{GaleShapley1962}. Their answer is a
 short, elegant algorithm --- the \emph{deferred acceptance} or
 \emph{Gale--Shapley} algorithm --- which we will develop, analyse and dissect
-over the course of this chapter.
+over the course of this lecture.
 
 \subsection*{Why anyone cares}
 
@@ -102,8 +151,8 @@ simply arrange that privately, other participants will notice, and the
 clearinghouse loses its authority. Stability is exactly the property that
 prevents this. Remarkably, the algorithm the clearinghouse adopted in 1952 was
 essentially deferred acceptance, a decade before Gale and Shapley published
-it and proved that it works; this was only recognised much later by Alvin
-Roth, in 1984.
+it and proved that it works; this was only recognised much later by Alvin Roth
+\cite{Roth1984}.
 
 \begin{figure}[ht]
 \centering
@@ -114,7 +163,7 @@ market unravels'' $\to$ ``1952: centralised clearinghouse (NRMP)'' $\to$
 Could be a simple horizontal arrow with four labelled milestones.}
 \caption{The stable marriage problem was solved in practice before it was
 solved in theory.}
-\label{fig:sm-history}
+\label{fig:history}
 \end{figure}
 
 In 2012 Lloyd Shapley shared the Nobel Memorial Prize in Economic Sciences
@@ -130,27 +179,27 @@ posthumously.
 \begin{figure}[ht]
 \centering
 \figplaceholder{45mm}{Portrait of Lloyd Shapley (Nobel Prize in Economics,
-2012). The Wikimedia Commons photograph by Bengt Nyman,
-\url{http://en.wikipedia.org/wiki/File:Lloyd_Shapley_2_2012.jpg}, is suitable
---- check the CC licence terms and reproduce the attribution with the figure.}
+2012). Slide~2 of the deck uses the Wikimedia Commons photograph by Bengt
+Nyman, \url{http://en.wikipedia.org/wiki/File:Lloyd_Shapley_2_2012.jpg}
+--- check the CC licence terms and reproduce the attribution.}
 \caption{Lloyd Shapley (1923--2016).}
-\label{fig:sm-shapley}
+\label{fig:shapley}
 \end{figure}
 
-\subsection*{What this chapter will do}
+\subsection*{What this lecture will do}
 
 \begin{itemize}[nosep]
-  \item Section~\ref{sec:sm-model} sets up the model and defines stability
+  \item Section~\ref{sec:model} sets up the model and defines stability
         precisely.
-  \item Section~\ref{sec:sm-naive} shows why the obvious approach --- repeatedly
+  \item Section~\ref{sec:naive} shows why the obvious approach --- repeatedly
         repair whatever is broken --- can run forever, and why the mere
         \emph{existence} of a stable matching is a genuine theorem rather than
         an observation.
-  \item Section~\ref{sec:sm-gs} presents the Gale--Shapley algorithm.
-  \item Section~\ref{sec:sm-analysis} proves that it terminates within $n^2$
+  \item Section~\ref{sec:gs} presents the Gale--Shapley algorithm.
+  \item Section~\ref{sec:analysis} proves that it terminates within $n^2$
         proposals, that its output is a perfect matching, and that this
         matching is stable. Together these give the existence theorem.
-  \item Section~\ref{sec:sm-optimality} asks who benefits. The answer is sharp
+  \item Section~\ref{sec:optimality} asks who benefits. The answer is sharp
         and slightly disturbing: the proposing side gets, simultaneously, the
         best partner it could possibly have in \emph{any} stable matching, and
         the other side gets the worst.
@@ -158,14 +207,14 @@ posthumously.
 
 \paragraph{A note on terminology.}
 The classical language of ``men'' and ``women'' is historical, dating from
-Gale and Shapley's original framing, and we keep it because the
-literature and the name of the problem all use it. Mathematically nothing
+Gale and Shapley's original framing, and we keep it because the slides,
+the literature and the name of the problem all use it. Mathematically nothing
 depends on it: the content is that there are two disjoint sides, and that
 matches are only ever formed between the sides and never within one. Read
 ``students and hospitals'' throughout if you prefer.
 
 %==============================================================================
-\section{The model}\label{sec:sm-model}
+\section{The model}\label{sec:model}
 %==============================================================================
 
 \subsection{Definitions}
@@ -189,8 +238,8 @@ because all three will matter later:
         that every participant ends up matched.
   \item \textbf{The lists are strict.} There are no ties, no indifference.
         A woman confronted with two men always has a preference. Allowing ties
-        makes several of the questions in this chapter considerably harder
-        (see Section~\ref{sec:sm-outlook}).
+        makes several of the questions in this lecture considerably harder
+        (see Section~\ref{sec:outlook}).
   \item \textbf{The two sides are equally large.} With $|\Men| \neq |\Women|$
         some participants must remain unmatched, and the definitions below need
         adjusting.
@@ -206,7 +255,7 @@ partner of $w$, so $\mu(m) = w \iff \mu(w) = m$.
 There are $n!$ matchings, so brute force is out of the question for anything
 but tiny instances. Now the key definition.
 
-\begin{definition}[Blocking pair, stability]\label{def:sm-stable}
+\begin{definition}[Blocking pair, stability]\label{def:stable}
 Let $\mu$ be a matching. A pair $(m,w) \notin \mu$ is a \emph{blocking pair}
 for $\mu$ if
 \[
@@ -227,7 +276,7 @@ diagonal $m$--$w$ as a dashed/red edge. Annotate the diagonal with two arrows:
 of the dashed edge want to switch, so they will.}
 \caption{A blocking pair: an unmatched couple who both prefer each other to
 what the matching gave them.}
-\label{fig:sm-blockingpair}
+\label{fig:blockingpair}
 \end{figure}
 
 \begin{intuition}
@@ -242,7 +291,7 @@ Note also how weak the requirement is. We do not ask that everyone be happy;
 we do not ask that the total or average satisfaction be high; we do not even
 ask for fairness. We ask only that no \emph{pair} can improve on the outcome
 by themselves. This weakness is precisely what makes the existence theorem
-possible --- and, as we shall see in Section~\ref{sec:sm-optimality}, stable
+possible --- and, as we shall see in Section~\ref{sec:optimality}, stable
 matchings can be spectacularly unfair.
 \end{intuition}
 
@@ -256,9 +305,9 @@ may declare some partners unacceptable) one also requires
 mutually acceptable couples.
 \end{remark}
 
-\subsection{A worked example}\label{sec:sm-example}
+\subsection{A worked example}\label{sec:example}
 
-\begin{example}\label{ex:sm-main}
+\begin{example}\label{ex:main}
 Take $n=3$, with $\Men = \{\text{Arie},\text{Bert},\text{Carl}\}$ and
 $\Women = \{\text{Ann},\text{Betty},\text{Cindy}\}$, and preference lists as
 follows (best first):
@@ -294,14 +343,14 @@ what everybody else is doing}.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{The instance of Example~\ref{ex:sm-main} drawn as a
+\figplaceholder{55mm}{The instance of Example~\ref{ex:main} drawn as a
 bipartite graph. Men in a column on the left (Arie, Bert, Carl), women on the
 right (Ann, Betty, Cindy). Each man's preference list written next to his node
 in order, likewise for the women. Optionally draw all nine potential edges
 very faintly to emphasise that any of the $3! = 6$ perfect matchings is a
 candidate.}
-\caption{The instance of Example~\ref{ex:sm-main}.}
-\label{fig:sm-instance}
+\caption{The instance of Example~\ref{ex:main}.}
+\label{fig:instance}
 \end{figure}
 
 Consider first the matching
@@ -351,7 +400,7 @@ blocking edge Carl--Betty in red with the two ``I prefer you'' arrows; on the
 right, no red edge. Same node layout in both panels so the eye can compare.}
 \caption{An unstable and a stable matching on the same instance. The red edge
 on the left is a blocking pair.}
-\label{fig:sm-stable-vs-unstable}
+\label{fig:stable-vs-unstable}
 \end{figure}
 
 \begin{remark}[Checking stability is easy; finding a stable matching is the
@@ -365,7 +414,7 @@ all.
 \end{remark}
 
 %==============================================================================
-\section{Two false starts}\label{sec:sm-naive}
+\section{Two false starts}\label{sec:naive}
 %==============================================================================
 
 Before presenting the algorithm that works, it is worth spending time on the
@@ -380,7 +429,7 @@ has a blocking pair. So: find a blocking pair, and fix it.
 
 \begin{algorithm}[ht]
 \caption{Greedy repair (the ``soap series'' algorithm)}
-\label{alg:sm-greedy}
+\label{alg:greedy}
 \begin{algorithmic}[1]
   \State start from an arbitrary matching $\mu$
   \While{$\mu$ has a blocking pair $(m,w)$}
@@ -400,7 +449,7 @@ the two who were dumped are typically made \emph{much} worse off, and they will
 generate new blocking pairs of their own. There is no potential function that
 obviously decreases, and indeed the process can cycle forever.
 
-\begin{example}[A cycling instance]\label{ex:sm-cycle}
+\begin{example}[A cycling instance]\label{ex:cycle}
 Take three men $1,2,3$ and three women $A,B,C$ with the following preferences
 (best first):
 \begin{center}
@@ -448,7 +497,7 @@ $\{1B, 2A, 3C\}$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{The cycle of Example~\ref{ex:sm-cycle} drawn as a directed
+\figplaceholder{60mm}{The cycle of Example~\ref{ex:cycle} drawn as a directed
 4-cycle. Place the four matchings $\{1A,2B,3C\}$, $\{1B,2A,3C\}$,
 $\{1B,2C,3A\}$, $\{1C,2B,3A\}$ at the corners of a square, each drawn as a
 small bipartite picture. Label each arrow with the blocking pair that is
@@ -456,7 +505,7 @@ resolved: $(2,A)$, $(2,C)$, $(1,C)$, $(1,A)$. Big circular arrow in the middle
 to emphasise that this loops forever.}
 \caption{Greedy repair can cycle: resolving blocking pairs one at a time
 returns to its starting point.}
-\label{fig:sm-cycle}
+\label{fig:cycle}
 \end{figure}
 
 \begin{intuition}
@@ -478,11 +527,11 @@ pair at random, the process reaches stability with probability~$1$. That is a
 beautiful result, but it is not an algorithm with any useful running-time
 guarantee, and it does not help us prove that a stable matching exists in the
 first place --- one has to know that already. Off-syllabus; mentioned only so
-that you do not draw a stronger conclusion from Example~\ref{ex:sm-cycle} than it
+that you do not draw a stronger conclusion from Example~\ref{ex:cycle} than it
 supports.
 \end{remark}
 
-\subsection{Existence is not free}\label{sec:sm-roommates}
+\subsection{Existence is not free}\label{sec:roommates}
 
 Here is a trap worth walking into deliberately. After staring at small
 examples for a while, one starts to feel that a stable matching must surely
@@ -495,7 +544,7 @@ To see that the theorem has content, drop the two-sidedness. In the
 the others, and we pair them up without any bipartite structure. Everything
 else --- blocking pairs, stability --- is defined exactly as before.
 
-\begin{example}[No stable matching]\label{ex:sm-roommates}
+\begin{example}[No stable matching]\label{ex:roommates}
 Four people $a,b,c,d$ with preferences
 \[
   a:\ b \succ c \succ d, \qquad
@@ -524,18 +573,18 @@ choice''. Beside it, show one of the three matchings (say $\{ad, bc\}$) with
 the blocking edge $ac$ highlighted.}
 \caption{The stable roommates problem: an instance with no stable matching at
 all.}
-\label{fig:sm-roommates}
+\label{fig:roommates}
 \end{figure}
 
 So existence genuinely uses the bipartite structure of the marriage problem.
-Keep Example~\ref{ex:sm-roommates} in mind as a control: any proof of existence
+Keep Example~\ref{ex:roommates} in mind as a control: any proof of existence
 for stable marriage that would also work for roommates must be wrong.
 
 %==============================================================================
-\section{The Gale--Shapley algorithm}\label{sec:sm-gs}
+\section{The Gale--Shapley algorithm}\label{sec:gs}
 %==============================================================================
 
-\begin{theorem}[Gale--Shapley, 1962]\label{thm:sm-main}
+\begin{theorem}[Gale--Shapley, 1962]\label{thm:main}
 There is an algorithm which, given a stable marriage instance on $n{+}n$
 participants, outputs a stable matching using at most $n^2$ proposals. In
 particular, every instance admits a stable matching.
@@ -556,7 +605,7 @@ engagement can always be broken by the woman, never by the man.
 
 \begin{algorithm}[ht]
 \caption{Gale--Shapley (men proposing)}
-\label{alg:sm-gs}
+\label{alg:gs}
 \begin{algorithmic}[1]
   \State fix an arbitrary ordering of the men; initially everybody is free
   \While{some man is unmatched}
@@ -591,7 +640,7 @@ Three points of clarification, each of which is a common source of confusion:
         outside the current proposal.
   \item \textbf{The ordering of the men is arbitrary.} The algorithm as stated
         picks the first free man in a fixed order, but any free man will do,
-        and we will prove in Section~\ref{sec:sm-optimality} that the output does
+        and we will prove in Section~\ref{sec:optimality} that the output does
         not depend on the choice. This is a strong and surprising statement:
         a completely non-deterministic procedure with a canonical answer.
 \end{itemize}
@@ -607,12 +656,12 @@ Panel 3(b): otherwise $m$ is rejected and returns to the pool with his pointer
 advanced by one.}
 \caption{A single proposal step. The woman always ends up at least as well off
 as before; the man's pointer only ever moves down his list.}
-\label{fig:sm-step}
+\label{fig:step}
 \end{figure}
 
-\subsection{Running the algorithm}\label{sec:sm-trace}
+\subsection{Running the algorithm}\label{sec:trace}
 
-Let us run Algorithm~\ref{alg:sm-gs} on Example~\ref{ex:sm-main}, with the men
+Let us run Algorithm~\ref{alg:gs} on Example~\ref{ex:main}, with the men
 ordered Arie, Bert, Carl.
 
 \begin{center}
@@ -641,7 +690,7 @@ After five proposals everybody is matched and the algorithm stops, returning
   \{(\text{Arie},\text{Cindy}),\ (\text{Bert},\text{Ann}),\
     (\text{Carl},\text{Betty})\} = \mu^{*},
 \]
-the stable matching we verified by hand in Section~\ref{sec:sm-example}.
+the stable matching we verified by hand in Section~\ref{sec:example}.
 
 Trace the dynamics once more and watch the two ratchets turn. Bert starts at
 the top of his list (Betty), is displaced, and moves down to Ann. Arie starts
@@ -659,21 +708,21 @@ snapshots, left to right. In each snapshot: solid edges for current
 engagements, a bold arrow for the proposal being made, and a red cross on the
 edge that gets broken. Below each snapshot write the proposal, e.g.\
 ``Carl $\to$ Betty: accepted, Bert jilted''.}
-\caption{Execution of Gale--Shapley on Example~\ref{ex:sm-main}.}
-\label{fig:sm-trace}
+\caption{Execution of Gale--Shapley on Example~\ref{ex:main}.}
+\label{fig:trace}
 \end{figure}
 
 \begin{remark}[Try a different order]
 Run the same instance with the men ordered Carl, Bert, Arie, or let Bert
 propose first. The intermediate steps differ, but the final matching is
-identical. Theorem~\ref{thm:sm-manoptimal} explains why this is no coincidence.
+identical. Theorem~\ref{thm:manoptimal} explains why this is no coincidence.
 \end{remark}
 
 %==============================================================================
-\section{Analysis}\label{sec:sm-analysis}
+\section{Analysis}\label{sec:analysis}
 %==============================================================================
 
-We now prove Theorem~\ref{thm:sm-main}. There are three things to establish:
+We now prove Theorem~\ref{thm:main}. There are three things to establish:
 the algorithm terminates (and quickly); its output is a perfect matching, so
 that nobody is left over; and the output is stable. Everything rests on a
 handful of simple invariants, which are best isolated once and then used
@@ -681,18 +730,18 @@ repeatedly.
 
 \subsection{The invariants}
 
-\begin{observation}\label{obs:sm-1}
+\begin{observation}\label{obs:1}
 Once a woman is engaged, she is engaged for the rest of the execution.
 Her partner may change, but she never becomes free again.
 \end{observation}
 
 \begin{proof}
-Inspect Algorithm~\ref{alg:sm-gs}. An engaged woman only ever appears in
+Inspect Algorithm~\ref{alg:gs}. An engaged woman only ever appears in
 line~9, where she swaps one partner for another. There is no line in which a
 woman becomes free.
 \end{proof}
 
-\begin{observation}\label{obs:sm-2}
+\begin{observation}\label{obs:2}
 If an engaged woman's partner changes, the new partner is strictly better for
 her than the old one. Consequently, the sequence of partners a woman has over
 the course of the execution is strictly increasing in her preference order.
@@ -703,7 +752,7 @@ A woman changes partner only in line~9, and the guard on line~8 is exactly the
 condition that she strictly prefers the new proposer.
 \end{proof}
 
-\begin{observation}\label{obs:sm-3}
+\begin{observation}\label{obs:3}
 The sequence of women to whom a fixed man proposes is strictly decreasing in
 his preference order.
 \end{observation}
@@ -717,27 +766,27 @@ to, and once proposed to, a woman is struck off his list forever.
 \centering
 \figplaceholder{50mm}{The two ratchets. On the left, a man's preference list
 drawn as a vertical column with an arrow moving strictly downward over time
-(Observation~\ref{obs:sm-3}); on the right, a woman's preference list with an
-arrow moving strictly upward (Observation~\ref{obs:sm-2}). A caption such as
+(Observation~\ref{obs:3}); on the right, a woman's preference list with an
+arrow moving strictly upward (Observation~\ref{obs:2}). A caption such as
 ``men get worse off, women get better off, and neither can ever go back''
 makes the point. This single picture explains termination, the $n^2$ bound,
 and half of the stability proof.}
 \caption{The monotonicity that makes the algorithm work.}
-\label{fig:sm-ratchets}
+\label{fig:ratchets}
 \end{figure}
 
 \begin{intuition}
-Observations~\ref{obs:sm-2} and~\ref{obs:sm-3} are the ratchets promised earlier.
+Observations~\ref{obs:2} and~\ref{obs:3} are the ratchets promised earlier.
 The state of the algorithm can be summarised by ``how far down his list each
 man has got'', and this vector only ever increases. That is why the process
-cannot cycle the way Example~\ref{ex:sm-cycle} did, and it immediately bounds the
+cannot cycle the way Example~\ref{ex:cycle} did, and it immediately bounds the
 number of steps. Everything else in this section is bookkeeping around these
 two facts.
 \end{intuition}
 
 \subsection{Termination and running time}
 
-\begin{lemma}[Free men always have somewhere to go]\label{lem:sm-notstuck}
+\begin{lemma}[Free men always have somewhere to go]\label{lem:notstuck}
 If a man is free at some point during the execution, then there is a woman to
 whom he has not yet proposed. Hence line~4 is always well defined and the
 algorithm never gets stuck.
@@ -745,7 +794,7 @@ algorithm never gets stuck.
 
 \begin{proof}
 Suppose for contradiction that $m$ is free and has already proposed to all $n$
-women. By Observation~\ref{obs:sm-1}, every woman who has ever received a
+women. By Observation~\ref{obs:1}, every woman who has ever received a
 proposal is engaged --- she accepted the first offer she ever got, since a
 free woman always accepts, and she has stayed engaged ever since. So all $n$
 women are currently engaged.
@@ -757,7 +806,7 @@ free.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{42mm}{The counting argument of Lemma~\ref{lem:sm-notstuck}.
+\figplaceholder{42mm}{The counting argument of Lemma~\ref{lem:notstuck}.
 Left column: $n$ men with $m$ singled out and marked ``free''. Right column:
 all $n$ women, each drawn with a solid engagement edge. The picture should
 make it visually absurd that $n$ women are matched to $n$ distinct men while
@@ -765,23 +814,23 @@ one man is left over --- perhaps with a large ``$n$ edges, $n$ men, but $m$ is
 not among them?'' annotation.}
 \caption{A free man cannot have exhausted his list: that would mean all women
 are engaged, hence all men are engaged.}
-\label{fig:sm-counting}
+\label{fig:counting}
 \end{figure}
 
-\begin{lemma}[Termination and step count]\label{lem:sm-steps}
+\begin{lemma}[Termination and step count]\label{lem:steps}
 The algorithm performs at most $n^2$ proposals and then terminates.
 \end{lemma}
 
 \begin{proof}
-By Observation~\ref{obs:sm-3}, each man proposes to each woman at most once, so
+By Observation~\ref{obs:3}, each man proposes to each woman at most once, so
 there are at most $n \cdot n = n^2$ proposals in total. Every iteration of the
 while-loop performs exactly one proposal, so there are at most $n^2$
-iterations. By Lemma~\ref{lem:sm-notstuck} no iteration can fail to find a target
+iterations. By Lemma~\ref{lem:notstuck} no iteration can fail to find a target
 for the proposal, so the loop runs until its guard fails, i.e.\ until every
 man is matched.
 \end{proof}
 
-\begin{lemma}[The output is a perfect matching]\label{lem:sm-perfect}
+\begin{lemma}[The output is a perfect matching]\label{lem:perfect}
 When the algorithm terminates, every man and every woman is matched, and the
 set of engaged pairs is a perfect matching.
 \end{lemma}
@@ -803,9 +852,9 @@ the algorithm is optimal up to constants in the worst case, simply because
 reading the input already costs that much.
 \end{remark}
 
-\subsection{\texorpdfstring{Implementing it in $\bigoh{n^2}$ time}{Implementing it in quadratic time}}\label{sec:sm-impl}
+\subsection{Implementing it in $\bigoh{n^2}$ time}\label{sec:impl}
 
-Lemma~\ref{lem:sm-steps} bounds the number of \emph{proposals}, which is not
+Lemma~\ref{lem:steps} bounds the number of \emph{proposals}, which is not
 quite the same as bounding the running time. To get $\bigoh{n^2}$ actual
 work, each proposal must be handled in $\bigoh{1}$ time. Three small data
 structures suffice.
@@ -819,7 +868,7 @@ structures suffice.
         container is cheapest.)
   \item \textbf{A ``next proposal'' pointer per man.} Man $m$ stores an index
         into his own preference list, initially $1$, incremented after every
-        proposal. By Observation~\ref{obs:sm-3} this is exactly the information
+        proposal. By Observation~\ref{obs:3} this is exactly the information
         needed for line~4, and it makes that line $\bigoh{1}$.
   \item \textbf{A rank matrix for the women.} The comparison on line~8 asks
         ``does $w$ prefer $m$ to $m''$?'', which naively means searching her
@@ -839,8 +888,8 @@ dominated by the preference lists and the rank matrix.
 The remaining --- and most important --- claim is that the matching we produce
 cannot be undermined.
 
-\begin{theorem}[Correctness]\label{thm:sm-stable}
-The matching returned by Algorithm~\ref{alg:sm-gs} is stable.
+\begin{theorem}[Correctness]\label{thm:stable}
+The matching returned by Algorithm~\ref{alg:gs} is stable.
 \end{theorem}
 
 \begin{proof}
@@ -854,7 +903,7 @@ $w'$.
 \textbf{Case 1: $m$ never proposed to $w'$.}
 The algorithm terminated with $m$ engaged to $w$, and a man becomes engaged
 only by proposing; so $m$ did propose to $w$ at some point. By
-Observation~\ref{obs:sm-3} the women he proposed to form a prefix of his
+Observation~\ref{obs:3} the women he proposed to form a prefix of his
 preference list, hence every woman he strictly prefers to $w$ received a
 proposal from him. Since $w'$ did not, we conclude $w \pr{m} w'$: he prefers
 his own partner to $w'$, and does not wish to deviate.
@@ -865,11 +914,11 @@ Since $m$ is not matched to $w'$ at the end, one of two things happened: $w'$
 rejected him on the spot, or she accepted and later left him for somebody
 better. In the first case she was, at that moment, engaged to a man she
 preferred to $m$; in the second case she immediately afterwards became engaged
-to a man she preferred to $m$ (Observation~\ref{obs:sm-2}). Either way, from that
+to a man she preferred to $m$ (Observation~\ref{obs:2}). Either way, from that
 moment on $w'$ was engaged to somebody she strictly prefers to $m$.
 
-By Observation~\ref{obs:sm-1} she never becomes free again, and by
-Observation~\ref{obs:sm-2} her partner only ever improves. Hence her final
+By Observation~\ref{obs:1} she never becomes free again, and by
+Observation~\ref{obs:2} her partner only ever improves. Hence her final
 partner $m' = \mu(w')$ satisfies $m' \pr{w'} m$: she prefers her own partner
 to $m$, and does not wish to deviate.
 
@@ -889,34 +938,34 @@ label ``$\Rightarrow m' \succ_{w'} m$: she is not interested''. This is the
 figure students remember; it is worth making it large.}
 \caption{Why no blocking pair can survive: either he never asked (so he does
 not want her), or he asked and was refused (so she does not want him).}
-\label{fig:sm-stabilityproof}
+\label{fig:stabilityproof}
 \end{figure}
 
 \begin{intuition}
 The proof is a case distinction with exactly two cases, and each is one line
 of reasoning. \emph{If he never asked her, it is because he is doing better
-than her already} --- that is Observation~\ref{obs:sm-3}, the men's ratchet.
+than her already} --- that is Observation~\ref{obs:3}, the men's ratchet.
 \emph{If he did ask and is not with her, it is because she found somebody
-better and never went back} --- that is Observations~\ref{obs:sm-1}
-and~\ref{obs:sm-2}, the women's ratchet. Every blocking pair requires both people
+better and never went back} --- that is Observations~\ref{obs:1}
+and~\ref{obs:2}, the women's ratchet. Every blocking pair requires both people
 to be interested, and the algorithm's asymmetry guarantees that at least one
 of them is not.
 
 It is also instructive to see where this argument would break for the
-roommates problem of Section~\ref{sec:sm-roommates}: with no two sides, there is
+roommates problem of Section~\ref{sec:roommates}: with no two sides, there is
 no coherent way to say who proposes and who disposes, so neither ratchet can
 be set up. The proof knows about bipartiteness, as it must.
 \end{intuition}
 
-\begin{proof}[Proof of Theorem~\ref{thm:sm-main}]
-By Lemma~\ref{lem:sm-steps} the algorithm halts after at most $n^2$
-proposals; by Lemma~\ref{lem:sm-perfect} its output is a perfect matching; and
-by Theorem~\ref{thm:sm-stable} that matching is stable. Since the algorithm
-always succeeds, a stable matching exists for every instance.
+\begin{proof}[Proof of Theorem~\ref{thm:main}]
+Lemma~\ref{lem:steps} gives termination after at most $n^2$ proposals,
+Lemma~\ref{lem:perfect} says that the output is a perfect matching, and
+Theorem~\ref{thm:stable} says that it is stable. Since the algorithm always
+succeeds, a stable matching exists for every instance.
 \end{proof}
 
 %==============================================================================
-\section{Who wins? Optimality of the proposing side}\label{sec:sm-optimality}
+\section{Who wins? Optimality of the proposing side}\label{sec:optimality}
 %==============================================================================
 
 We now know a stable matching always exists and can be found in $\bigoh{n^2}$
@@ -931,7 +980,7 @@ the same question:
 
 \subsection{It does matter}
 
-\begin{example}[The battle of the sexes]\label{ex:sm-2x2}
+\begin{example}[The battle of the sexes]\label{ex:2x2}
 Take $n = 2$:
 \[
   \text{Arie}:\ \text{Ann} \succ \text{Betty}, \qquad
@@ -956,7 +1005,7 @@ There are only two matchings here, and both are stable.
         blocking pair, because neither woman wants to move.
 \end{itemize}
 
-Run Algorithm~\ref{alg:sm-gs} with the men proposing: Arie asks Ann, Bert asks
+Run Algorithm~\ref{alg:gs} with the men proposing: Arie asks Ann, Bert asks
 Betty, both are free and accept, done --- we get $\mu_{\Men}$. Run the mirror
 image with the women proposing and we get $\mu_{\Women}$. Same instance, same
 algorithm, opposite outcomes. Every participant's fate is decided entirely by
@@ -964,20 +1013,20 @@ which side was given the right to propose.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{The two stable matchings of Example~\ref{ex:sm-2x2}, side
+\figplaceholder{45mm}{The two stable matchings of Example~\ref{ex:2x2}, side
 by side. Left: $\mu_{\Men}$, with little happy faces on the men and sad faces
 on the women; right: $\mu_{\Women}$, the reverse. Below, an axis labelled
 ``men's welfare'' pointing one way and ``women's welfare'' pointing the other,
 to convey that the two are in direct opposition.}
 \caption{The same instance, both stable matchings. Whoever proposes, wins.}
-\label{fig:sm-2x2}
+\label{fig:2x2}
 \end{figure}
 
 \begin{remark}
-Compare this with Example~\ref{ex:sm-main}, where the men-proposing run produced
+Compare this with Example~\ref{ex:main}, where the men-proposing run produced
 $\mu^*$. If you run the women-proposing version on that instance (do it --- it
 takes five proposals), you get $\mu^*$ again. As we shall see in
-Corollary~\ref{cor:sm-unique}, this means Example~\ref{ex:sm-main} has exactly
+Corollary~\ref{cor:unique}, this means Example~\ref{ex:main} has exactly
 \emph{one} stable matching, which is why the choice of proposer made no
 difference there.
 \end{remark}
@@ -991,7 +1040,7 @@ matching the algorithm produces. The answer is as clean as one could wish.
 \begin{definition}[Stable partner]
 A woman $w$ is a \emph{stable partner} of a man $m$ if there exists \emph{some}
 stable matching $\mu$ with $\mu(m) = w$. Since at least one stable matching
-exists (Theorem~\ref{thm:sm-main}), every participant has at least one stable
+exists (Theorem~\ref{thm:main}), every participant has at least one stable
 partner.
 
 Write $\mathrm{best}(m)$ for the woman highest on $m$'s preference list among
@@ -1008,8 +1057,8 @@ partner, in which case ``give everybody their best stable partner
 simultaneously'' would be incoherent. The following theorem says that this
 never happens, and, moreover, that Gale--Shapley computes it.
 
-\begin{theorem}[Man-optimality]\label{thm:sm-manoptimal}
-Every execution of Algorithm~\ref{alg:sm-gs} --- for every ordering of the men
+\begin{theorem}[Man-optimality]\label{thm:manoptimal}
+Every execution of Algorithm~\ref{alg:gs} --- for every ordering of the men
 and every choice of which free man proposes next --- returns the same set
 \[
   \mu_{\Men} \;=\; \bigl\{\,(m,\ \mathrm{best}(m)) \;:\; m \in \Men \,\bigr\}.
@@ -1031,7 +1080,7 @@ a blocking pair inside a stable matching --- a contradiction.
 \end{intuition}
 
 \begin{proof}
-By Theorem~\ref{thm:sm-stable} the output $\mu$ of any execution is a stable
+By Theorem~\ref{thm:stable} the output $\mu$ of any execution is a stable
 matching, so $\mu(m)$ is always \emph{a} stable partner of $m$. It therefore
 suffices to prove that $\mu(m)$ is at least as good as $\mathrm{best}(m)$ for
 every $m$; then $\mu(m) = \mathrm{best}(m)$ and, as this holds for every
@@ -1052,7 +1101,7 @@ a man is rejected by a stable partner of his, say
 Because $w$ is a stable partner of $m$, there is a stable matching $S$ with
 $S(m) = w$. Because $w$ rejects $m$, she does so in favour of some man $m'$
 whom she strictly prefers:
-\begin{equation}\label{eq:sm-opt1}
+\begin{equation}\label{eq:opt1}
   m' \pr{w} m .
 \end{equation}
 (If she rejected a proposal, $m'$ is her current partner; if she broke an
@@ -1065,7 +1114,7 @@ $w' \neq w$, since $S(w) = m \neq m'$.
 \noindent\emph{Sub-claim: $w \pr{m'} w'$.}
 
 At the moment under consideration $m'$ has just proposed to $w$ (or is engaged
-to her, having proposed earlier). By Observation~\ref{obs:sm-3}, every woman whom
+to her, having proposed earlier). By Observation~\ref{obs:3}, every woman whom
 $m'$ strictly prefers to $w$ has already rejected him at some earlier moment.
 Now suppose, for contradiction, that $w' \pr{m'} w$. Then $w'$ is one of those
 women: she has already rejected $m'$ earlier in the execution. But $w'$ is a
@@ -1078,7 +1127,7 @@ Now put the pieces together in the stable matching $S$, where $m'$ is matched
 to $w'$ and $w$ is matched to $m$:
 \begin{itemize}[nosep]
   \item $w \pr{m'} w'$ \quad (sub-claim): $m'$ prefers $w$ to his $S$-partner;
-  \item $m' \pr{w} m$ \quad \eqref{eq:sm-opt1}: $w$ prefers $m'$ to her
+  \item $m' \pr{w} m$ \quad \eqref{eq:opt1}: $w$ prefers $m'$ to her
         $S$-partner.
 \end{itemize}
 So $(m', w)$ is a blocking pair for $S$, contradicting the stability of $S$.
@@ -1087,7 +1136,7 @@ This proves the main claim.
 \medskip
 \noindent\textbf{From the claim to the theorem.}
 Consider the output $\mu$ and any man $m$. He is matched to the first woman on
-his list who did not reject him: by Observation~\ref{obs:sm-3} he worked strictly
+his list who did not reject him: by Observation~\ref{obs:3} he worked strictly
 downward from the top, and every woman above $\mu(m)$ on his list rejected him
 at some point. By the main claim, none of those women is a stable partner of
 $m$. Hence $\mathrm{best}(m)$ is not among them, so $\mathrm{best}(m)$ is at
@@ -1109,17 +1158,17 @@ preferences $w \succ_{m'} w'$ and $m' \succ_w m$. Arrows connecting the two
 halves would show how the timeline fact yields the preference on the left.}
 \caption{The first rejection by a stable partner would create a blocking pair
 in a stable matching.}
-\label{fig:sm-optproof}
+\label{fig:optproof}
 \end{figure}
 
-\begin{corollary}\label{cor:sm-1}
+\begin{corollary}\label{cor:1}
 The set $\{(m, \mathrm{best}(m)) : m \in \Men\}$ is a matching, and it is
 stable.
 \end{corollary}
 
 \begin{proof}
-It is the output of Algorithm~\ref{alg:sm-gs}, which is a matching by
-Lemma~\ref{lem:sm-perfect} and stable by Theorem~\ref{thm:sm-stable}.
+It is the output of Algorithm~\ref{alg:gs}, which is a matching by
+Lemma~\ref{lem:perfect} and stable by Theorem~\ref{thm:stable}.
 \end{proof}
 
 This is worth savouring. Each man selfishly names the best partner he could
@@ -1130,8 +1179,8 @@ stable matching. There is no reason to expect this from the definitions; it
 falls out of the algorithm. This is a good example of a theorem that is
 \emph{much} easier to prove with an algorithm than without one.
 
-\begin{corollary}\label{cor:sm-2}
-Algorithm~\ref{alg:sm-gs} produces a \emph{man-optimal} stable matching: no
+\begin{corollary}\label{cor:2}
+Algorithm~\ref{alg:gs} produces a \emph{man-optimal} stable matching: no
 stable matching gives any man a strictly better partner. In particular its
 output does not depend on the order in which the men propose.
 \end{corollary}
@@ -1141,8 +1190,8 @@ output does not depend on the order in which the men propose.
 Man-optimality sounds like an unambiguous success story. It is not, because
 the gain of one side is exactly the loss of the other.
 
-\begin{corollary}[Woman-pessimality]\label{cor:sm-3}
-The matching produced by Algorithm~\ref{alg:sm-gs} is the \emph{worst} stable
+\begin{corollary}[Woman-pessimality]\label{cor:3}
+The matching produced by Algorithm~\ref{alg:gs} is the \emph{worst} stable
 matching from the women's point of view:
 \[
   \mu_{\Men} = \bigl\{\,(\mathrm{worst}(w),\ w) \;:\; w \in \Women \,\bigr\}.
@@ -1156,36 +1205,36 @@ Write $\mu = \mu_{\Men}$ and suppose the statement fails: there is a woman $w$
 with $\mu(w) = m$ such that $m$ is \emph{not} her worst stable partner. Then
 some stable matching $S$ gives her a strictly worse partner
 $m' = S(w)$, so
-\begin{equation}\label{eq:sm-cor3a}
+\begin{equation}\label{eq:cor3a}
   m \pr{w} m' .
 \end{equation}
 Let $w' = S(m)$ be the partner of $m$ in $S$. Since $S(w) = m' \neq m$, we have
 $w' \neq w$.
 
 Now, $w'$ is a stable partner of $m$ (witnessed by $S$), and by
-Theorem~\ref{thm:sm-manoptimal} the woman $w = \mu(m)$ is his \emph{best} stable
+Theorem~\ref{thm:manoptimal} the woman $w = \mu(m)$ is his \emph{best} stable
 partner. As $w' \neq w$, this gives
-\begin{equation}\label{eq:sm-cor3b}
+\begin{equation}\label{eq:cor3b}
   w \pr{m} w' .
 \end{equation}
 But now look at $S$, in which $m$ is matched to $w'$ and $w$ is matched to
-$m'$. By~\eqref{eq:sm-cor3b} $m$ prefers $w$ to his $S$-partner, and
-by~\eqref{eq:sm-cor3a} $w$ prefers $m$ to her $S$-partner. So $(m,w)$ is a
+$m'$. By~\eqref{eq:cor3b} $m$ prefers $w$ to his $S$-partner, and
+by~\eqref{eq:cor3a} $w$ prefers $m$ to her $S$-partner. So $(m,w)$ is a
 blocking pair for $S$, contradicting the stability of $S$.
 \end{proof}
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{The proof of Corollary~\ref{cor:sm-3}. Two panels. Left
+\figplaceholder{50mm}{The proof of Corollary~\ref{cor:3}. Two panels. Left
 panel, the Gale--Shapley output $\mu$: edge $m$--$w$, annotated ``$w$ is $m$'s
-\emph{best} stable partner (Theorem~\ref{thm:sm-manoptimal})''. Right panel, the
+\emph{best} stable partner (Theorem~\ref{thm:manoptimal})''. Right panel, the
 hypothetical stable matching $S$: edges $m$--$w'$ and $m'$--$w$, with the red
 dashed blocking edge $m$--$w$ across it and the two labels $w \succ_m w'$ and
 $m \succ_w m'$. An arrow from the left panel to the right showing where
 $w \succ_m w'$ comes from.}
 \caption{If some woman could do worse in a stable matching than
 Gale--Shapley gives her, that matching would not be stable.}
-\label{fig:sm-cor3proof}
+\label{fig:cor3proof}
 \end{figure}
 
 \begin{intuition}
@@ -1218,25 +1267,25 @@ clearly that only the two extremes are computed by the algorithms of this
 lecture.}
 \caption{Between the two extremes computed by Gale--Shapley there may be many
 other stable matchings.}
-\label{fig:sm-lattice}
+\label{fig:lattice}
 \end{figure}
 
-\begin{corollary}[A uniqueness test]\label{cor:sm-unique}
+\begin{corollary}[A uniqueness test]\label{cor:unique}
 If the men-proposing and women-proposing executions return the same matching,
 then it is the only stable matching of the instance.
 \end{corollary}
 
 \begin{proof}
-By Theorem~\ref{thm:sm-manoptimal} and its mirror image, $\mu_{\Men}$ gives every
+By Theorem~\ref{thm:manoptimal} and its mirror image, $\mu_{\Men}$ gives every
 man his best stable partner and $\mu_{\Women}$ gives every man his worst (by
-Corollary~\ref{cor:sm-3} applied with the roles of the sides exchanged). If
+Corollary~\ref{cor:3} applied with the roles of the sides exchanged). If
 $\mu_{\Men} = \mu_{\Women}$, then for each man his best and worst stable
 partners coincide, so he has exactly one stable partner, and the stable
 matching is unique.
 \end{proof}
 
-This explains the observation made after Example~\ref{ex:sm-2x2}: in
-Example~\ref{ex:sm-main} both executions return $\mu^*$, so $\mu^*$ is the unique
+This explains the observation made after Example~\ref{ex:2x2}: in
+Example~\ref{ex:main} both executions return $\mu^*$, so $\mu^*$ is the unique
 stable matching of that instance --- which is why the choice of proposer was
 invisible there, and why running the algorithm with a different ordering of
 the men changed nothing.
@@ -1249,14 +1298,14 @@ neutral computational device; it makes a distributional decision, and the
 mathematics makes that decision unusually explicit.
 
 This was not merely theoretical for the residency match. The algorithm the
-NRMP had used since 1952 was, in the terms of this chapter, hospital-proposing:
+NRMP had used since 1952 was, in the terms of this lecture, hospital-proposing:
 it produced the hospital-optimal, and hence applicant-pessimal, stable
 matching. Once Roth's analysis made this visible, the direction of the
 algorithm became a subject of open dispute, and in the 1998 redesign by Roth
 and Peranson the match was switched to applicant-proposing. (The real system
 also has to handle couples who want positions in the same city, programmes
 with many positions rather than one, and applicants who rank only part of the
-list --- so it is not literally Algorithm~\ref{alg:sm-gs}. But the core is
+list --- so it is not literally Algorithm~\ref{alg:gs}. But the core is
 deferred acceptance, and the choice of which side proposes is exactly the
 choice analysed above.)
 
@@ -1269,17 +1318,17 @@ underneath: ``the same data, the same algorithm, a different answer to who
 gets the benefit of the doubt''.}
 \caption{The direction of proposal is a policy decision, not a technical
 detail.}
-\label{fig:sm-whoproposes}
+\label{fig:whoproposes}
 \end{figure}
 
 A second practical question follows immediately, and we only pose it here: if
 the mechanism systematically disadvantages the receiving side, do participants
 have an incentive to \emph{lie} about their preferences? The answer, in brief,
 is that the proposing side never benefits from lying, but the receiving side
-sometimes does. Exercise~\ref{exc:sm-lying} works out the smallest example.
+sometimes does. Exercise~\ref{exc:lying} works out the smallest example.
 
 %==============================================================================
-\section{Summary and outlook}\label{sec:sm-outlook}
+\section{Summary and outlook}\label{sec:outlook}
 %==============================================================================
 
 \subsection*{What we proved}
@@ -1287,18 +1336,18 @@ sometimes does. Exercise~\ref{exc:sm-lying} works out the smallest example.
 \begin{itemize}
   \item Every stable marriage instance has a stable matching, and one can be
         found in $\bigoh{n^2}$ time by the Gale--Shapley algorithm
-        (Theorem~\ref{thm:sm-main}). Since the input has size $\Theta(n^2)$, this
+        (Theorem~\ref{thm:main}). Since the input has size $\Theta(n^2)$, this
         is optimal.
   \item The algorithm is highly non-deterministic --- any free man may propose
         next --- yet its output is completely determined by the instance
-        (Theorem~\ref{thm:sm-manoptimal}).
+        (Theorem~\ref{thm:manoptimal}).
   \item That output is extreme in both directions at once: every man gets the
         best partner he has in any stable matching, and every woman
-        simultaneously gets the worst (Corollary~\ref{cor:sm-2} and
-        Corollary~\ref{cor:sm-3}).
+        simultaneously gets the worst (Corollary~\ref{cor:2} and
+        Corollary~\ref{cor:3}).
   \item Existence is genuinely two-sided: for the stable roommates problem,
         where the bipartite structure is absent, stable matchings need not
-        exist at all (Example~\ref{ex:sm-roommates}).
+        exist at all (Example~\ref{ex:roommates}).
 \end{itemize}
 
 \subsection*{Where the subject goes next (non-examinable)}
@@ -1316,7 +1365,7 @@ variants fall off a cliff into NP-hardness. A sampler:
         stable matching. Unpopular rural hospitals cannot fix their staffing
         problem by lobbying for a different stable outcome.
   \item \textbf{Many-to-one (hospitals/residents).} Hospitals have capacities.
-        Everything in this chapter goes through with the obvious modifications;
+        Everything in this lecture goes through with the obvious modifications;
         this is the version actually deployed in residency matching and in
         school choice systems.
   \item \textbf{Ties (indifference).} If preference lists may contain ties, one
@@ -1330,8 +1379,8 @@ variants fall off a cliff into NP-hardness. A sampler:
         \emph{strategy-proof for the men}: no man can ever gain by
         misreporting his list. No mechanism can be strategy-proof for both
         sides at once, and the receiving side can indeed gain by lying
-        (Exercise~\ref{exc:sm-lying}).
-  \item \textbf{Stable roommates.} Despite Example~\ref{ex:sm-roommates}, Irving
+        (Exercise~\ref{exc:lying}).
+  \item \textbf{Stable roommates.} Despite Example~\ref{ex:roommates}, Irving
         gave an $\bigoh{n^2}$ algorithm that finds a stable matching or
         correctly reports that none exists. Adding indifference to the
         roommates problem makes deciding existence NP-complete.
@@ -1339,25 +1388,11 @@ variants fall off a cliff into NP-hardness. A sampler:
         instances with $\Omega(2.28^n)$ stable matchings are known, building on
         a construction of Irving and Leather. An upper bound of the form $c^n$
         for an absolute constant $c$ was open for decades and was finally
-        proved by Karlin, Oveis Gharan and Weber in 2018.
-\end{itemize}
-
-
-%==============================================================================
-\section{Notes and further reading}
-\label{sec:sm-further-reading}
-%==============================================================================
-
-The treatment here follows the course slides of Jesper Nederlof and Johan van
-Rooij. Full details of the work referred to in the text are below.
-
-\begin{itemize}[leftmargin=*]
-  \item D.~Gale and L.~S.~Shapley. College admissions and the stability of marriage. \emph{The American Mathematical Monthly}, 69(1):9--15, 1962.
-  \item D.~E.~Knuth. \emph{Mariages stables et leurs relations avec d'autres problèmes combinatoires}. Les Presses de l'Université de Montréal, 1976.
-  \item D.~Gusfield and R.~W.~Irving. \emph{The Stable Marriage Problem: Structure and Algorithms}. MIT Press, 1989.
-  \item A.~E.~Roth. The evolution of the labor market for medical interns and residents: a case study in game theory. \emph{Journal of Political Economy}, 92(6):991--1016, 1984.
-  \item A.~E.~Roth and M.~Sotomayor. \emph{Two-Sided Matching: A Study in Game-Theoretic Modeling and Analysis}. Cambridge University Press, 1990.
-  \item A.~R.~Karlin, S.~Oveis Gharan and R.~Weber. A simply exponential upper bound on the maximum number of stable matchings. In \emph{Proceedings of STOC 2018}, pages 920--925.
+        proved by Karlin, Oveis Gharan and Weber in 2018
+        \cite{KarlinOveisGharanWeber2018}.
+        %% NOTE TO SELF: slide 17 states a specific constant that came out of
+        %% the PDF text extraction as "(3.55)". Check the original slide and
+        %% put the intended constant here before distributing the notes.
 \end{itemize}
 
 %==============================================================================
@@ -1365,21 +1400,21 @@ Rooij. Full details of the work referred to in the text are below.
 %==============================================================================
 
 \begin{exercise}
-Verify the remaining three steps of the cycle in Example~\ref{ex:sm-cycle}: check
+Verify the remaining three steps of the cycle in Example~\ref{ex:cycle}: check
 in each case that the indicated pair really is blocking, and that resolving it
 gives the stated matching. Then find the (unique?) stable matching of that
 instance by running Gale--Shapley.
 \end{exercise}
 
 \begin{exercise}
-Run the women-proposing version of Gale--Shapley on Example~\ref{ex:sm-main} and
-confirm that it returns $\mu^*$. What does Corollary~\ref{cor:sm-unique} let you
+Run the women-proposing version of Gale--Shapley on Example~\ref{ex:main} and
+confirm that it returns $\mu^*$. What does Corollary~\ref{cor:unique} let you
 conclude?
 \end{exercise}
 
 \begin{exercise}
 Give an instance with $n = 4$ that has at least four stable matchings.
-\emph{Hint:} take two disjoint copies of Example~\ref{ex:sm-2x2} and make each
+\emph{Hint:} take two disjoint copies of Example~\ref{ex:2x2} and make each
 participant prefer everybody in their own copy to everybody in the other.
 Generalise to show that there are instances with at least $2^{n/2}$ stable
 matchings.
@@ -1387,26 +1422,26 @@ matchings.
 
 \begin{exercise}
 Construct a family of instances on which the men-proposing algorithm makes
-$\Omega(n^2)$ proposals, showing that the bound of Lemma~\ref{lem:sm-steps} is
+$\Omega(n^2)$ proposals, showing that the bound of Lemma~\ref{lem:steps} is
 tight up to a constant factor.
 \end{exercise}
 
 \begin{exercise}
-Where exactly does the proof of Theorem~\ref{thm:sm-stable} use that the
+Where exactly does the proof of Theorem~\ref{thm:stable} use that the
 preference lists are strict (no ties)? Where does it use that they are
 complete?
 \end{exercise}
 
 \begin{exercise}
 Prove directly from the definitions --- without invoking
-Theorem~\ref{thm:sm-manoptimal} --- that if $\mu$ and $\nu$ are stable matchings
+Theorem~\ref{thm:manoptimal} --- that if $\mu$ and $\nu$ are stable matchings
 and some man strictly prefers $\mu$ to $\nu$, then his partner in $\mu$
 strictly prefers $\nu$ to $\mu$. (This is the ``opposed interests'' statement
 that underlies the lattice structure.)
 \end{exercise}
 
-\begin{exercise}\label{exc:sm-lying}
-Consider Example~\ref{ex:sm-2x2}, and allow participants to submit lists that
+\begin{exercise}\label{exc:lying}
+Consider Example~\ref{ex:2x2}, and allow participants to submit lists that
 declare some partners unacceptable. Suppose Ann submits the list ``Bert''
 only, and everybody else reports truthfully. Run the men-proposing algorithm
 on the reported preferences and check that Ann ends up with Bert --- her true
@@ -1416,7 +1451,7 @@ not to the proposing side.
 \end{exercise}
 
 \begin{exercise}
-Implement Gale--Shapley as described in Section~\ref{sec:sm-impl} and verify
+Implement Gale--Shapley as described in Section~\ref{sec:impl} and verify
 empirically, on random instances with $n = 1000$, roughly how many proposals
 are actually made and how good the men's and women's average partner ranks
 are. (The behaviour on random instances is strikingly asymmetric; the men do
@@ -1424,13 +1459,42 @@ about $\ln n$ times better than the women.)
 \end{exercise}
 
 %==============================================================================
+\begin{thebibliography}{9}
 
-%==============================================================================
-\begin{poolquestions}
-  \poolq{1}{Stable Matchings}Item~1 (Euler tours) is \cref{sec:euler-tours},
-  which is not written yet. Item~2 (the problem, blocking pairs, stable
-  matchings) is \cref{sec:sm-model}; item~3 (a greedy algorithm that may run
-  forever) is \cref{sec:sm-naive}; item~4 (Gale--Shapley and its correctness)
-  is \cref{sec:sm-gs,sec:sm-analysis}; item~5 (men-optimality) is
-  \cref{sec:sm-optimality}.
-\end{poolquestions}
+\bibitem{GaleShapley1962}
+D.~Gale and L.~S.~Shapley.
+\newblock College admissions and the stability of marriage.
+\newblock \emph{The American Mathematical Monthly}, 69(1):9--15, 1962.
+
+\bibitem{Knuth1976}
+D.~E.~Knuth.
+\newblock \emph{Mariages stables et leurs relations avec d'autres problèmes
+combinatoires}.
+\newblock Les Presses de l'Université de Montréal, 1976.
+
+\bibitem{GusfieldIrving1989}
+D.~Gusfield and R.~W.~Irving.
+\newblock \emph{The Stable Marriage Problem: Structure and Algorithms}.
+\newblock MIT Press, 1989.
+
+\bibitem{Roth1984}
+A.~E.~Roth.
+\newblock The evolution of the labor market for medical interns and residents:
+a case study in game theory.
+\newblock \emph{Journal of Political Economy}, 92(6):991--1016, 1984.
+
+\bibitem{RothSotomayor1990}
+A.~E.~Roth and M.~Sotomayor.
+\newblock \emph{Two-Sided Matching: A Study in Game-Theoretic Modeling and
+Analysis}.
+\newblock Cambridge University Press, 1990.
+
+\bibitem{KarlinOveisGharanWeber2018}
+A.~R.~Karlin, S.~Oveis Gharan and R.~Weber.
+\newblock A simply exponential upper bound on the maximum number of stable
+matchings.
+\newblock In \emph{Proceedings of STOC 2018}, pages 920--925.
+
+\end{thebibliography}
+
+\end{document}

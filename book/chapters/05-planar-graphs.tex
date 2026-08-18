@@ -99,7 +99,8 @@ drawing \emph{proves} that a graph is planar; you can point at it. A drawing
 with crossings proves nothing at all --- it may just be a bad drawing of a
 perfectly planar graph. \Cref{fig:planar-vs-plane} shows the same phenomenon on
 $K_{3,3}$ minus an edge: drawn one way it looks hopelessly tangled, drawn
-another way it is visibly plane. Establishing that a graph is \emph{not} planar
+another way it is visibly plane --- and the two drawings really are the same
+graph, vertex labels and all. Establishing that a graph is \emph{not} planar
 therefore needs an argument about all possible drawings at once, which is what
 \cref{sec:planar-minors,sec:planar-k33warmup} are for.
 
@@ -113,19 +114,14 @@ the others are the \emph{interior faces}.
 \begin{figure}[ht]
 \centering
 \includegraphics[width=0.62\textwidth]{planar-vs-plane}
-\caption{$K_{3,3}$ with one edge removed, drawn twice. The left drawing has
-crossings; the right one does not. Only the right drawing carries information
-about the graph --- a drawing with crossings never witnesses non-planarity, it
-only witnesses its own clumsiness. In the right drawing the faces are shaded:
-$f_1$, $f_2$, $f_3$ are the interior faces and $f_4$ is the outer face. Nothing
-in the left drawing corresponds to them; faces exist only once an embedding is
-fixed.}
+\caption{One graph --- $K_{3,3}$ minus the edge $\{3,4\}$ --- drawn twice. The
+left drawing has crossings; the right one does not. Only the right drawing
+carries information about the graph: a drawing with crossings never witnesses
+non-planarity, it only witnesses its own clumsiness. In the right drawing the
+faces are shaded, $f_1, f_2, f_3$ being the interior faces and $f_4$ the outer
+one. Nothing in the left drawing corresponds to them --- faces exist only once
+an embedding is fixed.}
 \label{fig:planar-vs-plane}
-\todo{The two drawings are still not identically labelled: the left one omits
-the edge $\{1,6\}$, the right one omits $\{3,4\}$. They are isomorphic, but the
-labels are visible, so a reader who checks will find they do not match.
-Swapping $1 \leftrightarrow 3$ and $4 \leftrightarrow 6$ in the right-hand
-drawing fixes it, after which the caption can say ``one graph, drawn twice''.}
 \end{figure}
 
 A useful bookkeeping fact, with one exception that will bite us if we ignore

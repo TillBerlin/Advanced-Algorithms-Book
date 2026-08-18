@@ -1,0 +1,1663 @@
+%==============================================================================
+%  Lecture Notes: Planar Graphs
+%  Advanced Algorithms 2026
+%
+%  These notes accompany the slide deck "Planar Graphs" (Planarity Testing,
+%  Planar Separator Theorem + Applications) from the course archive
+%  archive/2024-2025/planar.pdf.
+%
+%  ---------------------------------------------------------------------------
+%  FIGURES
+%  ---------------------------------------------------------------------------
+%  This file contains NO images.  Every place where a picture would help is
+%  marked with \figplaceholder{<height>}{<description>} inside a normal figure
+%  environment, so the document compiles as-is and prints a framed grey box
+%  describing what should be drawn.  Replace by \includegraphics later and
+%  keep the surrounding \caption / \label, so cross-references keep working.
+%
+%  There are 23 placeholders.  This is a very visual lecture: several of the
+%  arguments (segments, interlacement, the crossover gadget) are essentially
+%  unreadable without a picture, and those are marked IMPORTANT in the
+%  placeholder text.
+%
+%  ---------------------------------------------------------------------------
+%  RECONSTRUCTED MATH
+%  ---------------------------------------------------------------------------
+%  The source PDF is password-protected; the text was recovered with
+%  pdftotext, which dropped every mathematical symbol.  Formulas have been
+%  reconstructed from context.  Every place where the reconstruction is a
+%  judgement call is flagged with a  %% CHECK AGAINST SLIDE  comment.
+%==============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=3cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+            urlcolor=blue!50!black]{hyperref}
+
+%------------------------------------------------------------------ theorems --
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{observation}[theorem]{Observation}
+\newtheorem{claim}[theorem]{Claim}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{exercise}{Exercise}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem*{intuition}{Intuition}
+
+%------------------------------------------------------------------- macros ---
+\newcommand{\bigoh}[1]{\mathcal{O}\!\left(#1\right)}
+\newcommand{\RR}{\mathbb{R}}
+\newcommand{\pl}{\textsc{Planar}}
+\DeclareMathOperator{\dg}{deg}
+\newcommand{\ThreeCol}{\textsc{3-Coloring}}
+\newcommand{\PlanarThreeCol}{\textsc{Planar-3-Coloring}}
+\newcommand{\MIS}{\textsc{Max-Independent-Set}}
+
+% Figure placeholder: #1 = height, #2 = description of the intended picture.
+\newcommand{\figplaceholder}[2]{%
+  \setlength{\fboxsep}{6pt}%
+  \fcolorbox{gray!60}{gray!8}{%
+    \parbox[c][#1][c]{0.86\textwidth}{%
+      \centering\small\itshape\color{black!65}%
+      [\,figure placeholder\,]\par\vspace{0.6em}#2}}}
+
+\title{\bfseries Planar Graphs\\[0.4em]
+       \large Lecture Notes -- Advanced Algorithms 2026}
+\author{}
+\date{}
+
+\begin{document}
+\maketitle
+\vspace{-3.5em}
+
+\begin{center}
+\begin{minipage}{0.86\textwidth}
+\small
+These notes follow the lecture slides \emph{Planar Graphs: Planarity Testing,
+Planar Separator Theorem $+$ Applications}. They cover the same material with
+the arguments written out in full, together with the informal reasoning that
+usually gets spoken rather than projected. Sections marked
+\emph{(non-examinable)} go beyond what was presented.
+\end{minipage}
+\end{center}
+\vspace{1em}
+
+\tableofcontents
+\bigskip
+
+%==============================================================================
+\section{Introduction}
+%==============================================================================
+
+A graph is planar if it can be drawn in the plane without edges crossing.
+That is a purely topological condition, and at first sight it has nothing to
+do with algorithms. It turns out to be one of the most algorithmically
+consequential structural restrictions we know.
+
+There are two separate reasons to care, and this lecture is organised around
+them.
+
+The first is that planarity is a real constraint that real inputs satisfy.
+Road networks, printed circuit boards, floor plans, and many geometric meshes
+are planar or nearly so. If your input is planar you would like to know it,
+and you would like to exploit it. So the first algorithmic question is simply:
+\emph{given a graph, can we decide efficiently whether it is planar?} The
+answer is yes, and remarkably it can be done in linear time; we will study a
+slower but far more instructive $\bigoh{n^3}$ algorithm, because the ideas in
+it --- cycles, segments, interlacement --- are the ideas everybody uses.
+
+The second reason is deeper. Planar graphs cannot be tangled: they have small
+\emph{balanced separators}. Deleting only $\bigoh{\sqrt{n}}$ vertices splits a
+planar graph into pieces none of which is larger than a constant fraction of
+the whole. This is the Planar Separator Theorem, and it is the engine behind a
+whole family of divide-and-conquer algorithms. We will use it to solve
+\textsc{Maximum Independent Set} --- NP-hard in general, and still NP-hard on
+planar graphs --- in time $2^{\bigoh{\sqrt{n}}}$ rather than $2^{\bigoh{n}}$.
+That is not polynomial, but on a graph with $10\,000$ vertices it is the
+difference between impossible and routine.
+
+We close by looking at what \emph{stays} hard. Most NP-hard graph problems
+remain NP-hard when restricted to planar inputs, and we prove this for
+$3$-colouring. There are a few notable exceptions, and \textsc{Clique} is one
+of them --- for a reason that is a one-line consequence of the structure theory
+in Section~\ref{sec:basics}.
+
+\begin{itemize}[nosep]
+  \item Section~\ref{sec:basics}: Euler's formula and its consequences, minors,
+        Kuratowski--Wagner, colouring, Fáry's theorem.
+  \item Section~\ref{sec:testing}: an $\bigoh{n^3}$ planarity test.
+  \item Section~\ref{sec:pst}: the Planar Separator Theorem.
+  \item Section~\ref{sec:mis}: independent set in $2^{\bigoh{\sqrt n}}$ time.
+  \item Section~\ref{sec:hardness}: what remains NP-hard, and what does not.
+\end{itemize}
+
+Throughout, $G = (V,E)$ is a graph with $n = |V|$ vertices and $m = |E|$ edges.
+
+%==============================================================================
+\section{Basics}\label{sec:basics}
+%==============================================================================
+
+\subsection{Planar graphs, plane graphs, faces}
+
+We must distinguish two notions that are easy to conflate, and the distinction
+matters constantly in what follows.
+
+\begin{definition}[Planar and plane]
+A graph is \emph{planar} if it \emph{can} be drawn in $\RR^2$ with no two edges
+crossing. A \emph{plane graph} is a planar graph \emph{together with} one such
+drawing: the embedding is fixed.
+\end{definition}
+
+Planarity is a property of an abstract graph; being plane is a property of a
+drawing. The same planar graph has many essentially different embeddings, and
+several of the quantities we are about to define --- faces, in particular ---
+depend on the embedding rather than on the graph.
+
+\begin{definition}[Faces]
+Let $G$ be a plane graph. Removing the drawing from the plane leaves a
+collection of connected open regions, called the \emph{faces} of the
+embedding. Exactly one of them is unbounded; it is the \emph{outer face}, and
+the others are the \emph{interior faces}.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Left: a graph drawn with crossings. Right: the same graph
+redrawn without crossings, with the faces shaded and labelled $f_1,\dots,f_k$,
+and the outer face marked. The point of the picture is that the left drawing
+does not prove the graph is non-planar --- it only proves that \emph{this
+drawing} is bad.}
+\caption{Planar is a property of the graph; the faces belong to the drawing.}
+\label{fig:planar-vs-plane}
+\end{figure}
+
+A useful bookkeeping fact, with one exception that will bite us if we ignore
+it: \emph{every edge is incident to exactly two faces} --- except a
+\emph{bridge} (an edge whose removal disconnects its component), which has the
+same face on both sides. The right way to think about it, and the way that
+makes the counting arguments below uniform, is to count \emph{edge-sides}:
+every edge has two sides, and each side lies on exactly one face. For a
+non-bridge these are two different faces; for a bridge they are the same face
+twice.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{35mm}{A small plane graph containing a bridge. Highlight the
+bridge and shade the single face that touches it on both sides, next to a
+normal edge with its two distinct faces shaded in different colours.}
+\caption{An edge has two sides; a bridge has the same face on both of them.}
+\label{fig:bridge}
+\end{figure}
+
+\subsection{Euler's formula}
+
+\begin{theorem}[Euler]\label{thm:euler}
+Let $G$ be a connected plane graph with $n \ge 1$ vertices, $m$ edges and $f$
+faces. Then
+\[
+  n + f = m + 2 .
+\]
+\end{theorem}
+
+\begin{proof}
+By induction on $m$.
+
+\emph{Base case $m = 0$.} A connected graph with no edges is a single vertex,
+so $n = 1$, and the drawing leaves the whole plane as one face, $f = 1$. Indeed
+$1 + 1 = 0 + 2$.
+
+\emph{Inductive step.} Let $m \ge 1$ and assume the formula for all connected
+plane graphs with fewer edges. We distinguish two cases, and we must check
+that they are exhaustive.
+
+\begin{itemize}
+  \item \textbf{$G$ contains a cycle.} Let $e$ be an edge on that cycle. Then
+        $e$ is not a bridge, so the two sides of $e$ belong to two
+        \emph{different} faces. Deleting $e$ keeps the graph connected and
+        merges those two faces into one. So the new graph has $n' = n$,
+        $m' = m - 1$ and $f' = f - 1$, and it is still a connected plane graph.
+        By induction $n' + f' = m' + 2$, that is $n + f - 1 = m - 1 + 2$, which
+        rearranges to $n + f = m + 2$.
+  \item \textbf{$G$ has a vertex $v$ of degree $1$.} Delete $v$ and its edge.
+        The graph stays connected, no faces merge or split (the pendant edge
+        had the same face on both sides), so $n' = n - 1$, $m' = m - 1$,
+        $f' = f$. By induction $n - 1 + f = m - 1 + 2$, i.e.\ $n + f = m + 2$.
+\end{itemize}
+
+These two cases cover everything: if $G$ has no vertex of degree $1$ and at
+least one edge, then --- being connected --- it has minimum degree at least
+$2$, and a graph with minimum degree at least $2$ contains a cycle. (Walk
+forward without immediately reusing the edge you came on; since the graph is
+finite you must eventually revisit a vertex, and the walk between the two
+visits is a cycle.)
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{The two inductive steps of Euler's formula, side by side.
+Left: a plane graph with a cycle edge $e$ highlighted, and an arrow to the same
+graph with $e$ deleted, showing the two shaded faces merging into one shaded
+face ($m$ and $f$ both drop by one). Right: a graph with a degree-1 vertex $v$
+highlighted, and an arrow to the graph with $v$ deleted ($n$ and $m$ both drop
+by one, $f$ unchanged).}
+\caption{Deleting a cycle edge merges two faces; deleting a pendant vertex
+changes no face.}
+\label{fig:euler-induction}
+\end{figure}
+
+\begin{intuition}
+Euler's formula says that a plane drawing has no slack: the three quantities
+$n$, $m$, $f$ are locked together. This is what turns a topological hypothesis
+(``drawable without crossings'') into a combinatorial one (``not too many
+edges''), and every quantitative statement in this section is an application of
+that translation.
+
+Notice also that $n$ and $m$ do not depend on the drawing, so neither does $f$:
+\emph{every} plane embedding of a given connected planar graph has the same
+number of faces. That is already a non-trivial corollary.
+\end{intuition}
+
+\subsection{Consequences: edge counts and low-degree vertices}
+
+Euler's formula alone does not bound $m$; we also need that faces cannot be
+too small. That is where simplicity comes in.
+
+\begin{corollary}\label{cor:3n-6}
+Let $G$ be a connected plane graph with no parallel edges and no self-loops
+and with $n > 2$. Then
+\[
+  m \;\le\; 3n - 6 .
+\]
+\end{corollary}
+
+\begin{proof}
+Count edge-sides in two ways. Every face is bounded by at least three
+edge-sides: with no loops and no parallel edges and at least three vertices,
+no face can be enclosed by one or two edge-sides. Summing over faces gives a
+total of at least $3f$ edge-sides. On the other hand every edge has exactly two
+sides, so the total is exactly $2m$. Hence
+\[
+  3f \le 2m, \qquad\text{i.e.}\qquad f \le \tfrac{2}{3}m .
+\]
+Substituting into Euler's formula $f = m + 2 - n$ gives
+\[
+  m + 2 - n \;\le\; \tfrac{2}{3} m
+  \qquad\Longrightarrow\qquad
+  \tfrac{1}{3} m \;\le\; n - 2
+  \qquad\Longrightarrow\qquad
+  m \le 3n - 6 . \qedhere
+\]
+\end{proof}
+
+\begin{corollary}[$K_5$ is not planar]\label{cor:k5}
+The complete graph $K_5$ is not planar.
+\end{corollary}
+
+\begin{proof}
+$K_5$ has $n = 5$ and $m = 10$, but $3n - 6 = 9 < 10$.
+\end{proof}
+
+This is the first genuinely useful thing we can do: a purely arithmetic
+certificate of non-planarity. It does \emph{not} work for $K_{3,3}$, which has
+$n = 6$, $m = 9 \le 12$; there one has to use that bipartite plane graphs have
+faces of length at least four, giving $m \le 2n - 4 = 8 < 9$. Try it as an
+exercise. A completely different and much more instructive proof, which is
+really the planarity-testing algorithm run by hand, is given in
+Section~\ref{sec:k33warmup}.
+
+\begin{corollary}[Sparse graphs have sparse spots]\label{cor:deg5}
+Every plane graph with no parallel edges and no self-loops has a vertex of
+degree at most $5$.
+\end{corollary}
+
+\begin{proof}
+For $n \le 2$ this is trivial, so assume $n > 2$ and, by taking a component,
+that $G$ is connected. The average degree is
+\[
+  \frac{1}{n}\sum_{v \in V} \dg(v) = \frac{2m}{n}
+  \;\le\; \frac{2(3n-6)}{n} = 6 - \frac{12}{n} \;<\; 6 .
+\]
+A finite set of integers with average less than $6$ must contain an element
+that is at most $5$.
+\end{proof}
+
+\begin{intuition}
+Corollary~\ref{cor:deg5} is small but it is the workhorse of the whole
+subject. It says planar graphs always have a cheap place to start an
+induction. Every colouring result below is ``delete a low-degree vertex,
+colour the rest, put the vertex back'', and the only reason that strategy is
+available at all is this corollary. Note too that it is inherited: every
+subgraph of a planar graph is planar, so the induction never leaves the class.
+\end{intuition}
+
+\subsection{Minors and the Kuratowski--Wagner theorem}
+
+Corollary~\ref{cor:k5} suggests a plan: characterise planarity by forbidden
+sub-structures. The right notion of sub-structure is not the subgraph but the
+minor.
+
+\begin{definition}[Minor]
+A graph $H$ is a \emph{minor} of a graph $G$ if $H$ can be obtained from $G$ by
+a sequence of the following operations:
+\begin{itemize}[nosep]
+  \item \emph{edge deletion},
+  \item \emph{vertex deletion} (together with its incident edges),
+  \item \emph{edge contraction}: replace an edge $\{u,v\}$ by a single new
+        vertex adjacent to all former neighbours of $u$ and of $v$.
+\end{itemize}
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{IMPORTANT. Reproduce the edge-contraction example from
+the slides. Left: a graph on vertices $a,b,c,d,e,f,g,h,i$ with the edge
+$\{d,e\}$ highlighted. Right: the result of contracting it, with $d$ and $e$
+merged into a single vertex labelled $de$ inheriting all their edges. Keep the
+same layout on both sides so the eye can follow what moved.}
+\caption{Edge contraction: $\{d,e\}$ is contracted to a single vertex $de$.}
+\label{fig:contraction}
+\end{figure}
+
+The single most important property, and the reason minors are the right notion
+here, is this:
+
+\begin{observation}\label{obs:minor-closed}
+Every minor of a planar graph is planar.
+\end{observation}
+
+\begin{proof}[Proof idea]
+Each of the three operations can be performed directly on a drawing. Deleting
+an edge or a vertex only erases ink. Contracting an edge $\{u,v\}$ can be done
+by sliding $u$ along the drawn edge towards $v$, dragging its other edges with
+it; since we slide along a curve that is already crossing-free, no crossings
+are created.
+\end{proof}
+
+So the class of planar graphs is \emph{minor-closed}, and any minor of a planar
+graph is a legitimate certificate: exhibiting a non-planar minor proves
+non-planarity. Two small examples of what minors can express:
+
+\begin{example}
+$K_3$ (a triangle) is a minor of $G$ if and only if $G$ contains a cycle.
+Indeed, contracting a cycle of length $\ell > 3$ once shortens it to length
+$\ell - 1$, so any cycle can be contracted down to a triangle; conversely a
+triangle minor certainly requires a cycle to have been present.
+\end{example}
+
+\begin{theorem}[Kuratowski, Wagner]\label{thm:kuratowski}
+A graph is planar if and only if it has neither $K_5$ nor $K_{3,3}$ as a minor.
+\end{theorem}
+
+We do not prove this. One direction is easy and worth stating explicitly: if
+$G$ is planar then by Observation~\ref{obs:minor-closed} all its minors are
+planar, and $K_5$ (Corollary~\ref{cor:k5}) and $K_{3,3}$ (the exercise above)
+are not. The hard direction is that these two obstructions are the \emph{only}
+ones, which is a genuinely deep statement --- it is the prototype for
+Robertson and Seymour's graph minor theorem, which says every minor-closed
+class has a finite set of forbidden minors.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{$K_5$ and $K_{3,3}$ drawn side by side, each in its
+standard picture, labelled ``the only two obstructions''. Perhaps also show
+the $K_{3,3}$ edge count $m = 9 > 8 = 2n-4$ as an annotation.}
+\caption{The two forbidden minors.}
+\label{fig:k5k33}
+\end{figure}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{IMPORTANT --- classroom exercise. Reproduce the two
+``planar or not?'' graphs from the slides. These are meant to be worked on
+live: students should either find a crossing-free drawing or exhibit a $K_5$ /
+$K_{3,3}$ minor. Leave enough white space next to each for students to redraw.}
+\caption{Planar or not? Decide for each, and justify with a drawing or a
+forbidden minor.}
+\label{fig:quiz}
+\end{figure}
+
+\begin{remark}[Why this does not give an algorithm]\label{rem:no-algo}
+Theorem~\ref{thm:kuratowski} is a characterisation, not a procedure. To use it
+directly we would have to search for a $K_5$ or $K_{3,3}$ minor, and the number
+of candidate minors is exponential --- we would have to choose which vertices
+get merged into which branch set. This is exactly why
+Section~\ref{sec:testing} builds a completely different algorithm. (It is
+\emph{true} that testing for a fixed minor $H$ can be done in polynomial time
+by deep results of Robertson and Seymour, but that machinery is far heavier
+than the problem deserves, and it came thirty years later.)
+\end{remark}
+
+\subsection{Colouring planar graphs}
+
+\begin{definition}
+A \emph{$k$-colouring} of $G$ is a map $c : V \to \{1,\dots,k\}$ such that
+$c(u) \neq c(v)$ for every edge $\{u,v\} \in E$. $G$ is \emph{$k$-colourable}
+if such a map exists.
+\end{definition}
+
+\begin{proposition}\label{prop:6col}
+Every planar graph is $6$-colourable.
+\end{proposition}
+
+\begin{proof}
+Induction on $|V|$. Graphs with at most $6$ vertices are trivially
+$6$-colourable. Otherwise, by Corollary~\ref{cor:deg5} there is a vertex $v$
+with $\dg(v) \le 5$. The graph $G - v$ is planar and smaller, so by induction
+it has a $6$-colouring. Now put $v$ back: its at most $5$ neighbours use at
+most $5$ of the $6$ colours, so at least one colour is free for $v$.
+\end{proof}
+
+The same idea gives one colour better, but the last step needs an extra idea:
+with $\dg(v) = 5$ all six colours may be blocked, so we must arrange for two of
+$v$'s neighbours to share a colour \emph{before} we remove $v$.
+
+\begin{theorem}\label{thm:5col}
+Every planar graph is $5$-colourable.
+\end{theorem}
+
+\begin{proof}
+Induction on $|V|$; graphs with at most $5$ vertices are trivial. Let $G$ be
+planar with $n > 5$ and let $v$ be a vertex with $\dg(v) \le 5$
+(Corollary~\ref{cor:deg5}).
+
+\emph{Case 1: $\dg(v) \le 4$.} Exactly as in
+Proposition~\ref{prop:6col}: $5$-colour $G - v$ by induction, and give $v$ one
+of the at most $4$ colours not used by its neighbours.
+
+\emph{Case 2: $\dg(v) = 5$.} We first claim that $v$ has two non-adjacent
+neighbours. Suppose not: then all five neighbours of $v$ are pairwise
+adjacent, so they form a $K_5$ subgraph of $G$, contradicting
+Corollary~\ref{cor:k5}. Fix two non-adjacent neighbours $x$ and $y$.
+
+Let $G'$ be obtained from $G$ by deleting $v$ and \emph{identifying} $x$ with
+$y$. Then $G'$ is a minor of $G$: contract the two edges $\{v,x\}$ and
+$\{v,y\}$ --- which merges $x$, $v$ and $y$ into a single vertex --- and delete
+the edges from $v$ to its three other neighbours. By
+Observation~\ref{obs:minor-closed}, $G'$ is planar. It also has $n - 2 < n$
+vertices, so by induction it has a $5$-colouring $c'$.
+
+Pull $c'$ back to $G - v$: every vertex other than $x,y$ keeps its colour, and
+both $x$ and $y$ receive the colour of the merged vertex. This is a proper
+colouring of $G - v$, because the only new adjacency the identification could
+have created is between $x$ and $y$ themselves, and $x,y$ are non-adjacent in
+$G$ by choice.
+
+Finally colour $v$. Its five neighbours include $x$ and $y$, which now have the
+same colour, so they use at most $4$ distinct colours between them. One of the
+five colours is free, and we give it to $v$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{IMPORTANT. The five-colour argument in three panels.
+Panel 1: vertex $v$ of degree exactly 5 with its five neighbours drawn around
+it, two of them $x$ and $y$ marked as non-adjacent (dashed ``no edge'' between
+them). Panel 2: $G'$, with $v$ gone and $x,y$ merged into one vertex, drawn so
+that planarity is visibly preserved. Panel 3: the colouring pulled back --- $x$
+and $y$ carry the same colour, the five neighbours of $v$ show only four
+distinct colours, and $v$ takes the leftover colour.}
+\caption{Identifying two non-adjacent neighbours frees up a colour for $v$.}
+\label{fig:5col}
+\end{figure}
+
+\begin{intuition}
+The whole difficulty of $5$-colouring is concentrated in one place: a
+degree-$5$ vertex can see five different colours, and then induction stalls.
+The fix is to force a collision in advance. We are allowed to force it because
+planarity guarantees that two of the neighbours are non-adjacent, so gluing
+them together is harmless; and we are allowed to glue at all because gluing is
+a minor operation and minors of planar graphs stay planar. Both licences come
+from Section~\ref{sec:basics}, which is why that section came first.
+\end{intuition}
+
+\begin{theorem}[Four Colour Theorem; Appel--Haken 1976]
+Every planar graph is $4$-colourable.
+\end{theorem}
+
+We will not prove this, and neither will anybody else on a blackboard. The
+proof reduces the statement to a finite but enormous case analysis --- an
+unavoidable set of configurations, each checked by computer. It was the first
+major theorem whose proof could not be verified by a human unaided, and it
+caused a lasting argument about what a proof is for. (A formally verified
+proof, machine-checked end to end, was completed by Gonthier in 2005, which
+settles the correctness question if not the philosophical one.)
+
+Note that $4$ is optimal: $K_4$ is planar and needs four colours. And in the
+other direction, deciding $3$-colourability of a planar graph is NP-hard ---
+we prove that in Section~\ref{sec:3col}. So the complexity landscape for
+planar colouring is completely mapped: $k \le 2$ easy, $k = 3$ NP-hard,
+$k \ge 4$ always yes.
+
+\subsection{Drawing with straight lines}
+
+\begin{theorem}[Fáry, 1936]
+Every planar graph can be drawn in the plane with no crossings and with every
+edge drawn as a straight line segment.
+\end{theorem}
+
+This is reassuring rather than surprising: it says the curved edges we allow
+ourselves are a convenience, not a necessity. It is also the entry point to a
+large research area, \emph{graph drawing}, which asks for drawings of (almost)
+planar graphs that are good in various additional senses --- small area on an
+integer grid, few distinct edge slopes, all faces convex, vertices at
+prescribed positions, few crossings when the graph is not quite planar.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{The same planar graph drawn twice: once with curved
+edges, once with straight-line edges on a small integer grid (Fáry). Optionally
+a third panel showing a bad straight-line drawing with huge coordinates, to
+motivate the question of how small a grid suffices.}
+\caption{Fáry's theorem: curves are never necessary.}
+\label{fig:fary}
+\end{figure}
+
+%==============================================================================
+\section{Planarity testing}\label{sec:testing}
+%==============================================================================
+
+\begin{quote}
+\textbf{Problem.} Given a graph $G$, decide whether it is planar (and if so,
+produce an embedding).
+\end{quote}
+
+Linear-time algorithms are known --- the classical ones are Hopcroft--Tarjan
+(1974) and Booth--Lueker (1976), and there are several later ones that are
+easier to implement. They are also fiddly, and their correctness proofs are
+long. We will instead study an $\bigoh{n^3}$ algorithm going back to
+Auslander--Parter and Goldstein, because it is built from ideas you can hold in
+your head, and because those ideas (cycle, segments, interlacement) reappear
+in the fast algorithms anyway.
+
+As noted in Remark~\ref{rem:no-algo}, Kuratowski's theorem is of no direct
+help. We need a constructive strategy.
+
+\subsection{Warm-up: showing \texorpdfstring{$K_{3,3}$}{K33} is not planar by
+hand}\label{sec:k33warmup}
+
+Before any formalism, let us do the entire thing on the smallest interesting
+example. Everything the general algorithm does will appear here in miniature,
+and it is worth returning to this subsection whenever the machinery in
+Sections~\ref{sec:segments}--\ref{sec:sepcyclesec} feels abstract.
+
+We already know from the edge count $m \le 2n-4$ that $K_{3,3}$ is not planar.
+That proof is shorter than the one below, but it is a dead end: it tells us
+nothing about how to \emph{search} for a drawing. The argument here is longer
+and much more useful, because it is a procedure.
+
+Write the two sides of $K_{3,3}$ as $\{a_1,a_2,a_3\}$ and $\{b_1,b_2,b_3\}$.
+
+\paragraph{Step 1: draw a cycle.}
+Start with any cycle and commit to drawing it. Take the $6$-cycle
+\[
+  C \;=\; a_1 \, b_1 \, a_2 \, b_2 \, a_3 \, b_3 \, a_1 ,
+\]
+which uses six of the nine edges of $K_{3,3}$ (check each consecutive pair: it
+always joins an $a$ to a $b$, so it is indeed a cycle in the graph). Drawn
+without crossings, $C$ is a closed curve, and it cuts the plane into an inside
+and an outside.
+
+\paragraph{Step 2: see what is left over.}
+Three edges remain:
+\[
+  a_1b_2, \qquad a_2b_3, \qquad a_3b_1 .
+\]
+Each of them joins two vertices that are already on $C$ and touches $C$ nowhere
+else. So each must be drawn either entirely inside $C$ or entirely outside
+$C$ --- there is no third option, and no edge can be split between the two
+regions. We have turned a drawing problem into three yes/no decisions.
+
+\paragraph{Step 3: see which decisions clash.}
+Number the positions around $C$ as
+\[
+  \underbrace{a_1}_{1}\;\underbrace{b_1}_{2}\;\underbrace{a_2}_{3}\;
+  \underbrace{b_2}_{4}\;\underbrace{a_3}_{5}\;\underbrace{b_3}_{6},
+\]
+so the three leftover edges join positions
+\[
+  a_1b_2 : 1\text{--}4, \qquad a_2b_3 : 3\text{--}6, \qquad a_3b_1 : 5\text{--}2 .
+\]
+Any two of these three \emph{interleave}: going around the cycle, their
+endpoints alternate. For $1\text{--}4$ and $3\text{--}6$, the order encountered
+is $1,3,4,6$ --- one endpoint of the second chord lies between the endpoints of
+the first, and the other lies outside. The same is true for $1\text{--}4$
+against $5\text{--}2$, and for $3\text{--}6$ against $5\text{--}2$.
+
+Two interleaving chords cannot be drawn on the same side of $C$: inside the
+disc bounded by $C$, two curves whose endpoints alternate around the boundary
+are forced to cross. For the moment we take this as visually evident --- it is
+exactly Definition~\ref{def:interlace} and Observation~\ref{obs:2col} below,
+where it is stated properly.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{IMPORTANT --- the students' anchor picture for the whole
+section. Draw $K_{3,3}$ twice. Left: the standard $3+3$ drawing with many
+crossings, labelled $a_1,a_2,a_3$ and $b_1,b_2,b_3$. Right: the same graph
+redrawn with the $6$-cycle $C = a_1b_1a_2b_2a_3b_3$ as a large hexagon (or
+circle), with the six cycle edges solid and the three leftover edges
+$a_1b_2$, $a_2b_3$, $a_3b_1$ drawn as dashed chords in three different colours.
+Number the six positions $1,\dots,6$ around the outside. The picture must make
+it obvious that the three dashed chords pairwise alternate.}
+\caption{$K_{3,3}$ redrawn around a $6$-cycle. The three remaining edges are
+chords, and each must go inside or outside.}
+\label{fig:k33-cycle}
+\end{figure}
+
+\paragraph{Step 4: get stuck.}
+Now try to make the three decisions.
+
+\begin{itemize}
+  \item Put $a_1b_2$ \emph{inside}. (Why we may assume this is the subtle
+        point; see below.)
+  \item $a_2b_3$ interleaves with $a_1b_2$, so it cannot also be inside. It
+        must go \emph{outside}.
+  \item $a_3b_1$ interleaves with $a_1b_2$, so it cannot go inside. It also
+        interleaves with $a_2b_3$, so it cannot go outside. There is nowhere
+        left to put it.
+\end{itemize}
+
+We are stuck, and therefore no crossing-free drawing exists: $K_{3,3}$ is not
+planar. \hfill$\square$
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{The three decisions, as a strip of three panels sharing
+the same hexagon. Panel 1: $a_1b_2$ drawn inside (blue). Panel 2: $a_2b_3$
+added --- shown first attempted inside in grey with the forced crossing marked
+by a red X, then drawn outside (green). Panel 3: $a_3b_1$ attempted both ways,
+each with a red X and the crossing circled, so the reader sees that both
+regions are now blocked. A caption under panel 3 reading ``no room left''.}
+\caption{Placing the three chords: the third one has nowhere to go.}
+\label{fig:k33-stuck}
+\end{figure}
+
+\paragraph{Why the first choice is free.}
+The one step that needs justification is putting $a_1b_2$ inside. We did not
+prove that it belongs there; we assumed it. This is legitimate because the two
+cases are the \emph{same} case.
+
+Suppose we had a crossing-free drawing in which $a_1b_2$ lies outside $C$.
+Project the drawing stereographically onto the sphere. On the sphere the curve
+$C$ still separates the surface into two regions, but neither of them is
+distinguished --- there is no ``outer'' region, only two discs. Rotate the
+sphere so that the two regions trade places, and project back to the plane. The
+result is again a crossing-free drawing of the same graph with the same cycle
+$C$, but now $a_1b_2$ is inside. (Equivalently, and without leaving the plane:
+invert the drawing through a circle, which exchanges the interior and exterior
+of $C$.)
+
+So any drawing can be converted into one where $a_1b_2$ is inside, and it is
+enough to rule out that case. After that first free choice nothing else is
+free: each subsequent chord's side is forced.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{The inside/outside symmetry. Show a plane drawing with a
+cycle $C$ and one chord outside; an arrow to the same drawing on a sphere
+(stereographic projection), where the cycle bounds two equal-looking caps; an
+arrow to the sphere rotated so the caps swap; and an arrow back down to a plane
+drawing in which the chord is now inside. The message: ``inside'' and
+``outside'' are the same thing seen from different sides.}
+\caption{On the sphere there is no outer face, so the first chord may be placed
+inside without loss of generality.}
+\label{fig:sphere}
+\end{figure}
+
+\begin{intuition}
+That was the whole algorithm. Read the four steps again and note what each one
+becomes in general:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{In the $K_{3,3}$ warm-up} & \textbf{In the general algorithm} \\
+\midrule
+the $6$-cycle $C$ & a \emph{separating cycle} $C$
+  (Section~\ref{sec:sepcyclesec}) \\
+the three leftover chords & the \emph{segments} of $C$
+  (Definition~\ref{def:segment}) \\
+``these two chords interleave'' & the \emph{interlacement graph}
+  (Definition~\ref{def:interlace}) \\
+inside / outside for each chord & a \emph{$2$-colouring} of that graph \\
+``we got stuck'' & the interlacement graph is not $2$-colourable \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+There is exactly one genuinely new ingredient in the general case. A chord is
+a single edge, so once we decide which side it goes on there is nothing more to
+check. A segment is a whole subgraph, and deciding to put it inside $C$ leaves
+the question of whether it can be drawn there --- which is another planarity
+problem. That is where the recursion comes from, and it is the only thing the
+warm-up does not already show you.
+\end{intuition}
+
+\subsection{Reducing to the 2-connected case}
+
+Two easy preprocessing steps let us assume the input is well-behaved.
+
+\begin{itemize}
+  \item \textbf{Connectivity.} $G$ is planar if and only if each of its
+        connected components is planar: separate components can be drawn far
+        apart in the plane and never interfere. So test each component.
+  \item \textbf{2-connectivity.} If $v$ is a cut vertex, split $G$ at $v$ into
+        the pieces formed by the components of $G - v$ together with $v$
+        itself. $G$ is planar if and only if all the pieces are. Informally,
+        one can rotate each piece around $v$ so that it occupies its own wedge
+        of the plane touching $v$; nothing forces two pieces to interleave,
+        because they meet in the single point $v$.
+\end{itemize}
+
+Iterating the second step decomposes $G$ into its \emph{blocks} (maximal
+$2$-connected subgraphs), computable in linear time by depth-first search, and
+$G$ is planar exactly when all of its blocks are.
+
+So from now on: \textbf{$G$ is $2$-connected.} Concretely we use two
+consequences: every vertex lies on a cycle, and between any two vertices there
+are two internally disjoint paths.
+
+Finally, one free sanity check that will matter for the running time: by
+Corollary~\ref{cor:3n-6}, if $m > 3n - 6$ we may immediately answer NO. So we
+may assume $m = \bigoh{n}$ throughout.
+
+\subsection{The key insight}
+
+Everything rests on one observation about what a cycle does to a plane drawing.
+
+\begin{observation}[The key insight]\label{obs:key}
+Let $C$ be a cycle in a plane graph $G$. A cycle drawn without crossings is a
+closed curve, and by the Jordan curve theorem it divides the plane into an
+inside and an outside. Consequently, if $\{u,v\} \in E$ is an edge with
+neither $u$ nor $v$ on $C$, then $u$ and $v$ lie \emph{both} inside $C$ or
+\emph{both} outside $C$ --- an edge cannot get from one region to the other
+without crossing $C$.
+\end{observation}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{A cycle $C$ drawn as a closed curve dividing the plane
+into inside and outside, with two vertices $u,v$ off the cycle joined by an
+edge, both drawn inside. Next to it, greyed out and marked with a red cross, an
+attempted drawing with $u$ inside and $v$ outside, showing the forced crossing
+with $C$.}
+\caption{A cycle separates the plane: edges avoiding it cannot cross it.}
+\label{fig:jordan}
+\end{figure}
+
+So once we commit to drawing a cycle $C$, the rest of the graph decomposes into
+chunks, and each chunk must be placed entirely inside or entirely outside. This
+turns a continuous drawing problem into a discrete two-way choice --- and
+two-way choices are exactly what $2$-colouring solves.
+
+\subsection{Segments and interlacement}\label{sec:segments}
+
+\begin{definition}[Segment]\label{def:segment}
+Fix a cycle $C$ in $G$. A \emph{segment} (also called a \emph{bridge} of $C$)
+is either
+\begin{itemize}[nosep]
+  \item an edge of $G$ joining two non-consecutive vertices of $C$ --- a
+        \emph{chord}; or
+  \item the subgraph induced by the edges of one connected component of
+        $G - V(C)$, together with all edges joining that component to $C$.
+\end{itemize}
+The vertices of $C$ that a segment touches are its \emph{attachments}.
+\end{definition}
+
+By Observation~\ref{obs:key}, each segment must be drawn entirely inside $C$ or
+entirely outside $C$; it cannot be split, because it is connected and avoids
+$C$ except at its attachments.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT --- this is the central picture of the section.
+Reproduce the three-panel slide. Panel 1 ``Segments'': a cycle $C$ drawn as a
+circle with several segments hanging off it --- at least one chord, and at
+least two segments coming from components of $G - V(C)$, with their attachment
+vertices marked on the circle. Label the segments $S_1,\dots,S_k$. Panel 2
+``Interlacement graph'': one vertex per segment, edges between conflicting
+ones. Panel 3 ``Drawing'': the resulting layout with some segments drawn inside
+the circle and the rest outside, colour-coded to match the 2-colouring of panel
+2.}
+\caption{From a cycle to segments to the interlacement graph to a drawing.}
+\label{fig:segments}
+\end{figure}
+
+Now, when can two segments be placed on the same side? If their attachments
+interleave around the cycle, they cannot: drawing both inside would force them
+to cross.
+
+\begin{definition}[Conflict / interlacement]\label{def:interlace}
+Two segments $S$ and $S'$ \emph{conflict} (or \emph{interlace}) if there are
+four vertices $v_1,v_2,v_3,v_4$ occurring in this cyclic order on $C$ with
+$v_1,v_3$ attachments of $S$ and $v_2,v_4$ attachments of $S'$.
+The \emph{interlacement graph} $I$ has one vertex per segment, with an edge
+between two segments exactly when they conflict.
+\end{definition}
+
+\begin{remark}[A case the slide glosses over]\label{rem:threeattach}
+%% CHECK AGAINST SLIDE: the slide states only the interleaving condition.
+There is a second way two segments can fail to share a side: if they have
+\emph{three or more attachments in common}. Suppose $S$ and $S'$ both attach at
+$a,b,c$. Drawing $S$ inside $C$ cuts the disc into three regions, each of whose
+boundary contains only two of $a,b,c$; so $S'$, which must live in one region,
+cannot reach all three. These pairs are not always caught by
+Definition~\ref{def:interlace} (the four witnesses would have to repeat a
+vertex), so a correct implementation must add them to $I$ explicitly. This is
+standard in the literature; see the optional Auslander--Parter reading in the
+course archive.
+\end{remark}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Two panels. Left: two segments whose attachments
+alternate around the cycle ($v_1, v_2, v_3, v_4$ in cyclic order, $S$ attaching
+at $v_1,v_3$ and $S'$ at $v_2,v_4$), with an attempt to draw both inside
+showing the forced crossing in red. Right: two segments whose attachments do
+not alternate, drawn happily side by side inside the cycle. A third small panel
+could show the three-common-attachments case of
+Remark~\ref{rem:threeattach}.}
+\caption{Interlacing segments cannot share a side.}
+\label{fig:interlace}
+\end{figure}
+
+\begin{observation}\label{obs:2col}
+If $G$ is planar, then in any plane embedding the segments placed inside $C$
+form an independent set of $I$, as do those placed outside. Hence $I$ must be
+$2$-colourable, i.e.\ bipartite.
+\end{observation}
+
+This gives us a necessary condition that we can test in linear time
+($2$-colourability is a BFS). It is not by itself sufficient --- a segment
+placed inside must also be drawable inside, which is a planarity question one
+level down --- and that is what makes the algorithm recursive.
+
+\subsection{The algorithm}
+
+\begin{algorithm}[ht]
+\caption{Planarity test (first attempt)}
+\label{alg:planar-naive}
+\begin{algorithmic}[1]
+  \State find a cycle $C$ in $G$; let $S_1,\dots,S_k$ be its segments
+  \If{the interlacement graph $I$ is not $2$-colourable}
+    \State \Return NO
+  \EndIf
+  \For{$i = 1,\dots,k$}
+    \State recursively test whether $C + S_i$ is planar
+  \EndFor
+  \State \Return YES iff all recursive calls returned YES
+\end{algorithmic}
+\end{algorithm}
+
+Why is this the right recursion? Two directions.
+
+\begin{itemize}
+  \item \textbf{Soundness.} If $I$ is not $2$-colourable then $G$ is not planar
+        by Observation~\ref{obs:2col}. If some $C + S_i$ is not planar, then
+        $G$ is not planar either, since $C + S_i$ is a subgraph of $G$.
+  \item \textbf{Completeness.} Suppose $I$ is $2$-colourable and each
+        $C + S_i$ is planar. Take a $2$-colouring of $I$; it tells us which
+        segments go inside and which go outside. Each $C + S_i$ has a plane
+        embedding, which we may take with $S_i$ drawn inside $C$ (if it is
+        drawn outside, invert the drawing through a circle, or think of it on
+        the sphere and rotate). Now merge: draw $C$ once, and for each $i$ paste
+        in the drawing of $S_i$, on the side dictated by the colouring. Two
+        segments on the same side do not conflict, so their attachments do not
+        interleave and their drawings can be arranged in disjoint parts of the
+        disc without crossings.
+\end{itemize}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{The merging step. Show the cycle $C$ drawn once in the
+middle, and around it several separately-computed drawings of $C + S_i$, each
+with $S_i$ inside its own copy of $C$. Arrows show them being pasted into the
+common picture, blue ones inside the circle and red ones outside, matching the
+2-colouring. Convey that the drawings only ever meet on $C$ itself.}
+\caption{Merging the recursive drawings using the $2$-colouring.}
+\label{fig:merge}
+\end{figure}
+
+\subsection{The catch, and separating cycles}\label{sec:sepcyclesec}
+
+Algorithm~\ref{alg:planar-naive} has a bug, and it is a fatal one: the
+recursion need not make progress. If $C$ happens to have only one segment
+$S_1$, then $C + S_1 = G$, and we recurse on the very same graph forever.
+
+The fix is to insist on a cycle that actually splits something off.
+
+\begin{definition}
+A cycle $C$ in $G$ is \emph{separating} if it has at least two segments.
+\end{definition}
+
+If $C$ is separating, then every $C + S_i$ is a proper subgraph of $G$ (it
+misses at least the edges of the other segment), so the recursion strictly
+descends. It remains to show that separating cycles exist, except in cases so
+simple that we can answer directly.
+
+\begin{lemma}[Existence of a separating cycle]\label{lem:sepcycle}
+Let $G$ be $2$-connected. Then $G$ has a separating cycle unless
+\begin{enumerate}[label=(\roman*),nosep]
+  \item $G$ is itself a cycle, or
+  \item $G$ is a cycle plus one segment which is a path.
+\end{enumerate}
+Moreover, a separating cycle can be found in polynomial (indeed linear) time.
+\end{lemma}
+
+Both exceptional cases are trivially planar: (i) is a circle, and (ii) is a
+\emph{theta graph}, drawn as a circle with one path across the inside. So the
+lemma loses us nothing.
+
+\begin{proof}
+Find any cycle $C$ (one exists since $G$ is $2$-connected). If $C$ has at
+least two segments we are done. If $C$ has no segments then $G = C$ and we are
+in case~(i). So assume $C$ has exactly one segment $S$. If $S$ is a path, we
+are in case~(ii). So assume $S$ is a single segment that is \emph{not} a path;
+we construct a separating cycle.
+
+Since $G$ is $2$-connected, $S$ has at least two attachments on $C$. Pick two
+attachments $u$ and $v$ that are \emph{consecutive}, meaning that one of the
+two $u$--$v$ arcs of $C$ contains no attachment of $S$ in its interior. Call
+that arc $B$, and call the other arc $A$; so $A$ contains all the remaining
+attachments of $S$, if any.
+
+Because $S$ is connected and attaches at both $u$ and $v$, it contains a path
+$P$ from $u$ to $v$ whose interior vertices lie entirely inside $S$ (in
+particular, off $C$). Set
+\[
+  C' \;:=\; A + P ,
+\]
+which is a cycle: $A$ is a $u$--$v$ path along $C$, $P$ is a $u$--$v$ path
+through $S$, and they meet only at $u$ and $v$.
+
+We claim $C'$ is separating, i.e.\ that it has at least two segments.
+\begin{itemize}[nosep]
+  \item The arc $B$ gives one segment of $C'$: its interior vertices are off
+        $C'$ and connect to $C'$ exactly at $u$ and $v$. (If $B$ has no
+        interior vertices then $B$ is a single edge $uv$, which is a chord of
+        $C'$ because $P$ has length at least $2$; either way, a segment.)
+  \item Since $S$ is not a path, $S$ has at least one edge outside $P$. That
+        edge is not on $C'$ either, so it belongs to some segment of $C'$, and
+        that segment is different from the one contributed by $B$ --- it lives
+        on the other side, attached to $A \cup P$ rather than only to
+        $\{u,v\}$.
+\end{itemize}
+So $C'$ has at least two segments and is separating. All the steps ---
+finding a cycle, finding attachments, finding $P$ --- are searches in a graph
+and run in linear time.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT. Reproduce and extend the slide picture for
+Lemma~\ref{lem:sepcycle}. Draw the cycle $C$ as a circle with the two
+consecutive attachments $u$ and $v$ marked, the two arcs labelled $A$ (the one
+carrying the other attachments) and $B$ (the empty one), and the single segment
+$S$ drawn inside/outside with several attachments on $A$. Highlight the path
+$P$ from $u$ to $v$ through $S$ in bold. Then, in a second panel, redraw with
+the new cycle $C' = A + P$ highlighted, and shade the two things it separates:
+the arc $B$ on one side, the leftover part of $S$ on the other.}
+\caption{Building a separating cycle $C' = A + P$ when $C$ has a single
+non-path segment.}
+\label{fig:sepcycle}
+\end{figure}
+
+\begin{algorithm}[ht]
+\caption{Planarity test (corrected)}
+\label{alg:planar}
+\begin{algorithmic}[1]
+  \State reduce to the $2$-connected case; if $m > 3n-6$ \Return NO
+  \If{$G$ is a cycle, or a cycle plus a path segment}
+    \State \Return YES
+  \EndIf
+  \State find a \emph{separating} cycle $C$ (Lemma~\ref{lem:sepcycle}); let
+         $S_1,\dots,S_k$ be its segments
+  \If{the interlacement graph $I$ is not $2$-colourable}
+    \State \Return NO
+  \EndIf
+  \For{$i = 1,\dots,k$}
+    \State recursively test whether $C + S_i$ is planar
+  \EndFor
+  \State \Return YES iff all recursive calls returned YES
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Running time}
+
+Each recursive call does a bounded amount of graph work: find a separating
+cycle (linear), compute the segments (a connected-components computation,
+linear), build the interlacement graph (at most $\bigoh{n^2}$, since there are
+$\bigoh{n}$ segments and comparing two segments' attachment patterns takes
+linear time), and $2$-colour it (linear in its size, $\bigoh{n^2}$). So a call
+costs $\bigoh{n^2}$.
+
+How many calls are there? Each call passes a strictly smaller graph
+$C + S_i$ to its children, but the pieces overlap in $C$, so the naive bound
+is not immediate.
+
+\begin{quote}
+\textbf{Fact (stated without proof).} The total number of recursive calls is
+at most $m$. The argument charges each call to a distinct edge of $G$; the
+details are omitted here as in the lecture.
+\end{quote}
+
+Since we may assume $m = \bigoh{n}$, we get $\bigoh{n}$ calls of cost
+$\bigoh{n^2}$ each:
+\[
+  \text{total running time } \; \bigoh{n^3}.
+\]
+
+\begin{intuition}
+Step back and look at the shape of this algorithm. It converts a
+\emph{geometric} question --- can this be drawn? --- into a
+\emph{combinatorial} one --- can these choices be made consistently? The
+conversion happens in two moves. Observation~\ref{obs:key} says the only choice
+is binary (inside or outside). Definition~\ref{def:interlace} records which
+binary choices are incompatible. What is left is $2$-colouring, which is easy,
+plus a recursion to check that each individual choice can actually be realised.
+
+The one place where care is genuinely needed is the recursion measure, which is
+also the one place where the naive version was simply wrong. That is a common
+pattern: the interesting bug is never in the clever idea, it is in the
+termination argument.
+\end{intuition}
+
+%==============================================================================
+\section{The Planar Separator Theorem}\label{sec:pst}
+%==============================================================================
+
+We now turn to the structural property that makes planar graphs
+algorithmically soft: they can be cut into balanced pieces very cheaply.
+
+\begin{definition}[Balanced separator]
+Let $\alpha \in (0,1)$. A set $S \subseteq V$ is an
+\emph{$\alpha$-balanced separator} of $G$ if every connected component of
+$G - S$ has at most $\alpha \cdot n$ vertices.
+\end{definition}
+
+Note what is \emph{not} required: $G - S$ may have many components, and they
+need not be balanced against each other. All we ask is that no single component
+is large.
+
+\begin{theorem}[Planar Separator Theorem]\label{thm:pst}
+Let $G = (V,E)$ be a planar graph on $n$ vertices. Then $G$ has a
+$\tfrac{9}{10}$-balanced separator of size at most $11\sqrt{n}$.
+Moreover, such a separator can be found in polynomial time.
+%% CHECK AGAINST SLIDE: the constants 9/10 and 11 are as stated on the slide.
+\end{theorem}
+
+Several proofs exist. The classical one is due to Lipton and Tarjan (1979),
+who obtained a $\tfrac{2}{3}$-balanced separator of size $2\sqrt{2}\sqrt{n}$
+using breadth-first search layers; it is combinatorial and constructive. The
+proof sketched below is geometric and probabilistic, and it generalises better.
+The exact constants are of no importance for us --- what matters is
+$\bigoh{\sqrt n}$.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{A planar graph (say a chunk of grid-like mesh) with a
+thin ``curve'' of $\bigoh{\sqrt n}$ vertices highlighted in red, and the two
+sides shaded in different colours, each visibly containing a constant fraction
+of the vertices. The picture should make the $\sqrt{n}$ scaling plausible: a
+region of area $n$ has boundary $\sqrt n$.}
+\caption{A balanced separator: remove $\bigoh{\sqrt n}$ vertices, and nothing
+big survives.}
+\label{fig:separator}
+\end{figure}
+
+\subsection{The bound is tight}
+
+\begin{proposition}\label{prop:gridtight}
+The $\sqrt{n} \times \sqrt{n}$ grid has no $\tfrac{9}{10}$-balanced separator
+of size $\sqrt{n}/20$.
+%% CHECK AGAINST SLIDE: constant 1/20 recovered from context.
+\end{proposition}
+
+So Theorem~\ref{thm:pst} is optimal up to the constant factor, and no cleverer
+argument will get us to, say, $\bigoh{n^{1/3}}$.
+
+\begin{intuition}
+The grid is the canonical hard case and it is worth carrying around as a mental
+image. To break a $\sqrt n \times \sqrt n$ grid into pieces of at most
+$\tfrac{9}{10}$ of the area you must cut it more or less all the way across,
+and going all the way across costs about $\sqrt n$ vertices. Any set that is
+too small leaves a ``highway'' of untouched rows and columns, and the untouched
+part stays connected and large.
+
+The same picture explains why $\sqrt{n}$ is the right exponent in general:
+planar graphs are two-dimensional, and in two dimensions the boundary of a
+region of area $A$ has length about $\sqrt{A}$. The Planar Separator Theorem
+is the combinatorial shadow of the isoperimetric inequality.
+\end{intuition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{The $\sqrt n \times \sqrt n$ grid with a small set of
+deleted vertices (say a scattered handful marked with crosses), showing that
+whole rows and columns survive intact and keep the rest connected. Next to it,
+a genuine separator: a full row plus a full column, or a single row, marked in
+red, with the resulting pieces shaded.}
+\caption{Small sets cannot disconnect the grid.}
+\label{fig:gridtight}
+\end{figure}
+
+\subsection{Koebe's theorem and the proof idea (non-examinable)}
+
+The geometric proof rests on a beautiful and surprising representation
+theorem.
+
+\begin{theorem}[Koebe's disk embedding theorem]\label{thm:koebe}
+Every planar graph $G$ can be represented by a family of disks $\{D_v\}_{v \in
+V}$ in the plane such that
+\begin{enumerate}[label=(\roman*),nosep]
+  \item the interiors of the disks are pairwise disjoint, and
+  \item $D_v$ and $D_w$ touch if and only if $\{v,w\} \in E$.
+\end{enumerate}
+\end{theorem}
+
+In other words, every planar graph \emph{is} a coin-contact graph. This
+converts a combinatorial object into a rigid geometric one, at which point
+geometric tools --- areas, random circles --- become available.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{A small planar graph next to its circle packing: disks of
+various sizes, touching exactly where the graph has edges, with the graph drawn
+faintly on top (vertices at disk centres, edges through the tangency points).
+Include a few large disks and many small ones so the size variation is
+visible --- that variation is what the proof exploits.}
+\caption{Koebe: every planar graph is the contact graph of a family of disks.}
+\label{fig:koebe}
+\end{figure}
+
+\begin{proof}[Sketch, for Theorem~\ref{thm:pst}]
+This was omitted in the lecture and is optional reading.
+Fix a disk representation of $G$ as given by Theorem~\ref{thm:koebe}.
+
+Let $D$ be the smallest circle containing at least $n/10$ of the disk centres.
+Rescale and translate so that $D$ has radius $1$ and is centred at the origin.
+Pick $r \in [1,2]$ uniformly at random, let $C_r$ be the circle of radius $r$
+about the origin, and set
+\[
+  S \;=\; \{\, v : D_v \text{ intersects } C_r \,\} ,
+\]
+a random set. Take $S$ as the separator; the vertices whose disks lie strictly
+inside $C_r$ and those strictly outside form the two sides.
+
+\emph{Why $S$ separates.} Two disks that do not meet $C_r$ and lie on opposite
+sides of it cannot touch, so there is no edge between the inside part and the
+outside part. This is the same Jordan-curve reasoning as
+Observation~\ref{obs:key}, now applied to a circle drawn through the packing.
+
+\emph{Why $S$ is balanced.} The inside contains at least the $n/10$ centres
+inside $D$. For the outside, one shows that the disk of radius $2$ cannot
+contain too many centres: by minimality of $D$, every circle of radius smaller
+than $1$ contains fewer than $n/10$ centres, and a disk of radius $2$ can be
+covered by a constant number of such circles. Choosing the constants
+appropriately gives that neither side exceeds $\tfrac{9}{10}n$.
+
+\emph{Why $S$ is small.} This is the pretty part. A disk $D_v$ of radius $\rho_v$
+meets $C_r$ only if $r$ falls in an interval of length about $2\rho_v$, so
+\[
+  \Pr[\,v \in S\,] \;\lesssim\; 2\rho_v ,
+\]
+because $r$ is uniform on an interval of length $1$. Hence
+$\mathbb{E}[|S|] \lesssim 2\sum_v \rho_v$, where the sum ranges over the disks
+that could possibly be hit --- essentially those inside the disk of radius
+$2$ (only $\bigoh{1}$ disks are large enough to reach it from outside). Those
+disks are interior-disjoint and fit inside a bounded region, so
+$\sum_v \pi\rho_v^2 = \bigoh{1}$, and by Cauchy--Schwarz
+\[
+  \sum_{v} \rho_v \;\le\; \sqrt{ n \cdot \sum_v \rho_v^2 } \;=\; \bigoh{\sqrt n} .
+\]
+So $\mathbb{E}[|S|] = \bigoh{\sqrt{n}}$, and some choice of $r$ achieves the
+expectation. Working out the constants carefully gives the $11\sqrt n$ of
+Theorem~\ref{thm:pst}.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{The probabilistic argument. A circle packing with the
+small circle $D$ (radius 1, containing $n/10$ centres) marked in the middle,
+the annulus between radius 1 and radius 2 shaded, and one sampled circle $C_r$
+drawn in red. Highlight the disks that $C_r$ cuts through --- these form $S$.
+Convey visually that $C_r$ can only cut a disk if the disk is big or if $r$
+lands in a narrow window, which is why big disks are rare and small disks are
+rarely hit.}
+\caption{A random circle in the annulus cuts few disks and splits the rest
+evenly.}
+\label{fig:pst-proof}
+\end{figure}
+
+\begin{intuition}
+The two requirements on $S$ pull in opposite directions, and the randomness is
+what reconciles them. A circle far out is likely to cut few disks but leaves an
+unbalanced split; a circle close in balances well but may slice through a lot.
+Averaging over a whole range of radii shows that a good compromise must exist,
+without ever having to point at it. This is the probabilistic method in its
+purest form: we prove a separator exists by computing an average, and we never
+construct one by hand.
+\end{intuition}
+
+%==============================================================================
+\section{Application: independent set in \texorpdfstring{$2^{\bigoh{\sqrt n}}$}{2^O(sqrt n)} time}\label{sec:mis}
+%==============================================================================
+
+\textsc{Maximum Independent Set} is NP-hard, and it stays NP-hard on planar
+graphs. So we should not hope for a polynomial algorithm. But the separator
+theorem buys us an enormous speed-up over the trivial $2^n$.
+
+\begin{theorem}\label{thm:mis}
+\textsc{Maximum Independent Set} on planar graphs can be solved in
+$2^{\bigoh{\sqrt n}}$ time.
+\end{theorem}
+
+\begin{intuition}
+The idea is guess-and-divide. If we knew which separator vertices the optimal
+solution uses, the problem would fall apart into independent subproblems, one
+per component of $G - S$ --- because there are no edges between different
+components, so their choices cannot interfere. We do not know, so we try all
+possibilities. There are only $2^{|S|} = 2^{\bigoh{\sqrt n}}$ of them, which is
+affordable, and each guess leaves subproblems that are a constant factor
+smaller. The recursion depth is $\bigoh{\log n}$ and the sizes shrink
+geometrically, so the $\sqrt{n}$ in the exponent survives to the end.
+\end{intuition}
+
+\begin{algorithm}[ht]
+\caption{$\MIS(G)$ for planar $G$}
+\label{alg:mis}
+\begin{algorithmic}[1]
+  \If{$n$ is below a fixed constant} \Return a maximum independent set by
+      brute force \EndIf
+  \State find a $\tfrac{9}{10}$-balanced separator $S$ with
+         $|S| \le 11\sqrt{n}$ \Comment{Theorem~\ref{thm:pst}}
+  \State let $G_1,\dots,G_t$ be the connected components of $G - S$
+  \State $X \gets \emptyset$
+  \ForAll{independent sets $I$ of $G[S]$}
+    \For{$i = 1,\dots,t$}
+      \State $I_i \gets \MIS\bigl(G_i - N(I)\bigr)$
+    \EndFor
+    \State $Y \gets I \cup I_1 \cup \dots \cup I_t$
+    \If{$|Y| > |X|$} $X \gets Y$ \EndIf
+  \EndFor
+  \State \Return $X$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{The recursion picture. A planar graph with the separator
+$S$ drawn as a red band across the middle and the components $G_1,\dots,G_t$
+as blobs on either side. Show one guess $I \subseteq S$ with the chosen
+vertices circled, their neighbourhood $N(I)$ crossed out in the blobs, and
+arrows into the blobs labelled ``recurse''. A small side note: each blob has at
+most $9n/10$ vertices and is still planar.}
+\caption{Guess the solution's trace on the separator; the rest decomposes.}
+\label{fig:mis}
+\end{figure}
+
+\begin{proof}[Correctness]
+Let $O$ be a maximum independent set of $G$ and let $I^\star = O \cap S$. Since
+$O$ is independent, so is $I^\star$ in $G[S]$; therefore $I^\star$ is one of the
+sets enumerated in the loop. Consider that iteration.
+
+No vertex of $O \setminus S$ is adjacent to a vertex of $I^\star$, so
+$O \setminus S$ avoids $N(I^\star)$ entirely, hence
+$O \cap V(G_i)$ is an independent set of $G_i - N(I^\star)$ for each $i$. By
+induction the recursive call returns a maximum one, so
+$|I_i| \ge |O \cap V(G_i)|$. Summing,
+\[
+  |Y| = |I^\star| + \sum_{i=1}^{t} |I_i|
+      \;\ge\; |O \cap S| + \sum_{i=1}^{t} |O \cap V(G_i)| = |O| .
+\]
+
+Conversely every $Y$ constructed by the algorithm really is independent: $I$ is
+independent by the choice of the loop; each $I_i$ is independent; there are no
+edges between different components $G_i, G_j$; and there are no edges between
+$I$ and any $I_i$ because we deleted $N(I)$ before recursing. So the algorithm
+outputs an independent set of size at least $|O|$, i.e.\ a maximum one.
+
+Finally, each subproblem $G_i - N(I)$ is an induced subgraph of a planar graph
+and hence planar, so the recursion stays inside the class and the separator
+theorem remains applicable.
+\end{proof}
+
+\begin{proof}[Running time]
+Let $T(n)$ bound the running time on planar graphs with $n$ vertices. There are
+at most $2^{|S|} \le 2^{11\sqrt{n}}$ candidate sets $I$; the components number
+$t \le n$ and each has at most $\tfrac{9}{10}n$ vertices, so each recursive
+call is on an instance of size at most $\tfrac{9}{10}n$. Absorbing the
+polynomial work (finding the separator, computing components) into the
+constants,
+\[
+  T(n) \;\le\; 2^{11\sqrt{n}} \cdot n \cdot T\!\left(\tfrac{9}{10}n\right)
+  \;+\; \mathrm{poly}(n).
+\]
+We claim $T(n) \le 2^{1000\sqrt{n}}$ for all sufficiently large $n$. Inductively,
+\[
+  T(n) \;\le\; 2^{11\sqrt n}\cdot n\cdot 2^{1000\sqrt{9n/10}}
+   \;=\; n \cdot 2^{\left(11 + 1000\sqrt{9/10}\right)\sqrt n}
+   \;\le\; n \cdot 2^{959.7\sqrt{n}}
+   \;\le\; 2^{1000\sqrt n},
+\]
+where the last step holds because $n \le 2^{40\sqrt n}$ for every $n \ge 1$.
+For the base case, brute force costs $2^n \le 2^{1000\sqrt n}$ whenever
+$n \le 10^6$, which covers all small instances comfortably.
+\end{proof}
+
+\begin{remark}
+The constant $1000$ is absurd and is an artefact of the crude bookkeeping; the
+point is only that \emph{some} constant works, giving
+$2^{\bigoh{\sqrt n}}$. The same template --- separator, guess its trace,
+recurse --- gives $2^{\bigoh{\sqrt n}}$ algorithms for a whole family of
+problems on planar graphs, and it is one of the standard reasons to care about
+Theorem~\ref{thm:pst}. Note also that this is not merely a speed-up but a
+qualitative change: under the Exponential Time Hypothesis, $2^{o(\sqrt n)}$ is
+impossible for these problems, so $\sqrt n$ in the exponent is the truth.
+\end{remark}
+
+%==============================================================================
+\section{What stays hard on planar graphs}\label{sec:hardness}
+%==============================================================================
+
+Given Section~\ref{sec:mis}, it is natural to hope that planarity tames NP-hard
+problems in general. It does not. \emph{Most} NP-hard graph problems remain
+NP-hard when the input is restricted to planar graphs --- including independent
+set, vertex cover, dominating set, Hamiltonian cycle, and $3$-colouring. What
+we gain is better exponential algorithms, not polynomial ones.
+
+There are a few notable exceptions, and one of them is a pleasant surprise.
+
+\subsection{Planar Clique is easy}
+
+\begin{quote}
+\textsc{Planar Clique.} \emph{Given:} a planar graph $G$ and an integer $k$.
+\emph{Asked:} does $G$ contain a clique of size at least $k$?
+\end{quote}
+
+\begin{proposition}
+\textsc{Planar Clique} is solvable in polynomial time.
+\end{proposition}
+
+\begin{proof}
+A clique of size $5$ is a $K_5$ subgraph, hence a $K_5$ minor, which is
+impossible in a planar graph by Corollary~\ref{cor:k5} and
+Observation~\ref{obs:minor-closed}. So every planar graph has clique number at
+most $4$. Therefore: if $k \ge 5$, answer NO immediately; otherwise
+$k \le 4$ and we can simply test all $\binom{n}{k} \le \binom{n}{4} =
+\bigoh{n^4}$ subsets of size $k$.
+\end{proof}
+
+The moral is worth stating: the problem is not easy because we found a clever
+algorithm, but because the structure theory forbids the interesting instances
+from existing at all. When a restriction makes an NP-hard problem polynomial,
+it is very often for this kind of reason.
+
+\subsection{Planar 3-Colouring is NP-hard}\label{sec:3col}
+
+Now the other direction, as a sampler of how planar hardness proofs go.
+
+\begin{quote}
+\textsc{(Planar) 3-Coloring.} \emph{Given:} a (planar) graph $G$.
+\emph{Asked:} does $G$ have a $3$-colouring?
+\end{quote}
+
+We reduce from general $\ThreeCol$, which is NP-hard. The difficulty is
+obvious: a general graph need not be planar, and we must somehow simulate the
+crossings. The tool is a \emph{crossover gadget}, a small planar graph that
+lets two ``wires'' pass each other while preserving the colour each carries.
+
+\begin{claim}[The crossover gadget]\label{claim:gadget}
+There is a planar graph $W$ with four distinguished corner vertices
+$a, a', b, b'$ (drawn on the outer face, with $a$ opposite $a'$ and $b$
+opposite $b'$) such that:
+\begin{enumerate}[label=(\alph*),nosep]
+  \item in \emph{any} $3$-colouring of $W$, opposite corners get the same
+        colour, i.e.\ $c(a) = c(a')$ and $c(b) = c(b')$; and
+  \item \emph{any} assignment of colours to the four corners in which opposite
+        corners agree extends to a $3$-colouring of all of $W$.
+\end{enumerate}
+\end{claim}
+
+The verification is a finite case check, best carried out on the picture: up to
+permuting the three colours, $W$ admits only two colourings --- one in which
+all four corners get the same colour, and one in which they use two colours
+($a,a'$ one colour and $b,b'$ another).
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT --- the notes cannot substitute for this
+picture. Reproduce the gadget $W$ exactly as drawn on the slides: the planar
+graph with the four corners $a$, $a'$ (left/right) and $b$, $b'$ (top/bottom)
+and its interior triangles. Alongside it, show the two essentially different
+$3$-colourings referred to in Claim~\ref{claim:gadget}: (i) all four corners
+the same colour, (ii) $a,a'$ one colour and $b,b'$ a different one. Colour the
+vertices in the drawing so the case check can be read off directly.}
+\caption{The crossover gadget $W$ and its only two $3$-colourings.}
+\label{fig:gadget}
+\end{figure}
+
+\begin{theorem}\label{thm:planar3col}
+There is a polynomial-time reduction
+\[
+  \ThreeCol \;\le_P\; \PlanarThreeCol .
+\]
+In particular, \PlanarThreeCol{} is NP-hard.
+\end{theorem}
+
+\begin{proof}
+Let $G$ be an instance of $\ThreeCol$. Draw $G$ in the plane, allowing edges
+to cross; we may take a drawing in which any two edges cross at most once and
+no three edges meet at a point, so there are $\bigoh{m^2}$ crossings, which is
+polynomial.
+
+Now build a planar graph $G'$: keep all vertices of $G$, and walk along each
+drawn edge $\{u,v\}$ from $u$ to $v$, replacing every crossing it takes part in
+by a copy of the gadget $W$, chained so that the colour is handed on from one
+gadget to the next. Concretely, an edge that participates in $\ell$ crossings
+becomes a chain of $\ell$ gadgets, entering the first at corner $a$ and leaving
+the last at corner $a'$, with consecutive gadgets identified at those corners;
+the final terminal is joined to $v$ by a real edge. The crossing pair of wires
+enters and leaves the same gadget through $b$ and $b'$. The result is planar by
+construction, since each gadget is planar and drawn inside a small disc around
+the crossing it replaced, and its size is polynomial in $|G|$.
+
+\emph{If $G$ is $3$-colourable}, take a $3$-colouring $c$ and give every wire
+belonging to edge $\{u,v\}$ the colour $c(u)$ along its whole length. At each
+gadget, the two wires passing through it enter with some colours; opposite
+corners agree by construction, so by property~(b) the colouring extends to the
+gadget's interior. The final real edge is properly coloured because
+$c(u) \ne c(v)$. So $G'$ is $3$-colourable.
+
+\emph{If $G'$ is $3$-colourable}, restrict the colouring to the wires. By
+property~(a), each gadget forces its opposite corners to agree, so along the
+chain replacing edge $\{u,v\}$ the colour never changes: the terminal adjacent
+to $v$ carries the colour $c(u)$. Since that terminal is joined to $v$ by an
+edge, $c(u) \ne c(v)$. Thus the restriction of the colouring to $V(G)$ is a
+proper $3$-colouring of $G$.
+
+The construction is clearly computable in polynomial time.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{Two panels, following the slides. Left: a single crossing
+of two edges $a$--$a'$ and $b$--$b'$, with an arrow to the same picture with the
+crossing replaced by the gadget $W$ (drawn as a box with four corners
+labelled). Right: the multiple-crossings case --- one long edge from $a$ to
+$a'$ passing through three boxes labelled $W$ in a row, showing how the colour
+is relayed along the chain.}
+\caption{Replacing crossings by gadgets, one at a time and in chains.}
+\label{fig:crossings}
+\end{figure}
+
+\begin{intuition}
+The gadget is doing exactly one job: it is an \emph{insulated crossing}. Two
+signals need to pass each other in the plane, and the gadget lets them do so
+while guaranteeing that neither is altered and that they do not interact. Once
+you have such a component, \emph{any} graph problem whose constraints can be
+carried along wires becomes as hard on planar inputs as it is in general ---
+which is the real reason so few problems become easy under planarity. Compare
+this with \textsc{Planar Clique}, where the structure theory rules out the hard
+instances entirely; here the structure theory does not get in the way, so the
+hardness comes straight through.
+\end{intuition}
+
+%==============================================================================
+\section{Summary}
+%==============================================================================
+
+\begin{itemize}
+  \item \textbf{Structure.} Euler's formula $n + f = m + 2$ pins plane drawings
+        down; it gives $m \le 3n-6$, the non-planarity of $K_5$, and a vertex
+        of degree at most $5$ in every planar graph. Planarity is minor-closed
+        and is characterised exactly by forbidding $K_5$ and $K_{3,3}$
+        (Kuratowski--Wagner).
+  \item \textbf{Colouring.} Six colours by a one-line induction, five by
+        identifying two non-adjacent neighbours of a degree-$5$ vertex, four by
+        a computer-assisted proof --- and three is NP-hard.
+  \item \textbf{Testing.} Planarity can be decided in $\bigoh{n^3}$ by a
+        recursion on a separating cycle: segments must go inside or outside,
+        conflicts are recorded in the interlacement graph, and a $2$-colouring
+        of that graph makes the choice. Linear-time algorithms exist.
+  \item \textbf{Separators.} Every planar graph has a $\tfrac{9}{10}$-balanced
+        separator of size $\bigoh{\sqrt n}$, which is optimal (the grid). Via
+        Koebe's circle packing this follows from a short probabilistic
+        argument.
+  \item \textbf{Consequences.} Separators give $2^{\bigoh{\sqrt n}}$ algorithms,
+        for example for \textsc{Maximum Independent Set}. Most NP-hard problems
+        stay NP-hard on planar graphs; \textsc{Clique} is a rare exception, and
+        only because planar graphs have no $K_5$.
+\end{itemize}
+
+%==============================================================================
+\section{Exercises}
+%==============================================================================
+
+\begin{exercise}
+Show that a connected plane graph that is bipartite, simple and has $n \ge 3$
+satisfies $m \le 2n - 4$. Deduce that $K_{3,3}$ is not planar.
+\end{exercise}
+
+\begin{exercise}
+Prove that the number of faces of a plane embedding of a connected planar graph
+does not depend on the embedding. What goes wrong for disconnected graphs, and
+what is the right version of Euler's formula for a plane graph with $c$
+components?
+\end{exercise}
+
+\begin{exercise}
+Decide whether each of the two graphs in Figure~\ref{fig:quiz} is planar. For
+the planar one give a crossing-free drawing; for the other exhibit a $K_5$ or
+$K_{3,3}$ minor explicitly, listing the branch sets.
+\end{exercise}
+
+\begin{exercise}
+Show that every planar graph has a vertex of degree at most $5$, but that
+degree at most $4$ cannot be guaranteed. (Find a planar graph with minimum
+degree exactly $5$.)
+\end{exercise}
+
+\begin{exercise}
+In the proof of Theorem~\ref{thm:5col}, where exactly do we use that $x$ and
+$y$ are non-adjacent? Give an example showing that identifying two
+\emph{adjacent} neighbours can fail.
+\end{exercise}
+
+\begin{exercise}
+Let $C$ be a cycle and let $S, S'$ be two segments with exactly two attachments
+each. Show that they conflict in the sense of
+Definition~\ref{def:interlace} if and only if their attachment pairs
+interleave around $C$. Then construct an instance showing that
+Remark~\ref{rem:threeattach} is really needed: two segments that do not
+interleave in the sense of the definition but still cannot be drawn on the same
+side.
+\end{exercise}
+
+\begin{exercise}
+Show that a cycle plus a single path segment (case (ii) of
+Lemma~\ref{lem:sepcycle}) is always planar, and that it has no separating
+cycle. Conclude that the exceptional cases in the lemma are genuinely
+necessary.
+\end{exercise}
+
+\begin{exercise}
+The $\bigoh{n^3}$ bound assumed $m = \bigoh{n}$. Explain precisely why we are
+entitled to that assumption, and what the algorithm should do on an input with
+$m > 3n-6$.
+\end{exercise}
+
+\begin{exercise}
+Adapt Algorithm~\ref{alg:mis} to compute a maximum \emph{weight} independent
+set, and to compute a minimum vertex cover. Which parts of the correctness
+proof change?
+\end{exercise}
+
+\begin{exercise}
+Where does the $2^{\bigoh{\sqrt n}}$ algorithm break if the separator had size
+$\bigoh{n^{2/3}}$ instead? Work out what running time the same recursion would
+give.
+\end{exercise}
+
+\begin{exercise}
+Verify Claim~\ref{claim:gadget} on the gadget of Figure~\ref{fig:gadget} by
+hand: enumerate the $3$-colourings and check that opposite corners always
+agree.
+\end{exercise}
+
+%==============================================================================
+\begin{thebibliography}{9}
+
+\bibitem{HopcroftTarjan1974}
+J.~Hopcroft and R.~E.~Tarjan.
+\newblock Efficient planarity testing.
+\newblock \emph{Journal of the ACM}, 21(4):549--568, 1974.
+
+\bibitem{LiptonTarjan1979}
+R.~J.~Lipton and R.~E.~Tarjan.
+\newblock A separator theorem for planar graphs.
+\newblock \emph{SIAM Journal on Applied Mathematics}, 36(2):177--189, 1979.
+
+\bibitem{MillerTengThurstonVavasis1997}
+G.~L.~Miller, S.-H.~Teng, W.~Thurston and S.~A.~Vavasis.
+\newblock Separators for sphere-packings and nearest neighbor graphs.
+\newblock \emph{Journal of the ACM}, 44(1):1--29, 1997.
+
+\bibitem{GareyJohnsonStockmeyer1976}
+M.~R.~Garey, D.~S.~Johnson and L.~Stockmeyer.
+\newblock Some simplified NP-complete graph problems.
+\newblock \emph{Theoretical Computer Science}, 1(3):237--267, 1976.
+
+\bibitem{AppelHaken1977}
+K.~Appel and W.~Haken.
+\newblock Every planar map is four colorable.
+\newblock \emph{Illinois Journal of Mathematics}, 21(3):429--567, 1977.
+
+\bibitem{Diestel}
+R.~Diestel.
+\newblock \emph{Graph Theory}.
+\newblock Springer, 5th edition, 2017.
+\newblock (Chapter 4 for planarity, including full proofs of Kuratowski and
+Fáry.)
+
+\end{thebibliography}
+
+\end{document}

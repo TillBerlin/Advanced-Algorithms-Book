@@ -16,8 +16,10 @@ clean:
 	cd $(BOOKDIR) && latexmk -C
 	rm -f $(BOOKDIR)/*.bbl $(BOOKDIR)/*.run.xml
 
-# List everything that still needs writing.
+# List everything that still needs writing or drawing.
 todos:
-	@grep -rn '\\todo{' $(BOOKDIR) --include='*.tex' | sed 's|^| |' || echo " no TODOs left"
+	@grep -rn '\\todo{' $(BOOKDIR) --include='*.tex' | sed 's|^| |' || true
+	@grep -rn '\\figplaceholder{' $(BOOKDIR) --include='*.tex' | sed 's|^| |' || true
 	@echo
-	@printf 'total: %s\n' "$$(grep -rho '\\todo{' $(BOOKDIR) --include='*.tex' | wc -l)"
+	@printf 'todo markers:       %s\n' "$$(grep -rho '\\todo{' $(BOOKDIR) --include='*.tex' | wc -l)"
+	@printf 'figure placeholders: %s\n' "$$(grep -rho '\\figplaceholder{' $(BOOKDIR) --include='*.tex' | wc -l)"

@@ -19,9 +19,11 @@ book/
   frontmatter/       preface
   chapters/          one file per chapter, NN-name.tex
   appendix/          exam pool transcription, preliminaries
+  figures/           image files; see figures/README.md
 material/            source material the book is written against
   schedule.md        the lecture schedule
   pool/              the open exam question pool (PDF + extracted text)
+  notes/             standalone lecture notes, as written before integration
 Makefile             make / make clean / make todos
 ```
 
@@ -29,7 +31,7 @@ Makefile             make / make clean / make todos
 
 ```sh
 make        # -> book/main.pdf
-make todos  # what still needs writing
+make todos  # what still needs writing or drawing
 ```
 
 Needs TeX Live with `latexmk`. Every push is also built by GitHub Actions, which
@@ -44,3 +46,7 @@ uploads the PDF as a build artefact.
 3. Make sure every pool question listed at the end of the chapter is genuinely
    answerable from what you wrote.
 4. Update the status column in `OVERVIEW.md`.
+
+To finish a figure, drop the file into `book/figures/` and replace the
+`\figplaceholder{...}{...}` line by an `\includegraphics`, keeping the
+surrounding `\caption` and `\label`.

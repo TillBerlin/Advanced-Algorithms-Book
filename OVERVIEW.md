@@ -6,6 +6,8 @@ then created as a `.tex` file and `\include`d in `book/main.tex`.
 
 - Source material (schedule, exam pool): [`material/`](material/)
 - Book source: [`book/`](book/), master file [`book/main.tex`](book/main.tex)
+- Figures: [`book/figures/`](book/figures/) — see its README for naming and how
+  to replace a placeholder
 - Exam question pool, transcribed and mapped: [`book/appendix/a-pool-questions.tex`](book/appendix/a-pool-questions.tex)
 
 ## Design principles
@@ -33,6 +35,9 @@ then created as a `.tex` file and `\include`d in `book/main.tex`.
 
 Legend: 🔲 skeleton (outline only) · 🟡 in progress · ✅ drafted · 🔒 reviewed
 
+A chapter is ✅ only when it has no `\todo` markers **and** no
+`\figplaceholder` boxes left.
+
 ### Front matter
 
 | File | Status |
@@ -47,7 +52,7 @@ Legend: 🔲 skeleton (outline only) · 🟡 in progress · ✅ drafted · 🔒 
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🔲 |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🔲 |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
-| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🔲 |
+| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose drafted; 23 figures + 1 section open |
 | 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
 
 ### Part II — Real Computation and the Existential Theory of the Reals
@@ -167,14 +172,28 @@ Conventions:
 - Unwritten material is marked `\todo{...}` and shows up in red in the PDF, so
   gaps are visible in a draft build. A chapter is not ✅ until it has no
   `\todo`.
-- Figures are TikZ, drawn inline. No external image files unless unavoidable.
+- Figures: either TikZ drawn inline, or an image file in `book/figures/`
+  (`\graphicspath` is set, so `\includegraphics{planar-k33-cycle}` is enough).
+  A figure that has not been drawn yet uses
+  `\figplaceholder{<height>}{<description of the intended picture>}` inside a
+  normal `figure` environment, keeping its `\caption` and `\label` so
+  cross-references already work. It typesets as a framed grey brief for whoever
+  draws it.
+- Pseudocode uses `algorithm` + `algpseudocode` (algorithmicx), not
+  `algorithm2e`.
+- Cross-references: `\cref{...}` for new text. Chapter 5 came in from lecture
+  notes written with the explicit `Section~\ref{...}` style, which is left as
+  it is; both render the same.
+- Labels carry the chapter's topic as a prefix — `sec:planar-euler`,
+  `thm:planar-pst`, `fig:planar-k33-cycle` — so that labels never collide
+  across chapters.
 
 ## Building
 
 ```sh
 make          # builds book/main.pdf
 make clean    # removes build artefacts
-make todos    # lists every remaining \todo, by file
+make todos    # lists every remaining \todo and \figplaceholder, by file
 ```
 
 Requires a TeX Live installation with `latexmk`. The GitHub Actions workflow in
@@ -185,7 +204,8 @@ PDF as an artefact.
 
 1. ~~Repository skeleton, chapter outline, pool transcription.~~ ✅
 2. Write Part I, in reading order — it is the most self-contained and has the
-   most pool questions per page.
+   most pool questions per page. Chapter 5 (Planar Graphs) is drafted; what it
+   still needs is listed under *Open work* below.
 3. Write Parts III–V (the "responses to hardness" arc), which share notation and
    should be written together.
 4. Write Part II (ER track) last: it is the most research-flavoured and the
@@ -193,4 +213,25 @@ PDF as an artefact.
 5. Fill in Appendix B once the main text has settled and it is clear what
    actually needs to be assumed.
 6. Add exercises beyond the pool questions.
-7. Bibliography and attribution pass.
+7. Bibliography and attribution pass. Chapters currently carry their reading
+   lists as a "Notes and further reading" section; these should become a single
+   `references.bib` with real `\cite` keys once there are enough of them.
+
+## Open work in drafted chapters
+
+### Chapter 5 — Planar Graphs
+
+- **23 figure placeholders.** The chapter is a visual one and several arguments
+  (segments and interlacement, the crossover gadget, the five-colour Kempe
+  chain) are hard to follow without the picture. The placeholders marked
+  IMPORTANT in their brief are the ones to draw first.
+- **Pool question 5, item 7 is not yet answered.** The notes develop the
+  separator technique on \textsc{Max-Independent-Set}; the pool asks for
+  $3$-colouring in $2^{O(\sqrt n)}$ time. Section 5.5 ends with a `\todo`
+  sketching the change (guess a colouring of the separator, so $3^{|S|}$ rather
+  than $2^{|S|}$ guesses, and recurse on list-colouring subproblems). Until it
+  is written the chapter does not fully discharge its pool obligation.
+- **Reconstructed formulas.** The notes were recovered from a
+  password-protected PDF whose math did not survive text extraction. Places
+  where a formula was reconstructed from context are flagged in the source with
+  `%% CHECK AGAINST SLIDE` and should be checked against the original deck.

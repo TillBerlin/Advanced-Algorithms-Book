@@ -15,6 +15,7 @@
 \usepackage{mathtools}
 
 \usepackage{graphicx}
+\graphicspath{{figures/}}
 \usepackage{xcolor}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,calc,patterns}
@@ -22,7 +23,8 @@
 \usepackage{booktabs}
 \usepackage{enumitem}
 \usepackage{microtype}
-\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
             urlcolor=blue!50!black]{hyperref}
 \usepackage{cleveref}
@@ -59,6 +61,7 @@
 
 \theoremstyle{remark}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem*{intuition}{Intuition}
 
 % --- Problem definitions ----------------------------------------------------
 % Usage:
@@ -87,13 +90,31 @@
 \newcommand{\OPT}{\mathrm{OPT}}
 \newcommand{\tw}{\mathrm{tw}}
 \newcommand{\lang}[1]{\textsc{#1}}          % problem names in running text
+\newcommand{\bigoh}[1]{O\!\left(#1\right)}
+\DeclareMathOperator{\dg}{deg}
 \DeclareMathOperator{\cost}{cost}
 \DeclareMathOperator*{\argmin}{arg\,min}
 \DeclareMathOperator*{\argmax}{arg\,max}
 
+% Frequently used problem names.
+\newcommand{\ThreeCol}{\lang{3-Coloring}}
+\newcommand{\PlanarThreeCol}{\lang{Planar-3-Coloring}}
+\newcommand{\MIS}{\lang{Max-Independent-Set}}
+
 % --- Authoring helpers ------------------------------------------------------
 % \todo{...} marks work in progress and is deliberately visible in the PDF.
-\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+% \long so that a TODO may span several paragraphs.
+\long\def\todo#1{{\color{red}\bfseries[TODO: #1]}}
+
+% A figure that has not been drawn yet: prints a framed grey box describing
+% the intended picture, so the book compiles and the gap is visible.
+% #1 = height, #2 = description.  See book/figures/README.md.
+\newcommand{\figplaceholder}[2]{%
+  \setlength{\fboxsep}{6pt}%
+  \fcolorbox{gray!60}{gray!8}{%
+    \parbox[c][#1][c]{0.86\textwidth}{%
+      \centering\small\itshape\color{black!65}%
+      [\,figure placeholder\,]\par\vspace{0.6em}#2}}}
 
 % Every chapter closes with the list of open-pool questions it is responsible
 % for.  Usage:

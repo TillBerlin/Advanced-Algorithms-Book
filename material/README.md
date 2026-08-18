@@ -20,3 +20,14 @@ question must be answerable from the book alone.** Each chapter therefore ends
 with a section that lists the pool questions it covers, and the material needed
 to answer them must appear in the body of that chapter. Appendix A reproduces
 the pool and maps every question to the chapter that covers it.
+
+## Lecture notes
+
+`notes/` holds standalone lecture notes as they were written, before being
+folded into the book. They are kept for provenance and for the authoring
+comments they carry (`%% CHECK AGAINST SLIDE`, figure briefs); the book chapter
+is the live version, so edits belong there, not here.
+
+| File | Integrated into |
+| --- | --- |
+| `notes/planar-graphs-notes.tex` | `book/chapters/05-planar-graphs.tex` |

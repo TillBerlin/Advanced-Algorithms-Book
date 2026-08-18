@@ -1346,19 +1346,25 @@ variants fall off a cliff into NP-hardness. A sampler:
 %==============================================================================
 \section{Notes and further reading}
 \label{sec:sm-further-reading}
-%==============================================================================
 
 The treatment here follows the course slides of Jesper Nederlof and Johan van
-Rooij. Full details of the work referred to in the text are below.
+Rooij.
 
-\begin{itemize}[leftmargin=*]
-  \item D.~Gale and L.~S.~Shapley. College admissions and the stability of marriage. \emph{The American Mathematical Monthly}, 69(1):9--15, 1962.
-  \item D.~E.~Knuth. \emph{Mariages stables et leurs relations avec d'autres problèmes combinatoires}. Les Presses de l'Université de Montréal, 1976.
-  \item D.~Gusfield and R.~W.~Irving. \emph{The Stable Marriage Problem: Structure and Algorithms}. MIT Press, 1989.
-  \item A.~E.~Roth. The evolution of the labor market for medical interns and residents: a case study in game theory. \emph{Journal of Political Economy}, 92(6):991--1016, 1984.
-  \item A.~E.~Roth and M.~Sotomayor. \emph{Two-Sided Matching: A Study in Game-Theoretic Modeling and Analysis}. Cambridge University Press, 1990.
-  \item A.~R.~Karlin, S.~Oveis Gharan and R.~Weber. A simply exponential upper bound on the maximum number of stable matchings. In \emph{Proceedings of STOC 2018}, pages 920--925.
-\end{itemize}
+The problem, the algorithm and the optimality theorem are all from
+\citet{GaleShapley1962}, a paper worth reading in the original: it is six pages
+long and almost entirely free of notation. \citet{Roth1984} is the historical
+study that uncovered the fact that the medical match had been running deferred
+acceptance for a decade before anyone proved it worked; it is the reason the
+subject is taken seriously by economists.
+
+For the structure theory --- the lattice of stable matchings, the rotations
+that generate it, and the algorithms that exploit them --- the standard
+reference is \citet{GusfieldIrving1989}, with \citet{Knuth1976} as the
+influential earlier set of lecture notes that posed many of the questions.
+\citet{RothSotomayor1990} is the game-theoretic treatment, and covers
+incentives and many-to-one markets in far more depth than we do. The bound on
+the number of stable matchings mentioned in \cref{sec:sm-outlook} is due to
+\citet{KarlinOveisGharanWeber2018}.
 
 %==============================================================================
 \section{Exercises}

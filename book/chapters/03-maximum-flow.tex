@@ -1,70 +1,727 @@
 %% Chapter 3: Maximum Flow and Minimum Cut
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Pool questions 2 (vertex capacities) and 3 (grid escape) live here.  Both
+%% are modelling questions, which is why Section "Modelling with flows" is the
+%% longest one and carries an explicit recipe.
 
 \chapter{Maximum Flow and Minimum Cut}
 \label{ch:max-flow}
 
-Flows are the workhorse of combinatorial optimisation: a large number of
-problems that look nothing like a flow problem become easy once they are
-modelled as one. We develop the theory, the standard algorithms, and --- most
-importantly for the exam --- the modelling tricks.
+Flows are the workhorse of combinatorial optimisation. The reason is not that
+routing material through a network is a common problem --- it is, but that is
+not the point. The reason is that a surprising number of problems that mention
+no network at all become easy the moment they are phrased as flow problems, and
+that the phrasing is usually short. This chapter develops the theory, the
+standard algorithms, and --- at greatest length, because it is what the
+exercises and the exam actually ask for --- the modelling.
 
 \section*{Learning goals}
 \addcontentsline{toc}{section}{Learning goals}
 
 After this chapter you should be able to:
 \begin{itemize}[leftmargin=*]
-  \item define flow networks, feasible flows, cuts, and the value of a flow;
-  \item prove the max-flow min-cut theorem via residual graphs;
-  \item analyse Ford--Fulkerson, Edmonds--Karp and Dinic's algorithm;
-  \item reduce flow problems with vertex capacities, several sources or lower bounds to plain maximum flow;
-  \item derive Menger's theorem and use it to solve disjoint-path problems.
+  \item define flow networks, feasible flows, $s$--$t$ cuts and the value of a
+        flow;
+  \item construct the residual graph and prove that augmenting along a path
+        yields a feasible flow of larger value;
+  \item prove the max-flow min-cut theorem and derive the integrality theorem
+        from it;
+  \item state and compare Ford--Fulkerson, Edmonds--Karp and Dinic's
+        algorithm, and analyse their running times;
+  \item reduce flow problems with vertex capacities, several sources or sinks,
+        or lower bounds on arcs to plain maximum flow, and argue that the
+        reduction is correct and does not blow up the instance;
+  \item derive Menger's theorem in both its edge and vertex form;
+  \item model a disjoint-paths problem as a flow problem and analyse the
+        resulting running time in the parameters the problem is stated in.
 \end{itemize}
 
+%==============================================================================
 \section{Flow networks}
 \label{sec:flow-networks}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{definition}[Flow network]
+A \emph{flow network} is a directed graph $G = (V,E)$ together with a capacity
+function $c : E \to \R_{\ge 0}$ and two distinguished vertices, the
+\emph{source} $s$ and the \emph{sink} $t$, with $s \ne t$.
+\end{definition}
 
+We write $n = |V|$ and $m = |E|$, and we assume throughout that every vertex
+lies on some $s$--$t$ path; vertices that do not can be deleted without
+changing anything. We allow both $(u,v)$ and $(v,u)$ to be arcs.
+
+\begin{definition}[Flow]
+A \emph{flow} in $G$ is a function $f : E \to \R_{\ge 0}$ satisfying
+\begin{itemize}[nosep]
+  \item \emph{capacity constraints}: $0 \le f(e) \le c(e)$ for every
+        $e \in E$; and
+  \item \emph{flow conservation}: for every $v \in V \setminus \{s,t\}$,
+        \[ \sum_{e \text{ into } v} f(e) \;=\; \sum_{e \text{ out of } v} f(e). \]
+\end{itemize}
+The \emph{value} of $f$ is the net amount leaving the source,
+\[ |f| \;=\; \sum_{e \text{ out of } s} f(e) \;-\; \sum_{e \text{ into } s} f(e). \]
+\end{definition}
+
+A flow of maximum value is called a \emph{maximum flow}. Note that a maximum
+flow exists: the set of feasible flows is a non-empty compact subset of
+$\R^m$ and $|\cdot|$ is continuous on it. That is a soft argument and it tells
+us nothing about how to find one; the whole content of this chapter is that
+there is a combinatorial route to the same conclusion which also computes the
+answer.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{A small flow network, six or seven vertices, with each
+arc labelled $f(e)/c(e)$. Choose a flow that is feasible but not maximum, so
+that the same picture can be reused later to illustrate an augmenting path.
+Mark $s$ and $t$ clearly and put at least one pair of antiparallel arcs in,
+since the definitions allow them.}
+\caption{A flow network with a feasible flow. Arc labels are
+\emph{flow\,/\,capacity}.}
+\label{fig:flow-network}
+\end{figure}
+
+The other half of the story is cuts.
+
+\begin{definition}[$s$--$t$ cut]
+An \emph{$s$--$t$ cut} is a partition $V = S \,\dot\cup\, T$ with $s \in S$ and
+$t \in T$. Its \emph{capacity} is
+\[ c(S,T) \;=\; \sum_{\substack{e = (u,v) \in E \\ u \in S,\, v \in T}} c(e), \]
+the total capacity of the arcs crossing from $S$ to $T$. Arcs running from $T$
+back to $S$ do not contribute.
+\end{definition}
+
+The asymmetry in that definition --- forward arcs count, backward arcs do not
+--- is not a convention we could have chosen differently. It is what makes the
+next lemma true.
+
+\begin{lemma}[Flow across a cut]\label{lem:flow-across-cut}
+Let $f$ be a flow and $(S,T)$ an $s$--$t$ cut. Then
+\[ |f| \;=\; \sum_{\substack{e=(u,v)\\ u \in S, v \in T}} f(e)
+        \;-\; \sum_{\substack{e=(v,u)\\ v \in T, u \in S}} f(e). \]
+\end{lemma}
+
+\begin{proof}
+For a vertex $v$ write $\mathrm{net}(v)$ for the flow out of $v$ minus the flow
+into $v$. By conservation $\mathrm{net}(v) = 0$ for every
+$v \notin \{s,t\}$, and $\mathrm{net}(s) = |f|$ by definition. Hence
+\[ |f| \;=\; \sum_{v \in S} \mathrm{net}(v). \]
+Now expand the right-hand side arc by arc. An arc with both endpoints in $S$
+contributes $+f(e)$ at its tail and $-f(e)$ at its head, so it cancels. An arc
+from $S$ to $T$ contributes $+f(e)$ and nothing else; an arc from $T$ to $S$
+contributes $-f(e)$ and nothing else. Arcs with both endpoints in $T$ do not
+appear. That is exactly the claimed expression.
+\end{proof}
+
+\begin{corollary}[Weak duality]\label{cor:flow-weak-duality}
+For every flow $f$ and every $s$--$t$ cut $(S,T)$ we have $|f| \le c(S,T)$.
+Consequently the maximum flow value is at most the minimum cut capacity.
+\end{corollary}
+
+\begin{proof}
+In \cref{lem:flow-across-cut} the first sum is at most $c(S,T)$ by the capacity
+constraints and the second is non-negative.
+\end{proof}
+
+\begin{intuition}
+Weak duality is the half of the theory that costs nothing, and it is already
+useful: any cut you can point at is a certificate that no flow beats its
+capacity. The work in this chapter goes into the other half --- that the bound
+is always tight. Once we know that, a maximum flow and a minimum cut certify
+each other, and we can stop computing as soon as we see a matching pair.
+\end{intuition}
+
+%==============================================================================
 \section{Residual graphs and augmenting paths}
-\label{sec:residual-graphs}
+\label{sec:flow-residual}
+%==============================================================================
 
-\todo{Write this section.}
+The naive way to look for a better flow is to push more along some $s$--$t$
+path with spare capacity. That works until it does not: a flow can be
+non-maximum and yet admit no such path, because getting more out of the network
+requires \emph{undoing} part of what has already been routed. The residual
+graph is the bookkeeping device that makes ``undo'' look like ``push''.
 
+\begin{definition}[Residual graph]\label{def:flow-residual}
+Let $f$ be a flow in $G$. The \emph{residual graph} $G_f$ has vertex set $V$
+and, for every arc $e = (u,v) \in E$,
+\begin{itemize}[nosep]
+  \item a \emph{forward} arc $(u,v)$ of residual capacity $c(e) - f(e)$,
+        present when $f(e) < c(e)$; and
+  \item a \emph{backward} arc $(v,u)$ of residual capacity $f(e)$, present
+        when $f(e) > 0$.
+\end{itemize}
+An \emph{augmenting path} is a directed $s$--$t$ path in $G_f$. Its
+\emph{bottleneck} is the smallest residual capacity along it.
+\end{definition}
+
+Note that $G_f$ has at most $2m$ arcs, so it is no bigger than $G$ up to a
+constant factor, and it can be built in $\bigoh{m}$ time.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{IMPORTANT. Two panels sharing the same network. Left: the
+flow of \cref{fig:flow-network} with an augmenting path highlighted in the
+residual graph --- draw forward residual arcs solid and backward residual arcs
+dashed in a second colour, so that the ``undo'' step is visibly different from
+the ``push'' step. Right: the flow after augmenting, with the changed arc
+labels emphasised. The reader should be able to see one arc whose flow went
+\emph{down}.}
+\caption{Augmenting along a path in the residual graph. Dashed arcs are
+backward arcs: routing along one of them cancels flow that was previously
+sent.}
+\label{fig:flow-augment}
+\end{figure}
+
+\begin{lemma}[Augmentation]\label{lem:flow-augment}
+Let $f$ be a flow, let $P$ be an augmenting path in $G_f$ with bottleneck
+$\delta > 0$, and define $f'$ by sending $\delta$ along $P$: for each arc of
+$P$, add $\delta$ to $f(e)$ if the arc is forward, and subtract $\delta$ from
+$f(e)$ if it is backward. Then $f'$ is a flow and $|f'| = |f| + \delta$.
+\end{lemma}
+
+\begin{proof}
+\emph{Capacity.} A forward arc of $P$ has $c(e) - f(e) \ge \delta$, so
+$f'(e) = f(e) + \delta \le c(e)$; a backward arc has $f(e) \ge \delta$, so
+$f'(e) = f(e) - \delta \ge 0$. Arcs not on $P$ are unchanged.
+
+\emph{Conservation.} Let $v \notin \{s,t\}$. If $v$ is not on $P$ nothing
+changes. Otherwise $P$ passes through $v$ once --- it is a path --- entering by
+one residual arc and leaving by another. Check the four cases. If both are
+forward arcs, the flow into $v$ and the flow out of $v$ each rise by $\delta$.
+If the entering arc is forward and the leaving arc is backward, the flow into
+$v$ rises by $\delta$ along one arc and falls by $\delta$ along another, so the
+inflow is unchanged and so is the outflow. The remaining two cases are
+symmetric. In every case $\mathrm{net}(v)$ is unchanged, hence still $0$.
+
+\emph{Value.} The same case analysis at $s$ shows that the net flow out of $s$
+rises by exactly $\delta$, since $P$ leaves $s$ once and, being a path, never
+returns.
+\end{proof}
+
+%==============================================================================
 \section{The max-flow min-cut theorem}
-\label{sec:maxflow-mincut}
+\label{sec:flow-maxflow-mincut}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{theorem}[Max-flow min-cut]\label{thm:flow-mfmc}
+Let $f$ be a flow in $G$. The following are equivalent.
+\begin{enumerate}[label=(\roman*)]
+  \item $f$ is a maximum flow.
+  \item $G_f$ contains no augmenting path.
+  \item $|f| = c(S,T)$ for some $s$--$t$ cut $(S,T)$.
+\end{enumerate}
+In particular the maximum value of a flow equals the minimum capacity of an
+$s$--$t$ cut.
+\end{theorem}
 
-\section{Algorithms: Ford--Fulkerson, Edmonds--Karp, Dinic}
+\begin{proof}
+\emph{(i) $\Rightarrow$ (ii).} If $G_f$ had an augmenting path, its bottleneck
+would be positive --- residual arcs have positive residual capacity by
+definition --- and \cref{lem:flow-augment} would produce a strictly better
+flow.
+
+\emph{(ii) $\Rightarrow$ (iii).} Let $S$ be the set of vertices reachable from
+$s$ by a directed path in $G_f$, and let $T = V \setminus S$. Then $s \in S$,
+and $t \in T$ precisely because there is no augmenting path, so $(S,T)$ is an
+$s$--$t$ cut. Consider an arc $e = (u,v) \in E$ with $u \in S$ and $v \in T$.
+If $f(e) < c(e)$ then $G_f$ would contain the forward arc $(u,v)$ and $v$ would
+be reachable, a contradiction; hence $f(e) = c(e)$. Now consider an arc
+$e = (v,u) \in E$ with $v \in T$ and $u \in S$. If $f(e) > 0$ then $G_f$ would
+contain the backward arc $(u,v)$ and again $v$ would be reachable; hence
+$f(e) = 0$. Substituting both into \cref{lem:flow-across-cut},
+\[ |f| \;=\; \sum_{\substack{e=(u,v)\\ u\in S, v\in T}} c(e) \;-\; 0
+       \;=\; c(S,T). \]
+
+\emph{(iii) $\Rightarrow$ (i).} By \cref{cor:flow-weak-duality} no flow exceeds
+$c(S,T)$, and $f$ attains it.
+\end{proof}
+
+\begin{intuition}
+The proof of (ii) $\Rightarrow$ (iii) is the whole theorem, and it is worth
+remembering in one sentence: \emph{when you are stuck, the set of vertices you
+can still reach is a minimum cut}. Nothing is guessed. The cut is read off the
+failed search, which is also why every implementation gets a minimum cut for
+free by running one last breadth-first search after the flow is maximum.
+\end{intuition}
+
+\begin{corollary}[Integrality]\label{cor:flow-integrality}
+If all capacities are integers, then there is a maximum flow $f$ with $f(e)$ an
+integer for every arc $e$.
+\end{corollary}
+
+\begin{proof}
+Start from the zero flow, which is integral, and repeatedly augment. If $f$ is
+integral then every residual capacity is an integer, so the bottleneck of any
+augmenting path is a positive integer and the augmented flow is again integral.
+Each augmentation raises the value by at least $1$, and the value is bounded
+above by any cut capacity, so the process stops after finitely many steps at a
+flow with no augmenting path, which is maximum by \cref{thm:flow-mfmc}.
+\end{proof}
+
+Integrality is what makes flows useful for combinatorial problems. When we
+model a disjoint-paths question as a flow problem in \cref{sec:flow-grid-escape},
+what we actually need is not that a fractional optimum exists but that an
+\emph{integral} one does --- half a path is not a path.
+
+%==============================================================================
+\section{Algorithms}
 \label{sec:flow-algorithms}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Termination, the integrality theorem, and running-time bounds.
+The proof of \cref{cor:flow-integrality} is already an algorithm.
 
+\begin{algorithm}[ht]
+\caption{Ford--Fulkerson}
+\label{alg:flow-ff}
+\begin{algorithmic}[1]
+  \State $f \gets 0$
+  \While{$G_f$ contains an $s$--$t$ path $P$}
+     \State $\delta \gets$ the bottleneck of $P$
+     \State augment $f$ by $\delta$ along $P$
+  \EndWhile
+  \State \Return $f$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:flow-ff}
+On integer capacities, \cref{alg:flow-ff} returns a maximum flow after at most
+$|f^\ast|$ augmentations, in total time $\bigoh{m \cdot |f^\ast|}$, where
+$f^\ast$ is a maximum flow.
+\end{theorem}
+
+\begin{proof}
+Each augmentation raises the value by at least $1$ and costs $\bigoh{m}$: one
+graph search to find $P$ and one pass along $P$ to update. Correctness on
+termination is \cref{thm:flow-mfmc}.
+\end{proof}
+
+That bound is \emph{pseudopolynomial}: it depends on the capacity values, not
+just on their encoding length. It is genuinely bad. There is a five-vertex
+network with capacities $\{1, C\}$ on which a careless choice of augmenting
+paths takes $2C$ augmentations, alternating along a single middle arc, and $C$
+may be astronomically large while the input is short.
+
+\begin{remark}
+With irrational capacities Ford--Fulkerson can fail outright: there are
+networks and choices of augmenting path on which it runs forever, and worse,
+converges to a value that is not the maximum. So the choice of path is not a
+performance detail. It is what makes the algorithm an algorithm.
+\end{remark}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{The classical bad instance for Ford--Fulkerson: four
+vertices $s, a, b, t$, arcs $s\!\to\!a$, $s\!\to\!b$, $a\!\to\!t$,
+$b\!\to\!t$ of capacity $C$ and the middle arc $a\!\to\!b$ of capacity $1$.
+Show two successive augmenting paths that use the middle arc forwards and then
+backwards, each pushing a single unit.}
+\caption{Capacity $C$, and $2C$ augmentations if the middle arc is chosen every
+time.}
+\label{fig:flow-bad-instance}
+\end{figure}
+
+\subsection{Edmonds--Karp: always take a shortest path}
+
+\begin{theorem}[\citet{EdmondsKarp1972}]\label{thm:flow-ek}
+If every augmenting path is chosen to have the fewest arcs --- that is, found
+by breadth-first search in $G_f$ --- then the number of augmentations is at
+most $nm/2$, and the total running time is $\bigoh{nm^2}$, independent of the
+capacities.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Write $d_f(v)$ for the number of arcs on a shortest $s$--$v$ path in $G_f$.
+
+\emph{Step 1: distances never decrease.} Augmenting along a shortest path
+cannot create a shortcut. The arcs added to the residual graph by the
+augmentation are the reverses of arcs on the path, and reversing an arc of a
+shortest path only ever leads from a vertex at distance $d+1$ back to one at
+distance $d$; using it can never shorten a route from $s$.
+
+\emph{Step 2: each arc is critical rarely.} Call an arc \emph{critical} on an
+augmentation if it is the bottleneck; it then disappears from the residual
+graph. Suppose $(u,v)$ is critical, so $d_f(v) = d_f(u) + 1$ at that moment.
+For $(u,v)$ to reappear, some later augmenting path must use $(v,u)$, and at
+that moment $d_{f'}(u) = d_{f'}(v) + 1$. Since distances never decrease,
+$d_{f'}(u) = d_{f'}(v) + 1 \ge d_f(v) + 1 = d_f(u) + 2$. So between two
+critical events for the same arc, $d(u)$ grows by at least $2$; as
+$d(u) \le n$, each of the $2m$ residual arcs is critical at most $n/2$ times.
+
+Every augmentation makes at least one arc critical, so there are at most
+$nm$ augmentations --- $nm/2$ counting the two directions of each arc as one
+--- and each costs $\bigoh{m}$.
+\end{proof}
+
+\subsection{Dinic: augment in phases}
+
+Edmonds--Karp throws away work: it recomputes the breadth-first search from
+scratch for every single augmenting path, even though many paths of the same
+length usually exist at once. Dinic's algorithm groups them.
+
+\begin{definition}[Level graph, blocking flow]
+The \emph{level graph} $L_f$ keeps only those arcs $(u,v)$ of $G_f$ with
+$d_f(v) = d_f(u)+1$. A flow in $L_f$ is \emph{blocking} if every $s$--$t$ path
+in $L_f$ contains at least one saturated arc.
+\end{definition}
+
+Dinic's algorithm repeats: build $L_f$, find a blocking flow in it, add it to
+$f$. Each such \emph{phase} strictly increases $d_f(t)$, so there are at most
+$n$ phases; a blocking flow can be found in $\bigoh{nm}$ time by a
+depth-first search that retreats along dead ends and never revisits them. The
+total is $\bigoh{n^2m}$.
+
+Two special cases matter for us, because they are the ones that arise from
+modelling rather than from genuine capacities:
+\begin{itemize}[leftmargin=*]
+  \item with all capacities $1$, Dinic runs in $\bigoh{m^{3/2}}$ time;
+  \item on unit-capacity networks in which every vertex has either one
+        entering or one leaving arc --- exactly what vertex splitting produces
+        in \cref{sec:flow-modelling} --- it runs in $\bigoh{m\sqrt{n}}$ time.
+\end{itemize}
+
+\subsection{What is known}
+
+For the record, and because students reasonably ask: the best bounds are far
+better than anything above. \citet{ChenKyngLiuPengProbstGutenbergSachdeva2022}
+give an algorithm running in $m^{1+o(1)}$ time for maximum flow with
+polynomially bounded integer capacities, which is essentially optimal. It is
+not a combinatorial algorithm --- it goes through interior-point methods and
+dynamic data structures --- and it is not what anyone implements. Dinic is what
+anyone implements.
+
+%==============================================================================
 \section{Modelling with flows}
 \label{sec:flow-modelling}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Vertex capacities, multiple sources and sinks, lower bounds on arcs, and undirected graphs.
+This is the section that the exam questions are about. The theory above is
+fixed and finite; the modelling is open-ended, and it is a skill.
 
+\begin{intuition}
+A recipe that covers most cases. First, decide \emph{what one unit of flow
+means} --- one path, one worker, one ship, one unit of material. Everything
+else follows from that decision, and if the model comes out wrong it is almost
+always because this question was answered vaguely. Second, express every
+constraint of the problem as a capacity, and every ``must happen'' as
+saturation of a cut. Third, check that integrality gives you back a solution of
+the original problem: the flow decomposition of an integral flow is a
+multiset of paths, and you need those paths to mean something.
+\end{intuition}
+
+\subsection{Vertex capacities}
+\label{sec:flow-vertex-capacities}
+
+Many problems limit how much may pass \emph{through a vertex}, not along an
+arc. This is not a new problem.
+
+\begin{lemma}[Vertex splitting]\label{lem:flow-vertex-splitting}
+Let $G = (V,E)$ be a flow network with arc capacities $c : E \to \R_{\ge 0}$
+and, in addition, vertex capacities $c_V : V \to \R_{\ge 0}$ limiting the total
+flow through each vertex. Then there is a flow network $G'$ with arc capacities
+only, having $2|V|$ vertices and $|E| + |V|$ arcs, and a value-preserving
+bijection between feasible flows of $G$ and feasible flows of $G'$. It can be
+built in $\bigoh{n+m}$ time.
+\end{lemma}
+
+\begin{proof}
+Replace each vertex $v$ by two vertices $v_{\mathrm{in}}$ and
+$v_{\mathrm{out}}$ joined by an arc $(v_{\mathrm{in}}, v_{\mathrm{out}})$ of
+capacity $c_V(v)$. Redirect every arc $(u,v) \in E$ to
+$(u_{\mathrm{out}}, v_{\mathrm{in}})$, keeping its capacity. Take
+$s' = s_{\mathrm{out}}$ and $t' = t_{\mathrm{in}}$.
+
+Given a feasible flow $f$ in $G$, define $f'$ on the copied arcs by $f$ and on
+each split arc by the total flow through $v$. Conservation at
+$v_{\mathrm{in}}$ and $v_{\mathrm{out}}$ holds because conservation held at
+$v$, and the split arc's capacity constraint is exactly the vertex capacity.
+Conversely, given a feasible $f'$ in $G'$, the flow it induces on $E$ satisfies
+conservation at $v$ --- everything entering $v_{\mathrm{in}}$ must leave
+$v_{\mathrm{out}}$ --- and the flow through $v$ equals $f'$ on the split arc,
+hence is at most $c_V(v)$. Both maps preserve the value, since $s$ and $t$ are
+untouched apart from the renaming. The counts and the running time are
+immediate.
+\end{proof}
+
+The instance grows by a factor of two in the vertices and by an additive $|V|$
+in the arcs, so ``a flow network of comparable size'' in the sense of the exam
+question. Any polynomial-time flow algorithm therefore solves the
+vertex-capacitated problem in polynomial time.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{Vertex splitting. Left: a vertex $v$ with capacity
+$c_V(v)$ and three entering and two leaving arcs. Right: the same, with $v$
+replaced by $v_{\text{in}} \to v_{\text{out}}$ carrying capacity $c_V(v)$, the
+three arcs now entering $v_{\text{in}}$ and the two leaving $v_{\text{out}}$.
+Label the split arc with its capacity.}
+\caption{Splitting a vertex turns a vertex capacity into an arc capacity.}
+\label{fig:flow-vertex-split}
+\end{figure}
+
+\subsection{Other standard transformations}
+\label{sec:flow-transformations}
+
+\paragraph{Several sources and sinks.}
+Add a super-source $s^\ast$ with an arc to each source and a super-sink
+$t^\ast$ with an arc from each sink. Give the new arcs capacity $\infty$, or a
+finite bound if the problem caps how much each individual source may supply.
+Flows in the new network of value $F$ correspond exactly to flows in the old
+one that ship $F$ units in total.
+
+\paragraph{Undirected graphs.}
+Replace each undirected edge $\{u,v\}$ of capacity $c$ by the two arcs $(u,v)$
+and $(v,u)$, each of capacity $c$. An integral flow in the result never needs
+to use both directions at once: cancelling $\min\{f(u,v), f(v,u)\}$ from both
+leaves a flow of the same value.
+
+\paragraph{Lower bounds on arcs.}
+If arcs also carry lower bounds $\ell(e) \le f(e)$, feasibility is no longer
+automatic --- the zero flow need not be feasible --- and the problem becomes
+one of finding a feasible \emph{circulation} first. The standard reduction
+subtracts $\ell$ from the capacities and repairs the resulting imbalance at
+each vertex with arcs from a new source and to a new sink; a feasible
+circulation exists if and only if those repair arcs can be saturated.
+
+\paragraph{Bipartite matching.}
+Orient every edge of a bipartite graph $(A \cup B, E)$ from $A$ to $B$, give it
+capacity $1$, add $s \to a$ for $a \in A$ and $b \to t$ for $b \in B$, all of
+capacity $1$. By integrality, maximum flows correspond to maximum matchings.
+We return to this in \cref{ch:matching}, where the general, non-bipartite case
+turns out to need a genuinely new idea.
+
+%==============================================================================
 \section{Menger's theorem and disjoint paths}
-\label{sec:menger}
+\label{sec:flow-menger}
+%==============================================================================
 
-\todo{Write this section.}
+Max-flow min-cut has a purely graph-theoretic shadow, proved decades earlier by
+\citet{Menger1927}: connectivity is limited by separators, and by nothing else.
 
+\begin{theorem}[Menger, edge version]\label{thm:flow-menger-edge}
+Let $s \ne t$ be vertices of a directed graph $G$. The maximum number of
+pairwise arc-disjoint $s$--$t$ paths equals the minimum number of arcs whose
+deletion leaves no $s$--$t$ path.
+\end{theorem}
+
+\begin{proof}
+Give every arc capacity $1$. An integral flow of value $k$ decomposes into $k$
+arc-disjoint $s$--$t$ paths: repeatedly follow arcs carrying flow from $s$ to
+$t$, remove that path's flow, and note that any cycles left over carry flow
+that may simply be deleted. Conversely $k$ arc-disjoint paths give a flow of
+value $k$. So the maximum number of arc-disjoint paths is the maximum flow
+value. A cut of capacity $k$ is a set of $k$ arcs whose removal disconnects
+$t$ from $s$, and conversely, so the minimum cut capacity is the minimum number
+of arcs to delete. Now apply \cref{thm:flow-mfmc}.
+\end{proof}
+
+\begin{theorem}[Menger, vertex version]\label{thm:flow-menger-vertex}
+Let $s \ne t$ be non-adjacent vertices of a graph $G$. The maximum number of
+internally vertex-disjoint $s$--$t$ paths equals the minimum size of a set
+$X \subseteq V \setminus \{s,t\}$ whose deletion leaves no $s$--$t$ path.
+\end{theorem}
+
+\begin{proof}
+Apply \cref{lem:flow-vertex-splitting} with $c_V(v) = 1$ for
+$v \notin \{s,t\}$ and $c_V(s) = c_V(t) = \infty$, and all arc capacities
+$\infty$. Then every minimum cut consists of split arcs only --- the others
+have infinite capacity --- and a set of $k$ split arcs is precisely a set of
+$k$ vertices whose removal separates $s$ from $t$. Integral flows of value $k$
+decompose into $k$ paths, internally vertex-disjoint because each split arc
+carries at most one unit. Now apply \cref{thm:flow-mfmc} again.
+\end{proof}
+
+The vertex version is the one we need next, and the pattern of its proof ---
+unit vertex capacities, infinite arc capacities, so that cuts are forced to be
+sets of vertices --- is worth memorising. It is the whole of the next section.
+
+%==============================================================================
 \section{Case study: escaping a grid}
-\label{sec:grid-escape}
+\label{sec:flow-grid-escape}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Vertex-disjoint paths from given start points to the boundary, and a careful running-time analysis in terms of the grid size.
+\begin{probdef}{Grid Escape}
+  \instance The $n \times n$ grid graph, whose vertices are $v_{i,j}$ for
+  $1 \le i,j \le n$ with $v_{i,j}$ adjacent to $v_{i',j'}$ when
+  $|i-i'| + |j-j'| = 1$, together with $m \le n^2$ \emph{starting points}
+  $v_{x_1,y_1}, \ldots, v_{x_m,y_m}$.
+  \question Are there $m$ vertex-disjoint paths leading from the $m$ starting
+  points to $m$ \emph{different} boundary vertices --- those $v_{i,j}$ with
+  $i \in \{1,n\}$ or $j \in \{1,n\}$?
+\end{probdef}
 
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{Two grids side by side, as in the exam question. Starting
+points as large filled disks, other grid vertices as small circles. Left: an
+instance together with a solution --- draw the escape paths as thick coloured
+routes so that their disjointness is visible. Right: an instance with no
+solution, ideally one where the obstruction is a small separating set of
+vertices, so that the picture also illustrates why the answer is no.}
+\caption{Grid escape. The left instance is solvable; the right one is not.}
+\label{fig:flow-grid-escape}
+\end{figure}
+
+Read the problem statement carefully before modelling: \emph{$n$ is the side
+length of the grid and $m$ is the number of starting points}, not the numbers
+of vertices and arcs. The grid has $n^2$ vertices. A running time that is
+polynomial in $n$ is therefore a much stronger requirement than one polynomial
+in the number of vertices would be --- or rather it would be, if the grid were
+not given explicitly; since it is, the two coincide, but the analysis has to be
+carried out in the right variables.
+
+\paragraph{The model.}
+Two things must be enforced: the paths are vertex-disjoint, and they end at
+distinct boundary vertices. Both are capacity constraints.
+
+\begin{enumerate}[leftmargin=*]
+  \item Orient every grid edge in both directions, giving each arc capacity
+        $\infty$ (capacity $1$ also works and is what one implements).
+  \item Give every grid vertex capacity $1$, and apply
+        \cref{lem:flow-vertex-splitting}.
+  \item Add a super-source $s$ with an arc of capacity $1$ to
+        $(v_{x_k,y_k})_{\mathrm{in}}$ for each starting point $v_{x_k,y_k}$.
+  \item Add a super-sink $t$ with an arc of capacity $1$ from
+        $b_{\mathrm{out}}$ for every boundary vertex $b$.
+  \item Compute a maximum $s$--$t$ flow, and answer \textsc{yes} if and only if
+        its value is $m$.
+\end{enumerate}
+
+\begin{theorem}\label{thm:flow-grid-escape}
+The construction is correct: the instance is solvable if and only if the
+maximum flow value is $m$.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) Given $m$ vertex-disjoint escape paths, send one unit along
+each, prefixed by the arc from $s$ and suffixed by the arc into $t$. Vertex
+capacities are respected because the paths are vertex-disjoint; the arcs into
+$t$ are respected because the endpoints are distinct; the arcs out of $s$ are
+respected because the starting points are distinct. The value is $m$.
+
+($\Leftarrow$) Suppose the maximum flow value is $m$. All capacities are
+integers, so by \cref{cor:flow-integrality} we may take the flow $f$ to be
+integral, and then every capacity-$1$ arc carries $0$ or $1$ unit. Decompose
+$f$ into $m$ paths from $s$ to $t$ as in the proof of
+\cref{thm:flow-menger-edge}. Each such path leaves $s$ by a distinct arc, so it
+starts at a distinct starting point; each enters $t$ by a distinct arc, so it
+ends at a distinct boundary vertex; and each grid vertex is used by at most one
+of them, since its split arc has capacity $1$. Deleting $s$, $t$ and the
+splitting gives $m$ vertex-disjoint escape paths.
+
+Note that the value can never exceed $m$, since the $m$ arcs out of $s$ form a
+cut of capacity $m$. So the test is really ``is the maximum flow as large as it
+could possibly be''.
+\end{proof}
+
+\paragraph{Running time.}
+The grid has $N = n^2$ vertices and at most $2n^2$ edges, hence at most $4n^2$
+arcs after orienting. Splitting doubles the vertices and adds $N$ arcs, and the
+source and sink contribute $m \le n^2$ and $\bigoh{n}$ arcs respectively. So
+the network has
+\[ |V'| = 2n^2 + 2 = \bigoh{n^2}, \qquad |E'| = \bigoh{n^2} \]
+and is built in $\bigoh{n^2}$ time. The maximum flow value is at most $m$, so
+Ford--Fulkerson with breadth-first search performs at most $m$ augmentations at
+$\bigoh{|E'|} = \bigoh{n^2}$ each:
+\[ \bigoh{m \, n^2} \;\subseteq\; \bigoh{n^4}. \]
+This is polynomial in $n$, as required. Since all capacities are $1$ and every
+split vertex has a single entering arc, Dinic's algorithm does better:
+$\bigoh{|E'|\sqrt{|V'|}} = \bigoh{n^2 \cdot n} = \bigoh{n^3}$.
+
+\begin{intuition}
+The instance on the right of \cref{fig:flow-grid-escape} has no solution, and
+by \cref{thm:flow-menger-vertex} there is a short reason why: a set of fewer
+than $m$ vertices separating the starting points from the boundary. Finding
+that set is what the algorithm does when it fails --- the minimum cut is read
+off the last breadth-first search --- so the algorithm always outputs either an
+escape or a proof that none exists. That is worth more than a yes/no answer,
+and it costs nothing extra.
+\end{intuition}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:flow-further-reading}
+%==============================================================================
+
+This chapter is based on the course slides of Jesper Nederlof and Johan van
+Rooij.
+
+The max-flow min-cut theorem and the augmenting path algorithm are
+\citet{FordFulkerson1956}. The shortest-augmenting-path rule and its analysis
+are \citet{EdmondsKarp1972}; the same paper also treats minimum cost flow,
+which is \cref{ch:min-cost-flow}. Dinic's algorithm is \citet{Dinitz1970}.
+\citet{Menger1927} predates all of it. For the almost-linear-time algorithm
+mentioned in \cref{sec:flow-algorithms}, see
+\citet{ChenKyngLiuPengProbstGutenbergSachdeva2022}.
+
+\citet{AhujaMagnantiOrlin1993} is the reference for everything in this chapter
+and the next, and in particular for modelling: its exercise sections are a
+large and well-organised catalogue of problems that turn out to be flow
+problems, and several of the exercises in this book are taken from it.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-max-flow}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Show that if all capacities are integers then \emph{every} maximum flow need
+not be integral, but that a maximum flow that is not integral can always be
+converted into an integral one of the same value.
+\end{exercise}
 
+\begin{exercise}
+Give a flow network with a unique maximum flow but several minimum cuts, and
+one with a unique minimum cut but several maximum flows.
+\end{exercise}
+
+\begin{exercise}
+Prove that the set of minimum $s$--$t$ cuts is closed under union and
+intersection: if $(S_1,T_1)$ and $(S_2,T_2)$ are minimum cuts then so are
+$(S_1 \cap S_2, \cdot)$ and $(S_1 \cup S_2, \cdot)$. Deduce that there is a
+unique minimum cut whose source side is smallest.
+\end{exercise}
+
+\begin{exercise}
+Let $f$ be a maximum flow, and suppose the capacity of a single arc is
+increased by $1$. Show how to obtain a maximum flow in the new network in
+$\bigoh{m}$ time. What if a capacity is \emph{decreased} by $1$?
+\end{exercise}
+
+\begin{exercise}
+In the grid escape problem, suppose the paths are only required to be
+\emph{arc}-disjoint rather than vertex-disjoint. Does the construction of
+\cref{sec:flow-grid-escape} still work? What changes, and what happens to the
+running time?
+\end{exercise}
+
+\begin{exercise}
+Modify the grid escape construction so that it answers the harder question:
+what is the largest number of starting points that can escape simultaneously?
+Argue that your modification is correct.
+\end{exercise}
+
+\begin{exercise}
+A network has capacities on arcs \emph{and} a bound $k$ on the number of arcs
+that may carry non-zero flow. Show that finding a maximum flow subject to this
+extra bound is NP-hard.
+\end{exercise}
+
+\begin{exercise}
+Prove the following strengthening of \cref{cor:flow-integrality}: if all
+capacities are integers, then for any maximum flow $f$ there is an integral
+maximum flow $f'$ with $\lfloor f(e) \rfloor \le f'(e) \le \lceil f(e) \rceil$
+for every arc $e$.
+\end{exercise}
+
+%==============================================================================
 \begin{poolquestions}
-  \poolq{2}{Minimum Vertex Cut}Vertex capacities are handled in \cref{sec:flow-modelling}.
-  \poolq{3}{Escaping a Grid}Covered in \cref{sec:grid-escape}.
+  \poolq{2}{Minimum Vertex Cut}Covered by \cref{lem:flow-vertex-splitting} in
+  \cref{sec:flow-vertex-capacities}, which gives the reduction, the proof that
+  it preserves flows and values, and the size of the resulting network.
+  \poolq{3}{Escaping a Grid}Covered in \cref{sec:flow-grid-escape}: the model,
+  the correctness proof (\cref{thm:flow-grid-escape}) and the running-time
+  analysis in terms of $n$ and $m$.
 \end{poolquestions}

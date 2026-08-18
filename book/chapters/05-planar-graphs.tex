@@ -440,14 +440,18 @@ five colours is free, and we give it to $v$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{IMPORTANT. The five-colour argument in three panels.
-Panel 1: vertex $v$ of degree exactly 5 with its five neighbours drawn around
-it, two of them $x$ and $y$ marked as non-adjacent (dashed ``no edge'' between
-them). Panel 2: $G'$, with $v$ gone and $x,y$ merged into one vertex, drawn so
-that planarity is visibly preserved. Panel 3: the colouring pulled back --- $x$
-and $y$ carry the same colour, the five neighbours of $v$ show only four
-distinct colours, and $v$ takes the leftover colour.}
-\caption{Identifying two non-adjacent neighbours frees up a colour for $v$.}
+\includegraphics[width=\textwidth]{planar-5col}
+\caption{Identifying two non-adjacent neighbours frees a colour for $v$. Left:
+the vertex $v$ of degree $5$ with its neighbours $a$, $b$, $c$, $x$, $y$; the
+shaded regions are the colour classes, and $x$ and $y$ are not adjacent. Middle:
+the graph $G'$, in which $v$ has been deleted and $x$ and $y$ have been
+identified into a single vertex $x = y$. Contracting along the two edges $vx$
+and $vy$ keeps the drawing crossing-free, so $G'$ is still planar, and it has
+two vertices fewer, so induction gives it a $5$-colouring --- visible here as
+the merged colour class. Right: that colouring pulled back to $G$. Since $x$ and
+$y$ came from one vertex they receive the same colour, so the five neighbours of
+$v$ show at most four distinct colours between them and the fifth is free
+for $v$.}
 \label{fig:planar-5col}
 \end{figure}
 
@@ -495,11 +499,14 @@ prescribed positions, few crossings when the graph is not quite planar.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{The same planar graph drawn twice: once with curved
-edges, once with straight-line edges on a small integer grid (Fáry). Optionally
-a third panel showing a bad straight-line drawing with huge coordinates, to
-motivate the question of how small a grid suffices.}
-\caption{Fáry's theorem: curves are never necessary.}
+\includegraphics[width=0.6\textwidth]{planar-fary}
+\caption{Fáry's theorem: curves are never necessary. Both drawings are of the
+same graph --- a $4$-cycle with a hub joined to all of it --- and both are
+crossing-free. The right-hand one uses curved edges; the left-hand one shows
+that nothing was gained by them, since the same embedding is realisable with
+straight segments. What the theorem does \emph{not} say is that the segment
+endpoints can be placed anywhere convenient; how small a grid suffices is a
+separate question, answered by de Fraysseix, Pach and Pollack.}
 \label{fig:planar-fary}
 \end{figure}
 
@@ -1112,6 +1119,7 @@ red, with the resulting pieces shaded.}
 \end{figure}
 
 \subsection{Koebe's theorem and the proof idea (non-examinable)}
+\label{sec:planar-koebe-nonexam}
 
 The geometric proof rests on a beautiful and surprising representation
 theorem.
@@ -1504,21 +1512,25 @@ hardness comes straight through.
 %==============================================================================
 \section{Notes and further reading}
 \label{sec:planar-further-reading}
-%==============================================================================
 
 The presentation in this chapter grew out of the course slides of Jesper
 Nederlof and Johan van Rooij, to whom the choice of topics and several of the
 arguments --- the segment-and-interlacement planarity test and the crossover
 gadget in particular --- are due.
 
-\begin{itemize}[leftmargin=*]
-  \item J.~Hopcroft and R.~E.~Tarjan. Efficient planarity testing. \emph{Journal of the ACM}, 21(4):549--568, 1974.
-  \item R.~J.~Lipton and R.~E.~Tarjan. A separator theorem for planar graphs. \emph{SIAM Journal on Applied Mathematics}, 36(2):177--189, 1979.
-  \item G.~L.~Miller, S.-H.~Teng, W.~Thurston and S.~A.~Vavasis. Separators for sphere-packings and nearest neighbor graphs. \emph{Journal of the ACM}, 44(1):1--29, 1997.
-  \item M.~R.~Garey, D.~S.~Johnson and L.~Stockmeyer. Some simplified NP-complete graph problems. \emph{Theoretical Computer Science}, 1(3):237--267, 1976.
-  \item K.~Appel and W.~Haken. Every planar map is four colorable. \emph{Illinois Journal of Mathematics}, 21(3):429--567, 1977.
-  \item R.~Diestel. \emph{Graph Theory}. Springer, 5th edition, 2017. (Chapter 4 for planarity, including full proofs of Kuratowski and Fáry.)
-\end{itemize}
+The linear-time planarity test we did not prove is \citet{HopcroftTarjan1974}.
+The separator theorem is \citet{LiptonTarjan1979}, in the slightly weaker
+$\tfrac{2}{3}$-balanced form; the circle-packing proof sketched in
+\cref{sec:planar-koebe-nonexam} is from
+\citet{MillerTengThurstonVavasis1997}. NP-hardness of $3$-colouring on planar
+graphs, together with a great many other restricted-domain hardness results, is
+\citet{GareyJohnsonStockmeyer1976}. The four-colour theorem is
+\citet{AppelHaken1977} and \citet{AppelHakenKoch1977}; the proof is
+computer-assisted and we make no use of it.
+
+\citet{Diestel2017} is the graph theory reference to reach for first: its
+Chapter~4 covers planarity properly, including the full proofs of Kuratowski's
+and F\'ary's theorems that we skipped.
 
 %==============================================================================
 \section{Exercises}

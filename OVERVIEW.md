@@ -6,6 +6,7 @@ then created as a `.tex` file and `\include`d in `book/main.tex`.
 
 - Source material (schedule, exam pool): [`material/`](material/)
 - Book source: [`book/`](book/), master file [`book/main.tex`](book/main.tex)
+- Bibliography: [`book/references.bib`](book/references.bib)
 - Figures: [`book/figures/`](book/figures/) — see its README for naming and how
   to replace a placeholder
 - Exam question pool, transcribed and mapped: [`book/appendix/a-pool-questions.tex`](book/appendix/a-pool-questions.tex)
@@ -50,9 +51,9 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | --- | --- | --- | --- | --- | --- |
 | 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🟡 stable marriage drafted; Euler tours + 19 figures open |
-| 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🔲 |
+| 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 6 figures open |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
-| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 19 figures open |
+| 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 17 figures open |
 | 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
 
 ### Part II — Real Computation and the Existential Theory of the Reals
@@ -190,6 +191,11 @@ Conventions:
 - Cross-references: `\cref{...}` for new text. Chapter 5 came in from lecture
   notes written with the explicit `Section~\ref{...}` style, which is left as
   it is; both render the same.
+- Citations use `natbib`: `\citet{Key}` for "Lipton and Tarjan (1979) showed",
+  `\citep{Key}` for a parenthetical. Every entry in `book/references.bib` that
+  has a DOI must carry one, and **DOIs are verified against the publisher
+  record before being added, never written from memory** — a wrong DOI sends
+  the reader somewhere else entirely. Entries with no DOI carry an ISBN or URL.
 - Source material is credited in the chapter's "Notes and further reading"
   section, not inline. The book as a whole is based on the course slides of
   Jesper Nederlof and Johan van Rooij (see the preface); the chapters on real
@@ -223,9 +229,9 @@ PDF as an artefact.
 5. Fill in Appendix B once the main text has settled and it is clear what
    actually needs to be assumed.
 6. Add exercises beyond the pool questions.
-7. Bibliography and attribution pass. Chapters currently carry their reading
-   lists as a "Notes and further reading" section; these should become a single
-   `references.bib` with real `\cite` keys once there are enough of them.
+7. ~~Bibliography and attribution pass.~~ ✅ `book/references.bib` exists, is
+   wired in through `natbib`/`bibtex`, and carries verified DOIs. New chapters
+   cite into it rather than listing references by hand.
 
 ## Open work in drafted chapters
 
@@ -244,8 +250,8 @@ PDF as an artefact.
 - **19 figure placeholders.** The chapter is a visual one and several arguments
   (segments and interlacement, the crossover gadget, the five-colour Kempe
   chain) are hard to follow without the picture. The placeholders marked
-  IMPORTANT in their brief are the ones to draw first. Figures 5.1--5.4 are
-  done and checked.
+  IMPORTANT in their brief are the ones to draw first. Figures 5.1--5.4, 5.7
+  (five-colouring) and 5.8 (F\'ary) are done and checked.
 - **Two constants are unverified.** The $\tfrac{9}{10}$ and $11$ in the
   statement of the planar separator theorem, and the $\sqrt n / 20$ in the
   matching lower bound for the grid, were reconstructed when the text was

@@ -1,0 +1,107 @@
+% ---------------------------------------------------------------------------
+% Preamble: packages, theorem environments and shared macros.
+% Everything that all chapters may rely on lives here.
+% ---------------------------------------------------------------------------
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage[a4paper,margin=3cm]{geometry}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,patterns}
+
+\usepackage{booktabs}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,
+            urlcolor=blue!50!black]{hyperref}
+\usepackage{cleveref}
+
+% Bookmarks are plain text: tell hyperref how to spell our macros there.
+\pdfstringdefDisableCommands{%
+  \def\ER{exists-R}%
+  \def\ETR{ETR}%
+  \def\Ostar{O*}%
+  \def\R{R}%
+  \def\N{N}%
+  \def\Z{Z}%
+  \def\Q{Q}%
+  \def\tw{tw}%
+  \def\OPT{OPT}%
+  \def\lang#1{#1}%
+}
+
+% --- Theorem-like environments ---------------------------------------------
+\theoremstyle{plain}
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{claim}[theorem]{Claim}
+\newtheorem{conjecture}[theorem]{Conjecture}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{example}[theorem]{Example}
+\newtheorem{problem}[theorem]{Problem}
+\newtheorem{exercise}[theorem]{Exercise}
+\newtheorem{observation}[theorem]{Observation}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+% --- Problem definitions ----------------------------------------------------
+% Usage:
+%   \begin{probdef}{Vertex Cover}
+%     \instance A graph $G=(V,E)$ and an integer $k$.
+%     \question Is there a set $S \subseteq V$ with $|S| \le k$ ...
+%   \end{probdef}
+\newenvironment{probdef}[1]
+  {\begin{quote}\textsc{#1}\par\nopagebreak\begin{description}[leftmargin=2em,
+     style=nextline,font=\normalfont\itshape]}
+  {\end{description}\end{quote}}
+\newcommand{\instance}{\item[Instance:]}
+\newcommand{\question}{\item[Question:]}
+\newcommand{\parameter}{\item[Parameter:]}
+\newcommand{\goal}{\item[Goal:]}
+
+% --- Shared notation --------------------------------------------------------
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\ER}{\exists\R}                 % the class exists-R
+\newcommand{\ETR}{\textsc{ETR}}
+\newcommand{\Ostar}{O^{*}}                  % O* notation, suppresses poly factors
+\newcommand{\poly}{\mathrm{poly}}
+\newcommand{\OPT}{\mathrm{OPT}}
+\newcommand{\tw}{\mathrm{tw}}
+\newcommand{\lang}[1]{\textsc{#1}}          % problem names in running text
+\DeclareMathOperator{\cost}{cost}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% --- Authoring helpers ------------------------------------------------------
+% \todo{...} marks work in progress and is deliberately visible in the PDF.
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+
+% Every chapter closes with the list of open-pool questions it is responsible
+% for.  Usage:
+%   \begin{poolquestions}
+%     \poolq{1}{Stable Matchings} Covered in \cref{sec:gale-shapley}.
+%   \end{poolquestions}
+\newenvironment{poolquestions}
+  {\section{Open pool questions covered by this chapter}%
+   \begin{itemize}[leftmargin=*]}
+  {\end{itemize}}
+\newcommand{\poolq}[2]{\item \textbf{Pool question #1 (#2).}\ }

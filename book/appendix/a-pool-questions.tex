@@ -1,0 +1,399 @@
+%% Appendix A: the open exam question pool, transcribed verbatim, plus the
+%% mapping from pool questions to chapters.
+%% Source: material/pool/open-pool-questions.pdf (draft version).
+%% When the pool is updated, update this file AND the mapping table below.
+
+\chapter{The Open Exam Question Pool}
+\label{app:pool}
+
+The course is examined with the
+\href{https://openpoolexams.science.uu.nl/}{open pool exam method}. At least
+$30\%$ of the questions of the midterm and of the final exam are drawn
+\emph{verbatim} from the pool reproduced below. The remaining questions test the
+same material on instances you have not seen.
+
+The pool is a draft and may change; the version transcribed here is the one in
+\texttt{material/pool/open-pool-questions.pdf}. Where the pool numbers its
+sources by lecture, we give the corresponding chapter of this book.
+
+\section{Where each question is answered}
+\label{sec:pool-mapping}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Q} & \textbf{Title} & \textbf{Pool lecture} & \textbf{Chapter} \\
+\midrule
+1  & Stable Matchings                    & 1  & \cref{ch:stable-marriage} \\
+2  & Minimum Vertex Cut                  & 2  & \cref{ch:max-flow} \\
+3  & Escaping a Grid                     & 2  & \cref{ch:max-flow} \\
+4  & Phasing out capital equipment       & 3  & \cref{ch:min-cost-flow} \\
+5  & Planar Graphs                       & 4  & \cref{ch:planar} \\
+6  & Real Models of Computation          & 5  & \cref{ch:real-models} \\
+7  & Partition into Cycles               & 6  & \cref{ch:matching} \\
+8  & Existential Theory of the Reals     & 7  & \cref{ch:etr} \\
+9  & Exact Algorithm for Exact 3-SAT     & 8  & \cref{ch:exact-i} \\
+10 & Bisection Width                     & 8  & \cref{ch:exact-i} \\
+11 & Duality and geometric $\ER$-hardness & 9  & \cref{ch:geometric-er} \\
+12 & Inclusion/exclusion for set cover   & 10 & \cref{ch:exact-ii} \\
+13 & Approximation non-symmetric TSP     & 10 & \cref{ch:approx-i} \\
+14 & Approximating Steiner Tree          & 11 & \cref{ch:approx-ii} \\
+15 & Parameterized complexity            & 12 & \cref{ch:fpt-i} \\
+16 & Treewidth of grid graphs            & 13 & \cref{ch:treewidth} \\
+17 & Treewidth and cliques               & 13 & \cref{ch:treewidth} \\
+18 & L-reduction for Max Cut on Multigraphs & 14 & \cref{ch:hardness} \\
+19 & Vertex Cover Kernel                 & 15 & \cref{ch:kernelization}, \cref{ch:randomized} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{remark}
+Question~11 is titled \emph{Exact Algorithm for Exact 3-SAT} in the pool PDF,
+which is a copy-paste error: its items are about point--line duality and
+geometric $\ER$-completeness. We keep the numbering but use the accurate title.
+\end{remark}
+
+\section{The questions}
+\label{sec:pool-questions}
+
+\subsection*{Lecture 1: Stable Marriage}
+
+\paragraph{Question 1. Stable Matchings.}
+This set of questions captures the learning goals of the first lecture on the
+stable marriage problem.
+\begin{enumerate}
+  \item Define an Euler Tour and show that every connected graph with all even
+        degrees must have an Euler Tour.
+  \item Define the term stable marriage problem, blocking pair and stable
+        matching.
+  \item Define the Greedy Algorithm as in the lecture and show that it might run
+        forever.
+  \item Explain the Gale Shapley algorithm and show that it returns a stable
+        matching.
+  \item Define a men optimal stable matching and show that the Gale Shapley
+        algorithm returns a men optimal stable matching.
+\end{enumerate}
+
+\subsection*{Lecture 2: Min Flow Max Cut}
+
+\paragraph{Question 2. Minimum Vertex Cut.}
+Show that determining the maximum flow in a network with arc and vertex capacity
+constraints can be reduced to an ordinary maximum-flow problem on a flow network
+of comparable size.
+
+\paragraph{Question 3. Escaping a Grid.}
+An $n \times n$ grid is an undirected graph consisting of $n$ rows and $n$
+columns of vertices. We denote the vertex in the $i$th row and $j$th column by
+$v_{i,j}$. All vertices in a grid have exactly four neighbours, except for the
+\emph{boundary} points, which are the vertices $v_{i,j}$ with $i = 1$, $i = n$,
+$j = 1$ or $j = n$.
+
+Given $m \le n^2$ starting points $v_{x_1,y_1}, \ldots, v_{x_m,y_m}$ in the
+grid, the \emph{grid escape problem} is to determine if there are $m$
+vertex disjoint paths from the starting points to any $m$ different points in
+the boundary.
+
+Describe an algorithm with running time polynomial in $n$ that solves the escape
+problem and analyse its running time. (Be careful that $n$ and $m$ describe the
+size of the grid and number of starting points, not the number of vertices and
+arcs as usual.)
+
+\subsection*{Lecture 3: Min Flow Max Cut}
+
+\paragraph{Question 4. Phasing out capital equipment.}
+A shipping company wants to phase out a fleet of (homogeneous) general cargo
+ships over a period of $p$ years. Its objective is to maximize its cash assets at
+the end of the $p$ years by considering the possibility to prematurely selling
+ships and temporary replacing them by ships they rent.
+
+The company faces a non-increasing demand for ships: every year, the number of
+ships needed is at most the number needed the previous year. Let $d(i)$ be the
+number of ships needed in year $i$. The company can possibly have more than
+$d(i)$ ships in year $i$, but may not have less than these.
+
+If a ship is sold in year $i$, this yields $s_i$ euros. Each ship the company has
+in year $i$ gives $r_i$ euros as profit. If the company has less than $d(i)$
+ships in year $i$, it must hire additional ships. This costs $h_i$ in year $i$.
+Assume that $h_i > r_i$ for each $i$.
+
+The company wants to meet its commitments (have sufficient ships either owned or
+rented each year), and have as much cash assets as possible at the end of the
+$p$th year.
+
+Formulate this problem as a minimum cost flow problem.
+(Exercise 9.6 from \emph{Network Flows}, Ahuja, Magnanti, Orlin.)
+
+\subsection*{Lecture 4: Planar Graphs}
+
+\paragraph{Question 5. Planar Graphs.}
+This set of questions captures the learning goals of the lecture on the planar
+graphs. We assume that $G$ is a planar graph on $n$ vertices and $m$ edges.
+\begin{enumerate}
+  \item Give and prove the Euler Formula.
+  \item Show that $m \le 3n-6$ and the average degree below $6$.
+  \item Define graph minors and state the Kuratowski theorem.
+  \item Show that planar graphs are $5$-colorable.
+  \item Show that $K_{3,3}$ is non-planar in an elementary way.
+  \item State the Planar Separator Theorem.
+  \item Show that $3$-coloring can be solved in $2^{O(\sqrt{n})}$ time on planar
+        graphs.
+  \item Show that $3$-coloring is NP-hard for planar graphs.
+\end{enumerate}
+
+\subsection*{Lecture 5: Real Models of Computation}
+
+\paragraph{Question 6. Real Models of Computation.}
+This set of questions captures the learning goals of the lecture on real models
+of computation.
+\begin{enumerate}
+  \item Explain a program on a word RAM. (Not a formal definition.)
+  \item Explain a Turing machine. (Not a formal definition.)
+  \item Give a comparison of advantages and disadvantages of the two models.
+  \item Explain what a program on a real RAM is and give both a motivation and
+        concerns about this model of computation.
+  \item Show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM that is
+        allowed to use rounding.
+  \item Show how to compute the greatest common divisor $\gcd(a,b)$ of two
+        numbers in $O(\min\{\log a, \log b\})$ time on a real RAM that is
+        allowed to use rounding.
+  \item Show that we can find a factor of a number in polynomial time on the real
+        RAM that is allowed to use rounding. You are allowed to use the answer of
+        the previous two questions.
+  \item Define a straight line program and \textsc{PosSLP}.
+  \item Show that $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$.
+\end{enumerate}
+
+\subsection*{Lecture 6: Matching}
+
+\paragraph{Question 7.}
+Consider the following problem:
+\begin{probdef}{Partition into Cycles}
+  \instance Undirected graph $G = (V,E)$.
+  \question Can we partition $G$ into cycles, i.e., is there a collection of
+  simple cycles $C_1, \ldots, C_r$ in $G$, such that each vertex belongs to
+  exactly one of the cycles in the collection?
+\end{probdef}
+Give a polynomial time algorithm that solves this problem.
+
+\subsection*{Lecture 7: Existential Theory of the Reals}
+
+\paragraph{Question 8. Existential Theory of the Reals.}
+This set of questions captures the learning goals of the first lecture on the
+existential theory of the reals.
+\begin{enumerate}
+  \item Give a definition of the algorithmic problem \ETR{} and the complexity
+        class $\ER$ based on this definition.
+  \item Give the machine model description of $\ER$ and a sketch of a proof that
+        it is equivalent with the logic based definition.
+  \item Show that $\mathrm{NP} \subseteq \ER$.
+  \item Define the order types and the order type problem. Give a motivation to
+        study order types.
+  \item Define \textsc{ETR-AM} as in the lecture and show that it is
+        $\ER$-complete.
+  \item Define the \textsc{Partial Order Type Problem}. Suppose that we can use
+        order types to also enforce pairs of lines, defined by two points each,
+        to be parallel. Show that the \textsc{Partial Order Type Problem} is
+        $\ER$-complete.
+\end{enumerate}
+
+\subsection*{Lecture 8: Exact Exponential-Time Algorithms}
+
+\paragraph{Question 9. Exact Algorithm for Exact 3-SAT.}
+Suppose we have a set of Boolean variables $x_1, \ldots, x_n$, a set of clauses,
+where each clause is a subset of
+\[ \{x_1, \ldots, x_n, \lnot x_1, \ldots, \lnot x_n\}, \]
+and each clause has at most three literals (elements). In \textsc{Exact 3-Satisfiability}, we want to
+determine if there exists a truth assignment such that each clause has
+\emph{exactly} one true literal.
+
+For instance, if we have clauses $\{x_1,x_2,x_3\}$, $\{\lnot x_1, x_2, x_4\}$,
+then setting $x_1$ to true, $x_2$ to false, $x_3$ to false, and $x_4$ to true is
+a solution. Also, setting $x_1$ and $x_2$ to true does not lead to a solution, as
+the first clause has two literals that are true.
+\begin{enumerate}
+  \item Show that we can create a reduction rule using polynomial time that
+        transforms an instance of \textsc{Exact 3-Satisfiability} into an
+        equivalent smaller instance of \textsc{Exact 3-Satisfiability} where all
+        clauses have size two or three. (Smaller means, not increasing the number
+        of variables or clauses.)
+  \item Show that we can create a reduction rule using polynomial time that
+        transforms an instance of \textsc{Exact 3-Satisfiability} into an
+        equivalent smaller instance of \textsc{Exact 3-Satisfiability} where all
+        clauses have size exactly three. (Smaller means, not increasing the
+        number of variables or clauses.)
+  \item Give an exponential-time algorithm that solves the \textsc{Exact
+        3-Satisfiability} problem. Analyse the time of your algorithm. Your
+        algorithm should use $\Ostar(c^n)$ time for some $c < 2$.
+\end{enumerate}
+
+\paragraph{Question 10. Bisection Width.}
+Consider the following problem.
+\begin{probdef}{Bisection Width}
+  \instance Graph $G = (V,E)$, with $|V|$ even.
+  \goal Find a partition of $V$ into two sets $V_1, V_2$, with
+  $|V_1| = |V_2| = |V|/2$, such that the number of edges with one endpoint in
+  $V_1$ and one endpoint in $V_2$ is as small as possible.
+\end{probdef}
+This problem is NP-complete, and an $\Ostar(2^n)$ algorithm is trivial. Find an
+efficient exact algorithm for this problem with running time $\Ostar(c^n)$ for
+some $c < 2$.
+
+\subsection*{Lecture 9: Existential Theory of the Reals}
+
+\paragraph{Question 11. Duality and geometric $\ER$-hardness.}
+\begin{enumerate}
+  \item Describe point-line duality.
+  \item Show the above-below property of point-line duality.
+  \item Define the cyclic order of a point with respect to a point set. Describe
+        what the cyclic order corresponds to in the dual.
+  \item Define geometric intersection graphs and unit disk graphs in particular.
+  \item Show that deciding whether a given graph is a unit disk intersection
+        graph is $\ER$-complete.
+  \item Show that the \textsc{Optimal Curve Straightening} problem is
+        $\ER$-complete.
+\end{enumerate}
+
+\subsection*{Lecture 10: Inclusion/Exclusion \& Approximation}
+
+\paragraph{Question 12. Inclusion/exclusion for set cover.}
+Let $U$ be any set of size $m$ ($m = |U|$), and let $F$ be a set of subsets of
+$U$. A set cover $C \subseteq F$ is a set of sets that together cover all
+elements in $U$, i.e., $\bigcup_{S \in C} S = U$. A minimum set cover is a set
+cover using the smallest number of sets from $F$ as possible.
+
+Give an $\Ostar(2^m)$ time and polynomial-space algorithm that counts the number
+of minimum set covers of $F$.
+
+\paragraph{Question 13. Approximation non-symmetric TSP.}
+Suppose we have an instance of \textsc{Travelling Salesman Problem} that is not
+symmetric but still fulfils the triangle inequality, e.g., battery usage by an
+electric car in a mountainous area. We know that for every two cities $i$ and
+$j$, we have that $d(i,j) \le 2 d(j,i)$, and of course, $d(j,i) \le 2 d(i,j)$.
+
+Give a $c$-approximation algorithm for this problem that runs in polynomial
+time.
+
+\subsection*{Lecture 11: Approximation Algorithms II}
+
+\paragraph{Question 14. Approximating Steiner Tree.}
+Let $G = (V,E)$ be an undirected connected graph, let $T \subseteq V$ be a set of
+vertices called the \emph{terminals}, and let $N = V \setminus T$ be the
+non-terminal vertices. In the \textsc{Steiner Tree} problem, we are asked to
+compute a minimum-size set of edges $S \subseteq E$ such that $S$ connects all
+vertices in $T$. That is, if we let $V(S)$ be the set of endpoints of edges in
+$S$, then $(V(S),S)$ is a tree with $T \subseteq V(S) \subseteq V$ connecting the
+vertices in $T$, where it is allowed to use vertices from $N$ as intermediate
+vertices in the tree.
+\begin{enumerate}
+  \item Prove that the procedure below is a $2$-approximation to \textsc{Steiner
+        Tree}.
+
+        Define the complete graph $G_T = (T,F)$ to be a graph on the terminal
+        vertices $T$, with $F = \{\{u,v\} : u \in T, v \in T, u \ne v\}$ and cost
+        function $c : F \to \N$, where the cost of edge $\{t_1,t_2\} \in F$
+        equals the length of the shortest path from $t_1$ to $t_2$ in the
+        original graph $G$. Also, define $P(\{t_1,t_2\})$ to be the set of edges
+        underlying such a shortest path from $t_1$ to $t_2$ in $G$.
+
+        Consider the following algorithm for Steiner tree: given $G = (V,E)$ and
+        $T$, first compute $G_T$ and a minimum spanning tree $M \subseteq F$ on
+        $G_T$ w.r.t.\ the cost function $c$, and then output the edge set
+        \[ \bigcup_{m \in M} P(m). \]
+        Note that a minimum spanning tree is a minimum cost edge set connecting
+        \emph{all} vertices in the graph.
+  \item Prove that there is no FPTAS for Steiner tree unless
+        $\mathrm{P} = \mathrm{NP}$.
+
+        You do not need part 1 to prove this, and partial points will be awarded
+        if you prove the weaker statement that no additive-constant-factor
+        approximation exists unless $\mathrm{P} = \mathrm{NP}$.
+\end{enumerate}
+
+\subsection*{Lecture 12: Parameterized Complexity I}
+
+\paragraph{Question 15.}
+\begin{enumerate}
+  \item Define a parameterized problem, FPT, XP, and para-NP-hard.
+  \item Describe the idea of a branching algorithm in general.
+  \item Define \textsc{Vertex Cover} and show that \textsc{Vertex Cover} can be
+        solved in FPT time using a branching algorithm.
+  \item Define \textsc{Cluster Editing} and give a branching algorithm for it.
+  \item Give one parameterized problem that is para-NP-complete.
+  \item Define the notion of a kernel.
+  \item Show that a problem is FPT if and only if it has a kernel.
+  \item Show that \textsc{Vertex Cover} has a kernel of size $O(k^2)$.
+  \item Define \textsc{Convex String Recoloring} and show that it has a kernel of
+        size $O(k^2)$.
+  \item Define the \textsc{Directed $k$-Path} problem and acyclic graphs. Show
+        that \textsc{Directed $k$-Path} can be solved in polynomial time on
+        acyclic graphs.
+  \item Explain what a constant one-sided error algorithm is. Show that there is
+        a constant one-sided error algorithm for \textsc{Directed $k$-Path} with
+        running time $O(k^k \cdot n^c)$, for some suitable constant $c$.
+\end{enumerate}
+
+\subsection*{Lecture 13: Treewidth}
+
+\paragraph{Question 16. Treewidth of grid graphs.}
+The $p$ by $q$ grid graph $GR_{p \times q}$ is the graph
+$(V_{p \times q}, E_{p \times q})$, with
+$V_{p \times q} = \{v_{i,j} \mid 1 \le i \le p \wedge 1 \le j \le q\}$, and
+$E_{p \times q} = \{\{v_{i,j}, v_{i+1,j}\} \mid 1 \le i < p \wedge 1 \le j \le q\}
+\cup \{\{v_{i,j}, v_{i,j+1}\} \mid 1 \le i \le p \wedge 1 \le j < q\}$.%
+\footnote{The pool PDF gives the same expression $\{v_{i,j},v_{i+1,j}\}$ twice;
+the second set is clearly meant to contain the horizontal edges, and we have
+transcribed it that way.}
+
+Show, by giving a construction of a tree decomposition, that the treewidth of a
+$p$ by $q$ grid graph with $p \le q$ is at most $p$.
+
+\paragraph{Question 17. Treewidth and cliques.}
+A clique in a graph $G = (V,E)$ is a subset of the vertices $C \subseteq V$ such
+that for any pair of vertices $c_1, c_2 \in C$ there is an edge between the
+vertices in $G$: $\{c_1,c_2\} \in E$.
+
+Show that for any tree decomposition $T$ of $G$, $T$ must have a bag $X_i$ for
+which $C \subseteq X_i$. Conclude that the treewidth of $G$ is at least
+$|C| - 1$.
+
+\subsection*{Lecture 14: Complexity for Approximation and FPT}
+
+\paragraph{Question 18. L-reduction for Maximum Cut on Multigraphs.}
+We consider the approximation complexity of the \textsc{Max Cut on Multigraphs}
+problem and the \textsc{Max Not-All-Equal 3-SAT} problem.
+
+A multigraph $G = (V,E)$ is a graph that can contain multiple identical edges.
+Given a multigraph $G = (V,E)$, a cut $(V_1,V_2)$ in $G$ is a partitioning of
+the vertices $V$ into two sets $V_1, V_2$ ($V_1 \cap V_2 = \emptyset$,
+$V_1 \cup V_2 = V$). The value of the cut $(V_1,V_2)$ is the number of edges
+$(u,v) \in E$ with one endpoint in $V_1$ and one endpoint in $V_2$. In the
+\textsc{Max Cut on Multigraphs} problem, we are given a multigraph and we are
+asked to compute a cut with maximum value.
+
+In the \textsc{Max Not-All-Equal 3-SAT} problem, we are given a set of variables
+$X$ and a set of clauses $C$ over the variables $X$ (clauses that can have
+literals $x$ and $\lnot x$ for variables $x \in X$), where each clause consists
+of \emph{exactly} two or three literals. In this problem, a clause $c \in C$ is
+satisfied by a truth assignment $\varphi$, if at least one literal in $c$ is made
+true by $\varphi$ and at least one literal in $c$ is made false by $\varphi$. The
+question in this problem is to compute a truth assignment that satisfies the
+maximum number of clauses. In this question you may use the fact that
+\textsc{Max Not-All-Equal 3-SAT} is APX-complete.
+
+Prove that \textsc{Max Cut on Multigraphs} is APX-hard by giving an L-reduction
+from \textsc{Max Not-All-Equal 3-SAT}.
+
+\subsection*{Lecture 15: Kernelization and Randomized Algorithms}
+
+\paragraph{Question 19. Vertex Cover Kernel.}
+\begin{itemize}
+  \item Define \textsc{Integer Linear Programming} and show how \textsc{Vertex
+        Cover} can be encoded as an Integer Linear Programming.
+  \item Show that \textsc{Vertex Cover} has a linear sized kernel. (If this
+        question comes up in the exam, we will ask for only part of the proof.)
+  \item Define \textsc{2-List Coloring} and show that it can be solved in
+        polynomial time.
+  \item Using the answer to the previous question, describe a randomized constant
+        one-sided error algorithm for \textsc{3-Coloring} a graph with running
+        time $O(1.5^n)$.
+\end{itemize}

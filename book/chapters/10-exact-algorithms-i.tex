@@ -1,0 +1,71 @@
+%% Chapter 10: Exact Exponential-Time Algorithms I: Branching
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Exact Exponential-Time Algorithms I: Branching}
+\label{ch:exact-i}
+
+If a problem is NP-hard and we still need the exact optimum, the question is no
+longer polynomial versus exponential but $2^n$ versus $1.5^n$ --- a difference of
+a factor of a million already at $n = 40$. Branching, together with reduction
+rules that shrink the instance, is the basic technique.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item use $\Ostar$ notation and explain why polynomial factors may be suppressed;
+  \item design branching algorithms and analyse them with branching vectors and recurrences;
+  \item design polynomial-time reduction rules that make an instance smaller;
+  \item give an $\Ostar(c^n)$ algorithm with $c < 2$ for \textsc{Exact 3-Satisfiability};
+  \item give an $\Ostar(c^n)$ algorithm with $c < 2$ for \textsc{Bisection Width}.
+\end{itemize}
+
+\section{Why the base of the exponent matters}
+\label{sec:why-exponent}
+
+\todo{Write this section.}
+
+\section{Branching algorithms}
+\label{sec:branching}
+
+\todo{Write this section.}
+% Planned content: Search trees, branching vectors, branching numbers, and how to solve the resulting recurrences.
+
+\section{Reduction rules}
+\label{sec:reduction-rules}
+
+\todo{Write this section.}
+% Planned content: Simplification before branching; the interplay between the two.
+
+\section{\texorpdfstring{Independent set and $3$-SAT}{Independent set and 3-SAT}}
+\label{sec:branching-examples}
+
+\todo{Write this section.}
+
+\section{Exact satisfiability}
+\label{sec:exact-sat}
+
+\todo{Write this section.}
+% Planned content: Reduction rules that make all clauses have size two or three, then size exactly three, and a branching algorithm on the result.
+
+\section{Bisection width}
+\label{sec:bisection-width}
+
+\todo{Write this section.}
+% Planned content: Beating the trivial $\Ostar(2^n)$ enumeration of balanced partitions.
+
+\section{Measure and conquer}
+\label{sec:measure-and-conquer}
+
+\todo{Write this section.}
+
+\section{Exercises}
+\label{sec:ex-exact-i}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{9}{Exact Algorithm for Exact 3-SAT}Covered in \cref{sec:exact-sat}.
+  \poolq{10}{Bisection Width}Covered in \cref{sec:bisection-width}.
+\end{poolquestions}

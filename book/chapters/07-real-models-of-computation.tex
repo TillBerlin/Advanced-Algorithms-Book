@@ -1,0 +1,73 @@
+%% Chapter 7: Real Models of Computation
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Real Models of Computation}
+\label{ch:real-models}
+
+Every algorithms course quietly assumes a model of computation and then never
+mentions it again. This chapter takes the question seriously. Comparing the word
+RAM with the Turing machine already shows that the choice matters; the real RAM,
+the model computational geometry actually uses, turns out to be strictly more
+powerful in a way that is both useful and slightly alarming.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item explain informally what a program on a word RAM is;
+  \item explain informally what a Turing machine is;
+  \item compare the two models and name advantages and disadvantages of each;
+  \item explain the real RAM, and give both a motivation for and concerns about the model;
+  \item compute $k!$ in $O(\log^2 k)$ time on a real RAM with rounding;
+  \item compute $\gcd(a,b)$ in $O(\min\{\log a, \log b\})$ time on a real RAM with rounding;
+  \item find a factor of a number in polynomial time on a real RAM with rounding;
+  \item define straight line programs and \textsc{PosSLP}, and prove $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$.
+\end{itemize}
+
+\section{The word RAM}
+\label{sec:word-ram}
+
+\todo{Write this section.}
+
+\section{Turing machines}
+\label{sec:turing-machines}
+
+\todo{Write this section.}
+
+\section{Comparing the models}
+\label{sec:model-comparison}
+
+\todo{Write this section.}
+% Planned content: What each model gets right, what each gets wrong, and why the difference is usually invisible.
+
+\section{The real RAM}
+\label{sec:real-ram}
+
+\todo{Write this section.}
+% Planned content: Exact real arithmetic in unit time. Motivation from computational geometry; the concerns that come with unbounded precision.
+
+\section{The power of rounding}
+\label{sec:real-ram-rounding}
+
+\todo{Write this section.}
+% Planned content: With a floor function the real RAM becomes unreasonably strong: $k!$ in $O(\log^2 k)$ time, $\gcd$ in $O(\min\{\log a,\log b\})$ time, and factoring in polynomial time.
+
+\section{Straight line programs and \textsc{PosSLP}}
+\label{sec:posslp}
+
+\todo{Write this section.}
+
+\section{\texorpdfstring{$\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}{P with a PosSLP oracle equals P over the reals}}
+\label{sec:posslp-pr}
+
+\todo{Write this section.}
+
+\section{Exercises}
+\label{sec:ex-real-models}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{6}{Real Models of Computation}All nine items are covered by \cref{sec:word-ram,sec:turing-machines,sec:model-comparison,sec:real-ram,sec:real-ram-rounding,sec:posslp,sec:posslp-pr}.
+\end{poolquestions}

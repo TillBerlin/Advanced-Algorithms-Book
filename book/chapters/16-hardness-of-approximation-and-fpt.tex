@@ -1,0 +1,65 @@
+%% Chapter 16: Complexity Theory for Approximation and Parameterization
+%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+
+\chapter{Complexity Theory for Approximation and Parameterization}
+\label{ch:hardness}
+
+Both of the previous parts leave an obvious question open: which problems admit
+a PTAS, and which problems are FPT? This chapter provides the negative theory.
+For approximation the key notions are APX-hardness and the L-reduction; for
+parameterization they are the W-hierarchy and ETH-based lower bounds.
+
+\section*{Learning goals}
+\addcontentsline{toc}{section}{Learning goals}
+
+After this chapter you should be able to:
+\begin{itemize}[leftmargin=*]
+  \item define APX and approximation-preserving reductions;
+  \item define an L-reduction and prove that L-reductions compose and preserve constant-factor approximability;
+  \item prove APX-hardness of \lang{Max Cut on Multigraphs} by an L-reduction from \lang{Max Not-All-Equal 3-SAT};
+  \item state the PCP theorem and explain how it yields inapproximability results;
+  \item define the W-hierarchy and W[1]-hardness, and give W[1]-hard problems;
+  \item derive parameterized lower bounds from ETH.
+\end{itemize}
+
+\section{The class APX}
+\label{sec:apx}
+
+\todo{Write this section.}
+
+\section{L-reductions}
+\label{sec:l-reductions}
+
+\todo{Write this section.}
+% Planned content: Definition, composition, and what they preserve.
+
+\section{Max cut on multigraphs is APX-hard}
+\label{sec:maxcut-apx-hard}
+
+\todo{Write this section.}
+% Planned content: An L-reduction from \lang{Max Not-All-Equal 3-SAT}.
+
+\section{The PCP theorem and gap reductions}
+\label{sec:pcp}
+
+\todo{Write this section.}
+
+\section{The W-hierarchy}
+\label{sec:w-hierarchy}
+
+\todo{Write this section.}
+% Planned content: FPT-reductions, W[1] and W[2], and \lang{Clique} as the canonical W[1]-hard problem.
+
+\section{Lower bounds from ETH}
+\label{sec:eth-lower-bounds}
+
+\todo{Write this section.}
+
+\section{Exercises}
+\label{sec:ex-hardness}
+
+\todo{Write this section.}
+
+\begin{poolquestions}
+  \poolq{18}{L-reduction for Maximum Cut on Multigraphs}Covered in \cref{sec:maxcut-apx-hard}; the definitions it relies on are in \cref{sec:apx,sec:l-reductions}.
+\end{poolquestions}

@@ -1,9 +1,9 @@
 %% Chapter 7: Real Models of Computation
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted, figures in place.
 %%
 %% Written against chapter 1 of Real-Compuation.pdf ("Beyond Bits", Tillmann
-%% Miltzow).  The figure placeholders name the manuscript's own figure numbers,
-%% so the artwork can be dropped in directly.
+%% Miltzow).  The three figures are pages 1-3 of the author's RegiserMachine.pdf,
+%% split into book/figures/{word-ram,real-ram,turing-machine}.pdf.
 
 \chapter{Real Models of Computation}
 \label{ch:real-models}
@@ -84,10 +84,7 @@ essential feature, direct addressing.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{Figure 1 of the source manuscript. The word RAM: a
-program on the left as a finite list of instructions, a CPU, and an infinite
-array of word registers $I[0], I[1], I[2], \ldots$ into which input, output and
-all working memory go.}
+\includegraphics[width=0.95\textwidth]{word-ram}
 \caption{An algorithm on the word RAM is a finite list of instructions. Input,
 output and all working memory live in one infinite array of registers.}
 \label{fig:word-ram}
@@ -200,8 +197,7 @@ these rules, possibly for a very long time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{Figure 2 of the source manuscript: the Turing machine as
-a thought experiment about a simple worker at an endless tape.}
+\includegraphics[width=0.55\textwidth]{turing-machine}
 \caption{Turing machines began as a thought experiment about a very patient
 worker.}
 \label{fig:turing-machine}
@@ -317,9 +313,7 @@ the model is usually left implicit.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{Figure 3 of the source manuscript. The real RAM: a
-program, a CPU, and \emph{two} infinite arrays of registers --- word registers
-$I[0], I[1], \ldots$ and real registers $Z[0], Z[1], \ldots$}
+\includegraphics[width=0.9\textwidth]{real-ram}
 \caption{The real RAM has two infinite arrays of registers: one holding words,
 one holding real numbers.}
 \label{fig:real-ram}

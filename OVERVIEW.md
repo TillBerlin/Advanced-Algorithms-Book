@@ -62,7 +62,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | 🟡 prose complete; 3 figures open |
+| 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | ✅ drafted, figures in place |
 | 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | 🔲 |
 | 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11 | 🔲 |
 
@@ -261,6 +261,10 @@ rewrite.
 | | 57–91 | 4 (minimum cost flow) ✅ checked |
 | | 92–141 | 6 (matching) ✅ checked |
 | `planar.pdf` | — | 5 (planar graphs) |
+| `Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
+| `Approximation Algorithms 2026.pdf` | — | 12, 13 |
+| `aa-fpt.pdf` | — | 14, 17 |
+| `Treewidth 2026.pptx` | — | 15 |
 | `Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
 | | ch. 3–4 | 9 (order types, stretchability, ETR-INV, art gallery) |
@@ -281,9 +285,9 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ### Chapter 7 — Real Models of Computation
 
-- **3 figure placeholders**, all reproducing figures of the source manuscript
-  (its Figures 1, 2 and 3); the briefs name those numbers. Till is supplying
-  the artwork — do not extract it from the PDF.
+- Figures are in place: pages 1--3 of the author's `RegiserMachine.pdf`, split
+  into `word-ram.pdf`, `real-ram.pdf` and `turing-machine.pdf`. **Do not
+  extract figures from the manuscript PDF** — the author supplies them.
 - The manuscript carries its own pool-question list per chapter, and chapter
   1's list is exactly pool question 6, so the chapter's goals needed no
   invention.

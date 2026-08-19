@@ -337,7 +337,13 @@ time.}
 \label{fig:flow-bad-instance}
 \end{figure}
 
-\subsection{Edmonds--Karp: always take a shortest path}
+\subsection{Edmonds--Karp: always take a shortest path (non-examinable)}
+\nonexam{Edmonds--Karp is assumed background from the bachelor algorithms
+course rather than taught here, and the lecture does not recap it. The analysis
+below is included because the two lemmas it turns on --- distances never
+decrease, and each arc is critical rarely --- are the standard way to argue
+that an augmenting-path rule terminates quickly, and the same shape of argument
+recurs.}
 
 \begin{theorem}[\citet{EdmondsKarp1972}]\label{thm:flow-ek}
 If every augmenting path is chosen to have the fewest arcs --- that is, found
@@ -369,7 +375,11 @@ $nm$ augmentations --- $nm/2$ counting the two directions of each arc as one
 --- and each costs $\bigoh{m}$.
 \end{proof}
 
-\subsection{Dinic: augment in phases}
+\subsection{Dinic: augment in phases (non-examinable)}
+\nonexam{Not covered in the lecture. It earns its place here for one reason:
+the unit-capacity bound at the end of this subsection is what gives the
+$\bigoh{n^3}$ running time for the grid escape problem in
+\cref{sec:flow-grid-escape}, which \emph{is} examinable.}
 
 Edmonds--Karp throws away work: it recomputes the breadth-first search from
 scratch for every single augmenting path, even though many paths of the same
@@ -402,8 +412,8 @@ Every algorithm in this section maintains a flow and improves it, and every one
 of them pays $\bigoh{m}$ per unit of progress because an augmenting path is a
 global object. \Cref{sec:flow-preflow-push} takes the opposite approach and does
 better on dense graphs. It is also the algorithm this course examines, so read
-that section with more attention than this one: Ford--Fulkerson and
-Edmonds--Karp are recap.
+it with more attention than this section: of the material above, only the
+Ford--Fulkerson method and the max-flow min-cut theorem are examinable.
 
 %==============================================================================
 \section{Preflow-push}
@@ -946,12 +956,8 @@ to use both directions at once: cancelling $\min\{f(u,v), f(v,u)\}$ from both
 leaves a flow of the same value.
 
 \paragraph{Lower bounds on arcs.}
-If arcs also carry lower bounds $\ell(e) \le f(e)$, feasibility is no longer
-automatic --- the zero flow need not be feasible --- and the problem becomes
-one of finding a feasible \emph{circulation} first. The standard reduction
-subtracts $\ell$ from the capacities and repairs the resulting imbalance at
-each vertex with arcs from a new source and to a new sink; a feasible
-circulation exists if and only if those repair arcs can be saturated.
+Treated in full in \cref{sec:flow-lower-bounds}, since the reduction is long
+enough to deserve its own section.
 
 \paragraph{Bipartite matching.}
 Orient every edge of a bipartite graph $(A \cup B, E)$ from $A$ to $B$, give it
@@ -1068,9 +1074,16 @@ The lesson is worth stating in general. Minimum cut is not only an answer to
 already there}.
 
 %==============================================================================
-\section{Menger's theorem and disjoint paths}
+\section{Menger's theorem and disjoint paths (non-examinable)}
 \label{sec:flow-menger}
 %==============================================================================
+
+\nonexam{The lecture covers this material as two recipes --- how to find a
+minimum set of arcs whose removal disconnects $t$ from $s$, and how to find a
+minimum such set of vertices. Both appear below as special cases. What is added
+here is the name and the theorem statement, which is worth having because the
+vertex form is exactly the certificate that a grid escape instance is
+unsolvable.}
 
 Max-flow min-cut has a purely graph-theoretic shadow, proved decades earlier by
 \citet{Menger1927}: connectivity is limited by separators, and by nothing else.

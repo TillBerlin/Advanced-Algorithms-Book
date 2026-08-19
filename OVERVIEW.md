@@ -196,6 +196,11 @@ Conventions:
   has a DOI must carry one, and **DOIs are verified against the publisher
   record before being added, never written from memory** — a wrong DOI sends
   the reader somewhere else entirely. Entries with no DOI carry an ISBN or URL.
+- **Material the lectures do not cover** may stay in the book, but its section
+  heading must end with `(non-examinable)` and carry a `\nonexam{...}` note
+  saying why it earns its place. Students navigate by what is examinable; an
+  unmarked section is a promise that it is. Check new prose against the chapter's
+  source deck (above) before deciding.
 - Source material is credited in the chapter's "Notes and further reading"
   section, not inline. The book as a whole is based on the course slides of
   Jesper Nederlof and Johan van Rooij (see the preface); the chapters on real
@@ -252,6 +257,15 @@ Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ## Open work in drafted chapters
+
+### Chapter 3 — Maximum Flow and Minimum Cut
+
+- Three sections carry `(non-examinable)`: Edmonds--Karp (assumed bachelor
+  background, and the lecture's recap explicitly skips it), Dinic (absent from
+  the deck, kept because the grid escape running time uses its unit-capacity
+  bound) and Menger (the deck has the two recipes, not the named theorem).
+- **8 figure placeholders.** The augmenting-path figure and the push/lift
+  landscape are the two that carry real argument.
 
 ### Chapter 4 — Minimum Cost Flow
 

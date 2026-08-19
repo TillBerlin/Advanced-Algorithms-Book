@@ -1,65 +1,804 @@
 %% Chapter 4: Minimum Cost Flow
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against slides 57-91 of "Flows and Matching 2026.pptx".
+%% Pool question 4 (phasing out capital equipment) is worked in full in the
+%% applications section -- it is a modelling question, and the only way the
+%% book can discharge it is to show the modelling done.
 
 \chapter{Minimum Cost Flow}
 \label{ch:min-cost-flow}
 
-Adding costs to arcs turns maximum flow into a genuinely more expressive
-modelling language: assignment, transportation, scheduling and inventory
-problems are all minimum cost flow problems in disguise. We prove the optimality
-criteria that make the algorithms work, and then spend most of the chapter on
-modelling.
+Attaching a price to each arc changes everything. Maximum flow asks how much
+can be shipped; minimum cost flow asks how much it costs to ship a given
+amount, and that second question is the one industry actually has. It is also a
+far more expressive modelling language: assignment, transportation, scheduling,
+inventory over time and a good deal of image processing are minimum cost flow
+problems in disguise, and the disguises are worth learning to see through.
 
 \section*{Learning goals}
 \addcontentsline{toc}{section}{Learning goals}
 
 After this chapter you should be able to:
 \begin{itemize}[leftmargin=*]
-  \item define the minimum cost flow problem and its standard special cases;
-  \item state and prove the negative cycle optimality condition;
-  \item state the reduced cost optimality condition and relate it to LP duality;
-  \item analyse cycle cancelling and successive shortest paths;
-  \item model an application as a minimum cost flow problem and argue that the model is correct.
+  \item define the minimum cost flow problem and the cost of a flow;
+  \item recognise when unbounded capacities make the problem unbounded, and
+        remove them otherwise;
+  \item convert between the single-source, multiple-source and
+        supply/demand formulations;
+  \item transform an instance with negative arc costs into one with
+        non-negative costs;
+  \item write both maximum flow and minimum cost flow as linear programs, and
+        say what is gained and lost by doing so;
+  \item prove that every circulation decomposes into a non-negative
+        combination of cycles, and every flow into paths and cycles;
+  \item define the residual network with costs;
+  \item state the cycle cancelling algorithm and prove the optimality
+        criterion it rests on: a flow is minimum cost if and only if its
+        residual network has no negative-cost cycle;
+  \item state the successive shortest paths algorithm and prove it correct;
+  \item model an application --- including one you have not seen --- as a
+        minimum cost flow problem, and justify the model.
 \end{itemize}
 
-\section{The minimum cost flow problem}
+%==============================================================================
+\section{The problem}
 \label{sec:mcf-problem}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{definition}[Cost of a flow]
+Let $G = (V,A)$ be a directed graph with capacities $c : A \to \R_{\ge 0}$ and
+costs $\cost : A \to \R$. The \emph{cost} of a flow $f$ is
+\[ \cost(f) \;=\; \sum_{a \in A} f(a) \cdot \cost(a). \]
+\end{definition}
 
-\section{Optimality conditions}
-\label{sec:mcf-optimality}
+The cost is paid \emph{per unit of flow} on each arc, so an arc of cost $3$
+carrying $4$ units contributes $12$. Costs may be negative; capacities may not.
 
-\todo{Write this section.}
-% Planned content: Negative cycles, reduced costs, and complementary slackness.
+\begin{probdef}{Minimum Cost Flow}
+  \instance A directed graph $G = (V,A)$, capacities $c$, costs $\cost$, a
+  source $s$, a sink $t$, and a target flow value $r$.
+  \goal Among all flows from $s$ to $t$ of value exactly $r$, find one of
+  minimum cost.
+\end{probdef}
 
+Note the shape of the problem: the value is \emph{prescribed}, not maximised.
+Fixing $r$ to the maximum flow value gives the min-cost max-flow problem, which
+is the common special case, but the general problem is more useful precisely
+because $r$ is a parameter --- shipping less can be much cheaper per unit, and
+the modeller usually knows how much must move.
+
+%==============================================================================
+\section{Normal forms}
+\label{sec:mcf-normal-forms}
+%==============================================================================
+
+Three assumptions make life easier, and all three are free.
+
+\subsection{Unbounded capacities}
+\label{sec:mcf-unbounded}
+
+Unlike maximum flow, minimum cost flow is often stated with arcs of unbounded
+capacity, and this is not merely a convenience: it can change the answer from a
+number to nothing at all.
+
+\begin{observation}\label{obs:mcf-unbounded}
+If $G$ contains a cycle of negative total cost all of whose arcs have unbounded
+capacity, then the problem has no optimum: given any flow, adding one more unit
+of circulation around the cycle gives a feasible flow of the same value and
+strictly smaller cost, and this can be repeated forever.
+\end{observation}
+
+Such a cycle is found by running Bellman--Ford on the subgraph of
+unbounded-capacity arcs. If none exists, unboundedness is an illusion and can be
+removed.
+
+\begin{lemma}\label{lem:mcf-bound-capacities}
+If no negative-cost cycle consists entirely of unbounded arcs, then replacing
+every unbounded capacity by
+\[ r + \sum_{a : c(a) < \infty} c(a) \]
+changes neither the optimal cost nor the set of optimal flows.
+\end{lemma}
+
+\begin{proof}[Proof idea]
+No arc ever needs to carry more than this. By the decomposition of
+\cref{thm:mcf-decomposition} below, an optimal flow can be taken to consist of
+$r$ units along $s$--$t$ paths plus cycles; the paths put at most $r$ on any
+arc, and any cycle carrying flow either has non-negative cost --- in which case
+dropping it does not hurt --- or uses at least one bounded arc, which limits it.
+\end{proof}
+
+\subsection{Supplies and demands}
+\label{sec:mcf-demands}
+
+The single source and single sink are a presentational choice. In applications
+one usually has a \emph{demand} $b(v)$ at every vertex, positive for a consumer
+and negative for a producer, with
+\[ \sum_{v \in V} b(v) = 0, \]
+and one asks for a flow that meets every demand exactly. The two formulations
+are interchangeable: add a super-source $s$ with an arc to each producer $v$ of
+capacity $-b(v)$, a super-sink $t$ with an arc from each consumer $v$ of
+capacity $b(v)$, all of cost zero, and set the target value
+\[ r \;=\; \sum_{v \,:\, b(v) > 0} b(v). \]
+A flow of value $r$ saturates every one of the new arcs --- they form a cut of
+capacity exactly $r$ --- which is precisely the statement that every supply is
+shipped and every demand met.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{The supply/demand reduction. A blob labelled $G$ with
+several producer vertices on the left, drawn with their (negative) demands, and
+several consumer vertices on the right with their demands. A super-source $s$
+to the left with arcs into the producers, a super-sink $t$ to the right with
+arcs out of the consumers. Label the new arcs with their capacities
+$-b(v)$ and $b(v)$ and note that all have cost $0$.}
+\caption{Supplies and demands become a single source and a single sink.}
+\label{fig:mcf-demands}
+\end{figure}
+
+\subsection{Non-negative costs}
+\label{sec:mcf-nonnegative-costs}
+
+Negative arc costs are a nuisance --- they rule out Dijkstra, among other
+things --- and they too can be removed, provided capacities are bounded.
+
+The idea is \emph{arc reversal}. Let $a = (u,v)$ have capacity $c$ and cost
+$-x$ with $x > 0$. Saturate it: decide in advance that $c$ units will flow along
+$a$, collecting a cost of $-cx$, and record the freedom to \emph{undo} that
+decision by reversing the arc. Concretely, in the supply/demand formulation:
+\begin{itemize}[nosep]
+  \item delete $a$ and add the reversed arc $(v,u)$ with capacity $c$ and cost
+        $+x$;
+  \item add an arc $(s,u)$ of capacity $c$ and cost $0$, and an arc $(v,t)$ of
+        capacity $c$ and cost $0$;
+  \item add $c$ to the target flow value $r$, and subtract $cx$ from the cost
+        of the computed solution.
+\end{itemize}
+Flow on the reversed arc means ``one of the $c$ units I assumed would travel
+along $a$ does not'', and it costs $+x$ because that unit forgoes the saving.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Arc reversal, two panels. Left: an arc $b \to a$ of
+capacity $c$ and cost $-x$, drawn inside a fragment of the network. Right: the
+same fragment with the arc reversed to $a \to b$ at cost $+x$ and capacity $c$,
+plus the two new zero-cost arcs $s \to b$ and $a \to t$ of capacity $c$. Note
+beside the picture that $r$ grows by $c$ and the reported cost shrinks by $cx$.}
+\caption{Removing a negative-cost arc by assuming it is saturated and allowing
+that assumption to be undone.}
+\label{fig:mcf-arc-reversal}
+\end{figure}
+
+%==============================================================================
+\section{Flows and linear programming}
+\label{sec:mcf-lp}
+%==============================================================================
+
+Both problems in this part of the book are linear programs, and it is worth
+seeing that plainly before going further.
+
+For maximum flow, take one variable $f(a)$ per arc; the constraints are flow
+conservation at every internal vertex and $0 \le f(a) \le c(a)$ on every arc,
+all linear; the objective is to maximise the net flow out of $s$. For minimum
+cost flow, keep the same variables and constraints, add the linear constraint
+that the value equals $r$, and minimise $\sum_a f(a)\cost(a)$.
+
+Linear programming is solvable in polynomial time, so this already settles the
+complexity of both problems. Three remarks on why we do not stop here.
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Specialised algorithms are simpler and usually much faster.}
+        Nothing in this chapter needs an LP solver, and the combinatorial
+        algorithms exploit structure a general solver cannot see.
+  \item \textbf{Integrality is not free from an LP solver.} Our algorithms
+        return integral flows on integral data automatically
+        (\cref{cor:mcf-integrality}); a general LP solver returns a vertex of
+        the polytope, which happens to be integral here, but that is a theorem
+        about the constraint matrix rather than something the solver promises.
+  \item \textbf{The connection runs deeper than convenience.} Preflow-push is a
+        \emph{dual} algorithm: the height function is a dual solution, and the
+        algorithm maintains dual feasibility --- that is what the height
+        invariant is --- while working towards primal feasibility. That is
+        exactly the description in \cref{sec:flow-preflow-push}, now with a
+        name.
+\end{itemize}
+
+In practice the useful hybrid is a mixed-integer solver: most treat flow
+constraints specially, which makes them very effective on problems that are
+almost flow problems but carry a handful of side constraints that no flow model
+can express.
+
+%==============================================================================
+\section{Decomposition into paths and cycles}
+\label{sec:mcf-decomposition}
+%==============================================================================
+
+The proofs below all rest on one structural fact: a flow is nothing but a bundle
+of paths and cycles. We need it precisely.
+
+\begin{definition}[Non-negative linear combination]
+For a cycle $C$ write $C(a) = 1$ if $a \in C$ and $0$ otherwise, and similarly
+for a path $P$. A flow $f$ is a \emph{non-negative linear combination} of paths
+$P_1,\ldots,P_k$ and cycles $C_1,\ldots,C_\ell$ if there are constants
+$p_1,\ldots,p_k \ge 0$ and $q_1,\ldots,q_\ell \ge 0$ with
+\[ f(a) \;=\; \sum_{i=1}^{k} p_i \, P_i(a) \;+\; \sum_{i=1}^{\ell} q_i \, C_i(a)
+   \qquad \text{for every arc } a. \]
+If all the constants are integers the combination is \emph{integral}.
+\end{definition}
+
+\begin{theorem}\label{thm:mcf-decomposition}
+Every circulation $f$ is a non-negative linear combination of cycles of $G$. If
+$f$ is integral, the combination can be taken integral, and at most $m$ cycles
+are needed.
+\end{theorem}
+
+\begin{proof}
+Induction on the number of arcs carrying positive flow. If there are none, the
+empty combination works. Otherwise pick an arc with $f(a) > 0$ and follow
+positive-flow arcs forward from its head. Conservation guarantees that every
+vertex we reach has an outgoing arc with positive flow, so the walk continues
+until it revisits a vertex, at which point we have found a cycle $C$ all of
+whose arcs carry positive flow. Let $q = \min_{a \in C} f(a) > 0$ and set
+$f' = f - q\,C$. Then $f'$ is again a circulation --- subtracting a cycle
+preserves conservation --- it is non-negative, and it has strictly fewer arcs
+with positive flow, since the minimising arc now carries none. Apply induction
+and add $q\,C$ back. If $f$ is integral then so is $q$, and hence so is
+everything that follows.
+\end{proof}
+
+\begin{corollary}\label{cor:mcf-decomposition-flow}
+Every flow $f$ of value $F$ is a non-negative linear combination of $s$--$t$
+paths and cycles, with the path coefficients summing to $F$.
+\end{corollary}
+
+\begin{proof}
+Add the arc $(t,s)$ carrying $F$ units, which turns $f$ into a circulation.
+Apply \cref{thm:mcf-decomposition}. Each cycle in the resulting combination
+either uses the new arc --- delete that arc from it and it becomes an $s$--$t$
+path --- or does not, and stays a cycle. The coefficients of the cycles through
+$(t,s)$ sum to $F$, since that is what the arc carries.
+\end{proof}
+
+%==============================================================================
+\section{The residual network with costs}
+\label{sec:mcf-residual}
+%==============================================================================
+
+\begin{definition}[Residual network with costs]\label{def:mcf-residual}
+Let $f$ be a flow. The residual network $G_f$ has capacities as in
+\cref{def:flow-residual}, and costs assigned as follows: a forward residual arc
+$a$ keeps $\cost(a)$, and a backward residual arc $a^{-1}$, present whenever
+$f(a) > 0$, gets
+\[ \cost(a^{-1}) \;=\; -\cost(a). \]
+An arc that already exists in the reverse direction in $G$ keeps its own cost;
+the two are different arcs and must be kept apart.
+\end{definition}
+
+The sign is the whole point. Sending a unit backwards along $a$ cancels a unit
+that was sent forwards, so it refunds what that unit cost. It follows that
+pushing $\delta$ units around any cycle $C$ of $G_f$ changes the cost of the
+flow by exactly $\delta \cdot \cost(C)$, where $\cost(C)$ is the sum of the
+residual costs along $C$ --- and that is the quantity the next section is
+about.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Residual costs, two panels sharing two vertices $u,v$.
+Left: arcs $u \to v$ of capacity $5$ and cost $3$, and $v \to u$ of capacity $2$
+and cost $6$. Right: the residual network after sending one unit from $u$ to
+$v$: $u \to v$ with capacity $4$ and cost $3$, $v \to u$ with capacity $2$ and
+cost $6$ (unchanged, it is a different arc), and the new backward arc
+$v \to u$ with capacity $1$ and cost $-3$. Draw the two $v \to u$ arcs as
+visibly separate.}
+\caption{A backward residual arc refunds the cost of the unit it cancels. Note
+that it does not merge with a pre-existing arc in the same direction.}
+\label{fig:mcf-residual}
+\end{figure}
+
+%==============================================================================
 \section{Cycle cancelling}
-\label{sec:cycle-cancelling}
+\label{sec:mcf-cycle-cancelling}
+%==============================================================================
 
-\todo{Write this section.}
+The algorithm is exactly what the previous paragraph suggests.
 
+\begin{algorithm}[ht]
+\caption{Cycle cancelling}
+\label{alg:mcf-cycle-cancelling}
+\begin{algorithmic}[1]
+  \State construct any feasible flow $f$ of value $r$ (by a maximum flow
+         computation, ignoring costs)
+  \While{$G_f$ contains a cycle $C$ of negative cost}
+     \State $\delta \gets$ the minimum residual capacity along $C$
+     \State add $\delta$ units of flow around $C$
+  \EndWhile
+  \State \Return $f$
+\end{algorithmic}
+\end{algorithm}
+
+Every iteration keeps the value unchanged --- a cycle neither produces nor
+consumes --- and strictly decreases the cost. What needs proof is that getting
+stuck means being optimal.
+
+\begin{lemma}[Difference of two flows]\label{lem:mcf-difference}
+Let $f$ and $f'$ be flows in $G$. Define $f' - f$ on the residual network $G_f$
+by
+\[ (f'-f)(a) = \max\{0,\; f'(a)-f(a)\}, \qquad
+   (f'-f)(a^{-1}) = \max\{0,\; -(f'(a)-f(a))\} \]
+for every arc $a$ of $G$. Then $f'-f$ is a flow in $G_f$, and if $f$ and $f'$
+have the same value then $f'-f$ is a circulation in $G_f$.
+\end{lemma}
+
+\begin{proof}
+In words: subtract coordinatewise, and when the difference is negative, send
+the negative part along the reverse arc instead --- which is exactly the arc
+$G_f$ provides for it.
+
+\emph{Capacities.} If $f'(a) > f(a)$ then $(f'-f)(a) = f'(a)-f(a) \le
+c(a)-f(a)$, which is the residual capacity of $a$. If $f'(a) < f(a)$ then
+$(f'-f)(a^{-1}) = f(a)-f'(a) \le f(a)$, which is the residual capacity of
+$a^{-1}$.
+
+\emph{Conservation.} At any vertex $v$, the net flow of $f'-f$ into $v$ is the
+net inflow of $f'$ minus the net inflow of $f$ --- the reverse-arc convention
+was designed so that this holds arc by arc. Both are zero at every internal
+vertex, so the difference is zero there too.
+
+\emph{Circulation.} At $s$ and $t$ the nets are $-|f'|$ and $-|f|$, and $|f'|$
+and $|f|$ respectively; if the values agree these cancel, and conservation holds
+everywhere.
+\end{proof}
+
+\begin{theorem}[Optimality criterion]\label{thm:mcf-optimality}
+A flow $f$ has minimum cost among all flows of its value if and only if $G_f$
+contains no negative-cost cycle.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If $G_f$ has a negative-cost cycle, pushing flow around it
+produces a flow of the same value and strictly smaller cost, so $f$ was not
+optimal.
+
+($\Leftarrow$) Suppose $G_f$ has no negative-cost cycle, and let $f'$ be a
+minimum cost flow of the same value. By \cref{lem:mcf-difference}, $f'-f$ is a
+circulation in $G_f$, and by \cref{thm:mcf-decomposition} it is a non-negative
+combination of cycles of $G_f$. Every one of those cycles has non-negative
+cost by assumption, so
+\[ \cost(f') - \cost(f) \;=\; \cost(f'-f) \;\ge\; 0, \]
+where the first equality is the observation that residual costs are signed to
+make exactly this bookkeeping work. Hence $\cost(f) \le \cost(f')$, and $f$ is
+optimal too.
+\end{proof}
+
+\begin{corollary}[Integrality]\label{cor:mcf-integrality}
+If all capacities and the target value $r$ are integers, there is an integral
+minimum cost flow, and \cref{alg:mcf-cycle-cancelling} finds one.
+\end{corollary}
+
+\begin{proof}
+The initial flow can be taken integral by \cref{cor:flow-integrality}. On an
+integral flow every residual capacity is an integer, so each $\delta$ is a
+positive integer and integrality is preserved. The algorithm terminates because
+the cost strictly decreases by at least $\delta \ge 1$ times the cycle cost each
+round and is bounded below.
+\end{proof}
+
+\begin{remark}
+Two practical notes. First, cycle cancelling works unchanged in the presence of
+lower bounds on arcs: find a feasible flow respecting them by the method of
+\cref{sec:flow-lower-bounds}, and then cancel cycles in the residual network of
+\cref{def:mcf-residual} adapted as in that section. Second, and less happily,
+nothing above bounds the number of iterations by a polynomial. The algorithm
+is correct but not, as stated, efficient.
+\end{remark}
+
+\subsection{Cancelling the right cycle}
+
+The fix is to be choosy. If at each step one cancels a cycle of minimum
+\emph{mean} cost --- total cost divided by number of arcs --- the algorithm
+becomes polynomial.
+
+A minimum mean cycle can be found in $\bigoh{nm}$ time by a dynamic program
+over walks of each length, which is left as an exercise. The number of
+iterations needed is $\bigoh{nm^2\log^2 n}$, which gives an
+$\bigoh{n^2m^3\log^2 n}$ algorithm overall. That bound is generous; sharper
+analyses and sharper algorithms exist, and \citet{GoldbergTarjan1988} is the
+place to start.
+
+%==============================================================================
 \section{Successive shortest paths}
-\label{sec:successive-shortest-paths}
+\label{sec:mcf-successive-shortest-paths}
+%==============================================================================
 
-\todo{Write this section.}
+Cycle cancelling starts from a feasible flow of the right value and repairs its
+cost. The other natural approach starts from the zero flow, which has the right
+cost --- nothing is cheaper than nothing --- and repairs its value, keeping
+optimality at every intermediate value along the way.
 
-\section{Special cases}
-\label{sec:mcf-special-cases}
+\begin{algorithm}[ht]
+\caption{Successive shortest paths}
+\label{alg:mcf-ssp}
+\begin{algorithmic}[1]
+  \State $f \gets 0$
+  \While{$|f| < r$}
+     \State find a shortest $s$--$t$ path $P$ in $G_f$, using the residual
+            costs as arc lengths
+     \State $q \gets$ the minimum residual capacity along $P$
+     \State send $\min\{q,\; r - |f|\}$ additional units along $P$
+  \EndWhile
+  \State \Return $f$
+\end{algorithmic}
+\end{algorithm}
 
-\todo{Write this section.}
-% Planned content: Transportation, assignment, transhipment, and shortest paths as degenerate minimum cost flows.
+\begin{theorem}\label{thm:mcf-ssp}
+If $G$ contains no negative-cost cycle, \cref{alg:mcf-ssp} returns a minimum
+cost flow of value $r$.
+\end{theorem}
 
-\section{Modelling with minimum cost flow}
-\label{sec:mcf-modelling}
+\begin{proof}
+We prove the invariant: \emph{at every stage, $f$ has minimum cost among all
+flows of value $|f|$.} By \cref{thm:mcf-optimality} it is equivalent, and more
+convenient, to say that $G_f$ has no negative-cost cycle.
 
-\todo{Write this section.}
-% Planned content: A recipe: identify commodities, decide what a unit of flow means, encode each constraint as a capacity and each euro as a cost. Worked out on the fleet phase-out problem.
+\emph{Initially.} $f = 0$ and $G_f = G$, which has no negative-cost cycle by
+hypothesis. So the zero flow is optimal among flows of value $0$.
 
+\emph{Inductive step.} Suppose $f$ is optimal for its value, and let $f'$ be
+obtained by sending flow along a shortest path $P$ in $G_f$. Let $f''$ be any
+minimum cost flow of the same value as $f'$. By \cref{lem:mcf-difference},
+$f'' - f$ is a flow in $G_f$, so by \cref{cor:mcf-decomposition-flow} it is a
+non-negative combination of cycles of $G_f$ and $s$--$t$ paths in $G_f$. Now:
+\begin{itemize}[nosep]
+  \item every cycle in the combination has cost at least $0$, since $f$ is
+        optimal for its value and \cref{thm:mcf-optimality} applies;
+  \item every path in the combination has cost at least $\cost(P)$, since $P$
+        was chosen to be a shortest path in $G_f$.
+\end{itemize}
+The path coefficients sum to $|f'| - |f|$, the same amount that was sent along
+$P$. Hence
+\[ \cost(f'' - f) \;\ge\; (|f'|-|f|)\cdot \cost(P) \;=\; \cost(f'-f), \]
+and therefore $\cost(f'') \ge \cost(f')$. So $f'$ is optimal for its value too.
+\end{proof}
+
+Two warnings, both worth taking seriously.
+
+\begin{remark}
+The hypothesis is not decorative. If $G$ has a negative-cost cycle the algorithm
+is simply wrong: take $r = 0$, and it returns the zero flow at cost $0$ while
+the optimum circulates around the cycle at negative cost. Remove negative cycles
+first --- \cref{sec:mcf-nonnegative-costs} does it by making all costs
+non-negative.
+\end{remark}
+
+\begin{remark}
+The running time can be exponential, for the same reason as Ford--Fulkerson: the
+number of iterations depends on how much flow each path carries, which depends
+on capacities rather than on the size of the input. Note also that the residual
+costs are negative even when the original costs are not, so the shortest paths
+must be found with Bellman--Ford rather than Dijkstra --- unless one maintains
+vertex potentials, which is the standard refinement and restores Dijkstra.
+\end{remark}
+
+%==============================================================================
+\section{Applications}
+\label{sec:mcf-applications}
+%==============================================================================
+
+Minimum cost flow shows up wherever a fixed amount of something has to be moved
+and the movement has a price: transport and logistics, repositioning empty
+containers, minimum cost bipartite matching (\cref{sec:mcf-matching}). One less
+obvious example is medical imaging --- reconstructing the left ventricle from
+X-ray projections. The input is a two-dimensional array of bits with known row
+sums, known column sums, and a probability attached to each bit; the output
+wanted is the most likely image consistent with those sums. That is a minimum
+cost flow problem, with the sums as capacities and the log-probabilities as
+costs, and it is closely related to the matrix rounding problem of
+\cref{sec:flow-matrix-rounding}.
+
+Two models are worth doing in full.
+
+\subsection{Loading a hopping aeroplane}
+\label{sec:mcf-hopping-plane}
+
+An aeroplane flies the route $1 \to 2 \to \cdots \to n$, stopping at every city.
+Between cities $i < j$ there are $b_{ij}$ passengers wanting to travel, each
+paying a fare $f_{ij}$. The plane holds $p$ passengers at a time. Which
+passengers should be carried?
+
+The temptation is to think of this as a knapsack problem, which would make it
+NP-hard. It is not, because the capacity constraint is per \emph{leg} and the
+legs form a path --- and paths are flow networks.
+
+\paragraph{The model.}
+Build a network with
+\begin{itemize}[leftmargin=*]
+  \item a \emph{city node} $i$ for each city, and the \emph{leg arcs}
+        $(i, i+1)$ of capacity $p$ and cost $0$: the flow on a leg arc is the
+        number of passengers on board for that leg, and the capacity is the
+        aircraft;
+  \item a \emph{demand node} $ij$ for each pair $i<j$ with $b_{ij} > 0$, of
+        supply $b_{ij}$;
+  \item a \emph{boarding arc} $(ij, i)$ of infinite capacity and cost
+        $-f_{ij}$: routing a unit this way means carrying that passenger, and
+        it earns the fare;
+  \item a \emph{refusal arc} $(ij, j)$ of infinite capacity and cost $0$:
+        routing a unit this way means turning that passenger away;
+  \item at each city node $i$, a demand of $\sum_{j} b_{ji}$, the number of
+        passengers whose journey ends there.
+\end{itemize}
+Every unit of the supply at $ij$ must reach the demand at $j$, and it has
+exactly two routes: board at $i$, ride the legs $i, i+1, \ldots, j$ and consume
+capacity on each, collecting $-f_{ij}$; or go straight to $j$ at no cost and no
+benefit. Minimising cost therefore maximises total fare subject to no leg
+carrying more than $p$ passengers, which is the problem. Convert to a single
+source and sink by \cref{sec:mcf-demands}.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT. The hopping aeroplane network for four cities.
+Bottom row: city nodes $1,2,3,4$ joined by leg arcs of capacity $p$. Above
+them: the six demand nodes $12, 13, 14, 23, 24, 34$, each with its supply
+$b_{ij}$ marked. From each demand node draw the boarding arc down to city $i$
+labelled with cost $-f_{ij}$, and the refusal arc down to city $j$ labelled cost
+$0$. Mark the demand $\sum_j b_{ji}$ at each city node. A second, smaller panel
+may show the same network after adding the super-source and super-sink.}
+\caption{Loading a hopping aeroplane. Flow on a leg arc is the number of
+passengers on board; the two arcs leaving each demand node are the decision to
+carry or to refuse.}
+\label{fig:mcf-hopping-plane}
+\end{figure}
+
+\subsection{Phasing out capital equipment}
+\label{sec:mcf-ships}
+
+This is the model the exam asks for, and it is worth doing slowly, because the
+difficulty is entirely in setting it up.
+
+\begin{probdef}{Fleet Phase-Out}
+  \instance A shipping company owns $N$ identical cargo ships and plans over
+  $p$ years. In year $i$ it needs $d(i)$ ships available, where $d$ is
+  non-increasing. A ship sold in year $i$ yields $s_i$; a ship owned in year
+  $i$ earns a profit $r_i$; if the company owns fewer than $d(i)$ ships in year
+  $i$ it must hire the shortfall at $h_i$ per ship, where $h_i > r_i$.
+  \goal Decide when to sell each ship so as to maximise cash assets at the end
+  of year $p$.
+\end{probdef}
+
+\paragraph{What is the flow?}
+Answer this first, as always. \emph{One unit of flow is one ship, travelling
+forwards through time until it is sold.} Everything else follows.
+
+\paragraph{The chain.}
+Take nodes $1, 2, \ldots, p+1$, one per year plus one for the end, a source
+$\sigma$ supplying $N$ units into node $1$, and a sink $\tau$. The flow on the
+link from node $i$ to node $i+1$ is the number of ships the company still owns
+during year $i$; call it $x_i$. Ships leave the chain by \emph{sale arcs}
+$(i, \tau)$ of capacity $N$ and cost $-s_i$, and whatever remains leaves at the
+end. Since nothing ever enters the chain except the initial $N$ units, $x_i$ is
+automatically non-increasing --- the company can sell but not buy, which is what
+``phasing out'' means.
+
+\paragraph{The costs, and the one trick.}
+Owning $x$ ships in year $i$ costs
+\[ \gamma_i(x) \;=\; -r_i x \;+\; h_i \max\{0,\; d(i)-x\}, \]
+profit counted as negative cost. This is not linear, so it cannot be the cost of
+a single arc. Rewrite it:
+\[ \gamma_i(x) \;=\; \underbrace{h_i\, d(i)}_{\text{constant}}
+   \;-\; \bigl(r_i + h_i\bigr)\min\{x,\, d(i)\} \;-\; r_i \max\{0,\, x - d(i)\}. \]
+Read off the slopes: the first $d(i)$ ships are worth $r_i + h_i$ each --- they
+earn their profit \emph{and} save a hire --- and every ship beyond $d(i)$ is
+worth only $r_i$. Since $h_i > 0$, the marginal value \emph{decreases} with $x$,
+so $\gamma_i$ is convex, and a convex piecewise-linear cost is exactly what
+parallel arcs express:
+\begin{itemize}[nosep]
+  \item a \emph{cheap} arc from $i$ to $i+1$ of capacity $d(i)$ and cost
+        $-(r_i + h_i)$;
+  \item a \emph{dear} arc from $i$ to $i+1$ of capacity $N$ and cost $-r_i$.
+\end{itemize}
+Add the constant $\sum_i h_i d(i)$ to the objective at the end.
+
+\begin{lemma}\label{lem:mcf-ships-correct}
+A minimum cost flow of value $N$ in this network, plus the constant
+$\sum_i h_i d(i)$, has cost equal to minus the maximum achievable cash position,
+and its sale arcs give an optimal sale schedule.
+\end{lemma}
+
+\begin{proof}
+Convexity is what makes the two parallel arcs behave. Because
+$-(r_i+h_i) < -r_i$, any flow that puts a unit on the dear arc while the cheap
+arc has spare capacity can be improved by moving that unit, so in an optimal
+flow the cheap arc fills first. Hence the flow on the pair of arcs, $x_i$,
+incurs exactly $-(r_i+h_i)\min\{x_i,d(i)\} - r_i\max\{0,x_i-d(i)\}$, which with
+the constant is $\gamma_i(x_i)$.
+
+Conversely every sale schedule gives such a flow. So the two optimisation
+problems have the same feasible values and the same objective, and by
+\cref{cor:mcf-integrality} an integral optimum exists --- which matters, since
+half a ship is not a ship.
+\end{proof}
+
+\begin{intuition}
+Notice what did the work. The constraint ``own at least $d(i)$ or pay to hire''
+looks like a lower bound, and one \emph{could} model it with the lower-bound
+machinery of \cref{sec:flow-lower-bounds}. Rewriting it as a convex cost is
+better: it needs no lower bounds, no second maximum-flow computation, and it
+makes the economics visible --- the first $d(i)$ ships are worth more than the
+rest, and exactly how much more. Whenever a penalty in a model is proportional
+to a shortfall, try to express it as a convex cost before reaching for lower
+bounds.
+\end{intuition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{The fleet phase-out network. A horizontal chain of year
+nodes $1, 2, \ldots, p{+}1$; between consecutive years draw the two parallel
+arcs, the upper labelled ``capacity $d(i)$, cost $-(r_i+h_i)$'' and the lower
+``capacity $N$, cost $-r_i$''. From each year node a sale arc down to $\tau$
+labelled cost $-s_i$. A source $\sigma$ on the left supplying $N$ into year $1$.
+Mark somewhere that the flow on the year-$i$ link is the number of ships still
+owned.}
+\caption{Phasing out a fleet. The two parallel arcs per year encode the convex
+cost of owning $x$ ships: the first $d(i)$ are worth more, because each one
+saves a hire.}
+\label{fig:mcf-ships}
+\end{figure}
+
+\begin{remark}
+Two modelling conventions have to be fixed before the model is well defined, and
+an exam answer should state them: whether a ship sold in year $i$ still earns
+$r_i$ that year, and what happens to ships still owned after year $p$. We take
+it that a ship sold in year $i$ is sold at the start of the year and earns
+nothing, and that any ships left at the end are sold at price $s_p$. Other
+conventions change the arcs slightly and nothing else.
+\end{remark}
+
+%==============================================================================
+\section{Bipartite matching, again}
+\label{sec:mcf-matching}
+%==============================================================================
+
+\begin{definition}
+A \emph{matching} in an undirected graph is a set of edges no two of which share
+an endpoint. A graph is \emph{bipartite} if its vertices split into two parts
+$U$ and $W$ with every edge having one endpoint in each.
+\end{definition}
+
+\Cref{sec:flow-transformations} already turned maximum bipartite matching into a
+maximum flow problem: orient the edges from $U$ to $W$, give everything capacity
+$1$, add $s \to u$ and $w \to t$. Integrality
+(\cref{cor:flow-integrality}) is what makes the answer a matching rather than a
+fractional gesture, so the algorithm has to be one that returns an integral
+flow.
+
+Costs extend the trick considerably.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Minimum cost perfect matching} in a bipartite graph: give each
+        edge its weight as a cost, and ask for a minimum cost flow of value
+        $|U|$.
+  \item \textbf{$b$-matchings}: given $b : V \to \N$, find an edge set in which
+        each vertex $v$ is an endpoint of exactly $b(v)$ edges. Set the capacity
+        of $(s,u)$ to $b(u)$ and of $(w,t)$ to $b(w)$. Lower and upper bounds
+        per vertex work the same way, via \cref{sec:flow-lower-bounds}.
+\end{itemize}
+
+The flow formulation also proves things, with no algorithm in sight.
+
+\begin{theorem}\label{thm:mcf-regular-bipartite}
+Every $d$-regular bipartite graph with $d \ge 1$ has a perfect matching.
+\end{theorem}
+
+\begin{proof}
+Let the parts be $U$ and $W$; counting edges from each side gives
+$d|U| = d|W|$, so $|U| = |W| = n/2$. Build the flow model above and consider the
+\emph{fractional} flow that puts $1$ on every arc out of $s$, $1$ on every arc
+into $t$, and $1/d$ on every arc corresponding to an edge. Capacities hold since
+$1/d \le 1$, and conservation holds at each $u \in U$ because $u$ has exactly
+$d$ incident edges each carrying $1/d$, totalling $1$; likewise at each $w$. Its
+value is $n/2$, which is the maximum possible, since the arcs out of $s$ form a
+cut of capacity $n/2$.
+
+So the maximum flow value is $n/2$. By \cref{cor:flow-integrality} there is an
+\emph{integral} flow of value $n/2$, and an integral flow of value $n/2$ in this
+network is precisely a perfect matching.
+\end{proof}
+
+\begin{intuition}
+This is the same move as \cref{ch:stable-marriage}: an existence theorem proved
+by exhibiting an object and appealing to a general principle, rather than by
+construction. Here the object is a fractional flow that is obviously feasible
+and obviously optimal, and the general principle is integrality, which upgrades
+it to a combinatorial solution at no cost. Matching in general --- non-bipartite
+--- graphs does not reduce to flow, and needs a genuinely new idea; that is
+\cref{ch:matching}.
+\end{intuition}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:mcf-further-reading}
+%==============================================================================
+
+This chapter is based on the course slides of Jesper Nederlof and Johan van
+Rooij.
+
+Cycle cancelling and the optimality criterion of \cref{thm:mcf-optimality} go
+back to Klein; the minimum-mean variant that makes it polynomial, and the
+dual view of preflow-push mentioned in \cref{sec:mcf-lp}, are
+\citet{GoldbergTarjan1988}. Successive shortest paths is in
+\citet{EdmondsKarp1972}, the same paper that gave us the shortest-augmenting-path
+rule for maximum flow.
+
+Many further algorithms exist and are not covered here: cut cancelling, scaling
+on capacities and on costs, the network simplex method, the out-of-kilter
+algorithm, and several randomised algorithms. \citet[Chapter 12]{Schrijver2003}
+is the systematic account, and \citet{AhujaMagnantiOrlin1993} is the
+practitioner's one --- and, again, the source of several exercises here.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-mcf}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Show how to find a minimum mean cost cycle in $\bigoh{nm}$ time. Hint: let
+$D_k(v)$ be the minimum cost of a walk of exactly $k$ arcs from a fixed vertex
+to $v$, and consider $\max_k \frac{D_n(v)-D_k(v)}{n-k}$.
+\end{exercise}
 
+\begin{exercise}
+Give an instance on which cycle cancelling, with an adversarial choice of
+cycle, takes a number of iterations exponential in the input size.
+\end{exercise}
+
+\begin{exercise}
+Prove that in \cref{lem:mcf-bound-capacities} the replacement capacity is large
+enough, filling in the details of the decomposition argument.
+\end{exercise}
+
+\begin{exercise}
+Vertex potentials: given $\pi : V \to \R$, define the reduced cost of an arc
+$(u,v)$ to be $\cost(u,v) + \pi(u) - \pi(v)$. Show that reduced costs leave the
+cost of every cycle unchanged, and that if $\pi(v)$ is the shortest-path
+distance from $s$ in $G_f$ then all reduced costs in $G_f$ are non-negative.
+Conclude that successive shortest paths can use Dijkstra after its first
+iteration.
+\end{exercise}
+
+\begin{exercise}
+In the hopping aeroplane model, suppose the fares are such that some
+$f_{ij} < 0$ --- the airline is paid to \emph{not} carry certain passengers.
+Does the model still work? What changes?
+\end{exercise}
+
+\begin{exercise}
+Rework \cref{sec:mcf-ships} under the convention that a ship sold in year $i$
+still earns $r_i$ for that year. Which arcs change?
+\end{exercise}
+
+\begin{exercise}
+In \cref{sec:mcf-ships} we assumed $h_i > r_i$. Where is that used? What goes
+wrong with the model --- and with the problem --- if $h_i < r_i$ for some year?
+\end{exercise}
+
+\begin{exercise}
+Model the following as a minimum cost flow problem: a factory must meet a known
+demand $d(i)$ in each of $p$ months, can produce up to $u$ units per month at
+cost $c_i$ per unit, and can store units between months at a cost of $w$ per
+unit per month. Storage is unlimited.
+\end{exercise}
+
+\begin{exercise}
+Prove that a bipartite graph with all degrees equal to $d$ has its edge set
+partitioned into $d$ perfect matchings. Hint: apply
+\cref{thm:mcf-regular-bipartite} repeatedly.
+\end{exercise}
+
+%==============================================================================
 \begin{poolquestions}
-  \poolq{4}{Phasing out capital equipment}The worked model is developed in \cref{sec:mcf-modelling}; Exercise 9.6 from Ahuja, Magnanti and Orlin.
+  \poolq{4}{Phasing out capital equipment}Worked in full in
+  \cref{sec:mcf-ships}: the choice of what a unit of flow means, the time
+  chain, the convex rewriting of the hire penalty into two parallel arcs, the
+  correctness argument (\cref{lem:mcf-ships-correct}) and the conventions that
+  have to be stated. \Cref{sec:mcf-hopping-plane} is a second worked model of
+  the same kind, and \cref{sec:mcf-demands} supplies the supply/demand
+  formulation that both use.
 \end{poolquestions}

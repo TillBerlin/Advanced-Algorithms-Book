@@ -52,7 +52,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🟡 stable marriage drafted; Euler tours + 19 figures open |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 8 figures open |
-| 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
+| 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🟡 prose complete; 6 figures open |
 | 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 17 figures open |
 | 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
 
@@ -252,6 +252,16 @@ Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ## Open work in drafted chapters
+
+### Chapter 4 — Minimum Cost Flow
+
+- **6 figure placeholders.** The two that matter are the hopping-aeroplane
+  network and the fleet phase-out chain: both are modelling figures, and a
+  modelling argument is hard to follow without one.
+- The running-time bound quoted for minimum-mean cycle cancelling
+  ($\bigoh{n^2m^3\log^2 n}$) is the one stated in the lecture slides. Sharper
+  bounds are in the literature; if the chapter is ever tightened, that is the
+  place.
 
 ### Chapter 2 — Combinatorics via Algorithms and Stable Marriage
 

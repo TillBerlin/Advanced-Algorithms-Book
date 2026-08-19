@@ -124,6 +124,20 @@ the schedule one to one (the ER lectures are interleaved). Authoritative map:
 | 18 | L-reduction for Max Cut on Multigraphs | 14 | 16 |
 | 19 | Vertex Cover Kernel | 15 | 17 and 18 |
 
+Additions to the pool, already applied to Appendix A:
+
+- **Questions 20--28** were added so that every learning goal in Johan's
+  chapters is the content of some pool question. The original pool represented
+  some lectures by a list of learning-goal questions (1, 5, 6, 8, 11, 15, 19)
+  and others by a single exercise (2/3, 4, 7, 9/10, 12, 13, 14, 16/17, 18); the
+  additions give the second group the same treatment as the first. Questions
+  20--22 are grounded in the flow deck; 23--28 are derived from the goals of
+  chapters that are still skeletons, so they will need revisiting when those
+  chapters are written.
+- Goals still untagged, all in Till's chapters, left alone: chapter 1 (the
+  book's own introduction, not a lecture), the planarity-testing goal in
+  chapter 5, and three goals each in chapters 17 and 18.
+
 Amendments to the pool, already applied to Appendix A:
 
 - **Q5, item 7** asked for $3$-colouring in $2^{O(\sqrt n)}$ time; it now asks

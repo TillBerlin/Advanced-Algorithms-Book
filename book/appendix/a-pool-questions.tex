@@ -16,6 +16,17 @@ The pool is a draft and may change; the version transcribed here is the one in
 \texttt{material/pool/open-pool-questions.pdf}. Where the pool numbers its
 sources by lecture, we give the corresponding chapter of this book.
 
+Questions~1--19 are the pool as originally circulated. Questions~20--28 were
+added afterwards, and they exist for a reason worth stating. Several lectures
+were represented in the original pool only by a single exercise --- a grid to
+escape, a fleet to phase out --- while others were represented by a list of
+questions covering everything the lecture taught. The effect was that whole
+topics could be examined only obliquely, or not at all. The added questions
+restore the balance: for each of those lectures they state, in the same style
+as Questions~1, 5, 6, 8, 11, 15 and~19, the learning goals that no existing
+question reached. Every learning goal in this book is now the content of some
+pool question.
+
 \section{Where each question is answered}
 \label{sec:pool-mapping}
 
@@ -43,9 +54,24 @@ sources by lecture, we give the corresponding chapter of this book.
 17 & Treewidth and cliques               & 13 & \cref{ch:treewidth} \\
 18 & L-reduction for Max Cut on Multigraphs & 14 & \cref{ch:hardness} \\
 19 & Vertex Cover Kernel                 & 15 & \cref{ch:kernelization}, \cref{ch:randomized} \\
+\midrule
+20 & Maximum Flow                        & 2  & \cref{ch:max-flow} \\
+21 & Minimum Cost Flow                   & 3  & \cref{ch:min-cost-flow} \\
+22 & Matching                            & 6  & \cref{ch:matching} \\
+23 & Branching                           & 8  & \cref{ch:exact-i} \\
+24 & Subset DP and Inclusion/Exclusion   & 10 & \cref{ch:exact-ii} \\
+25 & Approximation Algorithms            & 10 & \cref{ch:approx-i} \\
+26 & LP Rounding and Approximation Schemes & 11 & \cref{ch:approx-ii} \\
+27 & Treewidth                           & 13 & \cref{ch:treewidth} \\
+28 & Complexity for Approximation and FPT & 14 & \cref{ch:hardness} \\
 \bottomrule
 \end{tabular}
 \end{center}
+
+\begin{remark}
+Lecture~3 is headed \emph{Min Flow Max Cut} in the pool PDF, repeating the
+heading of Lecture~2; its subject is minimum cost flow.
+\end{remark}
 
 \begin{remark}
 Question~11 is titled \emph{Exact Algorithm for Exact 3-SAT} in the pool PDF,
@@ -98,6 +124,36 @@ problem and analyse its running time. (Be careful that $n$ and $m$ describe the
 size of the grid and number of starting points, not the number of vertices and
 arcs as usual.)
 
+\paragraph{Question 20. Maximum Flow.}
+This set of questions captures the learning goals of the lectures on maximum
+flow that are not covered by Questions~2 and~3.
+\begin{enumerate}
+  \item Define flow networks, feasible flows, $s$--$t$ cuts and the value of a
+        flow.
+  \item Define the residual network and show that augmenting a flow along a
+        path in it yields a feasible flow of larger value.
+  \item State and prove the max-flow min-cut theorem, and derive from it that
+        an integral maximum flow exists when all capacities are integers.
+  \item State the Ford--Fulkerson method and explain why its running time
+        depends on the capacities rather than on the size of the input.
+  \item Define preflows, excess and height functions, state the height
+        invariant, and show that a valid height function rules out an
+        augmenting path.
+  \item State the push and lift operations and verify that each preserves the
+        height invariant.
+  \item Show that preflow-push performs fewer than $2n^2$ lifts, at most $2nm$
+        saturating pushes and $O(n^2m)$ non-saturating pushes, and conclude
+        that it runs in $O(n^2m)$ time.
+  \item State Goldberg's highest-label rule and show that it runs in $O(n^3)$
+        time.
+  \item Describe how to find a maximum flow when the arcs also carry lower
+        bounds, by reducing first to an admissible circulation and then to two
+        ordinary maximum flow computations.
+  \item Define the consistent matrix rounding problem, model it as a
+        circulation with lower bounds, and explain why a consistent rounding
+        always exists.
+\end{enumerate}
+
 \subsection*{Lecture 3: Min Flow Max Cut}
 
 \paragraph{Question 4. Phasing out capital equipment.}
@@ -122,6 +178,31 @@ $p$th year.
 
 Formulate this problem as a minimum cost flow problem.
 (Exercise 9.6 from \emph{Network Flows}, Ahuja, Magnanti, Orlin.)
+
+\paragraph{Question 21. Minimum Cost Flow.}
+This set of questions captures the learning goals of the lecture on minimum
+cost flow that are not covered by Question~4.
+\begin{enumerate}
+  \item Define the minimum cost flow problem and the cost of a flow.
+  \item Show that the problem has no optimum when some negative-cost cycle
+        consists entirely of arcs of unbounded capacity, and explain how to
+        bound the capacities otherwise.
+  \item Explain how to convert between the single-source, multiple-source and
+        supply/demand formulations.
+  \item Show how to transform an instance with negative arc costs into an
+        equivalent instance in which all costs are non-negative.
+  \item Write both maximum flow and minimum cost flow as linear programs, and
+        say what is gained and what is lost by solving them that way.
+  \item Show that every circulation is a non-negative linear combination of
+        cycles, and that every flow is a non-negative linear combination of
+        $s$--$t$ paths and cycles.
+  \item Define the residual network with costs.
+  \item State the cycle cancelling algorithm and prove that a flow has minimum
+        cost if and only if its residual network contains no negative-cost
+        cycle.
+  \item State the successive shortest paths algorithm and prove it correct.
+        Explain what goes wrong if the network has a negative-cost cycle.
+\end{enumerate}
 
 \subsection*{Lecture 4: Planar Graphs}
 
@@ -176,6 +257,33 @@ Consider the following problem:
   exactly one of the cycles in the collection?
 \end{probdef}
 Give a polynomial time algorithm that solves this problem.
+
+\paragraph{Question 22. Matching.}
+This set of questions captures the learning goals of the lecture on matching
+that are not covered by Question~7.
+\begin{enumerate}
+  \item Define a matching, and a maximal, maximum and perfect matching, and
+        give an example distinguishing the first two.
+  \item Show how to find a maximum matching in a bipartite graph using a
+        maximum flow algorithm, and explain why the algorithm must return an
+        integral flow.
+  \item Define $M$-alternating walks, $M$-augmenting paths, $M$-flowers,
+        $M$-blossoms and stems.
+  \item Show that a matching $M$ is maximum if and only if there is no
+        $M$-augmenting path.
+  \item Describe the procedure that finds either an $M$-augmenting path or an
+        $M$-flower, and explain why a shortest alternating walk never closes an
+        even cycle.
+  \item Let $B$ be an $M$-blossom in $G$. Show that $G$ has an $M$-augmenting
+        path if and only if $G/B$ has an $M/B$-augmenting path.
+  \item State Edmonds' algorithm and show that it finds a maximum matching in
+        $O(n^2m)$ time.
+  \item State Schrijver's algorithm for a perfect matching in a regular
+        bipartite graph, prove the invariant that the weights at every vertex
+        sum to $d$, and analyse the running time.
+  \item Show that a bipartite graph of maximum degree $d$ has an edge colouring
+        with $d$ colours, and use this to solve a classroom scheduling problem.
+\end{enumerate}
 
 \subsection*{Lecture 7: Existential Theory of the Reals}
 
@@ -240,6 +348,17 @@ This problem is NP-complete, and an $\Ostar(2^n)$ algorithm is trivial. Find an
 efficient exact algorithm for this problem with running time $\Ostar(c^n)$ for
 some $c < 2$.
 
+\paragraph{Question 23. Branching.}
+This set of questions captures the learning goals of the lecture on exact
+exponential-time algorithms that are not covered by Questions~9 and~10.
+\begin{enumerate}
+  \item Define $O^{*}$ notation and explain why polynomial factors may be
+        suppressed.
+  \item Explain what a branching algorithm is, define branching vectors and
+        branching numbers, and show how to bound the size of the search tree by
+        solving the associated recurrence.
+\end{enumerate}
+
 \subsection*{Lecture 9: Existential Theory of the Reals}
 
 \paragraph{Question 11. Duality and geometric $\ER$-hardness.}
@@ -275,6 +394,32 @@ $j$, we have that $d(i,j) \le 2 d(j,i)$, and of course, $d(j,i) \le 2 d(i,j)$.
 Give a $c$-approximation algorithm for this problem that runs in polynomial
 time.
 
+\paragraph{Question 24. Subset Dynamic Programming and Inclusion/Exclusion.}
+This set of questions captures the learning goals of the lecture on exact
+algorithms that are not covered by Question~12.
+\begin{enumerate}
+  \item Explain what dynamic programming over subsets is, and analyse its time
+        and space requirements.
+  \item Give the Held--Karp algorithm solving \textsc{TSP} in $O^{*}(2^n)$
+        time, and analyse it.
+  \item State the inclusion/exclusion principle and explain how it is used to
+        trade space for time.
+  \item State the Exponential Time Hypothesis and its strong form, and derive a
+        conditional lower bound from each.
+\end{enumerate}
+
+\paragraph{Question 25. Approximation Algorithms.}
+This set of questions captures the learning goals of the first lecture on
+approximation algorithms that are not covered by Question~13.
+\begin{enumerate}
+  \item Define the approximation ratio, for both minimisation and maximisation
+        problems.
+  \item Give a greedy approximation algorithm for \textsc{Vertex Cover} and one
+        for \textsc{Set Cover}, and prove their approximation ratios.
+  \item Give the $2$-approximation and Christofides' algorithm for metric
+        \textsc{TSP}, and prove their ratios.
+\end{enumerate}
+
 \subsection*{Lecture 11: Approximation Algorithms II}
 
 \paragraph{Question 14. Approximating Steiner Tree.}
@@ -309,6 +454,17 @@ vertices in the tree.
         You do not need part 1 to prove this, and partial points will be awarded
         if you prove the weaker statement that no additive-constant-factor
         approximation exists unless $\mathrm{P} = \mathrm{NP}$.
+\end{enumerate}
+
+\paragraph{Question 26. LP Rounding and Approximation Schemes.}
+This set of questions captures the learning goals of the second lecture on
+approximation algorithms that are not covered by Question~14.
+\begin{enumerate}
+  \item Formulate an LP relaxation of a combinatorial problem and describe how
+        to round it.
+  \item Explain the primal--dual method for designing approximation
+        algorithms.
+  \item Define PTAS and FPTAS, and give an FPTAS for \textsc{Knapsack}.
 \end{enumerate}
 
 \subsection*{Lecture 12: Parameterized Complexity I}
@@ -358,6 +514,19 @@ Show that for any tree decomposition $T$ of $G$, $T$ must have a bag $X_i$ for
 which $C \subseteq X_i$. Conclude that the treewidth of $G$ is at least
 $|C| - 1$.
 
+\paragraph{Question 27. Treewidth.}
+This set of questions captures the learning goals of the lecture on treewidth
+that are not covered by Questions~16 and~17.
+\begin{enumerate}
+  \item Define a tree decomposition and the treewidth of a graph.
+  \item Determine the treewidth of trees, of cycles and of series--parallel
+        graphs.
+  \item Define a nice tree decomposition and give a dynamic programming
+        algorithm over one, for instance for \textsc{Independent Set}.
+  \item State Courcelle's theorem, and explain what it does and does not give
+        you.
+\end{enumerate}
+
 \subsection*{Lecture 14: Complexity for Approximation and FPT}
 
 \paragraph{Question 18. L-reduction for Maximum Cut on Multigraphs.}
@@ -384,6 +553,22 @@ maximum number of clauses. In this question you may use the fact that
 
 Prove that \textsc{Max Cut on Multigraphs} is APX-hard by giving an L-reduction
 from \textsc{Max Not-All-Equal 3-SAT}.
+
+\paragraph{Question 28. Complexity for Approximation and FPT.}
+This set of questions captures the learning goals of the lecture on complexity
+theory for approximation and parameterized problems that are not covered by
+Question~18.
+\begin{enumerate}
+  \item Define the class APX and the notion of an approximation-preserving
+        reduction.
+  \item Define an L-reduction, and show that L-reductions compose and preserve
+        constant-factor approximability.
+  \item State the PCP theorem and explain how it is used to prove
+        inapproximability results.
+  \item Define the W-hierarchy and W[1]-hardness, and give a W[1]-hard problem.
+  \item Derive a parameterized lower bound from the Exponential Time
+        Hypothesis.
+\end{enumerate}
 
 \subsection*{Lecture 15: Kernelization and Randomized Algorithms}
 

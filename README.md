@@ -43,8 +43,8 @@ uploads the PDF as a build artefact.
    questions it owns.
 2. Write into the existing `book/chapters/NN-*.tex` skeleton — the learning
    goals and section outline are already there. Replace the `\todo` markers.
-3. Make sure every pool question listed at the end of the chapter is genuinely
-   answerable from what you wrote.
+3. Make sure every goal tagged `[pool n.i]` at the top of the chapter is
+   genuinely answerable from what you wrote.
 4. Update the status column in `OVERVIEW.md`.
 
 To finish a figure, drop the file into `book/figures/` and replace the

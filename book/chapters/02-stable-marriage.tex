@@ -15,17 +15,13 @@ that idea on two examples: Euler tours, where an algorithm proves a classical
 characterisation, and stable matchings, where the Gale--Shapley algorithm proves
 that a stable matching always exists.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define an Euler tour and prove that a connected graph has one if and only if every degree is even;
-  \item define the stable marriage problem, blocking pairs and stable matchings;
-  \item state the greedy algorithm and show that it need not terminate;
-  \item state the Gale--Shapley algorithm and prove that it returns a stable matching;
-  \item define a men-optimal stable matching and prove that Gale--Shapley computes one.
-\end{itemize}
+\begin{goals}
+  \poolgoal{1.1}{define an Euler tour and show that every connected graph with all even degrees must have an Euler tour}
+  \poolgoal{1.2}{define the stable marriage problem, blocking pairs and stable matchings}
+  \poolgoal{1.3}{define the greedy algorithm and show that it might run forever}
+  \poolgoal{1.4}{explain the Gale--Shapley algorithm and show that it returns a stable matching}
+  \poolgoal{1.5}{define a men-optimal stable matching and show that Gale--Shapley returns one}
+\end{goals}
 
 %==============================================================================
 \section{Proving theorems with algorithms}
@@ -1431,12 +1427,3 @@ about $\ln n$ times better than the women.)
 
 %==============================================================================
 
-%==============================================================================
-\begin{poolquestions}
-  \poolq{1}{Stable Matchings}Item~1 (Euler tours) is \cref{sec:euler-tours},
-  which is not written yet. Item~2 (the problem, blocking pairs, stable
-  matchings) is \cref{sec:sm-model}; item~3 (a greedy algorithm that may run
-  forever) is \cref{sec:sm-naive}; item~4 (Gale--Shapley and its correctness)
-  is \cref{sec:sm-gs,sec:sm-analysis}; item~5 (men-optimality) is
-  \cref{sec:sm-optimality}.
-\end{poolquestions}

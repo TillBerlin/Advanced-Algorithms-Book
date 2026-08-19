@@ -16,30 +16,18 @@ far more expressive modelling language: assignment, transportation, scheduling,
 inventory over time and a good deal of image processing are minimum cost flow
 problems in disguise, and the disguises are worth learning to see through.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define the minimum cost flow problem and the cost of a flow;
-  \item recognise when unbounded capacities make the problem unbounded, and
-        remove them otherwise;
-  \item convert between the single-source, multiple-source and
-        supply/demand formulations;
-  \item transform an instance with negative arc costs into one with
-        non-negative costs;
-  \item write both maximum flow and minimum cost flow as linear programs, and
-        say what is gained and lost by doing so;
-  \item prove that every circulation decomposes into a non-negative
-        combination of cycles, and every flow into paths and cycles;
-  \item define the residual network with costs;
-  \item state the cycle cancelling algorithm and prove the optimality
-        criterion it rests on: a flow is minimum cost if and only if its
-        residual network has no negative-cost cycle;
-  \item state the successive shortest paths algorithm and prove it correct;
-  \item model an application --- including one you have not seen --- as a
-        minimum cost flow problem, and justify the model.
-\end{itemize}
+\begin{goals}
+  \goalitem{define the minimum cost flow problem and the cost of a flow}
+  \goalitem{recognise when unbounded capacities make the problem unbounded, and remove them otherwise}
+  \goalitem{convert between the single-source, multiple-source and supply/demand formulations}
+  \goalitem{transform an instance with negative arc costs into one with non-negative costs}
+  \goalitem{write both maximum flow and minimum cost flow as linear programs, and say what is gained and lost by doing so}
+  \goalitem{prove that every circulation decomposes into a non-negative combination of cycles, and every flow into paths and cycles}
+  \goalitem{define the residual network with costs}
+  \goalitem{state the cycle cancelling algorithm and prove the optimality criterion it rests on: a flow is minimum cost if and only if its residual network has no negative-cost cycle}
+  \goalitem{state the successive shortest paths algorithm and prove it correct}
+  \poolgoal{4}{formulate the problem of phasing out capital equipment --- and other applications you have not seen --- as a minimum cost flow problem, and justify the model}
+\end{goals}
 
 %==============================================================================
 \section{The problem}
@@ -792,13 +780,3 @@ partitioned into $d$ perfect matchings. Hint: apply
 \cref{thm:mcf-regular-bipartite} repeatedly.
 \end{exercise}
 
-%==============================================================================
-\begin{poolquestions}
-  \poolq{4}{Phasing out capital equipment}Worked in full in
-  \cref{sec:mcf-ships}: the choice of what a unit of flow means, the time
-  chain, the convex rewriting of the hire penalty into two parallel arcs, the
-  correctness argument (\cref{lem:mcf-ships-correct}) and the conventions that
-  have to be stated. \Cref{sec:mcf-hopping-plane} is a second worked model of
-  the same kind, and \cref{sec:mcf-demands} supplies the supply/demand
-  formulation that both use.
-\end{poolquestions}

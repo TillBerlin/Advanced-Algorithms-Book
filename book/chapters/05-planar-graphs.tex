@@ -14,22 +14,17 @@ That is a purely topological condition, and at first sight it has nothing to
 do with algorithms. It turns out to be one of the most algorithmically
 consequential structural restrictions we know.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item state and prove Euler's formula;
-  \item derive $m \le 3n-6$ and the existence of a vertex of degree at most $5$;
-  \item define minors and state Kuratowski's and Wagner's theorems;
-  \item prove that planar graphs are $5$-colourable;
-  \item give an elementary proof that $K_{3,3}$ is not planar;
-  \item explain how planarity can be tested in $\bigoh{n^3}$ time using
-        segments and interlacement;
-  \item state the planar separator theorem and use it to solve problems on
-        planar graphs in $2^{\bigoh{\sqrt n}}$ time;
-  \item prove that $3$-colouring remains NP-hard on planar graphs.
-\end{itemize}
+\begin{goals}
+  \poolgoal{5.1}{give and prove Euler's formula}
+  \poolgoal{5.2}{show that $m \le 3n-6$ and that the average degree is below $6$}
+  \poolgoal{5.3}{define graph minors and state Kuratowski's theorem}
+  \poolgoal{5.4}{show that planar graphs are $5$-colourable}
+  \poolgoal{5.5}{show that $K_{3,3}$ is non-planar in an elementary way}
+  \goalitem{explain how planarity can be tested in $\bigoh{n^3}$ time using segments and interlacement}
+  \poolgoal{5.6}{state the planar separator theorem}
+  \poolgoal{5.7}{show that \MIS{} can be solved in $2^{\bigoh{\sqrt n}}$ time on planar graphs}
+  \poolgoal{5.8}{show that $3$-colouring is NP-hard for planar graphs}
+\end{goals}
 
 %==============================================================================
 \section{Introduction}
@@ -1609,16 +1604,3 @@ agree.
 
 %==============================================================================
 
-%==============================================================================
-\begin{poolquestions}
-  \poolq{5}{Planar Graphs}The eight items map to the chapter as follows.
-  Item~1 (Euler's formula) is \cref{sec:planar-euler}; item~2 ($m \le 3n-6$ and
-  the average degree) is \cref{sec:planar-sparsity}; item~3 (minors and
-  Kuratowski) is \cref{sec:planar-minors}; item~4 ($5$-colourability) is
-  \cref{sec:planar-colouring}; item~5 ($K_{3,3}$ by an elementary argument) is
-  \cref{sec:planar-k33warmup}, with a second, purely counting proof in
-  Exercise~1; item~6 (the planar separator theorem) is
-  \cref{sec:planar-pst}; item~7 (independent set in
-  $2^{\bigoh{\sqrt n}}$ time) is \cref{sec:planar-mis}; item~8 (NP-hardness of planar
-  $3$-colouring) is \cref{sec:planar-3col}.
-\end{poolquestions}

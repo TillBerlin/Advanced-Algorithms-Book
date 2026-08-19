@@ -10,17 +10,13 @@ algorithm is $n!$, and inclusion--exclusion often gives the same running time in
 polynomial space. We close by asking how much better one could hope to do, which
 is where the Exponential Time Hypothesis comes in.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item design dynamic programming algorithms over subsets and analyse their time and space;
-  \item solve \textsc{TSP} in $\Ostar(2^n)$ time by the Held--Karp algorithm;
-  \item state the inclusion--exclusion principle and use it to trade space for time;
-  \item count minimum set covers in $\Ostar(2^m)$ time and polynomial space;
-  \item state ETH and SETH and derive conditional lower bounds from them.
-\end{itemize}
+\begin{goals}
+  \goalitem{design dynamic programming algorithms over subsets and analyse their time and space}
+  \goalitem{solve \lang{TSP} in $\Ostar(2^n)$ time by the Held--Karp algorithm}
+  \goalitem{state the inclusion--exclusion principle and use it to trade space for time}
+  \poolgoal{12}{give an $\Ostar(2^m)$ time, polynomial-space algorithm that counts the number of minimum set covers}
+  \goalitem{state ETH and SETH and derive conditional lower bounds from them}
+\end{goals}
 
 \section{Dynamic programming over subsets}
 \label{sec:dp-subsets}
@@ -54,7 +50,3 @@ After this chapter you should be able to:
 \label{sec:ex-exact-ii}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{12}{Inclusion/exclusion for set cover}Covered in \cref{sec:counting-set-covers}.
-\end{poolquestions}

@@ -8,18 +8,14 @@ Trees are easy. Treewidth measures how far a graph is from being a tree, and
 almost every problem that is easy on trees stays easy on graphs of bounded
 treewidth. This is the single most useful structural parameter in the book.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define tree decompositions and treewidth;
-  \item determine the treewidth of trees, cycles, series--parallel graphs and grids;
-  \item prove that every clique is contained in a bag of every tree decomposition;
-  \item construct a tree decomposition of a $p \times q$ grid of width at most $p$;
-  \item design dynamic programming algorithms over a nice tree decomposition;
-  \item state Courcelle's theorem and explain what it does and does not give you.
-\end{itemize}
+\begin{goals}
+  \goalitem{define tree decompositions and treewidth}
+  \goalitem{determine the treewidth of trees, cycles and series--parallel graphs}
+  \poolgoal{17}{show that for any tree decomposition of $G$ some bag contains every clique of $G$, and conclude that the treewidth of $G$ is at least $|C|-1$}
+  \poolgoal{16}{show, by constructing a tree decomposition, that the treewidth of a $p$ by $q$ grid graph with $p \le q$ is at most $p$}
+  \goalitem{design dynamic programming algorithms over a nice tree decomposition}
+  \goalitem{state Courcelle's theorem and explain what it does and does not give you}
+\end{goals}
 
 \section{Tree decompositions}
 \label{sec:tree-decompositions}
@@ -64,8 +60,3 @@ After this chapter you should be able to:
 \label{sec:ex-treewidth}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{16}{Treewidth of grid graphs}Covered in \cref{sec:treewidth-grids}.
-  \poolq{17}{Treewidth and cliques}Covered in \cref{sec:bags-separators}.
-\end{poolquestions}

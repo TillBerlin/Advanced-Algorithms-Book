@@ -10,17 +10,13 @@ then does the two things the course asks of you: solving $2$-list colouring
 exactly, and using it inside a randomized $O(1.5^n)$ algorithm for
 $3$-colouring.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item use Markov's and Chernoff's inequalities and the union bound;
-  \item distinguish Monte Carlo and Las Vegas algorithms and one- from two-sided error;
-  \item explain constant one-sided error and amplify it by repetition;
-  \item define \lang{2-List Coloring} and solve it in polynomial time;
-  \item give a randomized constant one-sided error algorithm for \lang{3-Coloring} with running time $O(1.5^n)$.
-\end{itemize}
+\begin{goals}
+  \goalitem{use Markov's and Chernoff's inequalities and the union bound}
+  \goalitem{distinguish Monte Carlo and Las Vegas algorithms and one- from two-sided error}
+  \goalitem{explain constant one-sided error and amplify it by repetition}
+  \poolgoal{19.3}{define \lang{2-List Coloring} and show that it can be solved in polynomial time}
+  \poolgoal{19.4}{describe a randomized constant one-sided error algorithm for \lang{3-Coloring} a graph with running time $O(1.5^n)$}
+\end{goals}
 
 \section{A probabilistic toolbox}
 \label{sec:probability-toolbox}
@@ -60,7 +56,3 @@ After this chapter you should be able to:
 \label{sec:ex-randomized}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{19}{Vertex Cover Kernel}The last two items --- \lang{2-List Coloring} and the randomized $O(1.5^n)$ algorithm for \lang{3-Coloring} --- are covered in \cref{sec:two-list-colouring,sec:randomized-3-colouring}. The first two items are covered in \cref{ch:kernelization}.
-\end{poolquestions}

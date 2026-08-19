@@ -10,17 +10,13 @@ approximation schemes, which let us trade running time against accuracy. We also
 see the first limits --- a problem can be constant-factor approximable and still
 provably admit no FPTAS.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item formulate an LP relaxation of a combinatorial problem and round it;
-  \item explain the primal--dual method;
-  \item define PTAS and FPTAS and give an FPTAS for \lang{Knapsack};
-  \item prove that the shortest-path-metric MST heuristic is a $2$-approximation for \lang{Steiner Tree};
-  \item prove that a strongly NP-hard problem with integral objective admits no FPTAS unless P${}={}$NP.
-\end{itemize}
+\begin{goals}
+  \goalitem{formulate an LP relaxation of a combinatorial problem and round it}
+  \goalitem{explain the primal--dual method}
+  \goalitem{define PTAS and FPTAS and give an FPTAS for \lang{Knapsack}}
+  \poolgoal{14.1}{prove that the shortest-path-metric MST heuristic is a $2$-approximation for \lang{Steiner Tree}}
+  \poolgoal{14.2}{prove that there is no FPTAS for \lang{Steiner Tree} unless $\mathrm{P} = \mathrm{NP}$}
+\end{goals}
 
 \section{LP relaxation and rounding}
 \label{sec:lp-rounding}
@@ -54,7 +50,3 @@ After this chapter you should be able to:
 \label{sec:ex-approx-ii}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{14}{Approximating Steiner Tree}Part 1 in \cref{sec:steiner-tree}, part 2 in \cref{sec:no-fptas}.
-\end{poolquestions}

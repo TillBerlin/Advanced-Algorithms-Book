@@ -9,22 +9,19 @@ length alone. Instead we isolate a parameter $k$ --- the size of the solution,
 the treewidth, the number of allowed edits --- and ask for algorithms whose
 exponential behaviour is confined to $k$. Astonishingly often, this works.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define parameterized problems, FPT, XP and para-NP-hardness;
-  \item explain the general idea of a branching algorithm in the parameterized setting;
-  \item define \lang{Vertex Cover} and solve it in FPT time by branching;
-  \item define \lang{Cluster Editing} and give a branching algorithm for it;
-  \item give a para-NP-complete parameterized problem;
-  \item define kernels and prove that a problem is FPT if and only if it has a kernel;
-  \item give an $O(k^2)$ kernel for \lang{Vertex Cover};
-  \item define \lang{Convex String Recoloring} and give it an $O(k^2)$ kernel;
-  \item define \lang{Directed $k$-Path} and solve it in polynomial time on acyclic graphs;
-  \item define constant one-sided error algorithms and give one for \lang{Directed $k$-Path} in $O(k^k n^c)$ time.
-\end{itemize}
+\begin{goals}
+  \poolgoal{15.1}{define a parameterized problem, FPT, XP and para-NP-hard}
+  \poolgoal{15.2}{describe the idea of a branching algorithm in general}
+  \poolgoal{15.3}{define \lang{Vertex Cover} and show that it can be solved in FPT time using a branching algorithm}
+  \poolgoal{15.4}{define \lang{Cluster Editing} and give a branching algorithm for it}
+  \poolgoal{15.5}{give one parameterized problem that is para-NP-complete}
+  \poolgoal{15.6}{define the notion of a kernel}
+  \poolgoal{15.7}{show that a problem is FPT if and only if it has a kernel}
+  \poolgoal{15.8}{show that \lang{Vertex Cover} has a kernel of size $O(k^2)$}
+  \poolgoal{15.9}{define \lang{Convex String Recoloring} and show that it has a kernel of size $O(k^2)$}
+  \poolgoal{15.10}{define the \lang{Directed $k$-Path} problem and acyclic graphs, and show that \lang{Directed $k$-Path} can be solved in polynomial time on acyclic graphs}
+  \poolgoal{15.11}{explain what a constant one-sided error algorithm is, and give one for \lang{Directed $k$-Path} with running time $O(k^k \cdot n^c)$}
+\end{goals}
 
 \section{Parameterized problems}
 \label{sec:fpt-definitions}
@@ -54,7 +51,3 @@ After this chapter you should be able to:
 \label{sec:ex-fpt-i}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{15}{Parameterized complexity}All eleven items are covered by \cref{sec:fpt-definitions,sec:fpt-branching,sec:kernels,sec:colour-coding}.
-\end{poolquestions}

@@ -10,20 +10,17 @@ RAM with the Turing machine already shows that the choice matters; the real RAM,
 the model computational geometry actually uses, turns out to be strictly more
 powerful in a way that is both useful and slightly alarming.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item explain informally what a program on a word RAM is;
-  \item explain informally what a Turing machine is;
-  \item compare the two models and name advantages and disadvantages of each;
-  \item explain the real RAM, and give both a motivation for and concerns about the model;
-  \item compute $k!$ in $O(\log^2 k)$ time on a real RAM with rounding;
-  \item compute $\gcd(a,b)$ in $O(\min\{\log a, \log b\})$ time on a real RAM with rounding;
-  \item find a factor of a number in polynomial time on a real RAM with rounding;
-  \item define straight line programs and \textsc{PosSLP}, and prove $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$.
-\end{itemize}
+\begin{goals}
+  \poolgoal{6.1}{explain a program on a word RAM (not a formal definition)}
+  \poolgoal{6.2}{explain a Turing machine (not a formal definition)}
+  \poolgoal{6.3}{give a comparison of advantages and disadvantages of the two models}
+  \poolgoal{6.4}{explain what a program on a real RAM is, and give both a motivation for and concerns about this model of computation}
+  \poolgoal{6.5}{show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM that is allowed to use rounding}
+  \poolgoal{6.6}{show how to compute $\gcd(a,b)$ in $O(\min\{\log a, \log b\})$ time on a real RAM that is allowed to use rounding}
+  \poolgoal{6.7}{show that a factor of a number can be found in polynomial time on a real RAM that is allowed to use rounding}
+  \poolgoal{6.8}{define a straight line program and \textsc{PosSLP}}
+  \poolgoal{6.9}{show that $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}
+\end{goals}
 
 \section{The word RAM}
 \label{sec:word-ram}
@@ -76,7 +73,3 @@ reals, Allender et al.\ for \textsc{PosSLP} and $\mathrm{P}^{\textsc{PosSLP}} =
 \label{sec:ex-real-models}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{6}{Real Models of Computation}All nine items are covered by \cref{sec:word-ram,sec:turing-machines,sec:model-comparison,sec:real-ram,sec:real-ram-rounding,sec:posslp,sec:posslp-pr}.
-\end{poolquestions}

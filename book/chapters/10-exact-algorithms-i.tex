@@ -9,17 +9,14 @@ longer polynomial versus exponential but $2^n$ versus $1.5^n$ --- a difference o
 a factor of a million already at $n = 40$. Branching, together with reduction
 rules that shrink the instance, is the basic technique.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item use $\Ostar$ notation and explain why polynomial factors may be suppressed;
-  \item design branching algorithms and analyse them with branching vectors and recurrences;
-  \item design polynomial-time reduction rules that make an instance smaller;
-  \item give an $\Ostar(c^n)$ algorithm with $c < 2$ for \textsc{Exact 3-Satisfiability};
-  \item give an $\Ostar(c^n)$ algorithm with $c < 2$ for \textsc{Bisection Width}.
-\end{itemize}
+\begin{goals}
+  \goalitem{use $\Ostar$ notation and explain why polynomial factors may be suppressed}
+  \goalitem{design branching algorithms and analyse them with branching vectors and recurrences}
+  \poolgoal{9.1}{give a polynomial-time reduction rule transforming an instance of \lang{Exact 3-Satisfiability} into an equivalent smaller one in which all clauses have size two or three}
+  \poolgoal{9.2}{give a polynomial-time reduction rule transforming an instance of \lang{Exact 3-Satisfiability} into an equivalent smaller one in which all clauses have size exactly three}
+  \poolgoal{9.3}{give an $\Ostar(c^n)$ algorithm with $c < 2$ for \lang{Exact 3-Satisfiability}, and analyse its running time}
+  \poolgoal{10}{give an $\Ostar(c^n)$ algorithm with $c < 2$ for \lang{Bisection Width}}
+\end{goals}
 
 \section{Why the base of the exponent matters}
 \label{sec:why-exponent}
@@ -64,8 +61,3 @@ After this chapter you should be able to:
 \label{sec:ex-exact-i}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{9}{Exact Algorithm for Exact 3-SAT}Covered in \cref{sec:exact-sat}.
-  \poolq{10}{Bisection Width}Covered in \cref{sec:bisection-width}.
-\end{poolquestions}

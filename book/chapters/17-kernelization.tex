@@ -9,17 +9,13 @@ kernel for \lang{Vertex Cover}; here we push it to linear using linear
 programming, develop the general tools, and then show that for some problems no
 polynomial kernel exists at all.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define \lang{Integer Linear Programming} and encode \lang{Vertex Cover} as an ILP;
-  \item prove that the LP relaxation of \lang{Vertex Cover} is half-integral;
-  \item prove the Nemhauser--Trotter theorem and derive a linear kernel for \lang{Vertex Cover};
-  \item use crown decompositions and the sunflower lemma to obtain kernels;
-  \item explain how composition arguments rule out polynomial kernels.
-\end{itemize}
+\begin{goals}
+  \poolgoal{19.1}{define \lang{Integer Linear Programming} and show how \lang{Vertex Cover} can be encoded as one}
+  \goalitem{prove that the LP relaxation of \lang{Vertex Cover} is half-integral}
+  \poolgoal{19.2}{show that \lang{Vertex Cover} has a linear sized kernel}
+  \goalitem{use crown decompositions and the sunflower lemma to obtain kernels}
+  \goalitem{explain how composition arguments rule out polynomial kernels}
+\end{goals}
 
 \section{Integer linear programming}
 \label{sec:ilp}
@@ -57,7 +53,3 @@ After this chapter you should be able to:
 \label{sec:ex-kernelization}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{19}{Vertex Cover Kernel}The first two items --- the ILP encoding and the linear kernel --- are covered in \cref{sec:ilp,sec:nemhauser-trotter,sec:linear-vc-kernel}. The last two items are covered in \cref{ch:randomized}.
-\end{poolquestions}

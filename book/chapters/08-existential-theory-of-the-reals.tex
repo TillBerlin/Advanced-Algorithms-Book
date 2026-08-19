@@ -10,18 +10,14 @@ obstruction is always the same: a solution is a tuple of real numbers that may
 need exponentially many bits to write down. The class $\ER$ is the right home
 for these problems.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define \ETR{} and the class $\ER$;
-  \item give the machine-model description of $\ER$ and sketch its equivalence with the logic-based definition;
-  \item prove that $\mathrm{NP} \subseteq \ER$;
-  \item define order types and the order type problem, and motivate their study;
-  \item define \textsc{ETR-AM} and prove that it is $\ER$-complete;
-  \item prove $\ER$-completeness of the partial order type problem.
-\end{itemize}
+\begin{goals}
+  \poolgoal{8.1}{give a definition of the algorithmic problem \ETR{} and of the complexity class $\ER$ based on it}
+  \poolgoal{8.2}{give the machine model description of $\ER$ and a sketch of a proof that it is equivalent with the logic-based definition}
+  \poolgoal{8.3}{show that $\mathrm{NP} \subseteq \ER$}
+  \poolgoal{8.4}{define the order types and the order type problem, and give a motivation to study order types}
+  \poolgoal{8.5}{define \textsc{ETR-AM} and show that it is $\ER$-complete}
+  \poolgoal{8.6}{define the partial order type problem and show that it is $\ER$-complete}
+\end{goals}
 
 \section{\texorpdfstring{The problem \ETR{}}{The problem ETR}}
 \label{sec:etr-problem}
@@ -69,7 +65,3 @@ Schaefer's surveys of $\ER$-completeness.}
 \label{sec:ex-etr}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{8}{Existential Theory of the Reals}All six items are covered by \cref{sec:etr-problem,sec:er-class,sec:np-in-er,sec:order-types,sec:etr-am,sec:partial-order-types}.
-\end{poolquestions}

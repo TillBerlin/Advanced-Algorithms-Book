@@ -16,40 +16,20 @@ that the phrasing is usually short. This chapter develops the theory, the
 standard algorithms, and --- at greatest length, because it is what the
 exercises and the exam actually ask for --- the modelling.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define flow networks, feasible flows, $s$--$t$ cuts and the value of a
-        flow;
-  \item construct the residual graph and prove that augmenting along a path
-        yields a feasible flow of larger value;
-  \item prove the max-flow min-cut theorem and derive the integrality theorem
-        from it;
-  \item state and compare Ford--Fulkerson, Edmonds--Karp and Dinic's
-        algorithm, and analyse their running times;
-  \item define preflows, excesses and height functions, state the height
-        invariant, and explain why it forces the final preflow to be a maximum
-        flow;
-  \item state the push and lift operations and verify that each preserves the
-        invariant;
-  \item bound the number of lifts, of saturating pushes and of non-saturating
-        pushes, and conclude that generic preflow-push runs in $\bigoh{n^2m}$
-        time;
-  \item state Goldberg's highest-label rule and prove the $\bigoh{n^3}$ bound;
-  \item solve the maximum flow problem with lower bounds on arcs, by reducing
-        first to an admissible circulation and then to two ordinary maximum
-        flow computations;
-  \item model the consistent matrix rounding problem as a circulation with
-        lower bounds, and explain why integrality is the crux;
-  \item reduce flow problems with vertex capacities, several sources or sinks,
-        or lower bounds on arcs to plain maximum flow, and argue that the
-        reduction is correct and does not blow up the instance;
-  \item derive Menger's theorem in both its edge and vertex form;
-  \item model a disjoint-paths problem as a flow problem and analyse the
-        resulting running time in the parameters the problem is stated in.
-\end{itemize}
+\begin{goals}
+  \goalitem{define flow networks, feasible flows, $s$--$t$ cuts and the value of a flow}
+  \goalitem{construct the residual graph and prove that augmenting along a path yields a feasible flow of larger value}
+  \goalitem{prove the max-flow min-cut theorem and derive the integrality theorem from it}
+  \goalitem{state the Ford--Fulkerson method, and explain why its running time depends on the capacities rather than on the size of the input}
+  \goalitem{define preflows, excesses and height functions, state the height invariant, and explain why it forces the final preflow to be a maximum flow}
+  \goalitem{state the push and lift operations and verify that each preserves the invariant}
+  \goalitem{bound the number of lifts, of saturating pushes and of non-saturating pushes, and conclude that generic preflow-push runs in $\bigoh{n^2m}$ time}
+  \goalitem{state Goldberg's highest-label rule and prove the $\bigoh{n^3}$ bound}
+  \goalitem{solve the maximum flow problem with lower bounds on arcs, by reducing first to an admissible circulation and then to two ordinary maximum flow computations}
+  \goalitem{model the consistent matrix rounding problem as a circulation with lower bounds, and explain why integrality is the crux}
+  \poolgoal{2}{show that determining the maximum flow in a network with arc \emph{and} vertex capacity constraints reduces to an ordinary maximum-flow problem on a network of comparable size}
+  \poolgoal{3}{describe an algorithm polynomial in $n$ that solves the grid escape problem, and analyse its running time}
+\end{goals}
 
 %==============================================================================
 \section{Flow networks}
@@ -1354,12 +1334,3 @@ maximum flow $f'$ with $\lfloor f(e) \rfloor \le f'(e) \le \lceil f(e) \rceil$
 for every arc $e$.
 \end{exercise}
 
-%==============================================================================
-\begin{poolquestions}
-  \poolq{2}{Minimum Vertex Cut}Covered by \cref{lem:flow-vertex-splitting} in
-  \cref{sec:flow-vertex-capacities}, which gives the reduction, the proof that
-  it preserves flows and values, and the size of the resulting network.
-  \poolq{3}{Escaping a Grid}Covered in \cref{sec:flow-grid-escape}: the model,
-  the correctness proof (\cref{thm:flow-grid-escape}) and the running-time
-  analysis in terms of $n$ and $m$.
-\end{poolquestions}

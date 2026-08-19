@@ -10,16 +10,12 @@ we must compare against an optimum we cannot compute, so every approximation
 guarantee rests on a lower bound (or upper bound) on $\OPT$ that we can reason
 about.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item define approximation ratios for minimisation and maximisation problems;
-  \item analyse greedy approximation algorithms and prove their ratios;
-  \item give and analyse the $2$-approximation and Christofides' algorithm for metric \lang{TSP};
-  \item adapt the metric \lang{TSP} arguments to a near-symmetric asymmetric instance.
-\end{itemize}
+\begin{goals}
+  \goalitem{define approximation ratios for minimisation and maximisation problems}
+  \goalitem{analyse greedy approximation algorithms and prove their ratios}
+  \goalitem{give and analyse the $2$-approximation and Christofides' algorithm for metric \lang{TSP}}
+  \poolgoal{13}{give a polynomial-time $c$-approximation algorithm for \lang{TSP} instances that are not symmetric but satisfy $d(i,j) \le 2d(j,i)$ and the triangle inequality}
+\end{goals}
 
 \section{What an approximation guarantee is}
 \label{sec:approx-definitions}
@@ -59,7 +55,3 @@ After this chapter you should be able to:
 \label{sec:ex-approx-i}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{13}{Approximation non-symmetric TSP}Covered in \cref{sec:asymmetric-tsp}.
-\end{poolquestions}

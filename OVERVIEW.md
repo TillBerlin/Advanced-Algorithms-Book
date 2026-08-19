@@ -13,12 +13,14 @@ then created as a `.tex` file and `\include`d in `book/main.tex`.
 
 ## Design principles
 
-1. **The pool is the contract.** The course uses the
-   [open pool exam method](https://openpoolexams.science.uu.nl/): at least 30%
-   of exam questions are taken verbatim from a published pool. Every pool
-   question must be fully answerable from this book. Each chapter ends with a
-   `poolquestions` environment naming the questions it covers and the sections
-   that answer them.
+1. **The pool is the contract, and the pool is the learning goals.** The course
+   uses the [open pool exam method](https://openpoolexams.science.uu.nl/): at
+   least 30% of exam questions are taken verbatim from a published pool. A pool
+   question is a learning goal written as a question, so a chapter states them
+   **once**, in its `goals` environment at the top: `\goalitem{...}` for a goal
+   the pool does not ask for, `\poolgoal{n.i}{...}` for one it does, worded as
+   the pool words it. There is no separate list at the end of the chapter.
+   Every pool question must be fully answerable from the book.
 2. **One chapter per lecture, roughly.** The book follows the lecture schedule
    in [`material/schedule.md`](material/schedule.md), so it can be read
    alongside the course week by week. Where a lecture is thin and its neighbour
@@ -148,12 +150,10 @@ Every chapter file follows the same shape (see any file in `book/chapters/`):
 
 One paragraph: what this chapter is about and why it belongs here.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item ...;
-\end{itemize}
+\begin{goals}
+  \goalitem{a goal the lectures cover but the pool does not}
+  \poolgoal{1.1}{a goal that is item 1 of pool question 1, worded as the pool words it}
+\end{goals}
 
 \section{...}
 \label{sec:...}
@@ -161,10 +161,6 @@ After this chapter you should be able to:
 
 \section{Exercises}
 \label{sec:ex-short-name}
-
-\begin{poolquestions}
-  \poolq{7}{Partition into Cycles}Solved in \cref{sec:matching-modelling}.
-\end{poolquestions}
 ```
 
 Conventions:

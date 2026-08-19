@@ -10,17 +10,14 @@ move between incidence statements about points and about lines, and geometric
 intersection graphs let us hide arbitrary algebraic constraints inside an
 innocent-looking graph recognition problem.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
-
-After this chapter you should be able to:
-\begin{itemize}[leftmargin=*]
-  \item describe point--line duality and prove the above--below property;
-  \item define the cyclic order of a point with respect to a point set and identify its dual;
-  \item define geometric intersection graphs and unit disk graphs;
-  \item prove that recognising unit disk graphs is $\ER$-complete;
-  \item prove that \textsc{Optimal Curve Straightening} is $\ER$-complete.
-\end{itemize}
+\begin{goals}
+  \poolgoal{11.1}{describe point--line duality}
+  \poolgoal{11.2}{show the above--below property of point--line duality}
+  \poolgoal{11.3}{define the cyclic order of a point with respect to a point set, and describe what it corresponds to in the dual}
+  \poolgoal{11.4}{define geometric intersection graphs, and unit disk graphs in particular}
+  \poolgoal{11.5}{show that deciding whether a given graph is a unit disk intersection graph is $\ER$-complete}
+  \poolgoal{11.6}{show that \textsc{Optimal Curve Straightening} is $\ER$-complete}
+\end{goals}
 
 \section{Point--line duality}
 \label{sec:duality}
@@ -67,7 +64,3 @@ point--line duality.}
 \label{sec:ex-geometric-er}
 
 \todo{Write this section.}
-
-\begin{poolquestions}
-  \poolq{11}{Point--line duality and geometric $\ER$-completeness}Covered by \cref{sec:duality,sec:above-below,sec:cyclic-orders,sec:intersection-graphs,sec:udg-hardness,sec:curve-straightening}. Note that the title of this question in the pool PDF (``Exact Algorithm for Exact 3-SAT'') is a copy-paste error; the items are about duality.
-\end{poolquestions}

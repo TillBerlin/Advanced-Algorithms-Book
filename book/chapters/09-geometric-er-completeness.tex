@@ -1,66 +1,769 @@
-%% Chapter 9: Geometric $\ER$-Completeness
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Chapter 9: Geometric exists-R-Completeness
+%% Status: drafted, figures in place.
+%%
+%% Written against chapters 3 and 4 of Real-Compuation.pdf ("Beyond Bits",
+%% Tillmann Miltzow).
+%%
+%% Order types and stretchability sit at the END of the chapter and are marked
+%% non-examinable: the lecture no longer covers them.  ETR-AM lives next to
+%% ETR-INV, since the two normal forms are used the same way.
 
 \chapter{\texorpdfstring{Geometric $\ER$-Completeness}{Geometric exists-R-Completeness}}
 \label{ch:geometric-er}
 
-With \textsc{ETR-AM} in hand we can prove $\ER$-completeness for problems that
-mention no logic at all. The tools are geometric: point--line duality lets us
-move between incidence statements about points and about lines, and geometric
-intersection graphs let us hide arbitrary algebraic constraints inside an
-innocent-looking graph recognition problem.
+\Cref{ch:etr} put $\ER$ on the map and showed how to prove membership. This
+chapter is about the other half: proving that a geometric problem is
+$\ER$-\emph{hard}, and therefore that its difficulty really is the difficulty of
+real solutions. The tools are two stripped-down normal forms of \ETR{} and a
+pair of geometric translations, and they suffice for two very different
+theorems --- that recognising unit disk graphs is $\ER$-complete, and that the
+art gallery problem is.
 
 \begin{goals}
   \poolgoal{11.1}{describe point--line duality}
   \poolgoal{11.2}{show the above--below property of point--line duality}
-  \poolgoal{11.3}{define the cyclic order of a point with respect to a point set, and describe what it corresponds to in the dual}
-  \poolgoal{11.4}{define geometric intersection graphs, and unit disk graphs in particular}
-  \poolgoal{11.5}{show that deciding whether a given graph is a unit disk intersection graph is $\ER$-complete}
-  \poolgoal{11.6}{show that \textsc{Optimal Curve Straightening} is $\ER$-complete}
+  \poolgoal{11.3}{define the cyclic order of a point with respect to a point
+        set, and describe what it corresponds to in the dual}
+  \poolgoal{8.5}{define \lang{ETR-AM} and show that it is $\ER$-complete}
+  \goalitem{define \lang{ETR-INV}, and show how inversion constraints replace
+        multiplication and how the variable range is made compact}
+  \poolgoal{11.4}{define geometric intersection graphs, and unit disk graphs in
+        particular}
+  \poolgoal{11.5}{show that deciding whether a given graph is a unit disk
+        intersection graph is $\ER$-complete}
+  \poolgoal{11.6}{show that \lang{Optimal Curve Straightening} is
+        $\ER$-complete}
+  \goalitem{explain how a variable and an inversion constraint are encoded in
+        the art gallery problem, and why the encoding must be compact}
 \end{goals}
 
+%==============================================================================
 \section{Point--line duality}
 \label{sec:duality}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: The transform, and what it does to incidence.
+Points and lines in the plane carry the same combinatorial information, and the
+standard way to move between them is point--line duality. One convenient choice
+is the map $\chi$ from $\R^2$ to the set $L$ of lines,
+\[ (a,b) \;\longleftrightarrow\; \ell_{(a,b)} : y = ax - b,
+   \qquad y = mx + c \;\longleftrightarrow\; (m,-c). \]
+We write $p^{*}$ for $\chi(p)$ and $\ell^{*}$ for $\chi^{-1}(\ell)$.
 
-\section{The above--below property}
-\label{sec:above-below}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{er-linear-transformations}
+\caption{A small point--line configuration, and the same configuration after
+applying the duality. Each point becomes a line and each line a point.}
+\label{fig:er-duality}
+\end{figure}
 
-\todo{Write this section.}
+\begin{lemma}\label{lem:er-duality}
+Let $p, q \in \R^2$ and let $\ell$ be a line. Then
+\begin{itemize}[nosep]
+  \item \emph{verticality}: $p$ and $q$ have the same $x$-coordinate if and only
+        if $p^{*}$ and $q^{*}$ are parallel;
+  \item \emph{incidence}: $p$ lies on $\ell$ if and only if $p^{*}$ passes
+        through $\ell^{*}$;
+  \item \emph{above/below}: $p$ lies above $\ell$ if and only if $\ell^{*}$ lies
+        above $p^{*}$.
+\end{itemize}
+\end{lemma}
 
-\section{Cyclic orders and their dual}
+\begin{proof}
+Verticality is immediate from the definition, since the $x$-coordinate of a
+point becomes the slope of its dual line.
+
+For the other two, write $p = (a,b)$ and $\ell : y = mx + n$. Then $p$ lies on
+$\ell$ exactly when $b = ma + n$, which rearranges to $-n = am - b$; and that
+says exactly that the point $\ell^{*} = (m,-n)$ lies on the line
+$p^{*} : y = ax - b$.
+
+Replacing the equality by an inequality gives the third statement: $p$ lies
+above $\ell$ exactly when $b > ma+n$, that is $-n > am - b$, that is $\ell^{*}$
+lies above $p^{*}$.
+\end{proof}
+
+Combinatorial information about a point set therefore translates into
+combinatorial information about an arrangement of lines. It is not quite as
+easy as one might hope, though, and the reason is worth stating. Duality
+preserves \emph{above and below}, whereas order types are about \emph{left and
+right}. Reversing the orientation of a line leaves above and below unchanged
+but swaps left and right; rotating a point set changes many above--below
+relations but preserves the order type. What survives needs care.
+
+\subsection{Cyclic order}
 \label{sec:cyclic-orders}
 
-\todo{Write this section.}
+\begin{definition}[Cyclic order]
+Let $P$ be a point set and $p$ a point. Rotate a vertical line clockwise around
+$p$; the order in which it meets the points of $P$ is the \emph{cyclic order} of
+$P$ around $p$.
+\end{definition}
 
+\begin{lemma}\label{lem:er-cyclic-order}
+Let $p_1, \ldots, p_n \in P$ be in cyclic order around $p$. Then the line
+$p^{*}$ meets the lines $p_1^{*}, \ldots, p_n^{*}$ from left to right in that
+order. Conversely, if lines $\ell_1, \ldots, \ell_n$ meet a line $\ell$ from
+left to right in that order, then the dual points
+$\ell_1^{*}, \ldots, \ell_n^{*}$ occur in that cyclic order around
+$\ell^{*}$.
+\end{lemma}
+
+\begin{proof}
+We prove the second statement. Let $p_1, \ldots, p_n$ be the intersection
+points of $\ell_1, \ldots, \ell_n$ with $\ell$, so that $p_1$ is to the left of
+$p_2$, and so on. By \cref{lem:er-duality} the dual line $p_i^{*}$ has slope
+equal to the $x$-coordinate of $p_i$, so $p_1^{*}$ has the smallest slope and
+$p_n^{*}$ the largest. Each dual point $\ell_i^{*}$ lies on the dual line
+$p_i^{*}$, and the slopes increasing is exactly the cyclic order around
+$\ell^{*}$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\textwidth]{er-cyclic-order}
+\caption{Left: the line $\ell$ meets $\ell_1, \ldots, \ell_n$ from left to
+right. Right: in the dual the same information is the cyclic order of the
+points $\ell_i^{*}$ around $\ell^{*}$.}
+\label{fig:er-cyclic-order}
+\end{figure}
+
+\begin{intuition}
+\Cref{lem:er-cyclic-order} is the bridge the rest of the chapter walks over. A
+cyclic order around a point is a statement about a point set; a left-to-right
+crossing order along a line is a statement about a line arrangement; and the
+lemma says they are the same statement. That is why a problem about
+\emph{pseudoline arrangements} can be used to prove hardness of problems about
+\emph{point configurations}, and vice versa.
+\end{intuition}
+
+%==============================================================================
+\section{Two normal forms}
+\label{sec:etr-normal-forms}
+%==============================================================================
+
+Reducing \emph{from} full \ETR{} is unpleasant. Two stripped-down versions do
+all the work: one that keeps addition and multiplication, and one that trades
+multiplication for inversion and confines the variables to a compact interval.
+
+\subsection{ETR-AM}
+\label{sec:etr-am}
+
+\ETR{} in full generality is unwieldy for hardness proofs, where one wants to
+reduce \emph{from} it. The following stripped-down version is far easier to work
+with, and is no easier to solve.
+
+\begin{probdef}{ETR-AM}
+  \instance A conjunction of constraints, each of one of the three forms
+  \[ x = 1, \qquad x + y = z, \qquad x \cdot y = z. \]
+  \question Is the conjunction satisfiable over $\R$?
+\end{probdef}
+
+The letters stand for \emph{addition} and \emph{multiplication}. Note that the
+constraint $x = 1$ is needed: without it, setting every variable to zero
+satisfies everything.
+
+\begin{lemma}\label{lem:etr-am}
+\lang{ETR-AM} is $\ER$-complete.
+\end{lemma}
+
+\begin{proof}
+Membership is immediate: \lang{ETR-AM} is a syntactic restriction of \ETR{}.
+
+For hardness, let $\Phi$ be an arbitrary \ETR{} instance; we transform it in
+polynomial time by a sequence of normal-form steps.
+
+\emph{Remove negations and disjunctions.} Push negations down to the atomic
+constraints, so that $\neg(p > 0)$ becomes $p \le 0$, and distribute
+disjunctions until they occur only between polynomial (in)equalities. Strict and
+non-strict inequalities are then removed with a fresh variable:
+\[ p > 0 \iff \exists x : p \cdot x^2 = 1, \qquad
+   p \ge 0 \iff \exists x : p = x^2, \]
+the first because $p$ has an inverse exactly when it is non-zero and $x^2 > 0$
+forces the sign, the second because the squares are exactly the non-negative
+reals. A disjunction of equalities becomes a product:
+\[ (p = 0) \vee (q = 0) \iff p \cdot q = 0. \]
+What remains is a conjunction of polynomial equations.
+
+\emph{Remove coefficients.} Build the constants from $1$ with auxiliary
+variables: $b = 1+1$ gives $2$, then $c = b+b$ gives $4$, $d = c+c$ gives $8$,
+and $e = d+b$ gives $10$. Repeated doubling produces any integer coefficient
+with logarithmically many constraints.
+
+\emph{Arithmetise.} For every sum and every product occurring in a polynomial,
+introduce a fresh variable for its value and the corresponding constraint. A
+final equation $c = 0$ becomes $c + 1 = 1$, which is expressible in the allowed
+forms. For instance $x^2y + z = 0$ becomes
+\[ \exists a,b,c \;:\; a = x \cdot x \;\wedge\; b = a \cdot y \;\wedge\;
+   c = b + z \;\wedge\; c + 1 = 1. \]
+
+Every step is polynomial and preserves satisfiability, so the result is an
+equivalent \lang{ETR-AM} instance.
+\end{proof}
+
+\Cref{lem:etr-am} is the starting point for essentially every geometric
+$\ER$-hardness proof in this chapter: one reduces from \lang{ETR-AM} and builds
+a gadget for each of the three constraint types. The next subsection squeezes
+it further.
+
+\subsection{ETR-INV}
+\label{sec:etr-inv}
+
+\lang{ETR-AM} is enough for the classical geometric reductions. It is not
+enough for the art gallery problem, and the reason is a real one: in a geometric
+gadget a variable is encoded as the position of an object, and objects live in
+\emph{compact} regions. A reduction from \lang{ETR-AM}, whose variables range
+over all of $\R$, cannot respect that. The fix is a second normal form.
+
+\begin{probdef}{ETR-INV}
+  \instance A set of real variables ranging over the compact interval
+  $[\tfrac12, 2]$, and a set of constraints, each of the form
+  \[ x + y = z \qquad\text{or}\qquad x \cdot y = 1. \]
+  \question Is the system satisfiable?
+\end{probdef}
+
+Two things have changed: multiplication has become \emph{inversion}, and the
+domain has become compact. Both are genuine restrictions, and each needs an
+argument.
+
+\paragraph{Inversion replaces multiplication.}
+Write \lang{UN-INV} for the same problem with the variables ranging over all of
+$\R$ and the constraint $x = 1$ added.
+
+\begin{lemma}\label{lem:un-inv}
+\lang{UN-INV} is $\ER$-complete.
+\end{lemma}
+
+\begin{proof}
+Membership is immediate, since \lang{UN-INV} is a special case of \ETR{}. For
+hardness we reduce from \lang{ETR-AM} in two steps: first replace multiplication
+by squaring, then squaring by inversion.
+
+For the first, note that $(x+y)^2 - x^2 - y^2 = 2xy$. So a constraint
+$x \cdot y = z$ is replaced by
+\[ A = x+y, \quad B = A^2, \quad C = x^2, \quad D = y^2, \quad
+   E = C+D, \quad B = F+E, \quad F = z+z, \]
+which uses only addition and squaring, and forces $z = x \cdot y$.
+
+For the second, observe that
+\[ \frac{1}{x} - \frac{1}{x+1} = \frac{1}{x(x+1)}, \qquad\text{hence}\qquad
+   \frac{1}{\;\frac1x - \frac1{x+1}\;} - x \;=\; x^2 . \]
+So a constraint $x^2 = y$ is replaced by
+\[ A \cdot x = 1, \quad B = x+1, \quad C \cdot B = 1, \quad D + C = A, \quad
+   E \cdot D = 1, \quad y = E + x, \]
+which uses only addition and inversion. Both replacements are local and there
+are linearly many of them.
+\end{proof}
+
+Note also that $x \cdot x = 1$ forces $x = \pm 1$, and since \lang{ETR-INV}
+confines its variables to $[\tfrac12,2]$ it forces $x = 1$. That is why
+\lang{ETR-INV} needs no separate constraint $x = 1$.
+
+\paragraph{Making the domain compact.}
+Bounding the variables to an \emph{open} interval is elementary.
+
+\begin{lemma}\label{lem:bounded-etr}
+\lang{Bounded-ETR}, in which every variable is confined to the open interval
+$(-1,1)$, is $\ER$-complete.
+\end{lemma}
+
+\begin{proof}
+Membership is again immediate. For hardness, reduce from \lang{ETR-AM} using
+the continuous bijection $f : (-1,1) \to \R$,
+\[ f(x) \;=\; \frac{x}{(x-1)(x+1)}. \]
+Replace every occurrence of every variable $x$ by $f(x)$ and clear
+denominators. For example $x + y = z$ becomes
+\[ x(y-1)(y+1)(z-1)(z+1) + y(x-1)(x+1)(z-1)(z+1)
+   = z(x-1)(x+1)(y-1)(y+1). \]
+A solution of the new system maps to one of the old under $f$, and conversely
+under $f^{-1}$.
+\end{proof}
+
+A \emph{closed} interval is a different matter, and the elementary argument
+cannot survive: there is no continuous bijection between a closed interval and
+$\R$, because the two are not homeomorphic. What is needed instead is a bound on
+how far from the origin a solution can be forced to lie.
+
+\begin{theorem}[Ball theorem]\label{thm:ball-theorem}
+Every semi-algebraic set in $\R^n$ of complexity at most $L \ge 4$ contains a
+point at distance at most $2^{L^{8n}}$ from the origin.
+\end{theorem}
+
+Here the \emph{complexity} of a semialgebraic set $S$ is the length of the
+shortest formula $\varphi$ with $S = \{x \in \R^n : \varphi(x)\}$. The version
+used here is the one distilled by \citet{SchaeferStefankovic2017}; the original
+results are from algebraic geometry and go back to 1984.
+
+\begin{lemma}\label{lem:compact-etr}
+\lang{Compact-ETR}, in which every variable is confined to $[-1,1]$, is
+$\ER$-complete.
+\end{lemma}
+
+\begin{proof}
+Let $\exists x \in \R^n : \varphi(x)$ be an \lang{ETR-AM} instance of
+description length $L \ge 4$, and let $S = \{x : \varphi(x)\}$. By
+\cref{thm:ball-theorem}, if $S$ is non-empty it contains a point within
+distance $M = 2^{L^{8n}}$ of the origin, hence a point of the cube
+$[-M,M]^n$. So the instance is equivalent to $\exists x \in [-M,M]^n :
+\varphi(x)$.
+
+It remains to shrink the cube to $[-1,1]^n$, which the bijection
+$f(x) = x/\varepsilon$ with $\varepsilon = 1/M$ does. We cannot write $M$ down
+--- it is doubly exponential --- but we can \emph{construct} $\varepsilon$ by
+repeated squaring: set $x_1 = \tfrac12$ and $x_{i+1} = x_i^2$, so that
+$x_k = 2^{-2^k}$, and choose $k = \bigoh{n \log L}$ so that
+$\varepsilon^{-1} \ge M$. That is a formula of size $\bigoh{k}$. Now replace
+every variable $x$ by $x/\varepsilon$ throughout $\varphi$ and clear
+denominators: $x \cdot y = z$ becomes $xy = z\varepsilon$, and so on.
+\end{proof}
+
+\begin{intuition}
+The ball theorem is doing something delicate and it is worth naming. Restricting
+an \ETR{} instance to a bounded box is only sound if we know that a solution, if
+one exists, can be found inside the box --- and the whole point of $\ER$ is that
+solutions can be enormous. The ball theorem is the quantitative promise that
+they are not \emph{arbitrarily} enormous: doubly exponential is the worst that
+can happen. Everything about compact encodings rests on it.
+\end{intuition}
+
+%==============================================================================
 \section{Geometric intersection graphs}
 \label{sec:intersection-graphs}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Segment graphs, disk graphs, and unit disk graphs.
+\begin{definition}[Intersection graph]
+Let $W$ be a finite set of objects in the plane. The \emph{intersection graph}
+$G(W)$ has one vertex per object, with two vertices adjacent exactly when the
+corresponding objects intersect. A \emph{unit disk graph} is the intersection
+graph of a set of disks all of radius $1$.
+\end{definition}
 
-\section{\texorpdfstring{Recognising unit disk graphs is $\ER$-complete}{Recognising unit disk graphs is exists-R-complete}}
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.6\textwidth]{er-disks}
+\caption{Left: a set $W$ of disks. Right: its intersection graph $G(W)$.}
+\label{fig:er-disks}
+\end{figure}
+
+Recognition is the natural algorithmic question: given a graph, is it the
+intersection graph of objects of a given type? For most families of geometric
+objects the answer is now known to be $\ER$-complete, and all the proofs go
+through encoding a pseudoline arrangement. We give one, chosen because it is the
+most elegant.
+
+%==============================================================================
+\section{Recognising unit disk graphs}
 \label{sec:udg-hardness}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{theorem}[\citet{McDiarmidMuller2013}]\label{thm:udg}
+It is $\ER$-complete to decide whether a graph is a unit disk intersection
+graph.
+\end{theorem}
 
+Membership is easy, and both routes of \cref{sec:er-membership} work. By the
+machine model: guess the disk centres and verify every edge and non-edge by
+computing distances. By the formula: introduce $x_v, y_v$ for each vertex and
+add
+\[ (x_v-x_u)^2 + (y_v-y_u)^2 \le 4 \quad \text{for } uv \in E, \qquad
+   (x_v-x_u)^2 + (y_v-y_u)^2 > 4 \quad \text{for } uv \notin E, \]
+taking the disks to have radius $1$, so that two of them meet exactly when their
+centres are at distance at most $2$.
+
+Hardness is the interesting half.
+
+\begin{proof}[Proof of hardness, from \lang{Stretchability}]
+Let $L$ be an arrangement of $n$ pseudolines. It helps to think of $L$ as an
+arrangement of straight lines first: that mental picture makes the construction
+obvious, and afterwards we check that it never used straightness.
+
+\emph{The construction.} Place one point in each cell of the arrangement, and
+call the resulting set $P$. For each line $\ell$ there are two disks $D^{+}$
+and $D^{-}$ of equal radius such that $D^{+}$ contains every point of $P$ above
+$\ell$ and $D^{-}$ every point below --- a disk of large radius is locally
+almost a half-plane, which is why one radius $R$ can be chosen to work for every
+line at once. This gives $2n$ disks of radius $R$. Now halve every radius,
+keeping the centres, and add one further disk of radius $R/2$ centred at each
+point of $P$. Let $G$ be the intersection graph of all these radius-$R/2$
+disks, and write $v_i^{+}, v_i^{-}$ for the vertices of the two disks belonging
+to line $\ell_i$.
+
+\emph{Five observations.}
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item \emph{The upper disks form a clique, and so do the lower ones.} The
+        arrangement may be squeezed without changing its combinatorics, and
+        after squeezing all the upper disks meet.
+  \item \emph{$G$ depends only on $L$, not on any drawing of it.} For each cell
+        the arrangement tells us whether it lies above or below each pseudoline,
+        and that is all the construction consults: a cell above $\ell_i$ gives a
+        vertex adjacent to $v_i^{+}$ and not to $v_i^{-}$.
+  \item \emph{$G$ has $\bigoh{n^2}$ vertices,} two per line and one per cell,
+        and an arrangement of $n$ pseudolines has $\bigoh{n^2}$ cells. So the
+        reduction is polynomial.
+  \item \emph{If $L$ is stretchable, $G$ is a unit disk graph}, since the
+        construction applied to the stretched arrangement produces exactly such
+        a representation.
+  \item \emph{Any unit disk representation of $G$ yields an arrangement
+        equivalent to $L$.} This is the converse and the heart of the matter.
+        Given a representation, let $k_i$ be the perpendicular bisector of the
+        centres of the disks realising $v_i^{+}$ and $v_i^{-}$. We claim
+        $k_1, \ldots, k_n$ is a line arrangement combinatorially equivalent to
+        $L$. Let $c$ be a cell of $L$, let $m$ be the centre of the disk placed
+        in it and $u$ the corresponding vertex. If $c$ is above $\ell_i$ then
+        $u$ is adjacent to $v_i^{+}$ and not to $v_i^{-}$, so $m$ is closer to
+        the centre of $D_i^{+}$ than to that of $D_i^{-}$, so $m$ lies above
+        $k_i$. The case below is identical. So the cells of the two
+        arrangements correspond, which is what equivalence means.
+\end{enumerate}
+Together, (ii) makes the reduction well defined, (iii) makes it polynomial, and
+(iv) with (v) make it correct.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[page=1,width=0.8\textwidth]{er-disk-reduction}
+\caption{The two large disks belonging to one line: enlarging a disk makes it
+locally more and more like a half-plane, so one radius serves every line.}
+\label{fig:er-disk-reduction}
+\end{figure}
+
+%==============================================================================
 \section{Optimal curve straightening}
 \label{sec:curve-straightening}
+%==============================================================================
 
-\todo{Write this section.}
+A closed curve $\gamma$ in the plane, possibly self-intersecting, is described
+combinatorially by the $4$-regular plane graph its self-intersections induce.
+For visualisation, compression and geometric algorithms one wants a simpler
+curve representing $\gamma$ with as few segments as possible, without changing
+that graph.
 
+\begin{probdef}{Optimal Curve Straightening}
+  \instance A closed curve $\gamma$ in the plane and an integer $k$.
+  \question Can $\gamma$ be represented by at most $k$ straight segments,
+  keeping the same self-intersection pattern?
+\end{probdef}
+
+\begin{theorem}[\citet{Erickson2019}]\label{thm:curve-straightening}
+\lang{Optimal Curve Straightening} is $\ER$-complete.
+\end{theorem}
+
+\begin{proof}[Membership]
+Describing $k$ segments with an \ETR{} formula is easy; expressing that the
+induced plane graph is unchanged is not, and the first proof that did so runs to
+five pages. That difficulty was one of the motivations for the machine model.
+With \cref{thm:er-machine-model} the argument is one sentence: take the
+coordinates of the $k$ segments as the witness, and let the verifier compute the
+intersection pattern and compare the two plane graphs.
+\end{proof}
+
+\begin{proof}[Hardness, from \lang{Stretchability}]
+Let $L$ be an arrangement of $n$ pseudolines; we build a curve $\gamma$
+representable with $4(n+1)$ segments exactly when $L$ is stretchable.
+
+Assume $n$ is odd, adding if necessary one further pseudoline crossing all
+others far to the left, which changes nothing about stretchability. Take a large
+rectangle containing every crossing, add one extra line above everything that
+crosses nothing, and stitch the ends together with small curls. Set
+$k = 4(n+1)$.
+
+If $L$ is stretchable, straighten it, restrict the lines to the rectangle and
+attach the curls: the result is a drawing of $\gamma$ with $4(n+1)$ segments.
+
+Conversely, let $D$ be a drawing of $\gamma$ with $4(n+1)$ segments. Each curl
+needs at least two vertices, and there are $2(n+1)$ curls, so all $4(n+1)$
+vertices are consumed by curls and none is left over. Hence no vertex lies on
+the part of the drawing corresponding to a pseudoline, so each pseudoline is
+drawn as a single straight segment. Extending those segments to full lines gives
+a line arrangement equivalent to $L$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[page=1,width=0.8\textwidth]{er-curve-straightening}
+\caption{A closed curve in the plane and a representation of it with few
+segments.}
+\label{fig:er-curve-straightening}
+\end{figure}
+
+%==============================================================================
+\section{The art gallery problem}
+\label{sec:art-gallery}
+%==============================================================================
+
+Imagine a gallery with a complicated floor plan --- walls, corners, narrow
+corridors. A guard sees in all directions but walls block the view. How many
+guards are needed, and where do they go?
+
+For $x, y$ in a simple polygon $P$, say $x$ \emph{sees} $y$ if the segment $xy$
+lies in $P$. A set $G \subseteq P$ \emph{guards} $P$ if every point of $P$ is
+seen by some $g \in G$. Despite the simple statement the problem runs deep, and
+it produced results such as Chv\'atal's theorem, that $\lfloor n/3 \rfloor$
+guards always suffice for a polygon with $n$ vertices.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{er-art-gallery}
+\caption{A polygon with two guards, between them covering part of it.}
+\label{fig:er-art-gallery}
+\end{figure}
+
+\citet{AbrahamsenAdamaszekMiltzow2017} showed that NP-membership is not merely
+hard to prove but false-looking for a good reason: there is a polygon whose
+optimal guard positions are \emph{irrational}. Until then the working intuition
+had been that one could always wiggle a solution into rational position and use
+that as a certificate.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.55\textwidth]{er-irrational-guards}
+\caption{A polygon whose optimal guarding needs irrational coordinates. The
+example is small and the verification is a short calculation.}
+\label{fig:er-irrational-guards}
+\end{figure}
+
+\begin{theorem}[\citet{AbrahamsenAdamaszekMiltzow2022}]\label{thm:art-gallery}
+The \lang{Art Gallery Problem} is $\ER$-complete.
+\end{theorem}
+
+Membership was \cref{prop:er-art-gallery}. The hardness proof is long and
+technical, and we do not give it; \citet{Stade2025} is a more accessible route.
+What we do give is the two ideas that made it possible, both of which have been
+reused many times since.
+
+\subsection{Encoding a variable}
+
+A variable is represented by a guard, confined to a single segment. The
+confinement is achieved by placing a few points that the guard must see: to see
+all of them at once, it must lie in the intersection of their visibility
+regions, and that intersection is arranged to be the segment.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.62\textwidth]{er-variable-guard-segment}
+\caption{Any guard that must see all four marked points simultaneously is
+forced onto the highlighted segment.}
+\label{fig:er-variable-guard}
+\end{figure}
+
+This is where compactness becomes unavoidable, and it is worth being precise
+about why. The guard is forced into
+$\mathrm{Vis}(p_1) \cap \cdots \cap \mathrm{Vis}(p_k)$, and a visibility region
+is by definition closed; the polygon is bounded; so the region available to the
+guard is \emph{compact}. A reduction from \lang{ETR-AM}, whose variables range
+over all of $\R$, therefore cannot be made to fit --- and even
+\lang{Bounded-ETR}, with its open interval, does not fit either. Only
+\lang{ETR-INV}, with its closed range $[\tfrac12,2]$, matches what the geometry
+provides. That is what the whole apparatus of
+\cref{lem:compact-etr,thm:ball-theorem} was for.
+
+\subsection{Encoding inversion}
+
+\begin{lemma}\label{lem:art-gallery-inversion}
+In the configuration of \cref{fig:er-art-inversion}, assume no other guard
+interferes and that the two guards lie on their respective segments,
+representing values $x$ and $y$. Then together they see the whole critical wall
+if and only if $x \cdot y \ge 1$.
+\end{lemma}
+
+\begin{proof}
+Mark the critical wall with values too. Let $s$ be the value of the highest
+point of the wall seen by the first guard, and $t$ the value of the lowest point
+seen by the second. The two guards see the whole wall exactly when
+$s \ge t$.
+
+The first guard's segment is parallel to the critical wall and its pivot point
+lies exactly midway between the two, so $s = x$.
+
+For the second, consider two similar triangles: one of height $1$ and width $y$,
+the other of height $t$ and width $1$. Similarity gives
+$\tfrac{1}{y} = \tfrac{t}{1}$, that is $t = 1/y$. So $s \ge t$ says
+$x \ge 1/y$, which is $x \cdot y \ge 1$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[page=1,width=0.62\textwidth]{er-art-inversion}
+\caption{Two guards on their segments see the critical wall on the right
+together if and only if $x \cdot y \ge 1$.}
+\label{fig:er-art-inversion}
+\end{figure}
+
+\begin{intuition}
+Why inversion rather than multiplication? Because multiplication is a non-linear
+interaction between \emph{three} objects, all of which must be controlled
+simultaneously, whereas inversion involves only \emph{two}. In a geometric
+gadget that difference is the difference between hard and very hard, and it is
+the reason \lang{ETR-INV} exists.
+
+A postscript worth knowing: neither published hardness proof for the art gallery
+problem actually uses the gadget above. It is simpler than the ones that were
+used, but it has two defects --- the two guard segments are not parallel, so
+copying a value from a horizontal segment to a vertical one is awkward, and it
+is hard to connect to the rest of the construction. Finding a gadget of this
+simplicity that does fit into a full reduction is still open.
+\end{intuition}
+
+
+%==============================================================================
 \section{Notes and further reading}
 \label{sec:geometric-er-further-reading}
+%==============================================================================
 
-This chapter is based on lecture notes by Tillmann Miltzow.
+This chapter follows \citet{Miltzow2026}.
 
-\todo{Add the literature: Kang and M\"uller on recognising unit disk graphs,
-Schaefer on \textsc{Optimal Curve Straightening}, and a standard reference for
-point--line duality.}
+\Cref{thm:udg} is \citet{McDiarmidMuller2013}, who were originally after the
+number of bits needed to represent a unit disk graph on a grid and got the
+hardness reduction as a by-product. \Cref{thm:curve-straightening} is
+\citet{Erickson2019}. \Cref{thm:art-gallery} is
+\citet{AbrahamsenAdamaszekMiltzow2022}, preceded by
+\citet{AbrahamsenAdamaszekMiltzow2017} on irrational guards;
+\citet{Stade2025} gives a more accessible proof of a closely related statement.
+Chv\'atal's theorem is \citet{Chvatal1975}, with the celebrated short proof due
+to Fisk; \citet{ORourke1987} is the monograph on guarding.
+\Cref{thm:ball-theorem} is used in the form given by
+\citet{SchaeferStefankovic2017}.
 
+For the wider landscape, \citet{SchaeferCardinalMiltzow2024} catalogues what is
+known to be $\ER$-complete, and \citet{Matousek2014} is a short introduction
+through segment graphs.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-geometric-er}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Let $p$ and $q$ be polynomials with integer coefficients. Express
+$(p = 0 \wedge q = 0)$ as a single equation.
+\end{exercise}
+
+\begin{exercise}
+In \lang{4-Feasibility} we are given a polynomial of degree four with integer
+coefficients and must decide whether it has a real root. Show that
+\lang{4-Feasibility} is $\ER$-complete.
+\end{exercise}
+
+\begin{exercise}
+Let $s = ab$ be the segment from $a$ to $b$. Describe the dual of $s$.
+\end{exercise}
+
+\begin{exercise}
+When a point set is rotated very slowly, how does the dual line arrangement
+change combinatorially? Hint: watch the leftmost and rightmost crossings.
+\end{exercise}
+
+\begin{exercise}
+A \emph{grounded segment graph} is the intersection graph of segments in the
+upper half plane each having one endpoint on the $x$-axis; an \emph{upward ray
+graph} is the intersection graph of rays whose direction has positive
+$y$-coordinate. Show that these two families of graphs coincide. Hint: find the
+right projective transformation.
+\end{exercise}
+
+\begin{exercise}
+Find a graph that is not a unit disk intersection graph.
+\end{exercise}
+
+\begin{exercise}
+The hardness proof for \lang{Optimal Curve Straightening} assumes $n$ is odd.
+What goes wrong if $n$ is even?
+\end{exercise}
+
+\begin{exercise}
+Show that the constraint $x \cdot y \le 1$ can also be enforced by a gallery
+gadget, and explain why it is more involved than the case treated in
+\cref{lem:art-gallery-inversion}.
+\end{exercise}
+
+\begin{exercise}
+Why does \cref{lem:compact-etr} need the ball theorem, when
+\cref{lem:bounded-etr} manages with an elementary bijection? Give the
+topological reason in one sentence.
+\end{exercise}
+
+%==============================================================================
+\section{Order types and stretchability (non-examinable)}
+\label{sec:order-types}
+%==============================================================================
+
+\nonexam{The lecture no longer covers order types or stretchability, and items
+4 and 6 of pool question~8 have been withdrawn accordingly. The material is kept
+because it is the historical route into $\ER$ and because the reductions earlier
+in this chapter descend from it --- but nothing in this section is examined, and
+nothing earlier in the chapter depends on it.}
+
+Numerical instability was a problem computational geometers noticed early, and
+it produced a wish for algorithms that solve geometric problems but are
+combinatorial in nature. Remarkably, many geometric problems can be solved
+knowing only the \emph{order type} of a point set.
+
+\begin{definition}[Order type]\label{def:order-type}
+The \emph{order type} of a point set specifies, for each ordered triple of
+points, whether the third point lies on, to the left of, or to the right of the
+line through the first two --- equivalently, whether the triple is collinear,
+oriented clockwise, or oriented counterclockwise.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{er-order-type}
+\caption{The order type records, for every ordered triple, whether it turns
+left, turns right, or is collinear.}
+\label{fig:er-order-type}
+\end{figure}
+
+The convex hull of a point set, for instance, is completely determined by the
+order type: once the order type has been extracted, the hull can be computed
+without ever looking at a coordinate again. A second motivation is structural.
+If we accept that the order type contains all the essential information about a
+point set, then for each $n$ there are only finitely many order types, and hence
+only finitely many point configurations up to order type --- so one may hope to
+prove structural theorems about point sets the way one does about graphs.
+
+Out of mathematical curiosity, \citet{Ringel1956} asked in 1956: are there two point sets
+$P$ and $Q$ in the plane that cannot be moved continuously into one another
+without changing the order type along the way? The answer is yes, but it is
+hard to give a concrete example or a simple proof; the smallest known such
+configuration has $13$ points and was found in 2012.
+
+To answer Ringel's question, \citet{Mnev1985} and \citet{Shor1991} studied the
+realisation space of order types in full generality, in the equivalent language
+of \emph{stretchability}.
+
+\begin{definition}[Pseudoline arrangement, stretchability]
+A \emph{pseudoline} is a simple curve in the plane, unbounded in both
+directions, that behaves topologically like a straight line. A
+\emph{pseudoline arrangement} is a collection of pseudolines any two of which
+meet in exactly one point, and cross there. Two arrangements are
+\emph{combinatorially equivalent} if every pseudoline meets the others in the
+same order in both. \lang{Stretchability} asks whether a given pseudoline
+arrangement is combinatorially equivalent to an arrangement of straight lines.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\textwidth]{er-pseudolines}
+\caption{A pseudoline arrangement, and a combinatorially equivalent
+straight-line arrangement. \lang{Stretchability} asks whether the crossing
+order can be preserved by straight lines.}
+\label{fig:er-pseudolines}
+\end{figure}
+
+\begin{theorem}[\citet{Mnev1985}, \citet{Shor1991}]\label{thm:stretchability}
+\lang{Stretchability} is $\ER$-complete.
+\end{theorem}
+
+The proof reduces from the \lang{Order Type Problem}; a coherent account in the
+language of oriented matroids is \citet{BokowskiMockStreinu2001}. We do not
+give it. The two halves of the picture are joined by
+\cref{lem:er-duality,lem:er-cyclic-order}: a cyclic order around a point becomes
+a left-to-right crossing order in the dual, and the crossing order is exactly
+what a pseudoline arrangement records.
+
+The problem of deciding whether a given abstract order type is realised by an
+actual point set --- and its variant the \lang{Partial Order Type Problem}, in
+which only some triples are prescribed --- is $\ER$-complete by the same
+circle of reductions. The route runs \lang{ETR-AM} $\to$ partial order types,
+by placing a point on a line for each variable and building a von Staudt gadget
+for each addition and each multiplication constraint.

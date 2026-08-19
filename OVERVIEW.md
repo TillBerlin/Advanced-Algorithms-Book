@@ -63,8 +63,8 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
 | 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | ✅ drafted, figures in place |
-| 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | 🟡 drafted; figures in place, one bibliography todo |
-| 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11 | 🔲 |
+| 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | ✅ drafted; figures in place, bibliography resolved |
+| 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11, 8.5 | ✅ drafted; figures in place |
 
 ### Part III — Exact Exponential-Time Algorithms
 
@@ -267,7 +267,7 @@ rewrite.
 | `Treewidth 2026.pptx` | — | 15 |
 | `Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
-| | ch. 3–4 | 9 (order types, stretchability, ETR-INV, art gallery) |
+| | ch. 3–4 | 9 (duality, ETR-AM/ETR-INV, unit disk graphs, curve straightening, art gallery; order types and stretchability at the end, non-examinable) ✅ |
 
 Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
@@ -283,19 +283,29 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
 
+### Chapter 9 — Geometric ∃R-Completeness
+
+- Written from chapters 3 and 4 of the manuscript. Structure follows the
+  author's instruction: **ETR-AM sits next to ETR-INV** (section 9.2, "Two
+  normal forms"), and **everything about order types and stretchability sits
+  at the end** as section 9.9, marked `(non-examinable)` in the heading with a
+  `\nonexam{}` note.
+- Pool question 8 item 5 (ETR-AM) is therefore answered here, not in chapter 8.
+  The mapping table and the remark at question 8 both say so.
+- The Mnev--Shor theorem is stated without proof, as in the manuscript.
+
 ### Chapter 8 — The Existential Theory of the Reals
 
-- **Bibliography gap.** The chapter names Canny, Schaefer, Mn\'ev, Shor and
-  Erickson--van der Hoog--Miltzow in its reading list but cites none of them:
-  the manuscript's numeric citations need resolving to actual works and their
-  DOIs verified before entries go into `references.bib`. There is a `\todo`
-  saying so.
+- **Bibliography gap closed.** The manuscript's own reference list, found
+  inside `Real-Compuation.pdf`, resolved the numeric citations; the entries are
+  in `references.bib` with DOIs verified against publisher records, and the
+  `\todo` is gone.
 - **Order types are non-examinable.** The lecture dropped them, so pool
-  question 8 items 4 and 6 are withdrawn and the section carries the marking.
-  The material stays because it is where the geometric hardness proofs of
-  chapter 9 come from.
+  question 8 items 4 and 6 are withdrawn. The section itself now lives at the
+  end of chapter 9, where the hardness proofs that use it are.
 - Pool question 8 gained items 7--10, four worked membership proofs, two by
-  each definition of the class.
+  each definition of the class: Euclidean TSP and PosSLP by the formula,
+  geometric packing and the art gallery problem by the real RAM.
 
 ### Chapter 7 — Real Models of Computation
 

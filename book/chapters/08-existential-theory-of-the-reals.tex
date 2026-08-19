@@ -35,7 +35,6 @@ compute with real numbers exactly.
   \poolgoal{8.10}{show that the \lang{Art Gallery Problem} is in $\ER$, using
         the machine model definition, and explain why the logic-based route is
         much harder here}
-  \poolgoal{8.5}{define \textsc{ETR-AM} and show that it is $\ER$-complete}
 \end{goals}
 
 %==============================================================================
@@ -410,122 +409,6 @@ formula encodes a combinatorial problem, and the trick --- a polynomial whose
 roots are exactly the values you want a variable to take --- recurs constantly.
 
 %==============================================================================
-\section{A normal form: ETR-AM}
-\label{sec:etr-am}
-%==============================================================================
-
-\ETR{} in full generality is unwieldy for hardness proofs, where one wants to
-reduce \emph{from} it. The following stripped-down version is far easier to work
-with, and is no easier to solve.
-
-\begin{probdef}{ETR-AM}
-  \instance A conjunction of constraints, each of one of the three forms
-  \[ x = 1, \qquad x + y = z, \qquad x \cdot y = z. \]
-  \question Is the conjunction satisfiable over $\R$?
-\end{probdef}
-
-The letters stand for \emph{addition} and \emph{multiplication}. Note that the
-constraint $x = 1$ is needed: without it, setting every variable to zero
-satisfies everything.
-
-\begin{lemma}\label{lem:etr-am}
-\lang{ETR-AM} is $\ER$-complete.
-\end{lemma}
-
-\begin{proof}
-Membership is immediate: \lang{ETR-AM} is a syntactic restriction of \ETR{}.
-
-For hardness, let $\Phi$ be an arbitrary \ETR{} instance; we transform it in
-polynomial time by a sequence of normal-form steps.
-
-\emph{Remove negations and disjunctions.} Push negations down to the atomic
-constraints, so that $\neg(p > 0)$ becomes $p \le 0$, and distribute
-disjunctions until they occur only between polynomial (in)equalities. Strict and
-non-strict inequalities are then removed with a fresh variable:
-\[ p > 0 \iff \exists x : p \cdot x^2 = 1, \qquad
-   p \ge 0 \iff \exists x : p = x^2, \]
-the first because $p$ has an inverse exactly when it is non-zero and $x^2 > 0$
-forces the sign, the second because the squares are exactly the non-negative
-reals. A disjunction of equalities becomes a product:
-\[ (p = 0) \vee (q = 0) \iff p \cdot q = 0. \]
-What remains is a conjunction of polynomial equations.
-
-\emph{Remove coefficients.} Build the constants from $1$ with auxiliary
-variables: $b = 1+1$ gives $2$, then $c = b+b$ gives $4$, $d = c+c$ gives $8$,
-and $e = d+b$ gives $10$. Repeated doubling produces any integer coefficient
-with logarithmically many constraints.
-
-\emph{Arithmetise.} For every sum and every product occurring in a polynomial,
-introduce a fresh variable for its value and the corresponding constraint. A
-final equation $c = 0$ becomes $c + 1 = 1$, which is expressible in the allowed
-forms. For instance $x^2y + z = 0$ becomes
-\[ \exists a,b,c \;:\; a = x \cdot x \;\wedge\; b = a \cdot y \;\wedge\;
-   c = b + z \;\wedge\; c + 1 = 1. \]
-
-Every step is polynomial and preserves satisfiability, so the result is an
-equivalent \lang{ETR-AM} instance.
-\end{proof}
-
-\Cref{lem:etr-am} is the starting point for essentially every geometric
-$\ER$-hardness proof, including those of \cref{ch:geometric-er}: one reduces
-from \lang{ETR-AM} and builds a gadget for each of the three constraint types.
-
-%==============================================================================
-\section{Order types (non-examinable)}
-\label{sec:order-types}
-%==============================================================================
-
-\nonexam{The lecture no longer covers this material, and items 4 and 6 of pool
-question 8 have been withdrawn accordingly. It is kept because it is the
-historical route into $\ER$, because it explains where the geometric hardness
-proofs of \cref{ch:geometric-er} come from, and because the motivation below is
-worth reading even if nothing here is examined.}
-
-Numerical instability was a problem computational geometers noticed early, and
-it produced a wish for algorithms that solve geometric problems but are
-combinatorial in nature. Remarkably, many geometric problems can be solved
-knowing only the \emph{order type} of a point set.
-
-\begin{definition}[Order type]\label{def:order-type}
-The \emph{order type} of a point set specifies, for each ordered triple of
-points, whether the third point lies on, to the left of, or to the right of the
-line through the first two --- equivalently, whether the triple is collinear,
-oriented clockwise, or oriented counterclockwise.
-\end{definition}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.9\textwidth]{er-order-type}
-\caption{The order type records, for every ordered triple, whether it turns
-left, turns right, or is collinear.}
-\label{fig:er-order-type}
-\end{figure}
-
-The convex hull of a point set, for instance, is completely determined by the
-order type: once the order type has been extracted, the hull can be computed
-without ever looking at a coordinate again. A second motivation is structural.
-If we accept that the order type contains all the essential information about a
-point set, then for each $n$ there are only finitely many order types, and hence
-only finitely many point configurations up to order type --- so one may hope to
-prove structural theorems about point sets the way one does about graphs.
-
-Out of mathematical curiosity, Ringel asked in 1956: are there two point sets
-$P$ and $Q$ in the plane that cannot be moved continuously into one another
-without changing the order type along the way? The answer is yes, but it is
-hard to give a concrete example or a simple proof; the smallest known such
-configuration has $13$ points and was found in 2012.
-
-To answer Ringel's question, Mn\"ev and Shor studied the realisation space of
-order types in full generality, in the equivalent language of
-\emph{stretchability}. That is where \cref{ch:geometric-er} picks up the story:
-one reduces \lang{ETR-AM} to a question about order types by placing a point on
-a line for each variable and building a geometric gadget for each addition and
-each multiplication constraint. The problem of deciding whether a given
-abstract order type is realised by an actual point set --- and its variant, the
-\lang{Partial Order Type Problem}, in which only some of the triples are
-prescribed --- is $\ER$-complete.
-
-%==============================================================================
 \section{Notes and further reading}
 \label{sec:etr-further-reading}
 %==============================================================================
@@ -533,18 +416,20 @@ prescribed --- is $\ER$-complete.
 This chapter follows \citet{Miltzow2026}, apart from
 \cref{sec:er-membership}, which is new.
 
-\Cref{thm:er-machine-model} has no single clean origin: the ideas go back to
-Cook and Levin, were first adapted to real models by
-\citet{BlumCuckerShubSmale1998}, and were proved for a real RAM model close to
-ours by Erickson, van der Hoog and Miltzow. The inclusion
-$\ER \subseteq \mathrm{PSPACE}$ is due to Canny. The name $\ER$ and the
-unification of the early completeness results are due to Schaefer.
-\Cref{lem:etr-am} and the geometric reduction it feeds are from Mn\"ev and Shor.
+\Cref{thm:er-machine-model} has no single clean origin. The ideas go back to
+Cook and Levin; they were first adapted to real models by
+\citet{BlumCuckerShubSmale1998}, whose model differs from ours, and proved for
+a real RAM model close to this one by
+\citet{EricksonVanDerHoogMiltzow2024}. The inclusion
+$\ER \subseteq \mathrm{PSPACE}$ is \citet{Canny1988}. The name $\ER$, and the
+unification of the early completeness results under it, are
+\citet{Schaefer2010}; \citet{SchaeferCardinalMiltzow2024} is the current
+catalogue of what is known to be $\ER$-complete, and
+\citet{Matousek2014} is a short and beautiful introduction by way of segment
+graphs.
 
-\todo{Add proper bibliography entries for Canny, Schaefer, Mn\"ev, Shor, and
-Erickson--van der Hoog--Miltzow; the manuscript cites them as [9,10], [25],
-[20], [29] and [15,14] respectively. Each needs its DOI verified before it goes
-in.}
+Order types, stretchability and the normal form \lang{ETR-AM} are all deferred
+to \cref{ch:geometric-er}, where they are used.
 
 %==============================================================================
 \section{Exercises}

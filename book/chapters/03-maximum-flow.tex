@@ -29,6 +29,20 @@ After this chapter you should be able to:
         from it;
   \item state and compare Ford--Fulkerson, Edmonds--Karp and Dinic's
         algorithm, and analyse their running times;
+  \item define preflows, excesses and height functions, state the height
+        invariant, and explain why it forces the final preflow to be a maximum
+        flow;
+  \item state the push and lift operations and verify that each preserves the
+        invariant;
+  \item bound the number of lifts, of saturating pushes and of non-saturating
+        pushes, and conclude that generic preflow-push runs in $\bigoh{n^2m}$
+        time;
+  \item state Goldberg's highest-label rule and prove the $\bigoh{n^3}$ bound;
+  \item solve the maximum flow problem with lower bounds on arcs, by reducing
+        first to an admissible circulation and then to two ordinary maximum
+        flow computations;
+  \item model the consistent matrix rounding problem as a circulation with
+        lower bounds, and explain why integrality is the crux;
   \item reduce flow problems with vertex capacities, several sources or sinks,
         or lower bounds on arcs to plain maximum flow, and argue that the
         reduction is correct and does not blow up the instance;
@@ -267,7 +281,7 @@ what we actually need is not that a fractional optimum exists but that an
 \emph{integral} one does --- half a path is not a path.
 
 %==============================================================================
-\section{Algorithms}
+\section{Augmenting path algorithms}
 \label{sec:flow-algorithms}
 %==============================================================================
 
@@ -382,15 +396,469 @@ modelling rather than from genuine capacities:
         in \cref{sec:flow-modelling} --- it runs in $\bigoh{m\sqrt{n}}$ time.
 \end{itemize}
 
-\subsection{What is known}
+\subsection{Where this leaves us}
 
-For the record, and because students reasonably ask: the best bounds are far
-better than anything above. \citet{ChenKyngLiuPengProbstGutenbergSachdeva2022}
-give an algorithm running in $m^{1+o(1)}$ time for maximum flow with
-polynomially bounded integer capacities, which is essentially optimal. It is
-not a combinatorial algorithm --- it goes through interior-point methods and
-dynamic data structures --- and it is not what anyone implements. Dinic is what
-anyone implements.
+Every algorithm in this section maintains a flow and improves it, and every one
+of them pays $\bigoh{m}$ per unit of progress because an augmenting path is a
+global object. \Cref{sec:flow-preflow-push} takes the opposite approach and does
+better on dense graphs. It is also the algorithm this course examines, so read
+that section with more attention than this one: Ford--Fulkerson and
+Edmonds--Karp are recap.
+
+%==============================================================================
+\section{Preflow-push}
+\label{sec:flow-preflow-push}
+%==============================================================================
+
+Every algorithm so far maintains a flow and improves it. That is a strong
+invariant, and it is expensive: a single augmentation has to travel the whole
+way from $s$ to $t$ before anything is gained, and each such journey costs
+$\bigoh{m}$. Preflow-push --- also called push-relabel --- gives up the
+invariant. It maintains something weaker than a flow, moves material one arc at
+a time with no global plan, and only at the very end does the object it is
+holding become a flow. When it does, it is automatically maximum.
+
+\begin{definition}[Preflow, excess]\label{def:flow-preflow}
+A \emph{preflow} is a function $f : E \to \R_{\ge 0}$ satisfying the capacity
+constraints $0 \le f(e) \le c(e)$ together with the weaker
+\emph{non-deficiency} condition: for every $v \in V \setminus \{s\}$, the
+\emph{excess}
+\[ e_f(v) \;=\; \sum_{e \text{ into } v} f(e) \;-\; \sum_{e \text{ out of } v} f(e) \]
+is non-negative. A vertex $v \notin \{s,t\}$ with $e_f(v) > 0$ is
+\emph{overflowing}. The residual network $G_f$ is defined exactly as for flows
+(\cref{def:flow-residual}).
+\end{definition}
+
+So material may pile up at a vertex, but never go missing. A preflow with no
+overflowing vertex is precisely a flow: conservation is exactly the statement
+that every excess is zero. The source and the sink are exempt --- they produce
+and consume.
+
+\subsection{Heights, and why they are the whole idea}
+
+The algorithm needs to know which way is downhill, and it needs to know it
+locally, since it never looks at the whole graph at once. It maintains a
+\emph{height} $h(v) \in \N$ for every vertex, fixed at
+\[ h(s) = n, \qquad h(t) = 0, \]
+with all other vertices starting at $0$, and it maintains one invariant.
+
+\begin{definition}[Height invariant]\label{def:flow-height-invariant}
+A height function $h$ is \emph{valid} for a preflow $f$ if
+\[ h(u) \;\le\; h(v) + 1 \qquad \text{for every arc } (u,v) \in G_f. \]
+\end{definition}
+
+In words: \emph{in the residual network you may step down by at most one}. You
+may step up as far as you like, and you may step sideways; what you may never
+do is fall off a cliff. This one condition does all the work, because of the
+following.
+
+\begin{lemma}\label{lem:flow-no-augmenting}
+If $h$ is valid for $f$, then $G_f$ contains no $s$--$t$ path.
+\end{lemma}
+
+\begin{proof}
+Suppose $P$ were such a path, say with $k$ arcs. It is a path, so
+$k \le n-1$. Walking along it, the height drops by at most $1$ per arc, so
+$h(s) \le h(t) + k \le 0 + n - 1$. But $h(s) = n$, a contradiction.
+\end{proof}
+
+\begin{intuition}
+This is the trick, and it is worth stating baldly: \emph{the invariant makes the
+answer true in advance.} Throughout the run there is no augmenting path, and by
+\cref{thm:flow-mfmc} that is exactly the optimality condition --- except that it
+is not a flow yet, so the theorem does not apply. All the algorithm has to do,
+then, is get rid of the excesses without ever breaking the invariant. The moment
+it succeeds it is holding a flow with no augmenting path, which is a maximum
+flow. Contrast this with Ford--Fulkerson, which maintains feasibility throughout
+and fights for optimality at the end. Preflow-push maintains optimality
+throughout and fights for feasibility.
+\end{intuition}
+
+\subsection{The two operations}
+
+\paragraph{Initialisation.}
+Saturate every arc out of the source: $f(s,v) = c(s,v)$ for all
+$(s,v) \in E$, and $f(e) = 0$ elsewhere. Set $h(s) = n$ and $h(v) = 0$
+otherwise. This is a preflow --- every neighbour of $s$ has non-negative excess
+and nobody else is touched --- and $h$ is valid: arcs not involving $s$ run
+between vertices of height $0$, and the arcs of $G_f$ that do involve $s$ all
+point \emph{towards} $s$, hence upwards, and going up is always allowed.
+
+\paragraph{Push.}
+Applicable to an arc $(u,v) \in G_f$ when $u$ is overflowing and
+$h(u) = h(v) + 1$. Send
+\[ \delta \;=\; \min\{\, e_f(u),\; c_f(u,v) \,\} \]
+along the arc, increasing $e_f(v)$ and decreasing $e_f(u)$ by $\delta$. The
+push is \emph{saturating} if $\delta = c_f(u,v)$, and \emph{non-saturating}
+otherwise --- in the latter case $u$ stops overflowing.
+
+Heights do not change, so the invariant can only be endangered by a new
+residual arc, and the only new arc is $(v,u)$, which goes \emph{up} by one.
+Allowed.
+
+\paragraph{Lift.}
+Applicable to an overflowing $u \notin \{s,t\}$ when no residual arc out of $u$
+goes down, that is, $h(u) \le h(v)$ for every $(u,v) \in G_f$. Raise $u$ to one
+above its lowest residual neighbour:
+\[ h(u) \;\gets\; 1 + \min\{\, h(v) : (u,v) \in G_f \,\}. \]
+The residual network does not change, and by construction every arc out of $u$
+still descends by at most one. Arcs \emph{into} $u$ only became easier to
+satisfy, since $h(u)$ went up. Allowed.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{IMPORTANT. The two operations, in a landscape drawing
+with vertices at their heights on a vertical axis. Left panel, push: an
+overflowing $u$ at height $h(v)+1$ with a residual arc down to $v$, excess shown
+as a stack on top of $u$, and the amount $\delta$ moving across. Right panel,
+lift: an overflowing $u$ whose residual neighbours are all at or above its
+height, being raised to one above the lowest of them. Draw the height axis in
+both panels so the ``downhill by at most one'' rule is visible.}
+\caption{Push moves excess one step downhill; lift raises a stuck vertex until
+a downhill step exists.}
+\label{fig:flow-push-lift}
+\end{figure}
+
+\begin{algorithm}[ht]
+\caption{Generic preflow-push}
+\label{alg:flow-preflow-push}
+\begin{algorithmic}[1]
+  \State saturate every arc out of $s$; set $h(s) \gets n$ and
+         $h(v) \gets 0$ for $v \ne s$
+  \While{some push or lift operation is applicable}
+     \State select an applicable operation and perform it
+  \EndWhile
+  \State \Return $f$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:flow-preflow-push-correct}
+If \cref{alg:flow-preflow-push} terminates, it returns a maximum flow.
+\end{theorem}
+
+\begin{proof}
+Both operations preserve the preflow property and the validity of $h$, as
+checked above. On termination no operation applies. We claim no vertex is then
+overflowing. Suppose $u \notin \{s,t\}$ has $e_f(u) > 0$. By validity, every
+residual arc out of $u$ satisfies $h(u) \le h(v)+1$. If some such arc has
+$h(u) = h(v)+1$, a push applies; otherwise $h(u) \le h(v)$ for all of them and a
+lift applies. Either way an operation was available, a contradiction. Note that
+$u$ has at least one outgoing residual arc: its excess arrived somehow, so some
+arc into $u$ carries flow, and its reversal is residual.
+
+So all excesses are zero, meaning $f$ is a flow; and by
+\cref{lem:flow-no-augmenting} the residual network has no $s$--$t$ path, so by
+\cref{thm:flow-mfmc} it is maximum.
+\end{proof}
+
+\subsection{Running time}
+
+Three counting arguments, in increasing order of cleverness.
+
+\begin{lemma}[Heights stay bounded]\label{lem:flow-height-bound}
+At every moment, $h(u) \le 2n-1$ for every $u$.
+\end{lemma}
+
+\begin{proof}
+Heights only change by lifts, and a lift applies only to an overflowing vertex,
+so it suffices to bound $h(u)$ when $e_f(u) > 0$. We claim there is then a
+simple path from $u$ to $s$ in $G_f$. Indeed, the excess at $u$ arrived from
+$s$: decomposing the preflow, some sequence of arcs carrying flow leads from
+$s$ to $u$, and the reverse of each is a residual arc, giving a path from $u$
+to $s$ in $G_f$. Such a path has at most $n-1$ arcs, and along each the height
+drops by at most one, so
+\[ h(u) \;\le\; h(s) + (n-1) \;=\; 2n-1. \qedhere \]
+\end{proof}
+
+\begin{corollary}\label{cor:flow-lift-count}
+Each vertex is lifted fewer than $2n$ times, so there are fewer than $2n^2$
+lifts in total.
+\end{corollary}
+
+\begin{proof}
+Heights never decrease, every lift raises one by at least $1$, and heights start
+at $0$ and never exceed $2n-1$.
+\end{proof}
+
+\begin{lemma}\label{lem:flow-saturating-count}
+There are at most $2nm$ saturating pushes.
+\end{lemma}
+
+\begin{proof}
+Fix an arc $(u,v)$. A saturating push across it removes it from $G_f$. For it to
+come back, some push must go across $(v,u)$, which requires $h(v) = h(u)+1$; at
+the time of the original push we had $h(u) = h(v)+1$. So between two saturating
+pushes across $(u,v)$, the height of $v$ must rise by $2$, and by
+\cref{lem:flow-height-bound} that can happen fewer than $n$ times. Summing over
+the at most $2m$ arcs of the residual network gives the bound.
+\end{proof}
+
+\begin{lemma}\label{lem:flow-nonsaturating-count}
+There are $\bigoh{n^2m}$ non-saturating pushes.
+\end{lemma}
+
+\begin{proof}
+Use the potential
+\[ \Phi \;=\; \sum_{v \text{ overflowing}} h(v), \]
+which is $0$ initially and $0$ at termination, and is never negative.
+
+A lift raises one height by some amount, so it increases $\Phi$ by that amount;
+over the whole run, \cref{cor:flow-lift-count} and \cref{lem:flow-height-bound}
+bound the total increase from lifts by $2n^2 \cdot 2n = \bigoh{n^3}$.
+
+A saturating push across $(u,v)$ may cause $v$ to start overflowing, raising
+$\Phi$ by $h(v) \le 2n-1$; by \cref{lem:flow-saturating-count} the total
+increase from saturating pushes is at most $2nm \cdot 2n = \bigoh{n^2m}$.
+
+A non-saturating push across $(u,v)$ makes $u$ stop overflowing, dropping
+$h(u)$ from the sum, and may make $v$ start overflowing, adding $h(v)$. Since
+$h(v) = h(u)-1$, the net change is at most $-1$: every non-saturating push
+decreases $\Phi$ by at least one.
+
+As $\Phi$ starts and ends at $0$, the number of non-saturating pushes is at most
+the total increase, which is $\bigoh{n^3} + \bigoh{n^2m} = \bigoh{n^2m}$.
+\end{proof}
+
+\begin{theorem}\label{thm:flow-preflow-push-time}
+With a set of applicable pushes and a set of overflowing vertices maintained
+alongside the preflow, each push costs $\bigoh{1}$ and each lift costs
+$\bigoh{n}$, and \cref{alg:flow-preflow-push} runs in $\bigoh{n^2m}$ time.
+\end{theorem}
+
+\begin{proof}
+Lifts: $\bigoh{n^2}$ of them at $\bigoh{n}$ each is $\bigoh{n^3}$. Pushes:
+$\bigoh{n^2m}$ of them at $\bigoh{1}$ each. Since $m \ge n-1$ in a network
+where every vertex lies on an $s$--$t$ path, $\bigoh{n^3} \subseteq
+\bigoh{n^2m}$ and the second term dominates.
+\end{proof}
+
+That already beats $\bigoh{nm^2}$ whenever the graph is dense. But the generic
+algorithm says nothing about \emph{which} applicable operation to perform, and
+that choice is worth a factor.
+
+\subsection{Goldberg's algorithm: highest label first}
+
+\begin{algorithm}[ht]
+\caption{Goldberg's algorithm (highest label first)}
+\label{alg:flow-goldberg}
+\begin{algorithmic}[1]
+  \State saturate every arc out of $s$; set $h(s) \gets n$ and
+         $h(v) \gets 0$ for $v \ne s$
+  \While{some vertex is overflowing}
+     \State let $u$ be an overflowing vertex of maximum height
+     \While{$u$ is overflowing}
+        \If{some push out of $u$ is applicable} perform it
+        \Else{} lift $u$
+        \EndIf
+     \EndWhile
+  \EndWhile
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[\citet{GoldbergTarjan1988}]\label{thm:flow-goldberg}
+\Cref{alg:flow-goldberg} performs $\bigoh{n^3}$ non-saturating pushes and runs
+in $\bigoh{n^3}$ time.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The counts of lifts and saturating pushes are unchanged:
+\cref{cor:flow-lift-count} and \cref{lem:flow-saturating-count} did not depend
+on the selection rule. Only the non-saturating pushes improve.
+
+Consider the interval between two consecutive lifts. During it no height
+changes. Every non-saturating push takes the currently highest overflowing
+vertex and empties it, sending its excess strictly downhill --- so the vertex
+that receives the excess is lower, and the vertex just emptied cannot become
+overflowing again during this interval, since that would require flow pushed
+down from something higher, and nothing higher is overflowing. Each vertex can
+therefore be the source of at most one non-saturating push per interval, giving
+at most $n$ of them. With $\bigoh{n^2}$ lifts, and hence $\bigoh{n^2}$
+intervals, we get $\bigoh{n^3}$ non-saturating pushes.
+\end{proof}
+
+\subsection{Variants and the state of the art}
+
+The selection rule is the whole design space, and it has been mined thoroughly.
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Selection rule} & \textbf{Worst-case running time} \\
+\midrule
+generic (any applicable operation) & $\bigoh{n^2m}$ \\
+first-in first-out queue           & $\bigoh{n^3}$ \\
+lift-to-front                      & $\bigoh{n^3}$ \\
+highest label first                & $\bigoh{n^2\sqrt{m}}$ \\
+highest label with dynamic trees   & $\bigoh{nm \log(n^2/m)}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The dynamic-tree bound is \citet{GoldbergTarjan1988}, using the link-cut trees
+of Sleator and Tarjan to push along whole paths at once rather than single arcs.
+
+Beyond preflow-push, \citet{Orlin2013} solves maximum flow in $\bigoh{nm}$
+time, completing a line of work in which \citet{KingRaoTarjan1994} had achieved
+$\bigoh{nm}$ for all but the sparsest graphs. And in 2022 the problem was
+essentially closed: \citet{ChenKyngLiuPengProbstGutenbergSachdeva2022} give an
+$m^{1+o(1)}$-time algorithm for polynomially bounded integer capacities, via
+interior-point methods and dynamic data structures rather than combinatorics.
+None of these is what anyone implements. Preflow-push is what anyone
+implements, because its worst case is pessimistic and its constants are small.
+
+%==============================================================================
+\section{Flows with lower bounds}
+\label{sec:flow-lower-bounds}
+%==============================================================================
+
+So far an arc could always carry nothing. Many applications insist that it
+carry \emph{something}: a shift must be covered, a pipeline must not be shut
+off, a rounded matrix entry must be at least the floor of the original. This is
+a genuinely different problem, and the difference shows up immediately: the
+zero flow is no longer feasible, so we cannot even start.
+
+\begin{definition}[Flow with lower bounds]
+Given additionally a lower bound $\ell : E \to \R_{\ge 0}$ with
+$\ell(e) \le c(e)$, a \emph{feasible flow} is a function $f$ satisfying flow
+conservation at every $v \notin \{s,t\}$ together with
+\[ \ell(e) \;\le\; f(e) \;\le\; c(e) \qquad \text{for every } e \in E. \]
+An \emph{admissible} flow is any feasible one; we want one of maximum value.
+\end{definition}
+
+The plan is to call an ordinary maximum-flow algorithm twice.
+
+\begin{enumerate}[label=\textbf{Phase \arabic*.},leftmargin=*,wide=0pt]
+  \item Find \emph{some} admissible flow, or report that none exists.
+  \item Augment it to a maximum one.
+\end{enumerate}
+
+\subsection{Phase 1a: from flows to circulations}
+
+\begin{definition}[Circulation]
+An \emph{admissible circulation} in a network with bounds $\ell \le c$ is a
+function $f$ with $\ell(e) \le f(e) \le c(e)$ for all $e$, satisfying
+conservation at \emph{every} vertex --- there is no source and no sink.
+\end{definition}
+
+\begin{lemma}\label{lem:flow-to-circulation}
+Let $G$ be a network with lower bounds, source $s$ and sink $t$. Form $G^\circ$
+by adding the arc $(t,s)$ with lower bound $0$ and capacity
+$\sum_{e \in E} c(e)$. Then admissible flows in $G$ correspond exactly to
+admissible circulations in $G^\circ$, and the value of the flow equals the
+amount the circulation sends along $(t,s)$.
+\end{lemma}
+
+\begin{proof}
+Given an admissible flow $f$ of value $F$, set $f^\circ = f$ on $E$ and
+$f^\circ(t,s) = F$. Conservation now holds at $s$ and $t$ as well: the surplus
+leaving $s$ returns along the new arc, and the surplus arriving at $t$ leaves
+along it. The capacity of the new arc is generous enough, since
+$F \le \sum_e c(e)$. Conversely, deleting the new arc from a circulation leaves
+a flow whose value is what that arc carried.
+\end{proof}
+
+The point of the move is that it removes the distinguished vertices, leaving a
+single homogeneous condition to satisfy.
+
+\subsection{Phase 1b: from circulations to ordinary maximum flow}
+
+Now the lower bounds go away, at the cost of a new source and sink.
+
+\begin{lemma}\label{lem:flow-circulation-to-maxflow}
+Let $H$ be a network with bounds $\ell \le c$ and no source or sink. Build
+$H'$ as follows: add a new source $s'$ and a new sink $t'$, and replace each
+arc $e = (u,v)$ by three arcs, all with lower bound zero:
+\[ (u,v) \text{ of capacity } c(e)-\ell(e), \qquad
+   (s',v) \text{ of capacity } \ell(e), \qquad
+   (u,t') \text{ of capacity } \ell(e). \]
+Then $H$ has an admissible circulation if and only if the maximum $s'$--$t'$
+flow in $H'$ saturates every arc out of $s'$, and from such a flow $g$ an
+admissible circulation is recovered by $f(e) = g(u,v) + \ell(e)$.
+\end{lemma}
+
+\begin{proof}
+Think of it as draining and refilling: every arc is forced to carry $\ell(e)$,
+so remove that obligation from the arc and account for it separately --- the
+$\ell(e)$ units are injected directly at the head $v$ by $s'$, and the same
+$\ell(e)$ units are drained from the tail $u$ into $t'$.
+
+($\Leftarrow$) Suppose $g$ saturates every arc out of $s'$, and set
+$f(e) = g(u,v) + \ell(e)$. The bounds hold because
+$0 \le g(u,v) \le c(e)-\ell(e)$. For conservation at a vertex $v$ of $H$,
+compute the difference between what $f$ brings in and what it takes out. Each
+entering arc contributes its $g$-value plus its $\ell$, and each leaving arc
+subtracts the same; the $g$-parts balance by conservation of $g$ at $v$ in
+$H'$ once we account for the arcs to $s'$ and $t'$, and those contribute
+exactly $\sum_{e \text{ into } v} \ell(e)$ and
+$\sum_{e \text{ out of } v} \ell(e)$, which are saturated by assumption.
+Adding up, conservation holds.
+
+($\Rightarrow$) Conversely an admissible circulation $f$ in $H$ gives
+$g(u,v) = f(e) - \ell(e)$ on the copied arcs and saturates all arcs at $s'$ and
+$t'$, and one checks that this $g$ conserves flow at every vertex of $H$.
+Since the arcs out of $s'$ form a cut, no flow can do better, so this $g$ is
+maximum and the maximum saturates $s'$.
+\end{proof}
+
+So the test is again ``is the maximum flow as large as it could possibly be'':
+compute a maximum $s'$--$t'$ flow, compare its value with
+$\sum_{e} \ell(e)$, and if they agree, add the lower bounds back.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT --- worked example, three panels left to right.
+Panel 1: a small circulation network on four vertices $a,b,c,d$ with arcs
+labelled $[\ell, c]$, for instance $[1,9]$, $[2,5]$, $[2,3]$, $[0,6]$,
+$[3,10]$. Panel 2: the transformed network of
+\cref{lem:flow-circulation-to-maxflow}, with the new source and sink, each
+original arc replaced by three, and arcs of capacity zero omitted. Panel 3: a
+maximum flow in the transformed network, with all arcs out of $s'$ saturated,
+and beside it the admissible circulation obtained by adding the lower bounds
+back. Label flows and capacities distinguishably.}
+\caption{Finding an admissible circulation by one ordinary maximum-flow
+computation.}
+\label{fig:flow-lower-bound-example}
+\end{figure}
+
+\subsection{Phase 2: from admissible to maximum}
+
+Having an admissible flow $f$, we now want the best one. The augmenting-path
+machinery works verbatim once the residual network is defined correctly: an arc
+may be increased up to its capacity, and decreased only down to its lower
+bound.
+
+\begin{definition}[Residual network with lower bounds]
+For an admissible flow $f$ and an arc $e = (u,v)$, the residual network has a
+forward arc $(u,v)$ of capacity $c(e) - f(e)$ and a backward arc $(v,u)$ of
+capacity $f(e) - \ell(e)$, each present when its capacity is positive.
+\end{definition}
+
+Running any maximum-flow algorithm on this residual network and adding the
+result to $f$ gives a maximum admissible flow: the argument is exactly that of
+\cref{thm:flow-mfmc}, with ``$f(e) = 0$'' replaced by ``$f(e) = \ell(e)$''
+in the analysis of arcs from $T$ back to $S$.
+
+\begin{remark}
+Lower bounds only make sense in one direction. If both $(u,v)$ and $(v,u)$
+carried positive lower bounds, they could be satisfied by sending material
+around the two-cycle forever without affecting anything else, which is not what
+the modeller meant. So we may assume that between any ordered pair of vertices
+there is either a single arc, with or without a lower bound, or two opposite
+arcs with no lower bounds at all.
+\end{remark}
+
+\begin{theorem}\label{thm:flow-lower-bounds}
+A maximum flow subject to lower bounds can be computed with two calls to an
+ordinary maximum-flow algorithm on networks with $\bigoh{n}$ vertices and
+$\bigoh{m}$ arcs, plus $\bigoh{n+m}$ additional work.
+\end{theorem}
+
+\begin{proof}
+\Cref{lem:flow-to-circulation} adds one arc, \cref{lem:flow-circulation-to-maxflow}
+adds two vertices and at most triples the arcs, and both are constructed in
+linear time. The first maximum-flow call decides feasibility and produces an
+admissible flow; the second augments it to a maximum one.
+\end{proof}
 
 %==============================================================================
 \section{Modelling with flows}
@@ -491,6 +959,113 @@ capacity $1$, add $s \to a$ for $a \in A$ and $b \to t$ for $b \in B$, all of
 capacity $1$. By integrality, maximum flows correspond to maximum matchings.
 We return to this in \cref{ch:matching}, where the general, non-bipartite case
 turns out to need a genuinely new idea.
+
+%==============================================================================
+\section{Applications}
+\label{sec:flow-applications}
+%==============================================================================
+
+It is worth pausing to say where these problems actually come from, because the
+list is longer and stranger than ``moving goods through a network''.
+
+\emph{Maximum flow} itself does turn up literally --- transporting goods,
+repositioning empty shipping containers --- but far more often it appears
+through the modelling tricks of \cref{sec:flow-modelling}: bipartite matching,
+disjoint paths, scheduling with deadlines, project selection, image
+segmentation.
+
+\emph{Minimum cut} has a life of its own, and it is usually the more valuable
+half of the theorem. It measures how hard a network is to disconnect, which is
+the standard notion of network reliability and the standard question in
+military targeting, from which the theory originally comes: Ford and Fulkerson
+were working at RAND on the capacity of the Soviet rail network, and the
+minimum cut is what one attacks. Minimum cuts also find dense components in
+graphs, and --- the application below --- they preprocess road networks.
+
+\emph{Flows with lower bounds} look like a technicality until one meets a
+problem where every arc has an obligation. Rounding is the canonical one.
+
+\subsection{Consistent matrix rounding}
+\label{sec:flow-matrix-rounding}
+
+\begin{probdef}{Consistent Matrix Rounding}
+  \instance A $p \times q$ matrix of non-negative reals $(b_{ij})$, with row
+  sums $r_i = \sum_j b_{ij}$ and column sums $s_j = \sum_i b_{ij}$.
+  \goal Round every $b_{ij}$, every $r_i$ and every $s_j$ up or down to an
+  integer, in such a way that the rounded matrix still has the rounded row sums
+  as its row sums and the rounded column sums as its column sums.
+\end{probdef}
+
+This is a real problem: statistical agencies publish tables that must be
+rounded for disclosure control, and a table whose rows no longer add up is an
+embarrassment. It is not obvious that a consistent rounding always exists ---
+rounding each entry to the nearest integer certainly does not work.
+
+\begin{theorem}\label{thm:flow-matrix-rounding}
+A consistent rounding always exists, and can be found by a single feasibility
+computation for a circulation with lower bounds.
+\end{theorem}
+
+\begin{proof}
+Build a network with a vertex for each row, a vertex for each column, a source
+$s$ and a sink $t$, and arcs
+\begin{itemize}[nosep]
+  \item $(s, \text{row}_i)$ with bounds
+        $[\lfloor r_i \rfloor, \lceil r_i \rceil]$,
+  \item $(\text{row}_i, \text{col}_j)$ with bounds
+        $[\lfloor b_{ij} \rfloor, \lceil b_{ij} \rceil]$,
+  \item $(\text{col}_j, t)$ with bounds
+        $[\lfloor s_j \rfloor, \lceil s_j \rceil]$,
+\end{itemize}
+and close it into a circulation with the arc $(t,s)$ as in
+\cref{lem:flow-to-circulation}.
+
+An \emph{integral} circulation in this network is exactly a consistent
+rounding: the value on $(\text{row}_i,\text{col}_j)$ is the rounded entry, it
+lies between the floor and the ceiling of $b_{ij}$ by the bounds, and
+conservation at $\text{row}_i$ says that the rounded entries of row $i$ sum to
+the value on $(s,\text{row}_i)$, which is a rounding of $r_i$. Similarly for
+columns.
+
+Such a circulation exists because a fractional one does --- take
+$f = b_{ij}$ on the middle arcs, $r_i$ and $s_j$ on the outer ones, which
+satisfies every bound and conserves flow by the definition of the row and column
+sums --- and because feasibility with integral bounds implies \emph{integral}
+feasibility, by \cref{cor:flow-integrality} applied to the network of
+\cref{lem:flow-circulation-to-maxflow}, whose capacities are all integers.
+\end{proof}
+
+\begin{intuition}
+Note what is being used here, because it is the reason lower bounds earn their
+place. We do not want a \emph{maximum} anything. We want \emph{any} feasible
+integral solution, and the entire content of the theorem is that one exists ---
+which is the integrality theorem plus the observation that the unrounded matrix
+is itself a feasible fractional point. Flows are being used as an existence
+proof, in the same spirit as \cref{ch:stable-marriage}.
+\end{intuition}
+
+\subsection{Natural cuts in road networks}
+\label{sec:flow-natural-cuts}
+
+Route planning on a continental road network --- hundreds of millions of
+vertices --- cannot afford a Dijkstra run per query, and the standard response
+is to preprocess the graph into a hierarchy. The difficulty is finding a good
+partition into cells: one wants few edges between cells, and general-purpose
+graph partitioners are slow and indifferent to geography.
+
+\citet{DellingGoldbergRazenshteynWerneck2011} observe that road networks come
+with their partitions already drawn. Traffic between two regions separated by a
+river crosses at a handful of bridges; between two countries, at a handful of
+border crossings; across a mountain range, at a handful of passes. These are
+small cuts, and they are \emph{natural} --- they reflect the geography rather
+than the algorithm. So one finds them the obvious way: run minimum-cut
+computations from many seeds, contract the dense regions they isolate, and
+partition the much smaller contracted graph. The result is both faster to
+compute and better than what a generic partitioner produces.
+
+The lesson is worth stating in general. Minimum cut is not only an answer to
+``how do I break this network''; it is a way of \emph{finding structure that is
+already there}.
 
 %==============================================================================
 \section{Menger's theorem and disjoint paths}
@@ -656,10 +1231,21 @@ which is \cref{ch:min-cost-flow}. Dinic's algorithm is \citet{Dinitz1970}.
 mentioned in \cref{sec:flow-algorithms}, see
 \citet{ChenKyngLiuPengProbstGutenbergSachdeva2022}.
 
+Preflow-push is \citet{GoldbergTarjan1988}, which also contains the
+dynamic-tree implementation; the preflow itself goes back to Karzanov. The
+$\bigoh{nm}$ algorithm is \citet{Orlin2013}, building on
+\citet{KingRaoTarjan1994}. The natural-cuts application of
+\cref{sec:flow-natural-cuts} is \citet{DellingGoldbergRazenshteynWerneck2011}.
+
 \citet{AhujaMagnantiOrlin1993} is the reference for everything in this chapter
 and the next, and in particular for modelling: its exercise sections are a
 large and well-organised catalogue of problems that turn out to be flow
 problems, and several of the exercises in this book are taken from it.
+\citet{Schrijver2003} is the place to go for the theory in its most complete
+form, in Chapters 10 and 11. For a gentler treatment,
+\citet[Chapter 7]{KleinbergTardos2005} and \citet[Chapter 24]{CLRS2022} both
+cover maximum flow well; the lift-to-front implementation of preflow-push is in
+Chapter 26 of the third edition of the latter.
 
 %==============================================================================
 \section{Exercises}
@@ -707,6 +1293,45 @@ Argue that your modification is correct.
 A network has capacities on arcs \emph{and} a bound $k$ on the number of arcs
 that may carry non-zero flow. Show that finding a maximum flow subject to this
 extra bound is NP-hard.
+\end{exercise}
+
+\begin{exercise}
+Show that the bound of \cref{lem:flow-height-bound} is essentially tight: give a
+family of networks on which some vertex reaches height $\Omega(n)$ during a run
+of preflow-push.
+\end{exercise}
+
+\begin{exercise}
+In the generic preflow-push algorithm, show that the source is never lifted and
+that its height stays $n$ throughout, and explain where the argument would break
+if we initialised $h(s)$ to anything smaller.
+\end{exercise}
+
+\begin{exercise}
+Run preflow-push by hand on a network of your choice with five vertices, once
+with the highest-label rule and once choosing the \emph{lowest} overflowing
+vertex. Count the operations. Is the lowest-label rule obviously bad, or does it
+merely lack a good analysis?
+\end{exercise}
+
+\begin{exercise}
+Give a network with lower bounds that admits no feasible flow at all, and
+identify what goes wrong in the transformation of
+\cref{lem:flow-circulation-to-maxflow} --- that is, which arcs out of $s'$
+cannot be saturated, and what that tells you about the original instance.
+\end{exercise}
+
+\begin{exercise}
+In the matrix rounding problem, suppose we additionally insist that the total
+sum be rounded consistently as well. Does a solution still always exist? Prove
+it or give a counterexample.
+\end{exercise}
+
+\begin{exercise}
+Show that a maximum flow can be computed by capacity scaling: work through the
+capacities bit by bit, from the most significant downwards, maintaining a
+maximum flow of the network truncated to the bits seen so far. Analyse the
+running time.
 \end{exercise}
 
 \begin{exercise}

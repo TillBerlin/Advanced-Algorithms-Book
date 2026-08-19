@@ -51,7 +51,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | --- | --- | --- | --- | --- | --- |
 | 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🟡 stable marriage drafted; Euler tours + 19 figures open |
-| 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 6 figures open |
+| 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 8 figures open |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🔲 |
 | 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 17 figures open |
 | 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
@@ -232,6 +232,24 @@ PDF as an artefact.
 7. ~~Bibliography and attribution pass.~~ ✅ `book/references.bib` exists, is
    wired in through `natbib`/`bibtex`, and carries verified DOIs. New chapters
    cite into it rather than listing references by hand.
+
+## Source decks
+
+The slide decks the course was taught from are in the repository root and are
+the authority on **what a chapter must cover**. Check a chapter against its deck
+before calling the prose complete — this was missed once already and cost a
+rewrite.
+
+| Deck | Slides | Chapters it covers |
+| --- | --- | --- |
+| `Flows and Matching 2026.pptx` | 1–56 | 3 (maximum flow) |
+| | 57–91 | 4 (minimum cost flow) |
+| | 92–141 | 6 (matching) |
+| `planar.pdf` | — | 5 (planar graphs) |
+| `Real-Compuation.pdf` | — | 7 (real models of computation) |
+
+Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
+mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ## Open work in drafted chapters
 

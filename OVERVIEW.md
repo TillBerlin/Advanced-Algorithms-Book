@@ -77,8 +77,8 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 12 | Approximation Algorithms I | `12-approximation-i.tex` | W6 Thu | 13 | 🔲 |
-| 13 | Approximation Algorithms II | `13-approximation-ii.tex` | W7 Tue | 14 | 🔲 |
+| 12 | Approximation Algorithms I | `12-approximation-i.tex` | W6 Thu | 13, 25 | ✅ drafted; 2 figure placeholders |
+| 13 | Approximation Algorithms II | `13-approximation-ii.tex` | W7 Tue | 14, 26 | ✅ drafted; 1 figure placeholder |
 
 ### Part V — Parameterized Algorithms and Complexity
 
@@ -143,6 +143,19 @@ Amendments to the pool, already applied to Appendix A:
 - **Q5, item 7** asked for $3$-colouring in $2^{O(\sqrt n)}$ time; it now asks
   for **independent set** in $2^{O(\sqrt n)}$ time, which is what chapter 5
   proves. The pool PDF in `material/` still carries the old wording.
+- **Q8, items 4 and 6** are withdrawn (order types), and **items 7–10** added
+  (four membership proofs, two by each definition of ∃R).
+- **Q11, items 1–3** are withdrawn (point–line duality), following the same
+  decision: the lecture no longer covers it.
+- **Q25 and Q26 were rewritten** once the approximation deck had actually been
+  read. Both had been drafted from the chapter skeletons, and both were wrong:
+  Q25 put set cover in lecture 10 (the deck has it in lecture 11) and Q26 asked
+  for the primal–dual method, which is not taught at all. Q25 now covers the
+  first lecture (ratios, Max SAT, metric TSP, the proof shape, vertex cover, LP
+  rounding, the gap technique) and Q26 the second (the five qualities, additive
+  approximation, the knapsack FPTAS, the knapsack gap argument, Baker's PTAS,
+  the polynomial-bound technique, greedy set cover, the self-reduction). Q26 is
+  also retitled *The Landscape of Approximation Algorithms*, after the deck.
 
 Known issues in the pool PDF, to raise with the course team:
 
@@ -262,7 +275,8 @@ rewrite.
 | | 92–141 | 6 (matching) ✅ checked |
 | `planar.pdf` | — | 5 (planar graphs) |
 | `Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
-| `Approximation Algorithms 2026.pdf` | — | 12, 13 |
+| `Approximation Algorithms 2026.pdf` | 1–29 | 12 (approximation I) ✅ checked |
+| | 30–74 | 13 (approximation II) ✅ checked |
 | `aa-fpt.pdf` | — | 14, 17 |
 | `Treewidth 2026.pptx` | — | 15 |
 | `Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
@@ -282,6 +296,26 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapters 12 and 13 — Approximation Algorithms
+
+- Written from `Approximation Algorithms 2026.pdf`, slides 1–29 and 30–74. The
+  deck is two lectures in one file and splits cleanly at slide 30, where the
+  second title page sits.
+- **Dropped from the skeletons because the deck does not have them:** local
+  search, scheduling and load balancing, the primal–dual method, randomised
+  rounding. LP rounding moved from chapter 13 to chapter 12, where the deck
+  puts it (slides 24–26).
+- **Added although the deck does not have them, because the pool does:** the
+  asymmetric TSP construction (Q13, chapter 12, worked as a 3-approximation via
+  symmetrising by the *maximum* of the two directions) and Steiner tree (Q14,
+  chapter 13, the MST heuristic plus the two impossibility proofs). Both are
+  applications of techniques the deck does teach.
+- **3 figure placeholders**: double-tree, Christofides in four panels, and the
+  levels of a planar embedding. The Christofides one carries real argument.
+- Chapter 13 forward-references chapter 16 for APX-hardness three times; that
+  chapter needs to deliver the APX-hardness of maximum independent set and of
+  vertex cover.
 
 ### Chapter 9 — Geometric ∃R-Completeness
 

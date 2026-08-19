@@ -1,52 +1,782 @@
 %% Chapter 13: Approximation Algorithms II
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against slides 30-74 of "Approximation Algorithms 2026.pdf"
+%% (Johan van Rooij).  Pool question 14 (Steiner tree) is worked in the last
+%% section before the exercises; it is not in the deck, but it is in the pool,
+%% and both halves of it are applications of techniques that are.
+%%
+%% Material deliberately NOT here because it is not in the deck: the
+%% primal-dual method, randomised rounding, APX-completeness (that is
+%% chapter 16).
 
 \chapter{Approximation Algorithms II}
 \label{ch:approx-ii}
 
-This chapter adds two things to the previous one: linear programming, which
-turns the search for a lower bound on $\OPT$ into a mechanical procedure, and
-approximation schemes, which let us trade running time against accuracy. We also
-see the first limits --- a problem can be constant-factor approximable and still
-provably admit no FPTAS.
+\Cref{ch:approx-i} had one quality of approximation: a constant factor. That is
+the middle of a scale. Some problems can be solved to within an additive
+constant, which is far better; some can be approximated to within
+$1+\varepsilon$ for any $\varepsilon$, which is nearly as good; some resist any
+constant and admit only a ratio growing with the input. This chapter lays out
+the scale, gives an algorithm at each level of it, and --- just as important ---
+gives the techniques for proving that a problem does \emph{not} sit higher on
+the scale than it does.
 
 \begin{goals}
-  \poolgoal{26.1}{formulate an LP relaxation of a combinatorial problem and round it}
-  \poolgoal{26.2}{explain the primal--dual method}
-  \poolgoal{26.3}{define PTAS and FPTAS and give an FPTAS for \lang{Knapsack}}
-  \poolgoal{14.1}{prove that the shortest-path-metric MST heuristic is a $2$-approximation for \lang{Steiner Tree}}
-  \poolgoal{14.2}{prove that there is no FPTAS for \lang{Steiner Tree} unless $\mathrm{P} = \mathrm{NP}$}
+  \poolgoal{26.1}{name the five qualities of polynomial-time approximation and
+        give an example of each}
+  \poolgoal{26.2}{give a problem approximable within an absolute constant
+        difference, and show that maximum independent set is not one unless
+        $\mathrm{P} = \mathrm{NP}$}
+  \poolgoal{26.3}{define PTAS and FPTAS, and give an FPTAS for \lang{Knapsack}:
+        the dynamic program, the scaling, the choice of the scaling constant,
+        and the proofs of ratio and running time}
+  \poolgoal{26.4}{use the gap technique to show that \lang{Knapsack} admits no
+        absolute constant difference approximation unless
+        $\mathrm{P} = \mathrm{NP}$}
+  \poolgoal{26.5}{give the PTAS for maximum independent set on planar graphs,
+        and prove its ratio and running time}
+  \poolgoal{26.6}{explain the polynomial-bound technique, and use it to show
+        that maximum independent set admits no FPTAS unless
+        $\mathrm{P} = \mathrm{NP}$}
+  \poolgoal{26.7}{give the greedy $(\ln n + 1)$-approximation for
+        \lang{Set Cover} and prove its ratio}
+  \poolgoal{26.8}{give the self-reduction from $G$ to $G \times G$ and use it to
+        show that maximum independent set is not in APX unless it has a PTAS}
+  \poolgoal{14.1}{prove that the shortest-path-metric MST heuristic is a
+        $2$-approximation for \lang{Steiner Tree}}
+  \poolgoal{14.2}{prove that there is no FPTAS for \lang{Steiner Tree} unless
+        $\mathrm{P} = \mathrm{NP}$}
 \end{goals}
 
-\section{LP relaxation and rounding}
-\label{sec:lp-rounding}
+%==============================================================================
+\section{Five qualities of approximation}
+\label{sec:approx-qualities}
+%==============================================================================
 
-\todo{Write this section.}
+All five of the following ask for a polynomial-time algorithm. They differ in
+what is promised about the answer, and they are listed from best to worst.
 
-\section{The primal--dual method}
-\label{sec:primal-dual}
+\begin{enumerate}[leftmargin=*,label=\arabic*.]
+  \item \textbf{Absolute constant difference.}
+        $|\OPT - \mathrm{ALG}| \le c$ for a constant $c$. The error does not
+        grow with the instance at all.
+  \item \textbf{FPTAS}, a fully polynomial-time approximation scheme. For every
+        $\varepsilon > 0$ the algorithm achieves ratio $1+\varepsilon$, and its
+        running time is polynomial in the input size \emph{and} in
+        $1/\varepsilon$.
+  \item \textbf{PTAS}, a polynomial-time approximation scheme. For every fixed
+        $\varepsilon > 0$ the algorithm achieves ratio $1+\varepsilon$ in
+        polynomial time --- but the exponent of the polynomial may depend on
+        $\varepsilon$, so the running time may be $n^{1/\varepsilon}$.
+  \item \textbf{APX.} Ratio $c$ for some constant $c$, and no better.
+  \item \textbf{$f(n)$-APX.} Ratio $f(n)$, a function of the input size only.
+\end{enumerate}
 
-\todo{Write this section.}
+\begin{definition}[PTAS, FPTAS]\label{def:ptas-fptas}
+An approximation \emph{scheme} for an optimisation problem is an algorithm
+taking two inputs, an instance $X$ and a real $\varepsilon > 0$, that returns a
+solution of value within a factor $1+\varepsilon$ of optimal. It is a
+\emph{polynomial-time approximation scheme} (PTAS) if for every fixed
+$\varepsilon > 0$ it runs in time polynomial in $|X|$, and a \emph{fully
+polynomial-time approximation scheme} (FPTAS) if it runs in time polynomial in
+$|X|$ and $1/\varepsilon$ together.
+\end{definition}
 
-\section{Approximation schemes}
-\label{sec:approximation-schemes}
+The single word \emph{fully} is the whole difference, and it matters. A PTAS is
+allowed a running time of $n^{1/\varepsilon}$, which for $\varepsilon = 0.01$ is
+$n^{100}$ and useless; an FPTAS must stay polynomial in $1/\varepsilon$, for
+instance $n^3/\varepsilon$, which is usable. Every FPTAS is a PTAS, and every
+problem with a PTAS is in \textrm{APX} --- take $\varepsilon = 1$ --- so the
+list above really is a chain of inclusions.
 
-\todo{Write this section.}
-% Planned content: PTAS, EPTAS, FPTAS, and an FPTAS for \lang{Knapsack} by rounding the profits.
+Each level of the chain has a matching negative technique, and the negative
+results are what make the classification worth having:
+\begin{itemize}[leftmargin=*,nosep]
+  \item the \emph{gap technique} of \cref{sec:gap-technique} separates
+        \textrm{APX} from $f(n)$-APX, and also rules out absolute constant
+        differences (\cref{sec:knapsack-gap});
+  \item the \emph{polynomial-bound technique} (\cref{sec:polynomial-bound})
+        separates FPTAS from PTAS;
+  \item \emph{APX-hardness} (\cref{ch:hardness}) separates PTAS from
+        \textrm{APX}.
+\end{itemize}
 
+%==============================================================================
+\section{Absolute constant difference}
+\label{sec:absolute-difference}
+%==============================================================================
+
+The best guarantee short of optimality is an error that does not grow at all.
+Two examples, in both of which a hard theorem does the work.
+
+\begin{example}[Colouring a planar graph]\label{ex:planar-colouring}
+By the four colour theorem every planar graph is $4$-colourable, and testing
+$1$- and $2$-colourability is easy. So: test whether $G$ is $1$-colourable, then
+whether it is $2$-colourable, and otherwise output $4$. The answer is wrong only
+when $G$ is $3$-chromatic, and then by exactly one. This is an approximation
+with absolute difference $1$ --- and it is worth noticing that deciding whether
+a planar graph is $3$-colourable is \textrm{NP}-complete, so the one case the
+algorithm gets wrong is precisely the hard one.
+\end{example}
+
+\begin{example}[Edge colouring]\label{ex:vizing}
+Vizing's theorem says that every graph $G$ can be edge coloured with at most
+$\Delta(G)+1$ colours, where $\Delta(G)$ is the maximum degree, and clearly at
+least $\Delta(G)$ colours are needed. Returning $\Delta(G)+1$ is therefore an
+approximation of the chromatic index with absolute difference $1$.
+\end{example}
+
+Such examples are rare, and there is a reason. For most problems an additive
+constant can be amplified away.
+
+\begin{theorem}\label{thm:no-additive-is}
+Unless $\mathrm{P} = \mathrm{NP}$, there is no polynomial-time algorithm that
+approximates maximum independent set within an absolute difference $c$, for any
+integer constant $c > 0$.
+\end{theorem}
+
+\begin{proof}
+Suppose such an algorithm exists. Given a graph $G$ and an integer $k$, build
+$G'$ consisting of $c+1$ disjoint copies of $G$ and run the algorithm on $G'$.
+
+An independent set of $G'$ is a union of independent sets of the copies, so
+$\OPT(G') = (c+1)\OPT(G)$.
+
+If $G$ has an independent set of size $k$, then $\OPT(G') \ge (c+1)k$ and the
+algorithm returns a set of size at least $(c+1)k - c$. That set is spread over
+$c+1$ copies, so some copy contributes at least
+$\lceil ((c+1)k-c)/(c+1) \rceil = k$ vertices, giving an independent set of size
+$k$ in $G$.
+
+If $G$ has no independent set of size $k$, then $\OPT(G) \le k-1$, so the
+algorithm returns at most $\OPT(G') = (c+1)(k-1) < (c+1)k - c$.
+
+The two cases are distinguished by the size returned, so we have decided an
+\textrm{NP}-complete problem in polynomial time.
+\end{proof}
+
+\begin{intuition}
+Disjoint copies multiply the optimum and leave the additive error alone. Any
+problem whose instances can be combined so that the optima add --- and most can
+--- kills additive approximation the same way. This is why the two examples
+above come from theorems of the form ``the answer is always one of two
+consecutive numbers'': there the additive constant is not a guarantee that was
+earned by an algorithm, it is a fact about the problem.
+\end{intuition}
+
+%==============================================================================
+\section{An FPTAS for knapsack}
+\label{sec:knapsack-fptas}
+%==============================================================================
+
+\begin{probdef}{Knapsack}
+  \instance $n$ items, item $i$ having a positive integer weight $w(i)$ and a
+  positive integer value $v(i)$, and an integer capacity $W$.
+  \question A set of items of total weight at most $W$ whose total value is as
+  large as possible.
+\end{probdef}
+
+\subsection{A pseudo-polynomial algorithm}
+
+Let $P = \max_i v(i)$, so that no solution has value more than $nP$. Tabulate
+\[ M(i,Q) = \text{the minimum total weight of a subset of items } 1,\dots,i
+   \text{ of total value exactly } Q, \]
+for $0 \le i \le n$ and $0 \le Q \le nP$, with $M(i,Q) = \infty$ when no such
+subset exists. The recurrence is
+\[ M(0,0) = 0, \qquad M(0,Q) = \infty \ (Q > 0), \qquad
+   M(i+1,Q) = \min\bigl\{ M(i,Q),\; M(i,Q-v(i+1)) + w(i+1) \bigr\}, \]
+where the second term is omitted if $Q < v(i+1)$. The answer is the largest $Q$
+with $M(n,Q) \le W$. The table has $\bigoh{n^2 P}$ entries and each costs
+constant time, so the algorithm runs in $\bigoh{n^2 P}$ time.
+
+\begin{definition}[Pseudo-polynomial]\label{def:pseudo-polynomial}
+An algorithm is \emph{pseudo-polynomial} if its running time is polynomial in
+the input size and in the largest number appearing in the input.
+\end{definition}
+
+That is not a polynomial-time algorithm: numbers are written in binary, so $P$
+can be exponential in the input size, and then $\bigoh{n^2P}$ is exponential
+too. It is polynomial exactly when $P$ is small --- and the idea of the next
+subsection is to \emph{make} $P$ small, by throwing away the low-order bits of
+the values, and to pay for the damage in the approximation ratio.
+
+\subsection{Scaling}
+
+\begin{algorithm}[ht]
+\caption{FPTAS for \lang{Knapsack}}
+\label{alg:knapsack-fptas}
+\begin{algorithmic}[1]
+  \State discard every item with $w(i) > W$, since no solution uses one
+  \State let $c > 0$ be a scaling constant, fixed below
+  \State build a new instance with the same weights and values
+         $v'(i) = \lfloor v(i)/c \rfloor$
+  \State solve the new instance optimally with the dynamic program above
+  \State \Return that set of items, as a solution to the original instance
+\end{algorithmic}
+\end{algorithm}
+
+Because the weights are untouched, whatever the dynamic program returns is
+feasible for the original instance. Two questions remain: how much value is
+lost, and how long it takes.
+
+\begin{lemma}\label{lem:knapsack-scaling}
+\Cref{alg:knapsack-fptas} returns a solution of value at least $\OPT - nc$, and
+runs in time $\bigoh{n^2P/c}$.
+\end{lemma}
+
+\begin{proof}
+For the running time, the largest scaled value is at most $P/c$, so the table of
+the dynamic program has $\bigoh{n \cdot nP/c}$ entries.
+
+For the value, let $Y$ be an optimal solution of the original instance, of value
+$\OPT$. Each item loses less than one unit of scaled value in the rounding,
+since $v(i)/c - \lfloor v(i)/c\rfloor < 1$, and $Y$ has at most $n$ items, so
+$Y$ has scaled value more than $\OPT/c - n$. The dynamic program returns a
+scaled-optimal solution, so the set it returns has scaled value at least
+$\OPT/c - n$ as well. Each unit of scaled value is worth at least $c$ units of
+real value, since $v(i) \ge c\lfloor v(i)/c \rfloor$, so the real value of the
+returned set is at least $c(\OPT/c - n) = \OPT - nc$.
+\end{proof}
+
+\begin{theorem}\label{thm:knapsack-fptas}
+With $c = \varepsilon P / (2n)$, \cref{alg:knapsack-fptas} is a
+$(1+\varepsilon)$-approximation running in $\bigoh{n^3/\varepsilon}$ time for
+every $0 < \varepsilon \le 1$. \lang{Knapsack} therefore has an FPTAS.
+\end{theorem}
+
+\begin{proof}
+Running time: substituting into \cref{lem:knapsack-scaling},
+\[ \bigoh{\frac{n^2 P}{c}} = \bigoh{\frac{n^2P}{\varepsilon P/(2n)}}
+   = \bigoh{\frac{n^3}{\varepsilon}}, \]
+which is polynomial in $n$ and in $1/\varepsilon$, as an FPTAS requires. Note
+that $P$ has cancelled: that is the point of the scaling.
+
+Ratio: since items heavier than $W$ were discarded, every remaining single item
+is by itself a feasible solution, so $\OPT \ge P$. By
+\cref{lem:knapsack-scaling},
+\[ \mathrm{ALG} \;\ge\; \OPT - nc \;=\; \OPT - \frac{\varepsilon P}{2}
+   \;\ge\; \OPT - \frac{\varepsilon}{2}\OPT, \]
+and therefore
+\[ \frac{\OPT}{\mathrm{ALG}} \;\le\; \frac{\OPT}{\OPT(1 - \varepsilon/2)}
+   \;=\; \frac{1}{1-\varepsilon/2} \;\le\; 1 + \varepsilon, \]
+where the last step uses $\varepsilon \le 1$.
+\end{proof}
+
+\begin{intuition}
+The scaling constant is chosen by looking at the two bounds and making them
+meet. \Cref{lem:knapsack-scaling} says the loss is $nc$ and the time is
+$n^2P/c$: raising $c$ buys time and costs accuracy. The loss only matters
+relative to $\OPT$, and $\OPT \ge P$, so a loss of $\varepsilon P/2$ is
+affordable --- which fixes $nc = \varepsilon P/2$ and hence $c$. Every FPTAS
+obtained by rounding has this shape: find the quantity the error can be
+measured against, and round away everything far below it.
+\end{intuition}
+
+%==============================================================================
+\section{Knapsack and the gap technique}
+\label{sec:knapsack-gap}
+%==============================================================================
+
+\Cref{thm:knapsack-fptas} puts \lang{Knapsack} at level~2 of the scale. Is it at
+level~1? No, and the gap technique of \cref{sec:gap-technique} settles it in
+four lines.
+
+\begin{theorem}\label{thm:knapsack-no-additive}
+Unless $\mathrm{P} = \mathrm{NP}$, no polynomial-time algorithm approximates
+\lang{Knapsack} within an absolute difference $c$, for any integer constant
+$c \ge 1$.
+\end{theorem}
+
+\begin{proof}
+Take any instance and multiply every item value by $c+1$, leaving weights and
+capacity alone. The feasible sets are unchanged and every solution value is
+multiplied by $c+1$; in particular all attainable values are multiples of
+$c+1$, so any two distinct values differ by at least $c+1$.
+
+Run the assumed algorithm on the new instance. It returns a solution whose value
+is within $c$ of the optimum, and the only attainable value that close to the
+optimum is the optimum itself. So the algorithm solves \lang{Knapsack} exactly
+in polynomial time, and \lang{Knapsack} is \textrm{NP}-hard.
+\end{proof}
+
+The gap here was created by inflation rather than by a reduction from another
+problem, but it is the same technique: arrange for the values of interest to be
+so far apart that an approximation cannot land between them.
+
+%==============================================================================
+\section{A PTAS for independent set on planar graphs}
+\label{sec:ptas-planar-is}
+%==============================================================================
+
+Now an example at level~3 that is not at level~2. The construction is Baker's,
+and it is the model for a large family of approximation schemes in planar and
+geometric settings.
+
+\begin{definition}[Levels, $k$-outerplanar]\label{def:k-outerplanar}
+Fix a planar embedding of $G$. The vertices on the outer face have \emph{level}
+$1$; having removed all vertices of level less than $i$, the vertices then on
+the outer face have level $i$. A graph is \emph{$k$-outerplanar} if it has a
+planar embedding with at most $k$ levels.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{A planar embedding with its vertices grouped into
+concentric levels, level $1$ on the outer face, and the same drawing with one
+level class deleted, leaving a disjoint union of $k$-outerplanar pieces.}
+\caption{Levels of a planar embedding. Deleting every $(k+1)$st level breaks the
+graph into $k$-outerplanar components, each of which can be solved exactly.}
+\label{fig:planar-levels}
+\end{figure}
+
+\begin{lemma}\label{lem:k-outerplanar-is}
+For every $k$, maximum independent set restricted to $k$-outerplanar graphs can
+be solved optimally in $\bigoh{8^k n}$ time.
+\end{lemma}
+
+We do not prove this here. The reason it is true is that a $k$-outerplanar graph
+has treewidth at most $3k-1$, and \cref{ch:treewidth} solves independent set on
+a graph of treewidth $t$ in $\bigoh{2^t n}$ time.
+
+\begin{algorithm}[ht]
+\caption{PTAS for maximum independent set on planar graphs}
+\label{alg:planar-is-ptas}
+\begin{algorithmic}[1]
+  \Require a planar graph $G$ and a ratio $r > 1$
+  \State $k \gets \lceil 1/(r-1) \rceil$
+  \State compute a planar embedding of $G$ and the level of every vertex
+  \For{$i = 0, 1, \dots, k$}
+    \State $V_i \gets$ all vertices whose level is \emph{not} congruent to $i$
+           modulo $k+1$
+    \State $G_i \gets G[V_i]$, which is $k$-outerplanar
+    \State solve maximum independent set on $G_i$ exactly by
+           \cref{lem:k-outerplanar-is}
+  \EndFor
+  \State \Return the largest of the $k+1$ independent sets found
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:planar-is-ptas}
+\Cref{alg:planar-is-ptas} runs in $\bigoh{8^k k n}$ time and has approximation
+ratio $r$. Maximum independent set on planar graphs therefore has a PTAS.
+\end{theorem}
+
+\begin{proof}
+Deleting the vertices of every $(k+1)$st level cuts the embedding into rings of
+$k$ consecutive levels, so each component of $G_i$ is $k$-outerplanar and
+\cref{lem:k-outerplanar-is} applies; there are $k+1$ iterations, giving the
+running time. Since $k = \lceil 1/(r-1)\rceil$ is a constant once $r$ is fixed,
+this is polynomial.
+
+For the ratio, let $I$ be a maximum independent set of $G$. The $k+1$ deleted
+classes $V \setminus V_i$ are pairwise disjoint, so they partition $I$ into
+$k+1$ parts, and the smallest part has at most $|I|/(k+1)$ vertices. For that
+$i$, the set $I \cap V_i$ is an independent set of $G_i$ of size at least
+$|I| - |I|/(k+1) = |I| \cdot k/(k+1)$, and the exact solve on $G_i$ does at
+least as well. Hence
+\[ \frac{\OPT}{\mathrm{ALG}} \;\le\; \frac{|I|}{|I| \cdot k/(k+1)}
+   \;=\; \frac{k+1}{k} \;=\; 1 + \frac1k \;\le\; r, \]
+the last step because $k \ge 1/(r-1)$.
+\end{proof}
+
+Note what the algorithm does with the running time it is given: the exponent of
+$8$ is $k \approx 1/(r-1)$, so pushing the ratio towards $1$ costs
+exponentially. That is characteristic of a scheme that is a PTAS and not an
+FPTAS --- and the next section shows the cost is unavoidable.
+
+%==============================================================================
+\section{The polynomial-bound technique}
+\label{sec:polynomial-bound}
+%==============================================================================
+
+\begin{theorem}\label{thm:polynomial-bound}
+Let $\Pi$ be an optimisation problem with integer solution values on which
+$\OPT \le p(n)$ for a polynomial $p$, where $n$ is the input size. If $\Pi$ has
+an FPTAS, then $\Pi$ can be solved exactly in polynomial time.
+\end{theorem}
+
+\begin{proof}
+Run the FPTAS with $\varepsilon = 1/p(n)$. Its running time is polynomial in $n$
+and in $1/\varepsilon = p(n)$, hence polynomial in $n$.
+
+For a maximisation problem the guarantee gives
+$\OPT/\mathrm{ALG} \le 1 + 1/p(n) = (p(n)+1)/p(n)$, so
+\[ \mathrm{ALG} \;\ge\; \OPT \cdot \frac{p(n)}{p(n)+1}
+   \;=\; \OPT - \frac{\OPT}{p(n)+1} \;>\; \OPT - 1, \]
+using $\OPT \le p(n)$ in the last step. Since solution values are integers and
+$\mathrm{ALG} \le \OPT$, this forces $\mathrm{ALG} = \OPT$. The minimisation
+case is identical.
+\end{proof}
+
+\begin{corollary}\label{cor:no-fptas-is}
+Unless $\mathrm{P} = \mathrm{NP}$, maximum independent set has no FPTAS --- not
+even restricted to planar graphs, where it has a PTAS by
+\cref{thm:planar-is-ptas}.
+\end{corollary}
+
+\begin{proof}
+An independent set has at most $n$ vertices, so $\OPT \le n$ and
+\cref{thm:polynomial-bound} applies with $p(n) = n$. Independent set is
+\textrm{NP}-hard on planar graphs.
+\end{proof}
+
+So there is a genuine gap between levels~2 and~3 of the scale, and
+\cref{thm:planar-is-ptas} sits strictly at level~3. The only property used is
+that the optimum is polynomially bounded, which is why the argument is called
+the \emph{polynomial-bound technique} and why it applies so widely: any problem
+that asks for a subset of the input has $\OPT \le n$ for free. The problems that
+escape it are the ones whose optima are numbers rather than counts --- like
+\lang{Knapsack}, whose optimum can be exponentially large, which is exactly why
+\cref{thm:knapsack-fptas} was possible.
+
+%==============================================================================
+\section{\texorpdfstring{$f(n)$}{f(n)}-APX: greedy set cover}
+\label{sec:set-cover}
+%==============================================================================
+
+At the bottom of the scale the ratio is allowed to grow with the input. The
+standard example is also one of the most useful algorithms in the subject.
+
+\begin{probdef}{Set Cover}
+  \instance A finite set $U$ with $|U| = n$ and a family $F$ of subsets of $U$
+  whose union is $U$.
+  \question A subfamily $C \subseteq F$ with $\bigcup_{S \in C} S = U$ and
+  $|C|$ as small as possible.
+\end{probdef}
+
+\begin{algorithm}[ht]
+\caption{Greedy \lang{Set Cover}}
+\label{alg:greedy-set-cover}
+\begin{algorithmic}[1]
+  \State $C \gets \emptyset$
+  \While{$U \ne \emptyset$}
+    \State pick $S \in F$ maximising $|S \cap U|$
+    \State $C \gets C \cup \{S\}$, \quad $U \gets U \setminus S$
+  \EndWhile
+  \State \Return $C$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:greedy-set-cover}
+\Cref{alg:greedy-set-cover} is an $(\ln n + 1)$-approximation for
+\lang{Set Cover}.
+\end{theorem}
+
+\begin{proof}
+It runs in polynomial time and returns a cover, since the union of $F$ is $U$
+and each round covers at least one new element.
+
+Write $S_1, S_2, \dots$ for the sets picked in order, and let
+$C_i = S_1 \cup \dots \cup S_{i-1}$ be the elements covered before $S_i$ is
+picked. Charge each element $x \in U$ a cost: if $x$ is first covered by $S_i$,
+put
+\[ c(x) = \frac{1}{|S_i \setminus C_i|}. \]
+Every set picked distributes a total charge of exactly $1$ among the elements it
+newly covers, so
+\[ \mathrm{ALG} = |C| = \sum_{x \in U} c(x). \]
+
+Now bound the charge accumulated inside any single set $S \in F$, picked or not.
+Write $S = \{s_1, \dots, s_m\}$ with the elements ordered so that $s_m$ is
+covered first by the algorithm and $s_1$ last. Suppose $s_i$ is first covered at
+the step that picks $S_j$. At that moment $s_1, \dots, s_i$ are all still
+uncovered, so $|S \setminus C_j| \ge i$; and the algorithm picked $S_j$ because
+it covers the most uncovered elements, so
+$|S_j \setminus C_j| \ge |S \setminus C_j| \ge i$. Hence $c(s_i) \le 1/i$ and
+\[ \sum_{x \in S} c(x) \;\le\; \sum_{i=1}^{m} \frac{1}{i} \;=\; H(|S|), \]
+where $H(m) = \sum_{i=1}^m 1/i$ is the $m$th harmonic number, and
+$H(m) \le \ln m + 1$ by comparison with $\int_1^m \mathrm{d}x/x$.
+
+Finally let $C^{*}$ be an optimal cover. Every element lies in at least one set
+of $C^{*}$, so
+\[ \mathrm{ALG} = \sum_{x \in U} c(x)
+   \;\le\; \sum_{S \in C^{*}} \sum_{x \in S} c(x)
+   \;\le\; |C^{*}| \cdot H\bigl(\max_{S \in F} |S|\bigr)
+   \;\le\; \OPT \cdot (\ln n + 1). \qedhere \]
+\end{proof}
+
+The technique --- charge the algorithm's cost to the elements, then re-collect
+the charges along an optimal solution --- is worth remembering on its own. It is
+the standard way of analysing a greedy algorithm when no single quantity $x$ in
+the sense of \cref{sec:approx-proof-shape} presents itself.
+
+This ratio cannot be improved: \citet{Feige1998} showed that approximating
+\lang{Set Cover} within $(1-o(1))\ln n$ is impossible unless every problem in
+\textrm{NP} has a slightly superpolynomial algorithm. So \lang{Set Cover} is at
+level~5 of the scale and not at level~4.
+
+%==============================================================================
+\section{Independent set is not in APX}
+\label{sec:is-not-apx}
+%==============================================================================
+
+One more separation, proved by a technique we have not used before: a
+self-reduction, which takes an approximation algorithm and makes it better than
+it was.
+
+\begin{definition}[Graph product]\label{def:graph-product}
+For a graph $G = (V,E)$, the graph $G \times G$ has vertex set $V \times V$,
+with $(u,v)$ and $(u',v')$ adjacent if and only if either $u = u'$ and
+$\{v,v'\} \in E$, or $\{u,u'\} \in E$.
+\end{definition}
+
+\begin{lemma}\label{lem:graph-product-is}
+$G$ has an independent set of size $k$ if and only if $G \times G$ has one of
+size $k^2$. Moreover, an independent set $J$ of $G \times G$ can be converted in
+polynomial time into an independent set of $G$ of size at least $\sqrt{|J|}$.
+\end{lemma}
+
+\begin{proof}
+If $I$ is independent in $G$ with $|I| = k$, then $I \times I$ is independent in
+$G \times G$: two distinct elements $(u,v),(u',v')$ of it have either $u \ne u'$,
+and then $\{u,u'\} \notin E$ while the first case of \cref{def:graph-product}
+does not apply either, or $u = u'$ and $v \ne v'$ with $\{v,v'\} \notin E$.
+
+Conversely let $J$ be independent in $G \times G$ and let
+$U = \{u : (u,v) \in J \text{ for some } v\}$ be its projection. Then $U$ is
+independent in $G$: if two distinct $u,u' \in U$ were adjacent, any
+$(u,v),(u',v') \in J$ would be adjacent by the second case of
+\cref{def:graph-product}. Likewise, for each fixed $u$ the fibre
+$\{v : (u,v) \in J\}$ is independent in $G$, by the first case.
+
+If $|U| \ge \sqrt{|J|}$ we return $U$. Otherwise some fibre contains at least
+$|J|/|U| > \sqrt{|J|}$ vertices, and we return it. Taking $|J| = k^2$ gives an
+independent set of size at least $k$ in $G$, which together with the first
+paragraph proves the equivalence.
+\end{proof}
+
+\begin{lemma}[Self-reduction]\label{lem:is-self-reduction}
+If maximum independent set has a polynomial-time $c$-approximation, then it has
+a polynomial-time $\sqrt{c}$-approximation.
+\end{lemma}
+
+\begin{proof}
+Given $G$, build $G \times G$ --- it has $n^2$ vertices, so this is polynomial
+--- and run the $c$-approximation on it, obtaining an independent set $J$. By
+\cref{lem:graph-product-is} the optimum of $G \times G$ is $\OPT^2$, where
+$\OPT$ is the optimum of $G$, so $\OPT^2 / |J| \le c$. Convert $J$ into an
+independent set of $G$ of size at least $\sqrt{|J|}$. Then
+\[ \frac{\OPT}{\sqrt{|J|}} = \sqrt{\frac{\OPT^2}{|J|}} \le \sqrt{c}. \qedhere \]
+\end{proof}
+
+\begin{theorem}\label{thm:is-not-apx}
+If maximum independent set is in \textrm{APX}, then it has a PTAS.
+\end{theorem}
+
+\begin{proof}
+Let a $c$-approximation be given and let $\varepsilon > 0$. Applying
+\cref{lem:is-self-reduction} $t$ times gives a $c^{1/2^t}$-approximation, and
+$c^{1/2^t} \to 1$, so for some constant $t$ depending only on $c$ and
+$\varepsilon$ we have $c^{1/2^t} \le 1+\varepsilon$. The construction is applied
+a constant number of times, each squaring the number of vertices, so the final
+graph has $n^{2^t}$ vertices --- polynomial for fixed $t$.
+\end{proof}
+
+\Cref{ch:hardness} proves that maximum independent set is \textrm{APX}-hard, and
+hence has no PTAS unless $\mathrm{P} = \mathrm{NP}$; with
+\cref{thm:is-not-apx} that says maximum independent set is not in \textrm{APX}
+at all. It is in $f(n)$-APX for $f(n) = n/(\log n)^2$, and nothing much better
+is possible: \citet{Zuckerman2007} showed that approximating it within
+$n^{1-\delta}$ is \textrm{NP}-hard for every $\delta > 0$.
+
+Things can be worse still. \Cref{thm:tsp-no-approx} rules out constant ratios
+for \lang{TSP} without the triangle inequality, and the same construction with
+$n\,p(n) + 1$ in place of $nc + 1$ on the non-edges rules out ratio $p(n)$ for
+every polynomial $p$: that problem is outside $f(n)$-APX for every polynomial
+$f$.
+
+%==============================================================================
 \section{Steiner tree}
 \label{sec:steiner-tree}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: The metric closure on the terminals, the MST heuristic, and the proof that it is a $2$-approximation.
+The last section applies both halves of the chapter to one problem. This is
+pool question~14.
 
-\section{Limits: no FPTAS for Steiner tree}
-\label{sec:no-fptas}
+\begin{probdef}{Steiner Tree}
+  \instance A connected undirected graph $G = (V,E)$ and a set $T \subseteq V$
+  of \emph{terminals}; the vertices of $N = V \setminus T$ are available as
+  intermediate vertices.
+  \question A smallest set $S \subseteq E$ such that $(V(S),S)$ is a tree
+  containing every terminal, where $V(S)$ denotes the set of endpoints of $S$.
+\end{probdef}
 
-\todo{Write this section.}
-% Planned content: Strong NP-hardness and gap arguments; the weaker statement about additive constants.
+With $T = V$ this is the minimum spanning tree problem, solvable exactly; with
+$|T| = 2$ it is a shortest path. In between it is \textrm{NP}-hard, and the
+reason is that one must decide which non-terminals to use.
 
+\subsection{A 2-approximation}
+
+The idea is to pretend the non-terminals do not exist, by hiding them inside
+edge costs.
+
+\begin{definition}[Metric closure]\label{def:metric-closure}
+Let $G_T = (T,F)$ be the complete graph on the terminals, where the cost
+$c(\{t_1,t_2\})$ of an edge is the length of a shortest $t_1$--$t_2$ path in
+$G$, and let $P(\{t_1,t_2\}) \subseteq E$ be the edges of such a path.
+\end{definition}
+
+\begin{algorithm}[ht]
+\caption{MST heuristic for \lang{Steiner Tree}}
+\label{alg:steiner-mst}
+\begin{algorithmic}[1]
+  \State build the metric closure $G_T$ and record a shortest path $P(f)$ for
+         every edge $f \in F$
+  \State compute a minimum spanning tree $M \subseteq F$ of $G_T$ with respect
+         to $c$
+  \State \Return $\bigcup_{m \in M} P(m)$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:steiner-2approx}
+\Cref{alg:steiner-mst} runs in polynomial time and is a $2$-approximation for
+\lang{Steiner Tree}.
+\end{theorem}
+
+\begin{proof}
+All-pairs shortest paths and a minimum spanning tree are polynomial, so the
+algorithm is.
+
+\emph{It returns a feasible solution.} The union of the paths connects every
+pair of terminals that $M$ connects, and $M$ spans $T$, so all terminals lie in
+one connected component of the returned edge set. If that set contains a cycle,
+delete edges until it is a tree; this only decreases the cost.
+
+\emph{It costs at most $2\OPT$.} Let $S^{*}$ be an optimal Steiner tree, of size
+$\OPT$. Walk around $S^{*}$ in a depth-first traversal, using every edge once in
+each direction: a closed walk of length exactly $2\OPT$ visiting all terminals.
+List the terminals in the order the walk first meets them, $t_1, \dots, t_r$,
+and consider the cycle $t_1 t_2 \cdots t_r t_1$ in $G_T$. Each of its edges
+costs at most the length of the corresponding piece of the walk, since $c$ is
+the shortest path distance, and the pieces are disjoint parts of the walk, so
+the cycle costs at most $2\OPT$. Deleting its most expensive edge leaves a
+spanning tree of $G_T$ of cost at most $2\OPT$, so $c(M) \le 2\OPT$. Finally the
+returned edge set has size at most $\sum_{m \in M} |P(m)| = c(M)$, since paths
+may share edges but never add any.
+\end{proof}
+
+\begin{intuition}
+This is the double-tree argument of \cref{thm:tsp-double-tree} run backwards. In
+metric TSP we converted a tree into a tour by doubling; here we convert an
+optimal tree into a tour in order to get a cheap spanning tree of the closure.
+Both directions cost the same factor $2$, and both pay it in the same place:
+traversing every edge twice.
+\end{intuition}
+
+\subsection{No FPTAS}
+
+\begin{theorem}\label{thm:steiner-no-fptas}
+Unless $\mathrm{P} = \mathrm{NP}$, \lang{Steiner Tree} has no FPTAS.
+\end{theorem}
+
+\begin{proof}
+A Steiner tree is the edge set of a tree on at most $|V|$ vertices, so
+$\OPT \le |V| - 1 \le n$, and solution values are integers.
+\Cref{thm:polynomial-bound} with $p(n) = n$ turns an FPTAS into an exact
+polynomial-time algorithm, and \lang{Steiner Tree} is \textrm{NP}-hard.
+\end{proof}
+
+The weaker statement --- no approximation within an absolute constant --- has
+its own short proof, in the style of \cref{thm:knapsack-no-additive}, and is
+worth giving because it does not need \cref{thm:polynomial-bound}.
+
+\begin{proposition}\label{prop:steiner-no-additive}
+Unless $\mathrm{P} = \mathrm{NP}$, no polynomial-time algorithm approximates
+\lang{Steiner Tree} within an absolute difference $c$, for any integer constant
+$c \ge 1$.
+\end{proposition}
+
+\begin{proof}
+Given an instance $(G,T)$, subdivide every edge of $G$ into a path of $c+1$
+edges, the new internal vertices being non-terminals. Call the result $G'$.
+
+Every Steiner tree of $G'$ may be assumed to use each subdivided path either
+entirely or not at all: an internal vertex of a path has degree $2$ in $G'$ and
+is not a terminal, so a partially used path ends in a vertex of degree $1$ that
+is not a terminal, and deleting that edge keeps the solution feasible and makes
+it smaller. Hence Steiner trees of $G'$ correspond to Steiner trees of $G$ with
+all sizes multiplied by $c+1$, and $\OPT(G') = (c+1)\OPT(G)$.
+
+All attainable values in $G'$ are multiples of $c+1$, so a solution within $c$
+of optimal is optimal, and the assumed algorithm would solve the
+\textrm{NP}-hard problem \lang{Steiner Tree} exactly in polynomial time.
+\end{proof}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:approx-ii-further-reading}
+%==============================================================================
+
+This chapter follows Johan van Rooij's lecture slides. The classification of
+approximation qualities and the accompanying negative techniques are the
+subject of \citet[Chapter~3]{Ausiello1999}; \citet{WilliamsonShmoys2011} and
+\citet{Vazirani2001} are the standard texts on the algorithms.
+
+The FPTAS for \lang{Knapsack} is \citet{IbarraKim1975}. The PTAS for planar
+graphs is \citet{Baker1994}, and the treewidth bound behind
+\cref{lem:k-outerplanar-is} is \citet{Bodlaender1988}. Greedy set cover and its
+$\ln n$ analysis were found independently by \citet{Johnson1974},
+\citet{Lovasz1975} and \citet{Chvatal1979}, the last in the weighted setting;
+the matching lower bound is \citet{Feige1998}. The graph-product
+self-reduction for independent set is classical and is given in
+\citet{GareyJohnson1979}; the best possible ratio is \citet{Zuckerman2007}. \Cref{ex:planar-colouring} rests on the
+four colour theorem, \citet{AppelHaken1977}, and \cref{ex:vizing} on
+\citet{Vizing1964}.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-approx-ii}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Show that every FPTAS is a PTAS, and that every problem with a PTAS is in
+\textrm{APX}. Give a problem separating PTAS from \textrm{APX}, quoting whatever
+hardness result you need.
+\end{exercise}
+
+\begin{exercise}
+The proof of \cref{thm:no-additive-is} takes $c+1$ disjoint copies. Carry the
+same argument out for \lang{Vertex Cover}, and say which step needs changing.
+\end{exercise}
+
+\begin{exercise}
+In \cref{alg:knapsack-fptas} the values are scaled and the weights are not.
+What goes wrong if you scale the weights instead?
+\end{exercise}
+
+\begin{exercise}
+\Cref{thm:knapsack-fptas} assumes $\varepsilon \le 1$. What ratio does the same
+choice of $c$ give for $\varepsilon > 1$, and why does the restriction cost
+nothing?
+\end{exercise}
+
+\begin{exercise}
+Give an FPTAS for \lang{Subset Sum}: given positive integers $a_1,\dots,a_n$ and
+a target $t$, find a subset with sum at most $t$ and as large as possible.
+\end{exercise}
+
+\begin{exercise}
+Show that the analysis of \cref{alg:greedy-set-cover} is essentially tight:
+construct instances on which the greedy algorithm returns a cover of size
+$\Omega(\log n) \cdot \OPT$.
+\end{exercise}
+
+\begin{exercise}
+Adapt \cref{alg:planar-is-ptas} to \lang{Vertex Cover} on planar graphs. Which
+direction of the ratio argument changes, and why is \emph{adding} the deleted
+level class the right move for a minimisation problem?
+\end{exercise}
+
+\begin{exercise}
+\Cref{lem:graph-product-is} says that the independence number satisfies
+$\alpha(G \times G) = \alpha(G)^2$. Show that for the \emph{disjoint union}
+$\alpha(G_1 \cup G_2) = \alpha(G_1) + \alpha(G_2)$, and explain why
+\cref{lem:is-self-reduction} needs the product and \cref{thm:no-additive-is}
+needs the union.
+\end{exercise}
+
+\begin{exercise}
+In \cref{prop:steiner-no-additive} the edges are subdivided into paths of length
+$c+1$. Why can the same effect not be achieved by simply declaring each edge to
+have weight $c+1$, in the problem as stated here?
+\end{exercise}

@@ -61,7 +61,7 @@ pool question.
 23 & Branching                           & 8  & \cref{ch:exact-i} \\
 24 & Subset DP and Inclusion/Exclusion   & 10 & \cref{ch:exact-ii} \\
 25 & Approximation Algorithms            & 10 & \cref{ch:approx-i} \\
-26 & LP Rounding and Approximation Schemes & 11 & \cref{ch:approx-ii} \\
+26 & The Landscape of Approximation Algorithms & 11 & \cref{ch:approx-ii} \\
 27 & Treewidth                           & 13 & \cref{ch:treewidth} \\
 28 & Complexity for Approximation and FPT & 14 & \cref{ch:hardness} \\
 \bottomrule
@@ -453,11 +453,20 @@ This set of questions captures the learning goals of the first lecture on
 approximation algorithms that are not covered by Question~13.
 \begin{enumerate}
   \item Define the approximation ratio, for both minimisation and maximisation
-        problems.
-  \item Give a greedy approximation algorithm for \textsc{Vertex Cover} and one
-        for \textsc{Set Cover}, and prove their approximation ratios.
+        problems, and define the class APX.
+  \item Give a $2$-approximation algorithm for \textsc{Max SAT} and prove its
+        ratio.
   \item Give the $2$-approximation and Christofides' algorithm for metric
         \textsc{TSP}, and prove their ratios.
+  \item Describe the general shape of an approximation ratio proof: a quantity
+        bounding both $\OPT$ and the value returned by the algorithm.
+  \item Give a $2$-approximation algorithm for \textsc{Vertex Cover} and prove
+        its ratio.
+  \item Formulate the LP relaxation of \textsc{Minimum Weight Vertex Cover},
+        give the rounding algorithm, and prove that it is a $2$-approximation.
+  \item Explain the gap technique, and use it to show that \textsc{TSP} without
+        the triangle inequality admits no $c$-approximation for any constant
+        $c$ unless $\mathrm{P} = \mathrm{NP}$.
 \end{enumerate}
 
 \subsection*{Lecture 11: Approximation Algorithms II}
@@ -496,15 +505,31 @@ vertices in the tree.
         approximation exists unless $\mathrm{P} = \mathrm{NP}$.
 \end{enumerate}
 
-\paragraph{Question 26. LP Rounding and Approximation Schemes.}
+\paragraph{Question 26. The Landscape of Approximation Algorithms.}
 This set of questions captures the learning goals of the second lecture on
 approximation algorithms that are not covered by Question~14.
 \begin{enumerate}
-  \item Formulate an LP relaxation of a combinatorial problem and describe how
-        to round it.
-  \item Explain the primal--dual method for designing approximation
-        algorithms.
-  \item Define PTAS and FPTAS, and give an FPTAS for \textsc{Knapsack}.
+  \item Name the five qualities of polynomial-time approximation --- absolute
+        constant difference, FPTAS, PTAS, APX and $f(n)$-APX --- and give an
+        example of each.
+  \item Give an example of a problem approximable within an absolute constant
+        difference, and show that maximum independent set is not one unless
+        $\mathrm{P} = \mathrm{NP}$.
+  \item Define PTAS and FPTAS, and give an FPTAS for \textsc{Knapsack}: the
+        pseudo-polynomial dynamic program, the scaling of the values, the
+        choice of the scaling constant, and the proofs of the ratio and the
+        running time.
+  \item Use the gap technique to show that \textsc{Knapsack} admits no
+        absolute constant difference approximation unless
+        $\mathrm{P} = \mathrm{NP}$.
+  \item Give the PTAS for maximum independent set on planar graphs, and prove
+        its approximation ratio and running time.
+  \item Explain the polynomial-bound technique, and use it to show that maximum
+        independent set admits no FPTAS unless $\mathrm{P} = \mathrm{NP}$.
+  \item Give the greedy $(\ln n + 1)$-approximation algorithm for
+        \textsc{Set Cover} and prove its ratio.
+  \item Give the self-reduction from a graph $G$ to $G \times G$ and use it to
+        show that maximum independent set is not in APX unless it has a PTAS.
 \end{enumerate}
 
 \subsection*{Lecture 12: Parameterized Complexity I}

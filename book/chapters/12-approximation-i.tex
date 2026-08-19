@@ -1,57 +1,683 @@
 %% Chapter 12: Approximation Algorithms I
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against slides 1-29 of "Approximation Algorithms 2026.pdf"
+%% (Johan van Rooij).  Pool question 13 (asymmetric TSP) is worked in the last
+%% section before the exercises.
+%%
+%% Material deliberately NOT here because it is not in the deck: local search,
+%% scheduling and load balancing, the primal-dual method.
 
 \chapter{Approximation Algorithms I}
 \label{ch:approx-i}
 
 An approximation algorithm runs in polynomial time and returns a solution
-together with a proof that it is not far from optimal. The art is in the proof:
-we must compare against an optimum we cannot compute, so every approximation
-guarantee rests on a lower bound (or upper bound) on $\OPT$ that we can reason
-about.
+together with a proof that the solution is not far from optimal. The proof is
+the hard part, and the reason is worth saying at the outset: the guarantee
+compares the algorithm's answer with an optimum that we cannot compute --- if
+we could, we would not be approximating. Every argument in this chapter
+therefore goes through some third quantity that we \emph{can} reason about, and
+that is squeezed between the two.
 
 \begin{goals}
-  \poolgoal{25.1}{define approximation ratios for minimisation and maximisation problems}
-  \poolgoal{25.2}{analyse greedy approximation algorithms and prove their ratios}
-  \poolgoal{25.3}{give and analyse the $2$-approximation and Christofides' algorithm for metric \lang{TSP}}
-  \poolgoal{13}{give a polynomial-time $c$-approximation algorithm for \lang{TSP} instances that are not symmetric but satisfy $d(i,j) \le 2d(j,i)$ and the triangle inequality}
+  \poolgoal{25.1}{define the approximation ratio for minimisation and for
+        maximisation problems, and define the class APX}
+  \poolgoal{25.2}{give a $2$-approximation algorithm for \lang{Max SAT} and
+        prove its ratio}
+  \poolgoal{25.3}{give the $2$-approximation and Christofides' algorithm for
+        metric \lang{TSP}, and prove their ratios}
+  \poolgoal{25.4}{describe the general shape of an approximation ratio proof: a
+        quantity that bounds both $\OPT$ and the value the algorithm returns}
+  \poolgoal{25.5}{give a $2$-approximation algorithm for \lang{Vertex Cover} and
+        prove its ratio}
+  \poolgoal{25.6}{formulate the LP relaxation of \lang{Minimum Weight Vertex
+        Cover}, give the rounding algorithm, and prove that it is a
+        $2$-approximation}
+  \poolgoal{25.7}{explain the gap technique, and use it to show that \lang{TSP}
+        without the triangle inequality admits no $c$-approximation for any
+        constant $c$ unless $\mathrm{P} = \mathrm{NP}$}
+  \poolgoal{13}{give a polynomial-time $c$-approximation algorithm for
+        \lang{TSP} instances that are not symmetric but satisfy the triangle
+        inequality and $d(i,j) \le 2 d(j,i)$}
 \end{goals}
 
+%==============================================================================
 \section{What an approximation guarantee is}
 \label{sec:approx-definitions}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Absolute versus relative error, and the role of bounds on $\OPT$.
+Everything we have done so far in this book has been aimed at one of two
+targets: an optimal solution in polynomial time, or an optimal solution in
+exponential time. For an \textrm{NP}-hard problem we can have either, but not
+both. Once that is accepted, something has to give, and there are exactly three
+things that can give: the running time (\cref{ch:exact-i,ch:exact-ii}), the
+generality of the input (\cref{ch:fpt-i,ch:treewidth}), or the quality of the
+answer. This chapter gives up on quality --- but not silently.
 
-\section{Greedy algorithms}
-\label{sec:greedy-approx}
+\begin{table}[ht]
+\centering
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & \textbf{Optimal} & \textbf{Guaranteed quality} \\
+\midrule
+Polynomial time     & polynomial algorithms & \textbf{approximation algorithms} \\
+Superpolynomial time & exact algorithms, ILP & hybrid algorithms \\
+\bottomrule
+\end{tabular}
+\caption{Where approximation algorithms sit. The missing fourth entry ---
+polynomial time, no guarantee --- is the world of construction heuristics,
+local search and genetic algorithms, which are outside this course precisely
+because they come with no proof.}
+\label{tab:approx-landscape}
+\end{table}
 
-\todo{Write this section.}
-% Planned content: Vertex cover in factor $2$; set cover in factor $\ln n$.
+An approximation algorithm is a heuristic with a performance guarantee. Three
+things are required of it.
 
-\section{Local search}
-\label{sec:local-search}
+\begin{enumerate}[leftmargin=*]
+  \item It applies to an \emph{optimisation} problem, one where solutions have
+        values and we want the largest or the smallest. Independent set, vertex
+        cover, knapsack and \lang{Max SAT} qualify; \lang{SAT} and
+        \lang{3-SAT} as decision problems do not, because there is nothing to
+        be close to.
+  \item It runs in polynomial time.
+  \item It comes with a bound on the quality of what it returns.
+\end{enumerate}
 
-\todo{Write this section.}
+\begin{definition}[Approximation ratio]\label{def:approx-ratio}
+Let $I$ be an instance of an optimisation problem, let $\OPT(I)$ be the value
+of an optimal solution to $I$ and $\mathrm{ALG}(I)$ the value of the solution
+returned by an algorithm. The algorithm has \emph{approximation ratio} $c$ if
+for every instance $I$
+\[
+  \frac{\mathrm{ALG}(I)}{\OPT(I)} \le c \quad\text{(minimisation)},
+  \qquad
+  \frac{\OPT(I)}{\mathrm{ALG}(I)} \le c \quad\text{(maximisation)}.
+\]
+Such an algorithm is called a \emph{$c$-approximation algorithm}.
+\end{definition}
 
+The two cases are written so that the ratio is always at least $1$, with $1$
+meaning exactly optimal and larger meaning worse. That convention costs one
+moment of care --- for a maximisation problem the optimum is on top --- and
+saves a great deal of confusion later, because it makes ``ratio $2$'' mean the
+same thing everywhere.
+
+\begin{definition}[APX]\label{def:apx}
+\textrm{APX} is the class of optimisation problems in \textrm{NP} that admit a
+polynomial-time $c$-approximation algorithm for some constant $c$.
+\end{definition}
+
+A $c$-approximation with $c$ constant is also called a \emph{constant factor}
+approximation. \Cref{ch:approx-ii} will refine \cref{def:apx} into a scale of
+five different qualities of approximation, and \cref{ch:hardness} will show how
+to prove that a problem is not in \textrm{APX}. For this chapter, constant
+factors are the whole story.
+
+%==============================================================================
+\section{Maximum satisfiability}
+\label{sec:max-sat}
+%==============================================================================
+
+The first example is chosen because its algorithm is a single line and its
+analysis is two.
+
+\begin{probdef}{Max SAT}
+  \instance A set $C$ of clauses over a set $X$ of Boolean variables, and an
+  integer $k$.
+  \question Is there a truth assignment to $X$ satisfying at least $k$ clauses
+  of $C$?
+\end{probdef}
+
+As an optimisation problem, we are asked for an assignment satisfying as many
+clauses as possible. \lang{Max $k$-SAT} is the same problem with every clause
+restricted to at most $k$ literals. Note that \lang{Max SAT} is interesting
+even on formulas that are not satisfiable, which is exactly what makes it an
+optimisation problem and \lang{SAT} not one.
+
+\begin{algorithm}[ht]
+\caption{$2$-approximation for \lang{Max SAT}}
+\label{alg:maxsat}
+\begin{algorithmic}[1]
+  \State let $a$ be any truth assignment to $X$
+  \State let $\bar a$ be $a$ with every variable negated
+  \State \Return whichever of $a$ and $\bar a$ satisfies more clauses
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:maxsat}
+\Cref{alg:maxsat} is a $2$-approximation for \lang{Max SAT}.
+\end{theorem}
+
+\begin{proof}
+Every clause contains at least one literal, and a literal is satisfied by
+exactly one of $a$ and $\bar a$. So every clause is satisfied by at least one
+of the two assignments, and the two clause counts sum to at least $|C|$. The
+better of the two therefore satisfies at least $|C|/2$ clauses, so
+$\mathrm{ALG} \ge |C|/2$. On the other side no assignment can satisfy more
+clauses than there are, so $\OPT \le |C|$. Hence
+$\OPT/\mathrm{ALG} \le |C| / (|C|/2) = 2$.
+\end{proof}
+
+Notice the shape of that proof, because it is the shape of every proof in this
+chapter: a quantity --- here the number of clauses $|C|$ --- that bounds $\OPT$
+from one side and $\mathrm{ALG}$ from the other. We return to this in
+\cref{sec:approx-proof-shape}.
+
+%==============================================================================
 \section{Metric TSP}
 \label{sec:metric-tsp}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: The double-tree $2$-approximation and Christofides' $3/2$-approximation.
+\begin{probdef}{TSP}
+  \instance A set of $n$ cities and a distance $d(x,y)$ for every pair.
+  \question A shortest cycle visiting every city exactly once.
+\end{probdef}
 
+In general this problem is hopeless to approximate, as \cref{sec:gap-technique}
+will show. Two restrictions rescue it, and both are natural for distances that
+come from an actual map:
+\begin{itemize}[nosep,leftmargin=*]
+  \item \emph{symmetry}: $d(x,y) = d(y,x)$ for all $x,y$;
+  \item \emph{the triangle inequality}: $d(x,y) + d(y,z) \ge d(x,z)$ for all
+        $x,y,z$, that is, a detour never helps.
+\end{itemize}
+An instance satisfying both is called \emph{metric}. Assume both from here to
+the end of the section.
+
+\subsection{A spanning tree is a lower bound}
+
+The whole of metric \lang{TSP} approximation rests on one observation.
+
+\begin{lemma}\label{lem:tsp-mst-lower-bound}
+Let $\mathrm{MST}$ be the weight of a minimum spanning tree of the instance.
+Then $\OPT \ge \mathrm{MST}$.
+\end{lemma}
+
+\begin{proof}
+Delete any one edge from an optimal tour. What remains is a Hamiltonian path,
+which is in particular a spanning tree, and its weight is at most that of the
+tour since weights are non-negative. A minimum spanning tree is no heavier.
+\end{proof}
+
+That is the third quantity. It bounds $\OPT$ from below, and the algorithm will
+be built so that its output is bounded from above by twice the same quantity.
+
+\begin{algorithm}[ht]
+\caption{Double-tree $2$-approximation for metric \lang{TSP}}
+\label{alg:tsp-double-tree}
+\begin{algorithmic}[1]
+  \State compute a minimum spanning tree $T$
+  \State root $T$ anywhere and list its vertices in preorder, visiting a node
+         before its children
+  \State \Return the tour that visits the cities in that order
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:tsp-double-tree}
+\Cref{alg:tsp-double-tree} is a $2$-approximation for metric \lang{TSP}.
+\end{theorem}
+
+\begin{proof}
+Walking around the tree, traversing every edge once downwards and once
+upwards, is a closed walk of weight exactly $2\,\mathrm{MST}$ visiting every
+city. The preorder tour is that walk with repeated visits shortcut away, and by
+the triangle inequality every shortcut only shortens it. Hence
+$\mathrm{ALG} \le 2\,\mathrm{MST}$. With \cref{lem:tsp-mst-lower-bound},
+\[ \frac{\mathrm{ALG}}{\OPT} \le \frac{2\,\mathrm{MST}}{\mathrm{MST}} = 2. \]
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{A minimum spanning tree of a small point set; the closed
+walk that traverses every tree edge twice; and the tour obtained by shortcutting
+repeated visits. The shortcuts are the only place the triangle inequality is
+used.}
+\caption{The double-tree algorithm. Doubling the tree makes every degree even,
+so a closed walk exists; shortcutting turns the walk into a tour and, by the
+triangle inequality, cannot make it longer.}
+\label{fig:tsp-double-tree}
+\end{figure}
+
+\subsection{Christofides' algorithm}
+
+Doubling the tree is wasteful. The only reason to double was to make every
+degree even, and most vertices of a tree already have even degree. Repairing
+just the odd ones is cheaper, and this is Christofides' idea.
+
+\begin{algorithm}[ht]
+\caption{Christofides' $3/2$-approximation for metric \lang{TSP}}
+\label{alg:christofides}
+\begin{algorithmic}[1]
+  \State compute a minimum spanning tree $T$
+  \State let $W = \{v : v \text{ has odd degree in } T\}$
+  \State compute a minimum weight perfect matching $M$ in the complete graph
+         induced on $W$
+  \State form the multigraph $T + M$, which is Eulerian
+  \State compute an Euler tour $C'$ of $T + M$
+  \State \Return the tour obtained from $C'$ by shortcutting repeated visits
+\end{algorithmic}
+\end{algorithm}
+
+Three details deserve a word. First, $|W|$ is even, because in any graph the
+number of odd-degree vertices is even, so the matching exists. Second, adding a
+perfect matching on $W$ raises the degree of exactly the odd vertices by one, so
+every vertex of $T+M$ has even degree and the multigraph is connected: it is
+Eulerian, and \cref{ch:stable-marriage} supplies the Euler tour. Third, the
+matching is computed by the algorithm of \cref{ch:matching}, in polynomial
+time --- this step is the reason Christofides' algorithm is not a five-line
+exercise.
+
+\begin{theorem}\label{thm:christofides}
+\Cref{alg:christofides} is a $3/2$-approximation for metric \lang{TSP}.
+\end{theorem}
+
+\begin{proof}
+The weight of $T$ is at most $\OPT$ by \cref{lem:tsp-mst-lower-bound}.
+
+For the matching, consider an optimal tour and restrict it to the vertices of
+$W$: shortcutting the tour onto $W$ gives a cycle through the vertices of $W$
+of weight at most $\OPT$, again by the triangle inequality. That cycle has even
+length, so its edges split into two perfect matchings on $W$, and the lighter of
+the two has weight at most $\OPT/2$. A minimum weight perfect matching is no
+heavier, so $w(M) \le \OPT/2$.
+
+Hence $w(T+M) \le \OPT + \OPT/2 = \tfrac32 \OPT$. The Euler tour has exactly
+that weight, and shortcutting does not increase it, so
+$\mathrm{ALG} \le \tfrac32\OPT$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5.5cm}{Four panels: the minimum spanning tree $T$; the odd
+degree vertices $W$ marked; the minimum weight perfect matching $M$ on $W$ drawn
+in a second colour; and the Eulerian multigraph $T+M$ with its Euler tour.}
+\caption{Christofides' algorithm. Only the odd-degree vertices need repairing,
+and repairing them costs at most half an optimal tour.}
+\label{fig:christofides}
+\end{figure}
+
+\begin{intuition}
+The step to watch is the bound on the matching. It is the only place where the
+optimal tour is used as a \emph{source} of a cheap object rather than as a
+target to compare against: an optimal tour, restricted to $W$, is itself a
+union of two matchings, so one of them is cheap, so the minimum one is cheap.
+This trick --- get an upper bound on something we compute by cutting up an
+object we cannot compute --- recurs throughout approximation.
+\end{intuition}
+
+%==============================================================================
+\section{The shape of an approximation proof}
+\label{sec:approx-proof-shape}
+%==============================================================================
+
+Both TSP proofs, and the \lang{Max SAT} proof before them, have the same three
+lines. It is worth isolating the pattern, because most approximation ratio
+proofs in this course and beyond follow it.
+
+\begin{enumerate}[leftmargin=*]
+  \item Find a quantity $x$ that relates to both the optimum and the output.
+        For metric \lang{TSP} it was the weight of a minimum spanning tree, for
+        \lang{Max SAT} the number of clauses.
+  \item Prove $\OPT \ge c_1 x$ (for a minimisation problem; $\OPT \le c_1 x$
+        for maximisation).
+  \item Prove $\mathrm{ALG} \le c_2 x$.
+  \item Combine: the ratio is at most $c_2/c_1$.
+\end{enumerate}
+
+The art is entirely in step~1. Steps~2 and~3 are usually short once $x$ is
+right, and hopeless when it is wrong. A good $x$ is something the algorithm
+actually computes --- that makes step~3 nearly free --- and something an
+optimal solution visibly contains --- that makes step~2 nearly free. A minimum
+spanning tree is both.
+
+In \cref{sec:lp-rounding} we will see the systematic way of producing such an
+$x$: solve a relaxation of the problem, one whose optimum is by construction a
+bound on $\OPT$ and which we can compute in polynomial time.
+
+%==============================================================================
+\section{The gap technique}
+\label{sec:gap-technique}
+%==============================================================================
+
+Approximation ratios are proved; the absence of approximation ratios has to be
+proved too, and the basic tool is a hardness reduction that is deliberately
+wasteful.
+
+\begin{definition}[Gap technique]\label{def:gap-technique}
+A \emph{gap-creating reduction} is an \textrm{NP}-hardness proof whose output
+instances have optimum value at most $a$ when the input is a yes-instance and
+at least $b > a$ when it is a no-instance. An approximation algorithm with
+ratio better than $b/a$ would then distinguish the two cases, and hence solve
+the \textrm{NP}-hard problem in polynomial time.
+\end{definition}
+
+The whole content is in making $b/a$ large. Since the two cases must be
+separated by a wide margin, the reduction deliberately blows up the cost of the
+no-instances.
+
+\begin{theorem}\label{thm:tsp-no-approx}
+Unless $\mathrm{P} = \mathrm{NP}$, no polynomial-time algorithm approximates
+\lang{TSP} without the triangle inequality within any constant ratio $c > 1$.
+\end{theorem}
+
+\begin{proof}
+Let $c > 1$ be given, and let $G = (V,E)$ be an instance of
+\lang{Hamiltonian Cycle} with $n = |V|$. Build a \lang{TSP} instance with one
+city per vertex and
+\[
+  d(v,w) = \begin{cases}
+    1 & \text{if } \{v,w\} \in E, \\
+    nc + 1 & \text{otherwise.}
+  \end{cases}
+\]
+If $G$ has a Hamiltonian cycle, that cycle is a tour of length exactly $n$. If
+$G$ has none, every tour must use at least one non-edge, so its length is at
+least $(n-1) + nc + 1 > nc$.
+
+The two cases are separated by a factor of more than $c$. A $c$-approximation
+algorithm run on the constructed instance returns a tour of length at most
+$c \cdot \OPT$, which in the first case is at most $cn$ and in the second is
+more than $cn$; comparing the returned length with $cn$ therefore decides
+\lang{Hamiltonian Cycle} in polynomial time.
+\end{proof}
+
+Two remarks. First, the constructed instance badly violates the triangle
+inequality --- a non-edge of length $nc+1$ can be short-circuited by a path of
+two edges of length $1$ --- which is exactly why \cref{thm:christofides} is not
+contradicted. Second, the argument works for any $c$, even one growing with
+$n$; \cref{ch:approx-ii} pushes it to polynomial $c$.
+
+%==============================================================================
+\section{Vertex cover}
+\label{sec:vertex-cover-approx}
+%==============================================================================
+
+\begin{probdef}{Vertex Cover}
+  \instance An undirected graph $G = (V,E)$.
+  \question A smallest set $C \subseteq V$ such that every edge has at least
+  one endpoint in $C$.
+\end{probdef}
+
+\begin{algorithm}[ht]
+\caption{$2$-approximation for \lang{Vertex Cover}}
+\label{alg:vertex-cover}
+\begin{algorithmic}[1]
+  \State $E' \gets E$, \quad $C \gets \emptyset$
+  \While{$E' \ne \emptyset$}
+    \State pick any edge $\{u,v\} \in E'$
+    \State $C \gets C \cup \{u,v\}$
+    \State remove from $E'$ every edge incident to $u$ or to $v$
+  \EndWhile
+  \State \Return $C$
+\end{algorithmic}
+\end{algorithm}
+
+The algorithm clearly runs in polynomial time and clearly returns a vertex
+cover: an edge leaves $E'$ only when one of its endpoints enters $C$.
+
+\begin{theorem}\label{thm:vertex-cover-approx}
+\Cref{alg:vertex-cover} is a $2$-approximation for \lang{Vertex Cover}.
+\end{theorem}
+
+\begin{proof}
+Let $A$ be the set of edges picked in the loop. No two of them share an
+endpoint, since picking an edge removes every edge incident to either endpoint;
+so $A$ is a matching. Any vertex cover must contain at least one endpoint of
+each edge of $A$, and these endpoints are distinct, so $\OPT \ge |A|$. The
+algorithm returns exactly the $2|A|$ endpoints, so
+$\mathrm{ALG} = 2|A| \le 2\OPT$.
+\end{proof}
+
+Here the third quantity $x$ is $|A|$, the size of the matching the algorithm
+happens to build. Note that the algorithm is greedy in a very weak sense --- it
+picks \emph{any} edge, not a cleverly chosen one --- and that the analysis does
+not care. Being unable to improve on this by any clever choice of edge is not
+an accident: \cref{ch:hardness} shows that \lang{Vertex Cover} is
+\textrm{APX}-hard, so no polynomial-time algorithm has ratio $1 + \varepsilon$
+for every $\varepsilon$ unless $\mathrm{P} = \mathrm{NP}$.
+
+%==============================================================================
+\section{Minimum weight vertex cover by LP rounding}
+\label{sec:lp-rounding}
+%==============================================================================
+
+Now give each vertex $v$ a weight $w_v \ge 0$ and ask for a vertex cover of
+minimum total weight. \Cref{alg:vertex-cover} is no longer a $2$-approximation,
+and the reason is plain: picking an arbitrary edge may put two very heavy
+vertices into $C$ when one light vertex would have covered everything.
+
+What saves us is a general method. Write the problem as an integer linear
+program, drop the integrality, solve what remains, and round.
+
+\begin{definition}[ILP formulation]\label{def:vc-ilp}
+With one variable $x_v$ per vertex, \lang{Minimum Weight Vertex Cover} is
+\[
+\begin{array}{lll}
+  \text{minimise}   & \displaystyle\sum_{v \in V} w_v x_v & \\[2pt]
+  \text{subject to} & x_u + x_v \ge 1 & \text{for each } \{u,v\} \in E, \\[2pt]
+                    & x_v \in \{0,1\} & \text{for each } v \in V.
+\end{array}
+\]
+The \emph{LP relaxation} replaces the last line by $0 \le x_v \le 1$.
+\end{definition}
+
+Integer linear programming is \textrm{NP}-hard --- of course it is, we have
+just encoded an \textrm{NP}-hard problem in it. Linear programming is not: it
+is solvable in polynomial time by the ellipsoid method or by interior point
+methods. (Not by the simplex algorithm, which is fast in practice but takes
+exponential time in the worst case.) So the relaxation is something we can
+actually compute, and since every vertex cover is a feasible solution of the
+relaxation, its optimum $z^{*}$ satisfies $z^{*} \le \OPT$. That is the lower
+bound the previous sections had to find by hand.
+
+\begin{algorithm}[ht]
+\caption{LP rounding for \lang{Minimum Weight Vertex Cover}}
+\label{alg:vc-lp-rounding}
+\begin{algorithmic}[1]
+  \State solve the LP relaxation of \cref{def:vc-ilp}, giving $x^{*}$
+  \State \Return $C = \{v : x^{*}_v \ge 1/2\}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:vc-lp-rounding}
+\Cref{alg:vc-lp-rounding} runs in polynomial time and is a $2$-approximation
+for \lang{Minimum Weight Vertex Cover}.
+\end{theorem}
+
+\begin{proof}
+It returns a vertex cover: for every edge $\{u,v\}$ the constraint
+$x^{*}_u + x^{*}_v \ge 1$ forces at least one of the two to be at least $1/2$.
+
+For the ratio, let $z^{*} = \sum_v w_v x^{*}_v$ be the LP optimum. Every vertex
+cover gives a feasible integral solution of the LP, so $z^{*} \le \OPT$. In the
+other direction, discarding the vertices with $x^{*}_v < 1/2$ only decreases the
+sum, and on the vertices that remain $x^{*}_v \ge 1/2$, so
+\[
+  z^{*} \;=\; \sum_{v \in V} w_v x^{*}_v
+        \;\ge\; \sum_{v \,:\, x^{*}_v \ge 1/2} w_v x^{*}_v
+        \;\ge\; \frac12 \sum_{v \,:\, x^{*}_v \ge 1/2} w_v
+        \;=\; \frac12\,\mathrm{ALG}.
+\]
+Hence $\mathrm{ALG} \le 2 z^{*} \le 2\OPT$.
+\end{proof}
+
+\begin{intuition}
+The rounding threshold $1/2$ is not a tuning parameter; it is forced. The
+constraint has two variables summing to at least $1$, so $1/2$ is the largest
+threshold that is guaranteed to catch one of them, and it is also the loss
+factor in the second half of the proof. A constraint with $k$ variables summing
+to at least $1$ would give threshold $1/k$ and ratio $k$ by the identical
+argument --- which is how the same method approximates set cover when every
+element lies in at most $k$ sets.
+\end{intuition}
+
+The general method behind \cref{alg:vc-lp-rounding} is worth stating on its
+own, since it is one of the two or three most useful things in the subject.
+
+\begin{enumerate}[leftmargin=*]
+  \item Write the problem as an integer program.
+  \item Relax the integrality constraints and solve the resulting LP in
+        polynomial time. Its value $z^{*}$ is a bound on $\OPT$, for free.
+  \item Round the fractional solution to an integral one, and bound how much
+        the rounding costs.
+\end{enumerate}
+Step~3 is where the thinking happens, and the ratio one gets is exactly the
+worst-case cost of the rounding --- what is called the \emph{integrality gap}
+of the formulation.
+
+%==============================================================================
 \section{Asymmetric instances}
 \label{sec:asymmetric-tsp}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: When $d(i,j) \le 2 d(j,i)$ the metric arguments survive at a constant loss.
+Real distances are often not symmetric. An electric car in the mountains uses
+more battery going up than coming down, so $d(i,j) \ne d(j,i)$, and neither
+\cref{alg:tsp-double-tree} nor \cref{alg:christofides} applies as it stands ---
+a spanning tree has no direction, and shortcutting a walk uses the triangle
+inequality in both directions.
 
-\section{Scheduling and load balancing}
-\label{sec:scheduling-approx}
+If the asymmetry is bounded, however, the whole analysis survives at a constant
+loss. This is pool question~13, and it is worth working through because the
+argument is a template for what to do with a hypothesis of the form ``almost
+symmetric''.
 
-\todo{Write this section.}
+\begin{theorem}\label{thm:asymmetric-tsp}
+Consider \lang{TSP} instances that satisfy the triangle inequality
+$d(i,j) + d(j,k) \ge d(i,k)$ and the bounded asymmetry condition
+$d(i,j) \le 2\,d(j,i)$ for all cities $i,j,k$. There is a polynomial-time
+$3$-approximation algorithm for these instances.
+\end{theorem}
 
+\begin{proof}
+Symmetrise the instance by taking, for every pair, the \emph{larger} of the two
+directions:
+\[ \hat d(i,j) \;=\; \hat d(j,i) \;=\; \max\{d(i,j),\, d(j,i)\}. \]
+Run Christofides' algorithm on $\hat d$ and orient the tour it returns
+arbitrarily. That is the whole algorithm; it is polynomial because
+\cref{alg:christofides} is. Three claims prove the ratio.
+
+\emph{Claim 1: $\hat d$ is a metric.} It is symmetric and non-negative by
+construction. For the triangle inequality, fix $i,j,k$. By definition
+$\hat d(i,k)$ is either $d(i,k)$ or $d(k,i)$. In the first case
+\[ d(i,k) \le d(i,j) + d(j,k) \le \hat d(i,j) + \hat d(j,k), \]
+and in the second case, using the triangle inequality along $k \to j \to i$,
+\[ d(k,i) \le d(k,j) + d(j,i) \le \hat d(j,k) + \hat d(i,j). \]
+Either way $\hat d(i,k) \le \hat d(i,j) + \hat d(j,k)$, so
+\cref{alg:christofides} applies to $\hat d$ and returns a tour of $\hat
+d$-length at most $\tfrac32 \widehat{\OPT}$, where $\widehat{\OPT}$ is the
+optimum of the symmetrised instance.
+
+\emph{Claim 2: $\widehat{\OPT} \le 2\OPT$.} This is the only place the bounded
+asymmetry is used. Take an optimal directed tour and forget the directions. For
+each of its arcs $(i,j)$ we have $d(j,i) \le 2 d(i,j)$ by hypothesis, hence
+$\hat d(i,j) = \max\{d(i,j),d(j,i)\} \le 2 d(i,j)$. Summing over the arcs, the
+undirected tour has $\hat d$-length at most $2\OPT$, and $\widehat{\OPT}$ is no
+larger.
+
+\emph{Claim 3: orienting costs nothing.} Let $T$ be the undirected tour
+returned, oriented arbitrarily. Every arc of the oriented tour satisfies
+$d(i,j) \le \max\{d(i,j),d(j,i)\} = \hat d(i,j)$, so the directed length of $T$
+is at most its $\hat d$-length.
+
+Chaining the three claims,
+\[ d(T) \;\le\; \hat d(T) \;\le\; \tfrac32 \widehat{\OPT}
+        \;\le\; \tfrac32 \cdot 2\OPT \;=\; 3\OPT. \qedhere \]
+\end{proof}
+
+Using \cref{alg:tsp-double-tree} instead of Christofides' algorithm gives the
+same argument with $\tfrac32$ replaced by $2$, hence a $4$-approximation, and
+avoids computing a matching. Both are acceptable answers to the pool question,
+which asks only for some constant.
+
+\begin{intuition}
+Why the \emph{maximum} and not the minimum? Taking the minimum makes the
+symmetrised distances smaller, which looks better --- but it destroys the
+triangle inequality, and then Christofides' analysis no longer applies. Taking
+the maximum keeps the triangle inequality for free (claim~1 does not use the
+bounded asymmetry at all) and pays for it in claim~2, where the hypothesis
+$d(i,j) \le 2 d(j,i)$ says exactly that the maximum is never more than twice
+the direction an optimal tour actually travels. The hypothesis is used once,
+and it buys one factor of two.
+\end{intuition}
+
+The point of the exercise is not the constant. It is that a bounded asymmetry
+can be absorbed into the constant at all: the instance is turned into one the
+existing algorithms accept, and each step of the translation is charged
+separately.
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:approx-i-further-reading}
+%==============================================================================
+
+This chapter follows Johan van Rooij's lecture slides. For the design and
+analysis of approximation algorithms, \citet[Chapter~35]{CLRS2022} covers
+vertex cover, TSP and set cover at the level of this chapter;
+\citet{WilliamsonShmoys2011} is the standard modern text, organised by
+technique rather than by problem, and \citet{Vazirani2001} is the other
+standard. For the landscape of approximability, which is the subject of
+\cref{ch:approx-ii}, \citet[Chapter~3]{Ausiello1999} is the reference.
+
+Christofides' algorithm was a 1976 Carnegie Mellon technical report that was
+never submitted anywhere and accumulated several thousand citations in that
+state; it finally appeared in a journal in \citet{Christofides2022}. Its ratio
+stood as the best known for metric TSP for forty-five years, until
+\citet{KarlinKleinOveisGharan2021} obtained $3/2 - \varepsilon$ for an
+$\varepsilon$ of about $10^{-36}$. The LP rounding argument for weighted vertex cover is due
+to \citet{Hochbaum1982} and \citet{BarYehudaEven1981}.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-approx-i}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Give a $2$-approximation for \lang{Max $k$-SAT} for every $k$, and improve it
+to a $(1 - 2^{-k})^{-1}$-approximation. Hint: for the second part, count how
+many of the $2^k$ assignments of the variables in one clause fail to satisfy it.
+\end{exercise}
+
+\begin{exercise}
+Show that \cref{lem:tsp-mst-lower-bound} fails without the assumption that
+distances are non-negative, and that the double-tree algorithm then has no
+constant ratio.
+\end{exercise}
+
+\begin{exercise}
+Find an instance of metric \lang{TSP} on which \cref{alg:tsp-double-tree}
+returns a tour of length close to $2\OPT$, showing that the analysis of
+\cref{thm:tsp-double-tree} is tight.
+\end{exercise}
+
+\begin{exercise}
+In Christofides' algorithm, why is it not enough to compute \emph{any} perfect
+matching on $W$? Where exactly does the proof of \cref{thm:christofides} use
+minimality?
+\end{exercise}
+
+\begin{exercise}
+The greedy algorithm that repeatedly picks a vertex of maximum degree is a
+plausible alternative to \cref{alg:vertex-cover}. Show that it does not have
+approximation ratio $2$.
+\end{exercise}
+
+\begin{exercise}
+Show that the LP relaxation of \cref{def:vc-ilp} can have optimum $|V|/2$ on a
+graph whose minimum vertex cover has size $|V| - 1$. Hint: a complete graph.
+Conclude that no rounding whatsoever can turn this formulation into a
+$(2-\varepsilon)$-approximation for a fixed $\varepsilon > 0$.
+\end{exercise}
+
+\begin{exercise}
+Apply the gap technique to \lang{Chromatic Number}: use the
+\textrm{NP}-hardness of deciding $3$-colourability to show that no
+polynomial-time algorithm approximates the chromatic number within a ratio
+better than $4/3$ unless $\mathrm{P} = \mathrm{NP}$.
+\end{exercise}
+
+\begin{exercise}
+In \cref{thm:asymmetric-tsp}, where is the hypothesis $d(i,j) \le 2 d(j,i)$
+used, and what ratio does the same proof give if the hypothesis is weakened to
+$d(i,j) \le \alpha\, d(j,i)$ for a constant $\alpha$?
+\end{exercise}

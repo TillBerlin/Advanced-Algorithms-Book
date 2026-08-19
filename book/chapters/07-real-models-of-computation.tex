@@ -1,75 +1,646 @@
 %% Chapter 7: Real Models of Computation
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against chapter 1 of Real-Compuation.pdf ("Beyond Bits", Tillmann
+%% Miltzow).  The figure placeholders name the manuscript's own figure numbers,
+%% so the artwork can be dropped in directly.
 
 \chapter{Real Models of Computation}
 \label{ch:real-models}
 
-Every algorithms course quietly assumes a model of computation and then never
-mentions it again. This chapter takes the question seriously. Comparing the word
-RAM with the Turing machine already shows that the choice matters; the real RAM,
-the model computational geometry actually uses, turns out to be strictly more
-powerful in a way that is both useful and slightly alarming.
+Every algorithms course quietly assumes a model of computation in its first
+week and then never mentions it again. This chapter takes the question
+seriously, because in the rest of Part~II the answer stops being a formality.
+Comparing the word RAM with the Turing machine already shows that the choice
+matters; the real RAM --- the model computational geometry actually uses ---
+turns out to be more powerful than it looks, in a way that is both useful and
+slightly alarming.
 
 \begin{goals}
   \poolgoal{6.1}{explain a program on a word RAM (not a formal definition)}
   \poolgoal{6.2}{explain a Turing machine (not a formal definition)}
-  \poolgoal{6.3}{give a comparison of advantages and disadvantages of the two models}
-  \poolgoal{6.4}{explain what a program on a real RAM is, and give both a motivation for and concerns about this model of computation}
-  \poolgoal{6.5}{show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM that is allowed to use rounding}
-  \poolgoal{6.6}{show how to compute $\gcd(a,b)$ in $O(\min\{\log a, \log b\})$ time on a real RAM that is allowed to use rounding}
-  \poolgoal{6.7}{show that a factor of a number can be found in polynomial time on a real RAM that is allowed to use rounding}
+  \poolgoal{6.3}{give a comparison of advantages and disadvantages of the two
+        models}
+  \poolgoal{6.4}{explain what a program on a real RAM is, and give both a
+        motivation for and concerns about this model of computation}
+  \poolgoal{6.5}{show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM
+        that is allowed to use rounding}
+  \poolgoal{6.6}{show how to compute $\gcd(a,b)$ in
+        $O(\min\{\log a, \log b\})$ time on a real RAM that is allowed to use
+        rounding}
+  \poolgoal{6.7}{show that a factor of a number can be found in polynomial time
+        on a real RAM that is allowed to use rounding}
   \poolgoal{6.8}{define a straight line program and \textsc{PosSLP}}
   \poolgoal{6.9}{show that $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}
 \end{goals}
 
+%==============================================================================
+\section{What is an algorithm, mathematically?}
+\label{sec:real-models-motivation}
+%==============================================================================
+
+An algorithm is a description of a computation. Usually it is given in prose:
+
+\begin{quote}
+\textbf{Linear Search.} Given a finite list of numbers
+$L = (x_1, \ldots, x_n)$ and a number $t$, inspect the elements from left to
+right. Once we find an $x_i$ with $x_i = t$, return the index $i$. If no such
+index exists, report that $t$ does not occur in the list.
+\end{quote}
+
+Students and teachers often find this not precise enough and prefer
+pseudocode, which pins down the loop, the comparison and the two exits. That is
+useful twice over: it is a step towards an implementation, and it is what
+introductory courses analyse mathematically. We show that the algorithm
+terminates, that it is correct, that it takes so many steps and uses so much
+memory.
+
+But take a step back. Mathematical analysis is carried out on well-defined
+mathematical objects --- sets, numbers, functions, vector spaces. In what sense
+is either description above such an object? What exactly is being counted when
+we count ``steps''?
+
+The rest of this section defines an algorithm as a mathematical object, twice,
+and then explains why the informal descriptions are nevertheless the right
+thing to write down.
+
+%==============================================================================
 \section{The word RAM}
 \label{sec:word-ram}
+%==============================================================================
 
-\todo{Write this section.}
+The word RAM is meant to capture how physical computers actually handle data
+while staying simple enough to reason about. RAM stands for \emph{random access
+memory}: the machine can reach any part of its memory without restriction. Its
+central idea is that the machine works with \emph{words} of fixed size rather
+than with individual bits. A word is large enough to hold any memory address or
+any integer of reasonable size --- typically $\Theta(\log n)$ bits when the
+input has size $n$.
 
+Memory is an array of such words, each addressable directly. This reflects real
+machines: reading a specific cell costs constant time regardless of where it
+is. The model abstracts away caches and memory hierarchies while keeping the
+essential feature, direct addressing.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{40mm}{Figure 1 of the source manuscript. The word RAM: a
+program on the left as a finite list of instructions, a CPU, and an infinite
+array of word registers $I[0], I[1], I[2], \ldots$ into which input, output and
+all working memory go.}
+\caption{An algorithm on the word RAM is a finite list of instructions. Input,
+output and all working memory live in one infinite array of registers.}
+\label{fig:word-ram}
+\end{figure}
+
+The machine performs a \emph{fixed, finite} set of primitive operations, each
+in constant time.
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Operation type} & \textbf{Standard operations (unit cost)} \\
+\midrule
+assign constants    & $M[i] \gets j$, with $i,j$ constants \\
+copy                & $M[i] \gets M[j]$, with $i,j$ constants \\
+indirect access     & $M[i] \gets M[M[j]]$, with $i,j$ constants \\
+arithmetic          & $M[i] \gets M[j] \circ M[k]$,
+                      $\circ \in \{+,-,\times,/\}$ \\
+bitwise             & \textsc{and}, \textsc{or}, \textsc{xor}, \textsc{not}
+                      (optional) \\
+shifts              & left/right shift by a constant (optional) \\
+comparisons         & $=, \ne, <, \le, >, \ge$ between words \\
+control flow        & conditional branch and unconditional jump \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Indirect access may be combined with arithmetic, so
+$M[M[1]] \gets M[2] - M[3]$ is one step. Think of a word RAM program as the
+machine code a compiler emits: primitive, and not how anybody would choose to
+write.
+
+\begin{algorithm}[ht]
+\caption{Linear search on the word RAM}
+\label{alg:linear-search-wordram}
+\begin{algorithmic}[1]
+  \Statex \textit{Word size $w = \Theta(\log n)$. Input: $M[0] = n$,
+          $M[1] = t$, and $M[3], \ldots, M[n+2]$ hold $x_1, \ldots, x_n$.}
+  \State $M[0] \gets M[0] + 2$
+         \Comment{adjust the length to match the final index}
+  \State $M[2] \gets 3$ \Comment{initialise the index variable}
+  \State \textbf{if} $M[M[2]] = M[1]$ \textbf{then return} $M[2]$
+         \Comment{found it}
+  \State $M[2] \gets M[2] + 1$ \Comment{move to the next cell}
+  \State \textbf{if} $M[2] > M[0]$ \textbf{then return} ``no''
+         \Comment{not in the list}
+  \State \textbf{go to} line 3 \Comment{repeat the loop}
+\end{algorithmic}
+\end{algorithm}
+
+Even this short program does not adhere strictly to the operation list, which
+is itself instructive: nobody writes word RAM code, and nobody should.
+
+\paragraph{Good for analysis.}
+The features that make a word RAM program unpleasant to read are exactly what
+make it good to analyse. Every operation has a precise, agreed cost. There is
+no ambiguity about what counts as a step, what memory access is allowed, or how
+large numbers may be. Analysis is ultimately about counting operations, and the
+model fixes what there is to count. It also forces assumptions into the open:
+random access, word size, arithmetic power. A claim like ``this runs in linear
+time'' can then be checked against the model rather than accepted on trust.
+
+\paragraph{Independent of any actual computer.}
+The model draws a clean line between algorithmic ideas and hardware. By
+idealising word-level operations and constant-time access it captures what is
+essential about modern machines and ignores the engineering. That is what makes
+it possible to reason about bit tricks, hashing and packed data structures
+without committing to a processor.
+
+\paragraph{Bad for communication.}
+A word RAM program exposes what is irrelevant and hides what matters. It forces
+the reader to think in registers, addresses and jumps, so the high-level logic
+--- what is being searched for, why the loop ends, what invariant holds --- has
+to be reconstructed from low-level operations. That is expensive and
+error-prone even for experts. It also scales badly: as algorithms grow, the
+structure fragments across jumps and register updates, and properties that are
+obvious in prose (``repeat until the list ends'') must be inferred.
+
+\begin{intuition}
+This tension is resolved by a convention rather than a theorem, and it is worth
+naming. In theoretical computer science algorithms are described in words and
+pseudocode, and it is \emph{implicitly assumed} that any such description could
+be translated into a word RAM program if one insisted. We never carry the
+translation out, because it adds nothing and obscures the idea. The word RAM is
+a reference point for analysis, not a language for presentation --- but
+whenever we analyse an algorithm, it is the implicit word RAM program we are
+analysing.
+\end{intuition}
+
+%==============================================================================
 \section{Turing machines}
 \label{sec:turing-machines}
+%==============================================================================
 
-\todo{Write this section.}
+Discussing models of computation without Turing machines is like cake without
+coffee. Their value, next to the word RAM, is mathematical simplicity, and they
+began as a thought experiment.
 
-\section{Comparing the models}
+Imagine a very patient but extremely simple worker sitting in front of an
+endless strip of paper divided into squares, each holding one symbol. The
+worker looks at exactly one square at a time, may change the symbol written
+there, and then steps one square left or right --- immediately forgetting what
+was on the previous square. The worker also has a small instruction sheet, a
+finite list of rules, saying what to do given the symbol seen and the line of
+the sheet currently being followed. The worker's entire memory is their place
+in that finite list. There is no overview of the tape, no jumping to arbitrary
+positions, no arithmetic beyond what those tiny steps encode. Everything is
+local, one square at a time, and computation is the repeated application of
+these rules, possibly for a very long time.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Figure 2 of the source manuscript: the Turing machine as
+a thought experiment about a simple worker at an endless tape.}
+\caption{Turing machines began as a thought experiment about a very patient
+worker.}
+\label{fig:turing-machine}
+\end{figure}
+
+\paragraph{Simple and formal.}
+The picture is deliberately informal, but the model can be made entirely
+rigorous: worker, tape and instruction sheet are finite sets, functions and
+transition rules, with no ambiguity. At the same time it is mathematically
+minimal --- a handful of basic operations, no appeal to advanced mathematics or
+physical assumptions. That combination is the point. Keeping the model as
+simple as possible while still capturing every computable procedure gives a
+clean, robust foundation for reasoning about what computation can and cannot
+do.
+
+\paragraph{Equivalent to the word RAM.}
+The two models look nothing alike but are close in power. Any word RAM
+computation can be simulated by a Turing machine with at most polynomial
+slowdown, and any Turing machine can be simulated on a word RAM with constant
+multiplicative overhead. So when we classify by polynomial versus
+superpolynomial time, the choice does not matter: the two define the same
+notion of efficient computation, up to polynomial factors. The simulation of a
+word RAM by a Turing machine is tedious and needs a a number of clever tricks,
+and we do not carry it out.
+
+\paragraph{Designing algorithms on them.}
+At first it seems impossible, since the worker holds only finitely much
+information at any time. The basic trick is explicit start and end markers,
+with the head sweeping back and forth between them, ``remembering'' by writing
+on the tape and picking it up on a later pass. It is usually more convenient to
+use a \emph{multitape} machine: besides the input tape, a constant number of
+work tapes each with its own head, so one can keep a binary counter on one, a
+marked position on another and scratch space on a third. Multitape machines can
+themselves be simulated by the single-tape model --- encode all tapes on one,
+separated by delimiters, marking each simulated head position, and scan to find
+the marks, decide the transition, and scan again to update --- at polynomial
+overhead.
+
+%==============================================================================
+\section{Comparing the two models}
 \label{sec:model-comparison}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: What each model gets right, what each gets wrong, and why the difference is usually invisible.
+\begin{center}
+\begin{tabular}{@{}p{0.45\textwidth}p{0.45\textwidth}@{}}
+\toprule
+\textbf{Word RAM} & \textbf{Turing machine} \\
+\midrule
+Close to real hardware: random access, word-level arithmetic, realistic costs.
+& Far from real hardware: local moves on a tape, no addressing. \\[0.6em]
+Fine-grained and honest about constants, so it is the model in which
+``$\bigoh{n\log n}$'' means something.
+& Constants and polynomial factors are not meaningful, so only the
+polynomial/superpolynomial distinction survives. \\[0.6em]
+Definition is fiddly: a table of primitive operations, choices about word size
+and which bitwise operations are allowed.
+& Definition is minimal: finite alphabet, finite state set, one transition
+function. Nothing to argue about. \\[0.6em]
+Programs are unreadable and do not scale as descriptions.
+& Programs are worse, but nobody writes them either --- the model exists to be
+reasoned \emph{about}, not \emph{in}. \\[0.6em]
+The right model when you care what an algorithm costs.
+& The right model when you care what is computable at all, and for definitions
+of complexity classes. \\
+\bottomrule
+\end{tabular}
+\end{center}
 
+The practical answer is that both are used, for different purposes, and that
+the polynomial-time equivalence between them is what makes the split harmless.
+
+%==============================================================================
 \section{The real RAM}
 \label{sec:real-ram}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Exact real arithmetic in unit time. Motivation from computational geometry; the concerns that come with unbounded precision.
+Real models of computation treat real numbers as basic objects rather than
+encoding them as finite bit strings. Addition, subtraction, multiplication,
+division and comparison of reals are assumed exact and to cost one step. Before
+the definition, why one might or might not want this.
 
-\section{The power of rounding}
+\paragraph{It hides numerical issues.}
+Real models deliberately abstract away rounding, precision loss and
+floating-point error. In geometry and optimisation these are usually not the
+source of the combinatorial or structural difficulty, but they dominate the
+analysis in a bit-level model. Assuming exact arithmetic lets us study the
+logical structure of an algorithm without that distraction, and clarifies which
+difficulties are genuinely algorithmic and which are artefacts of finite
+precision. This is the main reason computational geometry uses the real RAM.
+The issues do not disappear, of course, and may bite later.
+
+\paragraph{It is unrealistic.}
+Real numbers need infinite precision, and exact constant-time arithmetic on
+them cannot be done by any physical machine. An algorithm that looks efficient
+in a real model may hide substantial cost when implemented, so results proved
+in real models must be read with care. In extreme cases the idealisation lets
+one \emph{cheat}: encode an enormous amount of information into a single real
+number and manipulate it in constant time, collapsing computations that would
+take exponential time in a realistic model. \Cref{sec:real-ram-rounding} shows
+exactly this.
+
+\paragraph{It is sometimes unavoidable.}
+Often real models arise not because one is interested in real numbers, but
+because they enter the problem statement naturally. Even when the underlying
+question is combinatorial, continuous coordinates or thresholds may appear as
+part of a clean mathematical description, and eliminating them leads to
+artificial encodings. Introducing a real model is then a methodological step:
+it provides a framework in which naturally occurring real quantities are
+handled directly. The model does not claim the problem is ``about'' real
+numbers, only that allowing them simplifies its expression. Convex optimisation
+is a standard example --- its algorithms and analyses need real numbers, and
+the model is usually left implicit.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{Figure 3 of the source manuscript. The real RAM: a
+program, a CPU, and \emph{two} infinite arrays of registers --- word registers
+$I[0], I[1], \ldots$ and real registers $Z[0], Z[1], \ldots$}
+\caption{The real RAM has two infinite arrays of registers: one holding words,
+one holding real numbers.}
+\label{fig:real-ram}
+\end{figure}
+
+\begin{definition}[Real RAM]\label{def:real-ram}
+A \emph{real RAM} extends the word RAM with a second array of registers holding
+arbitrary real numbers. Alongside the word registers, which hold integers,
+addresses and control information, the machine may perform in constant time the
+operations
+\[ +, \quad -, \quad \times, \quad \div \]
+on real registers, together with the \emph{sign test} $R > 0$, which returns
+yes if the content of register $R$ is positive and no otherwise.
+\end{definition}
+
+Two restrictions are essential and are what keep the model honest.
+\begin{itemize}[leftmargin=*]
+  \item \textbf{No arbitrary real constants.} We may not simply write $\pi$, or
+        take square roots.
+  \item \textbf{No access to the bit representation.} No rounding, no
+        extraction of digits, nothing that looks inside a real number.
+\end{itemize}
+
+A \emph{real Turing machine} is the analogous extension of the Turing machine:
+besides the usual tape over a finite alphabet, used for control and
+bookkeeping, there is a separate real tape whose cells hold real values, and
+the transition rules may read, write, compare and do arithmetic on them in a
+single step. The control stays finite and every action stays local, and again
+access to a real number is limited to comparison and arithmetic.
+
+\subsection{Division is not needed}
+\label{sec:real-ram-no-division}
+
+It will matter later that the real RAM can be assumed to have only $+$, $-$ and
+$\times$.
+
+\begin{lemma}\label{lem:real-ram-no-division}
+Let $A$ be a real RAM program using $+,-,\times,\div$ that decides a decision
+problem $P$. Then there is a program $B$ deciding $P$ in the same asymptotic
+running time using only $+$, $-$ and $\times$.
+\end{lemma}
+
+\begin{proof}
+Represent each number $q = a/b$ by the pair $(a,b)$, an input $q$ being
+$(q,1)$. Then for $q_1 = a_1/b_1$ and $q_2 = a_2/b_2$,
+\[ \frac{q_1}{q_2} = \frac{a_1 b_2}{a_2 b_1}, \qquad
+   q_1 - q_2 = \frac{a_1b_2 - a_2b_1}{b_1b_2}, \]
+and similarly for the other operations, each computed with a constant number of
+$+$, $-$ and $\times$. To test $q > 0$ for $q = a/b$ it suffices to test
+$a \cdot b > 0$.
+\end{proof}
+
+%==============================================================================
+\section{Cheating with the real RAM}
 \label{sec:real-ram-rounding}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: With a floor function the real RAM becomes unreasonably strong: $k!$ in $O(\log^2 k)$ time, $\gcd$ in $O(\min\{\log a,\log b\})$ time, and factoring in polynomial time.
+Suppose we relax the second restriction and allow \emph{rounding}: given
+$x \in \R$, return the unique integer $i$ with $i \le x < i+1$. The model
+immediately becomes unreasonable.
 
-\section{Straight line programs and \textsc{PosSLP}}
+\begin{theorem}[\citet{Shamir1979}]\label{thm:real-ram-factoring}
+The \lang{Factoring} problem --- given a natural number $n$, find a non-trivial
+factor --- can be solved in polynomial time on a real RAM with rounding.
+\end{theorem}
+
+The idea is that $\gcd(n, k!) > 1$ if and only if $n$ has a non-trivial factor
+at most $k$. Three ingredients turn this into an algorithm: a fast way to
+compute $k!$, a fast way to compute a greatest common divisor using rounding,
+and a binary search on $k$. We do the first two and then assemble.
+
+\subsection{Computing factorials fast}
+
+\begin{lemma}\label{lem:real-ram-power}
+Let $k, n$ be integers with $n$ of binary length $b = \bigoh{\log n}$. Then
+$k^n$ can be computed in $\bigoh{b}$ steps on a real RAM.
+\end{lemma}
+
+\begin{proof}
+No rounding is needed; assume $k$ sits in a real register. If $n = 2m$ then
+$k^n = (k^m)^2$, and if $n = 2m+1$ then $k^n = (k^m)^2 \cdot k$. Exponentiation
+by squaring therefore computes $k^n$ in $\bigoh{b}$ constant-time steps.
+\end{proof}
+
+\begin{lemma}\label{lem:real-ram-bits}
+Let $R$ be an integer in a real register with binary representation
+$b_k b_{k-1} \cdots b_0$, and let $0 \le a < b \le k$. On a real RAM with
+rounding, the number $S$ with binary representation
+$b_{b-1} b_{b-2} \cdots b_a$ can be computed in constant time.
+\end{lemma}
+
+\begin{proof}
+Let $R_1 = \bigl\lfloor R/2^a \bigr\rfloor$, which discards the $a$ least
+significant bits. Then discard everything of weight at least $2^{b-a}$ by
+reducing modulo $2^{b-a}$, using $x \bmod M = x - \lfloor x/M \rfloor M$:
+\[ S \;=\; R_1 - \Bigl\lfloor \tfrac{R_1}{2^{b-a}} \Bigr\rfloor 2^{b-a}, \]
+which is exactly the required block of bits. Each step is a constant number of
+arithmetic operations and roundings.
+\end{proof}
+
+\begin{lemma}\label{lem:real-ram-factorial}
+Let $n$ be an integer of binary length $b = \bigoh{\log n}$. Then $n!$ can be
+computed in $\bigoh{b^2}$ steps on a real RAM with rounding.
+\end{lemma}
+
+\begin{proof}
+If $n$ is odd, use $n! = n \times (n-1)!$; this happens at most every second
+step and costs constant time. So assume $n = 2m$. Since
+$\binom{2m}{m} = (2m)!/(m!)^2$, we have
+\[ (2m)! \;=\; \binom{2m}{m} (m!)^2, \]
+so it suffices to compute $\binom{2m}{m}$ in $\bigoh{b}$ steps and recurse.
+
+Recall the binomial theorem, $(x+y)^k = \sum_{i=0}^{k} \binom{k}{i}x^i y^{k-i}$.
+Taking $x = 2^l$, $y = 1$ and $k = 2m$ gives
+\[ (2^l+1)^{2m} \;=\; \sum_{i=0}^{2m} \binom{2m}{i} 2^{li}. \]
+By \cref{lem:real-ram-power} the left-hand side is computable in $\bigoh{b}$
+steps. Choose the block length $l \ge 2m$, say $l = 2m$. Then
+$\binom{2m}{i} \le 2^{2m} \le 2^l$, so each term $\binom{2m}{i}2^{li}$ occupies
+at most the $l$ consecutive bit positions $li, \ldots, l(i+1)-1$ and adding the
+shifted terms causes no carry between blocks. In other words, the binary
+expansion of $(2^l+1)^{2m}$ is exactly the sequence of binomial coefficients
+$\binom{2m}{0}, \binom{2m}{1}, \ldots, \binom{2m}{2m}$ written one after
+another in blocks of length $l$. Applying \cref{lem:real-ram-bits} with
+$a = lm$ and $b = l(m+1)$ extracts the block holding $\binom{2m}{m}$ in
+constant time.
+
+Each halving of $n$ costs $\bigoh{b}$ steps and there are $\bigoh{b}$ of them,
+giving $\bigoh{b^2}$ in total.
+\end{proof}
+
+\begin{example}
+With $l = 6$ and $2m = 6$, the number $(2^6+1)^6$ has binary expansion
+consisting of the blocks
+\[ \binom{6}{0} = 1,\quad \binom{6}{1} = 6,\quad \binom{6}{2} = 15,\quad
+   \binom{6}{3} = 20,\quad \binom{6}{4} = 15,\quad \binom{6}{5} = 6,\quad
+   \binom{6}{6} = 1, \]
+written as $000001$, $000110$, $001111$, $010100$, $001111$, $000110$,
+$000001$ --- the binomial coefficients, laid out in the digits of a single
+number.
+\end{example}
+
+\subsection{Computing greatest common divisors}
+
+\begin{lemma}\label{lem:real-ram-gcd}
+For natural numbers $a \le b$, $\gcd(a,b)$ can be computed in
+$\bigoh{\min\{\log a, \log b\}}$ steps on a real RAM with rounding.
+\end{lemma}
+
+\begin{proof}
+Euclid's algorithm would do, but here is a simpler one to analyse.
+
+First, reduce $b$ modulo $a$: with $r = b - \lfloor b/a \rfloor \cdot a$ we have
+$\gcd(a,b) = \gcd(a,r)$, and $r$ has at most $\log a + 1$ bits. So however large
+$b$ was, a constant number of steps brings it down to the size of $a$.
+
+Now shave off at least one bit per iteration. Check whether both numbers are
+even; this can only happen at the start, so divide both by two until at least
+one is odd, remembering how many factors of two were removed and multiplying
+them back at the end. If exactly one is even, halve it --- one bit gone. If both
+are odd, replace $b$ by $b' = b-a$, which leaves the gcd unchanged and is even,
+so the next iteration halves it. Stop when one of the numbers is zero, is one,
+or the two are equal.
+\end{proof}
+
+\subsection{Assembling the algorithm}
+
+\begin{proof}[Proof of \cref{thm:real-ram-factoring}]
+Binary search on $k$, testing at each step whether $\gcd(n, k!) > 1$. The
+search takes $\bigoh{\log n}$ rounds; each computes $k!$ in
+$\bigoh{\log^2 n}$ steps by \cref{lem:real-ram-factorial} and a gcd in
+$\bigoh{\log n}$ steps by \cref{lem:real-ram-gcd}. The total is
+$\bigoh{\log^3 n}$, polynomial in the length of the binary representation of
+$n$.
+\end{proof}
+
+\begin{intuition}
+It is not known whether \lang{Factoring} is in P, and it is not known to be
+NP-hard; the best unconditional result is that it is polynomial on a quantum
+computer. So a model in which it becomes easy is a model that has proved too
+much. Every known way of cheating with the real RAM goes through an operation
+that, in some way, reads the bit representation of a real number --- which is
+exactly why such operations are forbidden. On the positive side, once they are
+forbidden, no cheating example is known.
+\end{intuition}
+
+%==============================================================================
+\section{Real versus discrete computation}
 \label{sec:posslp}
+%==============================================================================
 
-\todo{Write this section.}
+How do the real RAM and the word RAM actually relate? For polynomial-time
+decision problems there is a precise answer, and it needs two notions.
 
-\section{\texorpdfstring{$\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}{P with a PosSLP oracle equals P over the reals}}
+\paragraph{Oracle access.}
+A standard way to increase a model's power is to give it an \emph{oracle}: a
+black box that answers a fixed decision problem in one step, for any input.
+
+\begin{definition}[Straight-line program]\label{def:slp}
+A \emph{straight-line program} is a finite sequence of assignments
+\[ a_0 = 1, \qquad a_k = a_i \circ a_j \quad
+   \text{with } i,j < k \text{ and } \circ \in \{+,-,\times\}. \]
+It has no loops and no conditionals, so each $a_i$ may be read both as a
+recipe and as the value it computes. The problem \lang{PosSLP} asks, given a
+straight-line program, whether the number it computes is positive.
+\end{definition}
+
+\lang{PosSLP} looks deceptively easy. It is not, and the reason is that
+straight-line programs compute enormous numbers with very few instructions.
+Take
+\[ a_0 = 1, \quad a_1 = 1+1 = 2, \quad a_{k+1} = a_k \times a_k, \]
+so that $a_k = 2^{2^k}$. Clearly $a_n$ is positive --- but it has $2^n$ bits,
+so it cannot even be stored on a word RAM in polynomial space, let alone
+computed there. Now ask the same question about
+$2^{2^{n_1}} - 3^{2^{n_2}} - 5^{2^{n_3}}$, and it is no longer clear at all.
+
+Little is known about the complexity of \lang{PosSLP}. It lies in
+\textbf{PSPACE}, hence is decidable, and there are conditional NP-hardness
+results under hypotheses that may well be false. Yet it turns out to be exactly
+the right notion for relating the two models.
+
+\subsection{\texorpdfstring{$\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}{P with a PosSLP oracle equals P over the reals}}
 \label{sec:posslp-pr}
 
-\todo{Write this section.}
+Write $\mathrm{P}^{\textsc{PosSLP}}$ for the class of languages decidable in
+polynomial time on a word RAM with oracle access to \lang{PosSLP}, and
+$\mathrm{P}_{\R}$ for the class of Boolean languages decidable in polynomial
+time on a real RAM.
 
+\begin{theorem}[\citet{AllenderBurgisserKjeldgaardPedersenMiltersen2009}]
+\label{thm:posslp-pr}
+$\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+The inclusion $\mathrm{P}^{\textsc{PosSLP}} \subseteq \mathrm{P}_{\R}$ is the
+easy direction: a real RAM can evaluate a straight-line program directly, one
+instruction per step, and then test the sign of the result, so it can answer
+its own oracle queries.
+
+For the converse, assume by \cref{lem:real-ram-no-division} that the real RAM
+uses only $+$, $-$ and $\times$. Its input is a binary string, so every real
+register holds, at every moment, a value obtained from the integer $1$ by a
+sequence of these three operations --- that is, precisely a value computed by a
+straight-line program, and the program is read off the execution history. The
+only way the machine's control flow depends on the real registers is through
+sign tests. So simulate the real RAM step by step on a word RAM, maintaining
+for each real register the straight-line program that computes it rather than
+its value, and answer each sign test with one \lang{PosSLP} query. A
+polynomial-time real RAM computation performs polynomially many steps, so the
+straight-line programs stay polynomially long and there are polynomially many
+queries.
+\end{proof}
+
+\begin{intuition}
+The theorem says the gap between real and discrete computation is exactly one
+problem wide. Everything a real RAM can do in polynomial time, a word RAM can
+do too, provided somebody tells it the signs of the numbers it would have
+computed. All the power of exact real arithmetic is concentrated in that one
+question --- and we do not know how hard it is.
+\end{intuition}
+
+%==============================================================================
 \section{Notes and further reading}
 \label{sec:real-models-further-reading}
+%==============================================================================
 
-This chapter is based on lecture notes by Tillmann Miltzow.
+This chapter follows \citet{Miltzow2026}, which is also the source of
+\cref{ch:etr} and \cref{ch:geometric-er}.
 
-\todo{Add the literature: Blum--Shub--Smale for the machine model over the
-reals, Allender et al.\ for \textsc{PosSLP} and $\mathrm{P}^{\textsc{PosSLP}} =
-\mathrm{P}_{\R}$, and a pointer to the standard treatments of the word RAM.}
+\Cref{thm:real-ram-factoring} is \citet{Shamir1979}.
+\Cref{thm:posslp-pr} is \citet{AllenderBurgisserKjeldgaardPedersenMiltersen2009},
+which is also the place to read about what is and is not known about
+\lang{PosSLP}. \citet{BlumCuckerShubSmale1998} is the foundational reference for
+computation over the reals and established the subject as a coherent area; its
+model differs from the one used here in several respects --- real Turing
+machines are defined in a technically involved way, and arbitrary real
+constants are allowed, which complicates comparison with discrete complexity.
+Modern treatments, including this one, emphasise binary input, real-valued
+witnesses and restricted constants.
 
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-real-models}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Write a word RAM program for binary search on a sorted list, and count its
+operations exactly. Which of your steps use indirect access?
+\end{exercise}
+
+\begin{exercise}
+Show that a real RAM with rounding can compute $\lfloor \log_2 x \rfloor$ for a
+positive integer $x$ in constant time, given that $x$ is in a real register.
+\end{exercise}
+
+\begin{exercise}
+\Cref{lem:real-ram-gcd} claims a bound of $\bigoh{\min\{\log a, \log b\}}$.
+Where exactly does the $\min$ come from, and why is the first reduction step
+needed for it?
+\end{exercise}
+
+\begin{exercise}
+The proof of \cref{lem:real-ram-factorial} needs $l \ge 2m$ so that no carries
+cross block boundaries. What goes wrong if $l$ is chosen too small? Give a
+concrete example.
+\end{exercise}
+
+\begin{exercise}
+Show that if a real RAM is allowed the constant $\pi$ and the operations
+$+,-,\times,\div$, it can still not decide anything a real RAM without
+constants cannot. Then find an operation whose addition \emph{does} change the
+power of the model.
+\end{exercise}
+
+\begin{exercise}
+Let $O_1 = \{+,-,\times,\div\}$ and $O_2 = \{+,-,\times\}$. Given $x$, give a
+straight-line program computing $\frac{1}{x} - \frac{1}{x+1}$ in $\bigoh{n}$
+steps using only $O_2$.
+Hint: rewrite it as $\frac{1}{x^2+x}$.
+\end{exercise}
+
+\begin{exercise}
+Show that \lang{PosSLP} is in \textbf{PSPACE}.
+\end{exercise}

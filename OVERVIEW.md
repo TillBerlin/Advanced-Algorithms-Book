@@ -62,7 +62,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | 🔲 |
+| 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | 🟡 prose complete; 3 figures open |
 | 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | 🔲 |
 | 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11 | 🔲 |
 
@@ -261,7 +261,9 @@ rewrite.
 | | 57–91 | 4 (minimum cost flow) ✅ checked |
 | | 92–141 | 6 (matching) ✅ checked |
 | `planar.pdf` | — | 5 (planar graphs) |
-| `Real-Compuation.pdf` | — | 7 (real models of computation) |
+| `Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
+| ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
+| | ch. 3–4 | 9 (order types, stretchability, ETR-INV, art gallery) |
 
 Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
@@ -276,6 +278,15 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 7 — Real Models of Computation
+
+- **3 figure placeholders**, all reproducing figures of the source manuscript
+  (its Figures 1, 2 and 3); the briefs name those numbers. Till is supplying
+  the artwork — do not extract it from the PDF.
+- The manuscript carries its own pool-question list per chapter, and chapter
+  1's list is exactly pool question 6, so the chapter's goals needed no
+  invention.
 
 ### Chapter 6 — Matching
 

@@ -4,9 +4,12 @@
 %% Written against chapters 3 and 4 of Real-Compuation.pdf ("Beyond Bits",
 %% Tillmann Miltzow).
 %%
-%% Order types and stretchability sit at the END of the chapter and are marked
-%% non-examinable: the lecture no longer covers them.  ETR-AM lives next to
-%% ETR-INV, since the two normal forms are used the same way.
+%% Ordering, per the author:
+%%   * the two normal forms ETR-AM and ETR-INV come first and stay together;
+%%   * point-line duality and order types sit at the END and are non-examinable;
+%%   * the definition of stretchability and the Mnev-Shor theorem are stated
+%%     up front in section 2, because the unit disk and curve straightening
+%%     reductions both start from Stretchability and must not point forwards.
 
 \chapter{\texorpdfstring{Geometric $\ER$-Completeness}{Geometric exists-R-Completeness}}
 \label{ch:geometric-er}
@@ -14,19 +17,23 @@
 \Cref{ch:etr} put $\ER$ on the map and showed how to prove membership. This
 chapter is about the other half: proving that a geometric problem is
 $\ER$-\emph{hard}, and therefore that its difficulty really is the difficulty of
-real solutions. The tools are two stripped-down normal forms of \ETR{} and a
-pair of geometric translations, and they suffice for two very different
-theorems --- that recognising unit disk graphs is $\ER$-complete, and that the
-art gallery problem is.
+real solutions. Two tools do all the work --- a pair of stripped-down normal
+forms of \ETR{}, and one geometric problem, \lang{Stretchability}, that already
+sits between the algebra and the geometry --- and between them they reach two
+very different theorems: that recognising unit disk graphs is $\ER$-complete,
+and that the art gallery problem is.
+
+The last two sections are background rather than machinery. Point--line duality
+and order types are where this subject came from historically, and they are
+where \lang{Stretchability} comes from; neither is examined, and nothing in the
+main line of the chapter depends on them.
 
 \begin{goals}
-  \poolgoal{11.1}{describe point--line duality}
-  \poolgoal{11.2}{show the above--below property of point--line duality}
-  \poolgoal{11.3}{define the cyclic order of a point with respect to a point
-        set, and describe what it corresponds to in the dual}
   \poolgoal{8.5}{define \lang{ETR-AM} and show that it is $\ER$-complete}
   \goalitem{define \lang{ETR-INV}, and show how inversion constraints replace
         multiplication and how the variable range is made compact}
+  \goalitem{define pseudoline arrangements and \lang{Stretchability}, and state
+        what is known about its complexity}
   \poolgoal{11.4}{define geometric intersection graphs, and unit disk graphs in
         particular}
   \poolgoal{11.5}{show that deciding whether a given graph is a unit disk
@@ -36,106 +43,6 @@ art gallery problem is.
   \goalitem{explain how a variable and an inversion constraint are encoded in
         the art gallery problem, and why the encoding must be compact}
 \end{goals}
-
-%==============================================================================
-\section{Point--line duality}
-\label{sec:duality}
-%==============================================================================
-
-Points and lines in the plane carry the same combinatorial information, and the
-standard way to move between them is point--line duality. One convenient choice
-is the map $\chi$ from $\R^2$ to the set $L$ of lines,
-\[ (a,b) \;\longleftrightarrow\; \ell_{(a,b)} : y = ax - b,
-   \qquad y = mx + c \;\longleftrightarrow\; (m,-c). \]
-We write $p^{*}$ for $\chi(p)$ and $\ell^{*}$ for $\chi^{-1}(\ell)$.
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.9\textwidth]{er-linear-transformations}
-\caption{A small point--line configuration, and the same configuration after
-applying the duality. Each point becomes a line and each line a point.}
-\label{fig:er-duality}
-\end{figure}
-
-\begin{lemma}\label{lem:er-duality}
-Let $p, q \in \R^2$ and let $\ell$ be a line. Then
-\begin{itemize}[nosep]
-  \item \emph{verticality}: $p$ and $q$ have the same $x$-coordinate if and only
-        if $p^{*}$ and $q^{*}$ are parallel;
-  \item \emph{incidence}: $p$ lies on $\ell$ if and only if $p^{*}$ passes
-        through $\ell^{*}$;
-  \item \emph{above/below}: $p$ lies above $\ell$ if and only if $\ell^{*}$ lies
-        above $p^{*}$.
-\end{itemize}
-\end{lemma}
-
-\begin{proof}
-Verticality is immediate from the definition, since the $x$-coordinate of a
-point becomes the slope of its dual line.
-
-For the other two, write $p = (a,b)$ and $\ell : y = mx + n$. Then $p$ lies on
-$\ell$ exactly when $b = ma + n$, which rearranges to $-n = am - b$; and that
-says exactly that the point $\ell^{*} = (m,-n)$ lies on the line
-$p^{*} : y = ax - b$.
-
-Replacing the equality by an inequality gives the third statement: $p$ lies
-above $\ell$ exactly when $b > ma+n$, that is $-n > am - b$, that is $\ell^{*}$
-lies above $p^{*}$.
-\end{proof}
-
-Combinatorial information about a point set therefore translates into
-combinatorial information about an arrangement of lines. It is not quite as
-easy as one might hope, though, and the reason is worth stating. Duality
-preserves \emph{above and below}, whereas order types are about \emph{left and
-right}. Reversing the orientation of a line leaves above and below unchanged
-but swaps left and right; rotating a point set changes many above--below
-relations but preserves the order type. What survives needs care.
-
-\subsection{Cyclic order}
-\label{sec:cyclic-orders}
-
-\begin{definition}[Cyclic order]
-Let $P$ be a point set and $p$ a point. Rotate a vertical line clockwise around
-$p$; the order in which it meets the points of $P$ is the \emph{cyclic order} of
-$P$ around $p$.
-\end{definition}
-
-\begin{lemma}\label{lem:er-cyclic-order}
-Let $p_1, \ldots, p_n \in P$ be in cyclic order around $p$. Then the line
-$p^{*}$ meets the lines $p_1^{*}, \ldots, p_n^{*}$ from left to right in that
-order. Conversely, if lines $\ell_1, \ldots, \ell_n$ meet a line $\ell$ from
-left to right in that order, then the dual points
-$\ell_1^{*}, \ldots, \ell_n^{*}$ occur in that cyclic order around
-$\ell^{*}$.
-\end{lemma}
-
-\begin{proof}
-We prove the second statement. Let $p_1, \ldots, p_n$ be the intersection
-points of $\ell_1, \ldots, \ell_n$ with $\ell$, so that $p_1$ is to the left of
-$p_2$, and so on. By \cref{lem:er-duality} the dual line $p_i^{*}$ has slope
-equal to the $x$-coordinate of $p_i$, so $p_1^{*}$ has the smallest slope and
-$p_n^{*}$ the largest. Each dual point $\ell_i^{*}$ lies on the dual line
-$p_i^{*}$, and the slopes increasing is exactly the cyclic order around
-$\ell^{*}$.
-\end{proof}
-
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.85\textwidth]{er-cyclic-order}
-\caption{Left: the line $\ell$ meets $\ell_1, \ldots, \ell_n$ from left to
-right. Right: in the dual the same information is the cyclic order of the
-points $\ell_i^{*}$ around $\ell^{*}$.}
-\label{fig:er-cyclic-order}
-\end{figure}
-
-\begin{intuition}
-\Cref{lem:er-cyclic-order} is the bridge the rest of the chapter walks over. A
-cyclic order around a point is a statement about a point set; a left-to-right
-crossing order along a line is a statement about a line arrangement; and the
-lemma says they are the same statement. That is why a problem about
-\emph{pseudoline arrangements} can be used to prove hardness of problems about
-\emph{point configurations}, and vice versa.
-\end{intuition}
 
 %==============================================================================
 \section{Two normal forms}
@@ -325,6 +232,53 @@ solutions can be enormous. The ball theorem is the quantitative promise that
 they are not \emph{arbitrarily} enormous: doubly exponential is the worst that
 can happen. Everything about compact encodings rests on it.
 \end{intuition}
+
+%==============================================================================
+\section{Pseudoline arrangements and stretchability}
+\label{sec:stretchability}
+%==============================================================================
+
+The normal forms are the algebraic end of the chapter. The geometric end is a
+single problem, and both hardness proofs that follow start from it.
+
+\begin{definition}[Pseudoline arrangement, stretchability]\label{def:stretchability}
+A \emph{pseudoline} is a simple curve in the plane, unbounded in both
+directions, that behaves topologically like a straight line. A
+\emph{pseudoline arrangement} is a collection of pseudolines any two of which
+meet in exactly one point, and cross there. Two arrangements are
+\emph{combinatorially equivalent} if every pseudoline meets the others in the
+same order in both. \lang{Stretchability} asks whether a given pseudoline
+arrangement is combinatorially equivalent to an arrangement of straight lines.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\textwidth]{er-pseudolines}
+\caption{A pseudoline arrangement, and a combinatorially equivalent
+straight-line arrangement. \lang{Stretchability} asks whether the crossing
+order can be preserved by straight lines.}
+\label{fig:er-pseudolines}
+\end{figure}
+
+\begin{theorem}[\citet{Mnev1985}, \citet{Shor1991}]\label{thm:stretchability}
+\lang{Stretchability} is $\ER$-complete.
+\end{theorem}
+
+We use \cref{thm:stretchability} as a black box and do not prove it. What
+should be believed about it is the shape of the statement rather than its
+proof: an arrangement of pseudolines is a purely combinatorial object --- who
+crosses whom, in what order --- and asking whether it can be drawn with
+straight lines is asking whether a system of real inequalities has a solution,
+in exactly the sense \ETR{} formalises. The hard direction reduces from
+\lang{ETR-AM}, so the algebra of \cref{sec:etr-normal-forms} is what makes the
+theorem true; \cref{sec:order-types} tells that story, and is not examined.
+
+Two features of \lang{Stretchability} make it the right thing to reduce from.
+It is combinatorial, so a reduction from it starts with a finite object that
+can be manipulated by hand, not with a formula. And its solutions are
+\emph{configurations}, so a construction that turns a configuration into a
+geometric object --- disks, a curve, a polygon --- has something to be faithful
+to. The next three sections do exactly that, three times.
 
 %==============================================================================
 \section{Geometric intersection graphs}
@@ -604,7 +558,6 @@ is hard to connect to the rest of the construction. Finding a gadget of this
 simplicity that does fit into a full reduction is still open.
 \end{intuition}
 
-
 %==============================================================================
 \section{Notes and further reading}
 \label{sec:geometric-er-further-reading}
@@ -622,12 +575,13 @@ hardness reduction as a by-product. \Cref{thm:curve-straightening} is
 Chv\'atal's theorem is \citet{Chvatal1975}, with the celebrated short proof due
 to Fisk; \citet{ORourke1987} is the monograph on guarding.
 \Cref{thm:ball-theorem} is used in the form given by
-\citet{SchaeferStefankovic2017}.
+\citet{SchaeferStefankovic2017}. \Cref{thm:stretchability} is \citet{Mnev1985}
+and \citet{Shor1991}; \citet{BokowskiMockStreinu2001} give a coherent account of
+the proof in the language of oriented matroids.
 
 For the wider landscape, \citet{SchaeferCardinalMiltzow2024} catalogues what is
 known to be $\ER$-complete, and \citet{Matousek2014} is a short introduction
 through segment graphs.
-
 %==============================================================================
 \section{Exercises}
 \label{sec:ex-geometric-er}
@@ -642,15 +596,6 @@ $(p = 0 \wedge q = 0)$ as a single equation.
 In \lang{4-Feasibility} we are given a polynomial of degree four with integer
 coefficients and must decide whether it has a real root. Show that
 \lang{4-Feasibility} is $\ER$-complete.
-\end{exercise}
-
-\begin{exercise}
-Let $s = ab$ be the segment from $a$ to $b$. Describe the dual of $s$.
-\end{exercise}
-
-\begin{exercise}
-When a point set is rotated very slowly, how does the dual line arrangement
-change combinatorially? Hint: watch the leftmost and rightmost crossings.
 \end{exercise}
 
 \begin{exercise}
@@ -681,17 +626,133 @@ Why does \cref{lem:compact-etr} need the ball theorem, when
 \cref{lem:bounded-etr} manages with an elementary bijection? Give the
 topological reason in one sentence.
 \end{exercise}
-
 %==============================================================================
-\section{Order types and stretchability (non-examinable)}
+\section{Point--line duality (non-examinable)}
+\label{sec:duality}
+%==============================================================================
+
+\nonexam{The lecture no longer covers point--line duality, and items 1--3 of
+pool question~11 have been withdrawn accordingly. The material is kept because
+it is how \cref{sec:order-types} connects order types to pseudoline
+arrangements, and because it is the standard vocabulary of the area. Nothing
+earlier in the chapter depends on it.}
+
+Points and lines in the plane carry the same combinatorial information, and the
+standard way to move between them is point--line duality. One convenient choice
+is the map $\chi$ from $\R^2$ to the set $L$ of lines,
+\[ (a,b) \;\longleftrightarrow\; \ell_{(a,b)} : y = ax - b,
+   \qquad y = mx + c \;\longleftrightarrow\; (m,-c). \]
+We write $p^{*}$ for $\chi(p)$ and $\ell^{*}$ for $\chi^{-1}(\ell)$.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{er-linear-transformations}
+\caption{A small point--line configuration, and the same configuration after
+applying the duality. Each point becomes a line and each line a point.}
+\label{fig:er-duality}
+\end{figure}
+
+\begin{lemma}\label{lem:er-duality}
+Let $p, q \in \R^2$ and let $\ell$ be a line. Then
+\begin{itemize}[nosep]
+  \item \emph{verticality}: $p$ and $q$ have the same $x$-coordinate if and only
+        if $p^{*}$ and $q^{*}$ are parallel;
+  \item \emph{incidence}: $p$ lies on $\ell$ if and only if $p^{*}$ passes
+        through $\ell^{*}$;
+  \item \emph{above/below}: $p$ lies above $\ell$ if and only if $\ell^{*}$ lies
+        above $p^{*}$.
+\end{itemize}
+\end{lemma}
+
+\begin{proof}
+Verticality is immediate from the definition, since the $x$-coordinate of a
+point becomes the slope of its dual line.
+
+For the other two, write $p = (a,b)$ and $\ell : y = mx + n$. Then $p$ lies on
+$\ell$ exactly when $b = ma + n$, which rearranges to $-n = am - b$; and that
+says exactly that the point $\ell^{*} = (m,-n)$ lies on the line
+$p^{*} : y = ax - b$.
+
+Replacing the equality by an inequality gives the third statement: $p$ lies
+above $\ell$ exactly when $b > ma+n$, that is $-n > am - b$, that is $\ell^{*}$
+lies above $p^{*}$.
+\end{proof}
+
+Combinatorial information about a point set therefore translates into
+combinatorial information about an arrangement of lines. It is not quite as
+easy as one might hope, though, and the reason is worth stating. Duality
+preserves \emph{above and below}, whereas order types are about \emph{left and
+right}. Reversing the orientation of a line leaves above and below unchanged
+but swaps left and right; rotating a point set changes many above--below
+relations but preserves the order type. What survives needs care.
+
+\subsection{Cyclic order}
+\label{sec:cyclic-orders}
+
+\begin{definition}[Cyclic order]
+Let $P$ be a point set and $p$ a point. Rotate a vertical line clockwise around
+$p$; the order in which it meets the points of $P$ is the \emph{cyclic order} of
+$P$ around $p$.
+\end{definition}
+
+\begin{lemma}\label{lem:er-cyclic-order}
+Let $p_1, \ldots, p_n \in P$ be in cyclic order around $p$. Then the line
+$p^{*}$ meets the lines $p_1^{*}, \ldots, p_n^{*}$ from left to right in that
+order. Conversely, if lines $\ell_1, \ldots, \ell_n$ meet a line $\ell$ from
+left to right in that order, then the dual points
+$\ell_1^{*}, \ldots, \ell_n^{*}$ occur in that cyclic order around
+$\ell^{*}$.
+\end{lemma}
+
+\begin{proof}
+We prove the second statement. Let $p_1, \ldots, p_n$ be the intersection
+points of $\ell_1, \ldots, \ell_n$ with $\ell$, so that $p_1$ is to the left of
+$p_2$, and so on. By \cref{lem:er-duality} the dual line $p_i^{*}$ has slope
+equal to the $x$-coordinate of $p_i$, so $p_1^{*}$ has the smallest slope and
+$p_n^{*}$ the largest. Each dual point $\ell_i^{*}$ lies on the dual line
+$p_i^{*}$, and the slopes increasing is exactly the cyclic order around
+$\ell^{*}$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.85\textwidth]{er-cyclic-order}
+\caption{Left: the line $\ell$ meets $\ell_1, \ldots, \ell_n$ from left to
+right. Right: in the dual the same information is the cyclic order of the
+points $\ell_i^{*}$ around $\ell^{*}$.}
+\label{fig:er-cyclic-order}
+\end{figure}
+
+\begin{intuition}
+\Cref{lem:er-cyclic-order} is the bridge between the two halves of this
+subject. A cyclic order around a point is a statement about a point set; a
+left-to-right crossing order along a line is a statement about a line
+arrangement; and the lemma says they are the same statement. That is why a
+problem about \emph{point configurations} --- the order type problem of
+\cref{sec:order-types} --- and a problem about \emph{pseudoline arrangements}
+--- \lang{Stretchability} --- turn out to be the same problem, which is what
+\cref{thm:stretchability} rests on.
+\end{intuition}
+
+\begin{exercise}
+Let $s = ab$ be the segment from $a$ to $b$. Describe the dual of $s$.
+\end{exercise}
+
+\begin{exercise}
+When a point set is rotated very slowly, how does the dual line arrangement
+change combinatorially? Hint: watch the leftmost and rightmost crossings.
+\end{exercise}
+%==============================================================================
+\section{Order types (non-examinable)}
 \label{sec:order-types}
 %==============================================================================
 
-\nonexam{The lecture no longer covers order types or stretchability, and items
-4 and 6 of pool question~8 have been withdrawn accordingly. The material is kept
-because it is the historical route into $\ER$ and because the reductions earlier
-in this chapter descend from it --- but nothing in this section is examined, and
-nothing earlier in the chapter depends on it.}
+\nonexam{The lecture no longer covers order types, and items 4 and 6 of pool
+question~8 have been withdrawn accordingly. The material is kept because it is
+the historical route into $\ER$ and because it is where
+\cref{thm:stretchability} --- which the reductions earlier in this chapter do
+use --- comes from. Nothing in this section is examined, and nothing earlier in
+the chapter depends on it.}
 
 Numerical instability was a problem computational geometers noticed early, and
 it produced a wish for algorithms that solve geometric problems but are
@@ -728,38 +789,18 @@ hard to give a concrete example or a simple proof; the smallest known such
 configuration has $13$ points and was found in 2012.
 
 To answer Ringel's question, \citet{Mnev1985} and \citet{Shor1991} studied the
-realisation space of order types in full generality, in the equivalent language
-of \emph{stretchability}.
+realisation space of order types in full generality --- and did so in the
+equivalent language of stretchability, which is how \cref{thm:stretchability}
+came to exist.
 
-\begin{definition}[Pseudoline arrangement, stretchability]
-A \emph{pseudoline} is a simple curve in the plane, unbounded in both
-directions, that behaves topologically like a straight line. A
-\emph{pseudoline arrangement} is a collection of pseudolines any two of which
-meet in exactly one point, and cross there. Two arrangements are
-\emph{combinatorially equivalent} if every pseudoline meets the others in the
-same order in both. \lang{Stretchability} asks whether a given pseudoline
-arrangement is combinatorially equivalent to an arrangement of straight lines.
-\end{definition}
 
-\begin{figure}[ht]
-\centering
-\includegraphics[width=0.72\textwidth]{er-pseudolines}
-\caption{A pseudoline arrangement, and a combinatorially equivalent
-straight-line arrangement. \lang{Stretchability} asks whether the crossing
-order can be preserved by straight lines.}
-\label{fig:er-pseudolines}
-\end{figure}
-
-\begin{theorem}[\citet{Mnev1985}, \citet{Shor1991}]\label{thm:stretchability}
-\lang{Stretchability} is $\ER$-complete.
-\end{theorem}
-
-The proof reduces from the \lang{Order Type Problem}; a coherent account in the
-language of oriented matroids is \citet{BokowskiMockStreinu2001}. We do not
-give it. The two halves of the picture are joined by
+Their proof reduces from the \lang{Order Type Problem}; a coherent account in
+the language of oriented matroids is \citet{BokowskiMockStreinu2001}. We do not
+give it. What joins the two halves of the picture is
 \cref{lem:er-duality,lem:er-cyclic-order}: a cyclic order around a point becomes
 a left-to-right crossing order in the dual, and the crossing order is exactly
-what a pseudoline arrangement records.
+what a pseudoline arrangement records. So a question about which point sets
+exist is a question about which pseudoline arrangements can be straightened.
 
 The problem of deciding whether a given abstract order type is realised by an
 actual point set --- and its variant the \lang{Partial Order Type Problem}, in

@@ -45,7 +45,7 @@ pool question.
 8  & Existential Theory of the Reals\rlap{$^\dagger$} & 7  & \cref{ch:etr}, \cref{ch:geometric-er} \\
 9  & Exact Algorithm for Exact 3-SAT     & 8  & \cref{ch:exact-i} \\
 10 & Bisection Width                     & 8  & \cref{ch:exact-i} \\
-11 & Duality and geometric $\ER$-hardness & 9  & \cref{ch:geometric-er} \\
+11 & Duality and geometric $\ER$-hardness\rlap{$^\ddagger$} & 9  & \cref{ch:geometric-er} \\
 12 & Inclusion/exclusion for set cover   & 10 & \cref{ch:exact-ii} \\
 13 & Approximation non-symmetric TSP     & 10 & \cref{ch:approx-i} \\
 14 & Approximating Steiner Tree          & 11 & \cref{ch:approx-ii} \\
@@ -67,6 +67,9 @@ pool question.
 \bottomrule
 \end{tabular}
 \end{center}
+
+$^\ddagger$ Question~11 has been revised: items~1--3 are withdrawn. See the
+remark at the question itself.
 
 $^\dagger$ Question~8 has been revised: items~4 and~6 are withdrawn and
 items~7--10 are new. See the remark at the question itself. Item~5
@@ -391,16 +394,25 @@ exponential-time algorithms that are not covered by Questions~9 and~10.
 
 \paragraph{Question 11. Duality and geometric $\ER$-hardness.}
 \begin{enumerate}
-  \item Describe point-line duality.
-  \item Show the above-below property of point-line duality.
-  \item Define the cyclic order of a point with respect to a point set. Describe
-        what the cyclic order corresponds to in the dual.
+  \item \emph{(Withdrawn.)} Describe point-line duality.
+  \item \emph{(Withdrawn.)} Show the above-below property of point-line duality.
+  \item \emph{(Withdrawn.)} Define the cyclic order of a point with respect to a
+        point set. Describe what the cyclic order corresponds to in the dual.
   \item Define geometric intersection graphs and unit disk graphs in particular.
   \item Show that deciding whether a given graph is a unit disk intersection
         graph is $\ER$-complete.
   \item Show that the \textsc{Optimal Curve Straightening} problem is
         $\ER$-complete.
 \end{enumerate}
+
+\begin{remark}
+Items~1--3 are withdrawn: the lecture no longer covers point--line duality. The
+material is kept in the book, marked non-examinable, in \cref{sec:duality}.
+Items~5 and~6 both reduce from \lang{Stretchability}, so its definition and the
+Mn\'ev--Shor theorem are stated in the main line of \cref{ch:geometric-er} and
+may be used as a black box; the order types behind that theorem are not
+examined.
+\end{remark}
 
 \subsection*{Lecture 10: Inclusion/Exclusion \& Approximation}
 

@@ -285,14 +285,20 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ### Chapter 9 — Geometric ∃R-Completeness
 
-- Written from chapters 3 and 4 of the manuscript. Structure follows the
-  author's instruction: **ETR-AM sits next to ETR-INV** (section 9.2, "Two
-  normal forms"), and **everything about order types and stretchability sits
-  at the end** as section 9.9, marked `(non-examinable)` in the heading with a
-  `\nonexam{}` note.
-- Pool question 8 item 5 (ETR-AM) is therefore answered here, not in chapter 8.
-  The mapping table and the remark at question 8 both say so.
-- The Mnev--Shor theorem is stated without proof, as in the manuscript.
+- Written from chapters 3 and 4 of the manuscript. Order, per the author:
+  **ETR-AM next to ETR-INV** (§9.1, "Two normal forms"); **point–line duality
+  (§9.9) and order types (§9.10) at the end**, both `(non-examinable)` in the
+  heading with a `\nonexam{}` note.
+- **Stretchability is the exception, deliberately.** Both examinable hardness
+  proofs — unit disk recognition (pool 11.5) and optimal curve straightening
+  (pool 11.6) — reduce *from* Stretchability, so its definition and the
+  Mnëv–Shor theorem are stated in the main line at §9.2 and used as a black
+  box. Putting them at the end would make the two proofs point forwards. Only
+  the order-type story behind the theorem is non-examinable.
+- Pool question 8 item 5 (ETR-AM) is answered here, not in chapter 8.
+- Pool question 11 items 1–3 (duality, above–below, cyclic order) are withdrawn,
+  matching 8.4 and 8.6. Question 11 is now items 4–6 only. The mapping table
+  carries a ‡ and the question carries a remark.
 
 ### Chapter 8 — The Existential Theory of the Reals
 

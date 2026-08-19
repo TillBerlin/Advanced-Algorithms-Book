@@ -1,61 +1,756 @@
 %% Chapter 6: Matching
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against slides 92-141 of "Flows and Matching 2026.pptx".
+%% Pool question 7 (Partition into Cycles) is worked in the last section.
 
 \chapter{Matching}
 \label{ch:matching}
 
-Matching is the first genuinely non-trivial polynomial-time problem most
-students meet: bipartite matching still reduces to flow, but general graphs need
-a new idea, the blossom. Matching is also, like flow, a modelling language ---
-we use it to solve problems about cycle covers and partitions.
+Matching is where the flow machinery finally runs out. In a bipartite graph a
+maximum matching is just a maximum flow, and \cref{ch:max-flow} has already
+done the work. In a general graph the same idea --- find an augmenting path,
+flip it, repeat --- is still \emph{correct}, but the search for the path breaks
+down, because an odd cycle can make a walk that looks augmenting fail to be a
+path. Edmonds' solution, to contract the offending cycle and recurse, is one of
+the most elegant algorithms in the subject, and historically one of the most
+important: the paper that introduced it is also where the identification of
+``efficient'' with ``polynomial time'' was first argued for in print.
 
-\section*{Learning goals}
-\addcontentsline{toc}{section}{Learning goals}
+\begin{goals}
+  \goalitem{define a matching, and a maximal, maximum and perfect matching, and
+        tell the three apart on an example}
+  \goalitem{solve maximum matching on bipartite graphs by reduction to maximum
+        flow}
+  \goalitem{define $M$-alternating walks, $M$-augmenting paths, $M$-flowers,
+        $M$-blossoms and stems}
+  \goalitem{prove that a matching is maximum if and only if there is no
+        $M$-augmenting path}
+  \goalitem{describe the procedure that finds either an $M$-augmenting path or
+        an $M$-flower, and explain why the even-cycle case cannot arise}
+  \goalitem{prove that $G$ has an $M$-augmenting path if and only if $G/B$ has
+        an $M/B$-augmenting path, for an $M$-blossom $B$}
+  \goalitem{state Edmonds' algorithm and show that it runs in $\bigoh{n^2m}$
+        time}
+  \goalitem{state Schrijver's algorithm for perfect matchings in regular
+        bipartite graphs, prove its invariant, and analyse its running time}
+  \goalitem{prove that a bipartite graph of maximum degree $d$ has an edge
+        colouring with $d$ colours, and use it to solve a classroom scheduling
+        problem}
+  \poolgoal{7}{give a polynomial time algorithm that decides whether a graph
+        can be partitioned into simple cycles}
+\end{goals}
 
-After this chapter you should be able to:
+%==============================================================================
+\section{Matchings}
+\label{sec:matching-basics}
+%==============================================================================
+
+\begin{definition}[Matching]
+A \emph{matching} in an undirected graph $G = (V,E)$ is a set $M \subseteq E$
+of edges such that no vertex is an endpoint of more than one edge of $M$. A
+vertex incident to an edge of $M$ is \emph{matched}, and \emph{unmatched} or
+\emph{free} otherwise.
+\end{definition}
+
+Three special kinds, and the difference between the first two is the source of
+more confusion than any other definition in this book.
+
+\begin{definition}
+A matching $M$ is
+\begin{itemize}[nosep]
+  \item \emph{maximal} if $M \cup \{e\}$ is not a matching for any
+        $e \in E \setminus M$ --- nothing can be added;
+  \item \emph{maximum} if $|M|$ is as large as possible --- nothing is better;
+  \item \emph{perfect} if $|M| = n/2$, that is, every vertex is matched.
+\end{itemize}
+\end{definition}
+
+Every maximum matching is maximal and every perfect matching is maximum, but
+neither converse holds. A maximal matching is a local optimum and a greedy
+algorithm finds one in linear time: repeatedly take any edge both of whose
+endpoints are still free. A maximum matching is a global optimum and needs this
+entire chapter.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT --- four small panels on the same graph,
+following the slides, each with the chosen edges thickened. Panel 1: a matching
+that is neither maximal nor maximum nor perfect. Panel 2: a matching that is
+maximal but not maximum (the classic path on four vertices with the middle edge
+chosen). Panel 3: maximal and maximum but not perfect. Panel 4: perfect.
+Caption each panel with the three yes/no answers so the distinctions can be
+read off.}
+\caption{Maximal, maximum, perfect. The second panel is the one worth staring
+at: nothing can be \emph{added} to that matching, and yet it is half the size
+of the best one.}
+\label{fig:matching-kinds}
+\end{figure}
+
+\subsection{What we can and cannot do}
+
+For the record, the landscape:
 \begin{itemize}[leftmargin=*]
-  \item define matchings, augmenting paths, and prove Berge's theorem;
-  \item solve bipartite matching by reduction to maximum flow;
-  \item state and prove Hall's theorem and K\"onig's theorem;
-  \item explain what a blossom is and how Edmonds' algorithm contracts it;
-  \item model covering and partitioning problems as matching problems.
+  \item a \emph{maximal} matching: greedy, linear time;
+  \item a \emph{maximum} matching in a bipartite graph: maximum flow
+        (\cref{sec:flow-transformations}), and it is the easy case;
+  \item a maximum matching in a general graph: polynomial, and the subject of
+        \cref{sec:matching-edmonds};
+  \item a \emph{perfect} matching: the special case $|M| = n/2$ of the above;
+        in a \emph{regular bipartite} graph one exists always
+        (\cref{thm:mcf-regular-bipartite}) and can be found faster
+        (\cref{sec:matching-schrijver});
+  \item a minimum cost perfect or maximum weight matching: also polynomial, by
+        more involved arguments; the bipartite case is minimum cost flow
+        (\cref{sec:mcf-matching}), and the general case is beyond this book.
 \end{itemize}
 
-\section{Matchings and augmenting paths}
-\label{sec:matching-basics}
+One striking asymmetry is worth knowing. Finding a perfect matching is
+polynomial; \emph{counting} the perfect matchings of a graph is
+$\#\mathrm{P}$-complete, and remains so on bipartite graphs. Searching and
+counting can differ enormously.
 
-\todo{Write this section.}
-% Planned content: Berge's theorem.
+%==============================================================================
+\section{Applications}
+\label{sec:matching-applications}
+%==============================================================================
 
-\section{Bipartite matching via flows}
-\label{sec:bipartite-matching}
+Matching is one of those problems that people keep rediscovering.
 
-\todo{Write this section.}
+\paragraph{General graphs.} A chess club with $n$ players must pair them for a
+round each week. Some pairs have already played, and the ratings differ; we want
+a pairing that avoids repeats and puts players of similar strength together.
+Pairing players against players is a matching in a general --- not bipartite ---
+graph, which is exactly why the club cannot use the flow model.
 
-\section{Hall's theorem and K\"onig's theorem}
-\label{sec:hall-konig}
+\paragraph{Bipartite: assignment.} $n$ employees and $n$ jobs, with a
+proficiency $u(i,j)$ for employee $i$ in job $j$; maximise total proficiency.
+Or: an international firm with vacancies abroad, where for each
+(employee, job) pair we know whether the employee \emph{can} do the job and what
+it costs to relocate them and their family. The first is maximum weight
+bipartite matching, the second minimum cost perfect matching, and both go
+through \cref{ch:min-cost-flow}.
 
-\todo{Write this section.}
+\paragraph{Tracking.} A camera sees a set of objects at time $t$ and another set
+at time $t+1$. Which object at $t+1$ is which object at $t$? Score each possible
+correspondence by how plausible the implied movement is, and take the best
+matching. The same problem, with the same solution, arises in tracking trains
+through sections of track that are not remotely monitored.
 
-\section{Matching in general graphs}
-\label{sec:blossom}
+%==============================================================================
+\section{Augmenting paths}
+\label{sec:matching-augmenting}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Odd cycles break the alternating-path argument; blossoms and Edmonds' contraction; Tutte's theorem.
+Everything rests on one definition and one theorem.
 
-\section{Weighted matching}
-\label{sec:weighted-matching}
+\begin{definition}[Alternating and augmenting]\label{def:matching-augmenting}
+Let $M$ be a matching. An \emph{$M$-alternating walk} is a walk --- possibly
+not simple --- whose edges are alternately outside and inside $M$. An
+\emph{$M$-augmenting path} is a simple $M$-alternating walk of odd length whose
+two endpoints are both unmatched.
+\end{definition}
 
-\todo{Write this section.}
-% Planned content: The Hungarian method.
+An augmenting path starts and ends with a non-matching edge, so it has one more
+non-matching edge than matching edges. Flipping it --- taking its non-matching
+edges into $M$ and removing its matching edges --- therefore yields a matching
+with one more edge. That much is immediate. What is not immediate is that this
+is the \emph{only} obstruction.
 
-\section{Modelling with matchings}
+\begin{theorem}[Berge]\label{thm:matching-berge}
+A matching $M$ in a graph $G$ is maximum if and only if $G$ has no
+$M$-augmenting path.
+\end{theorem}
+
+\begin{proof}
+($\Rightarrow$) If an $M$-augmenting path exists, flipping it gives a larger
+matching, so $M$ was not maximum.
+
+($\Leftarrow$) Suppose $M$ is not maximum, and let $N$ be a larger matching.
+Consider the symmetric difference
+\[ N \,\triangle\, M \;=\; (N \cup M) \setminus (N \cap M). \]
+Every vertex is incident to at most one edge of $N$ and at most one of $M$, so
+in $N \triangle M$ every vertex has degree $0$, $1$ or $2$. A graph with
+maximum degree $2$ is a disjoint union of paths and cycles. Moreover every one
+of those paths and cycles alternates between $N$-edges and $M$-edges, since two
+consecutive edges from the same matching would share a vertex.
+
+An alternating cycle has even length and thus equally many edges of each. Since
+$|N| > |M|$, some component must contain more edges of $N$ than of $M$, and by
+the previous sentence it is not a cycle. So it is an alternating path with more
+$N$-edges than $M$-edges, which forces it to begin and end with an $N$-edge;
+both of its endpoints are therefore unmatched by $M$. That is an
+$M$-augmenting path.
+\end{proof}
+
+\Cref{thm:matching-berge} is stated for arbitrary graphs, and that is the point.
+It gives the algorithm immediately: start anywhere, find an augmenting path,
+flip, repeat; stop when none exists, and \emph{that} is a maximum matching.
+There are at most $n/2$ iterations. Everything that follows is about the one
+remaining question --- how do you find an augmenting path?
+
+\subsection{The bipartite case}
+\label{sec:matching-bipartite}
+
+In a bipartite graph, flow answers it. Orient every edge from $U$ to $W$, give
+it capacity $1$, add a source with unit-capacity arcs into every vertex of $U$
+and a sink with unit-capacity arcs out of every vertex of $W$, and compute a
+maximum flow with an algorithm that returns an integral one. The augmenting
+paths of Ford--Fulkerson in this network are precisely the $M$-augmenting paths
+of the matching: an augmenting path enters $U$ at a free vertex, crosses to $W$
+along an unused edge, comes back along a used one, and so on, ending at a free
+vertex of $W$.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{45mm}{One flow-augmentation step on a bipartite graph, drawn as
+the slides do: the two sides as columns, matched edges thick, the augmenting
+path highlighted from a free vertex on the left to a free vertex on the right,
+alternating between unmatched and matched edges. Label the two free endpoints
+and mark the matched vertices in between.}
+\caption{In a bipartite graph, a flow-augmenting path is an $M$-augmenting
+path.}
+\label{fig:matching-bipartite-augment}
+\end{figure}
+
+So why does this not settle the general case? Because the reduction to flow is
+what fails, not the theory. Berge's theorem holds regardless. The trouble is
+that the natural search --- walk out from a free vertex, alternating --- can
+return to a vertex it has already used, and a walk that repeats a vertex is not
+a path. In a bipartite graph that cannot happen in a harmful way, because every
+cycle is even. In general it can, and the culprit has a name.
+
+%==============================================================================
+\section{Edmonds' algorithm}
+\label{sec:matching-edmonds}
+%==============================================================================
+
+\begin{definition}[Flower, blossom, stem]\label{def:matching-flower}
+An \emph{$M$-flower} is an $M$-alternating walk of odd length that starts at an
+unmatched vertex and ends by closing an odd cycle. The odd cycle is the
+\emph{$M$-blossom}; the vertices of the walk before the cycle form the
+\emph{stem}.
+\end{definition}
+
+A blossom has odd length $2k+1$, and exactly $k$ of its edges are in $M$: one
+vertex of it --- the one where the stem arrives, or the free vertex itself if
+the stem is empty --- is left unmatched within the cycle.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{IMPORTANT. An $M$-flower: a free vertex on the left, a
+stem of alternating edges running right, and an odd cycle at the end. Draw
+matching edges thick and non-matching edges thin, mark the free vertex, label
+the stem and the blossom, and mark the single vertex of the blossom that is not
+matched inside it. Keep the alternation visibly correct --- the stem must arrive
+at the blossom along a matching edge.}
+\caption{An $M$-flower. The blossom is the odd cycle; the stem is what leads to
+it.}
+\label{fig:matching-flower}
+\end{figure}
+
+\subsection{Finding a walk}
+\label{sec:matching-find-walk}
+
+First, a search that never gets stuck: build a digraph in which one step is two
+alternating edges.
+
+\begin{algorithm}[ht]
+\caption{Find an $M$-alternating walk between two free vertices}
+\label{alg:matching-walk}
+\begin{algorithmic}[1]
+  \State $X \gets$ the set of unmatched vertices
+  \State $Y \gets$ the set of vertices adjacent to some vertex of $X$
+  \State build the digraph $D = (V,A)$ with
+         $A = \{(u,v) : \exists x \text{ with } \{u,x\} \in E \setminus M
+         \text{ and } \{x,v\} \in M\}$
+  \State find a shortest path $P$ from $X$ to $Y$ in $D$
+  \If{no such path exists} \Return ``$M$ is maximum'' \EndIf
+  \State expand $P$ into the underlying alternating edges of $G$ and append the
+         final edge into $X$, giving a walk $P'$
+  \State \Return $P'$
+\end{algorithmic}
+\end{algorithm}
+
+Each arc of $D$ represents traversing one non-matching edge followed by one
+matching edge, so a path in $D$ unfolds into an alternating walk in $G$; adding
+one last non-matching edge to a free vertex makes both ends free. If $Y$ is
+unreachable from $X$ then no alternating walk between free vertices exists at
+all, and by \cref{thm:matching-berge} the matching is maximum.
+
+\subsection{Either a path or a flower}
+\label{sec:matching-path-or-flower}
+
+The walk $P'$ that comes back need not be simple. Two cases.
+
+\begin{lemma}\label{lem:matching-path-or-flower}
+Let $P'$ be a shortest alternating walk between two free vertices, as produced
+by \cref{alg:matching-walk}. Then either $P'$ is a simple path --- and then it
+is an $M$-augmenting path --- or its initial segment up to the first repeated
+vertex closes an \emph{odd} cycle, and $P'$ contains an $M$-flower.
+\end{lemma}
+
+\begin{proof}
+If $P'$ is simple it is an alternating path of odd length between two free
+vertices, which is the definition of augmenting.
+
+Otherwise, follow $P'$ from its start until some vertex is met for the second
+time; this closes a cycle. Suppose that cycle had \emph{even} length. Then the
+edge by which the stem arrives is a non-matching edge, and the cycle can simply
+be cut out of the walk: removing it leaves a shorter alternating walk between
+the same two free vertices, contradicting the choice of $P'$ as shortest. So the
+cycle is odd, the stem arrives along a matching edge, and what we have is an
+$M$-flower.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{Two panels. Left: the good case --- the walk is simple and
+is an augmenting path. Right: the walk revisits a vertex and closes an odd
+cycle, drawn as a flower. Underneath, a third small panel showing the even-cycle
+case being cut out of the walk, with the shortcut drawn as a dashed line, to
+illustrate why a shortest walk never produces one.}
+\caption{A shortest alternating walk between free vertices is either an
+augmenting path or a flower.}
+\label{fig:matching-path-or-flower}
+\end{figure}
+
+\subsection{Shrinking a blossom}
+\label{sec:matching-shrinking}
+
+\begin{definition}
+For a set $B \subseteq V$, write $G/B$ for the graph obtained by contracting $B$
+to a single vertex, and $M/B$ for $M$ with every edge having both endpoints in
+$B$ deleted.
+\end{definition}
+
+If $B$ is an $M$-blossom then $M/B$ is a matching of $G/B$: the $k$ edges of $M$
+inside the cycle disappear, and the contracted vertex is incident to at most the
+one $M$-edge that entered the blossom from the stem.
+
+\begin{theorem}\label{thm:matching-blossom}
+Let $B$ be an $M$-blossom in $G$. Then $G$ has an $M$-augmenting path if and
+only if $G/B$ has an $M/B$-augmenting path.
+\end{theorem}
+
+\begin{proof}
+($\Leftarrow$) Let $P$ be an $M/B$-augmenting path in $G/B$. If $P$ avoids the
+contracted vertex it is already an $M$-augmenting path of $G$. Otherwise it
+meets the contracted vertex, and we lift it. Say $P$ enters the blossom along an
+edge that in $G$ arrives at a vertex $b \in B$. The blossom is an odd cycle with
+one vertex $r$ unmatched inside it, and from $b$ there are two ways round the
+cycle to $r$ --- one of even length and one of odd. Exactly one of them
+alternates correctly with the edges at $b$ and at $r$, and taking that one turns
+$P$ into an alternating path in $G$ with the same free endpoints. There are two
+sub-cases according to whether $P$ passes through the blossom and out along the
+stem, or ends at it, and both are resolved the same way.
+
+($\Rightarrow$) The converse needs a preliminary move. First arrange that the
+blossom contains a free vertex: if the stem is non-empty, flip it, giving a
+matching $M'$ with $|M'| = |M|$ in which the blossom's unmatched vertex is free
+in $G$. This is harmless, because for two matchings of the same size, $G$ has an
+$M$-augmenting path if and only if it has an $M'$-augmenting path --- both
+statements say, by \cref{thm:matching-berge}, that the matchings are not
+maximum.
+
+Now suppose $G$ has an $M'$-augmenting path $P$. If $P$ does not meet $B$ it
+survives contraction. Otherwise, reversing $P$ if necessary, assume it does not
+start inside $B$, and follow it until it first reaches $B$. The blossom contains
+no $M'$-augmenting path of its own --- only an augmenting \emph{walk}, which is
+exactly what a blossom is --- and since the contracted vertex is free in
+$G/B$, the initial segment of $P$ up to $B$ becomes an $M'/B$-augmenting path in
+$G/B$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{60mm}{IMPORTANT --- this is the picture the argument cannot do
+without. Three panels, each showing an $M/B$-augmenting path in $G/B$ on the
+left and its lift to an $M$-augmenting path in $G$ on the right. Case 1a: the
+path passes through the blossom and leaves along the stem. Case 1b: the same,
+entering at a different vertex of the cycle, so that the other way round is
+taken. Case 2: the path ends at the contracted vertex. In each lift, draw the
+chosen way round the odd cycle thickly and the discarded way faintly, so it is
+visible that exactly one of the two alternates correctly.}
+\caption{Lifting an augmenting path back through a contracted blossom.}
+\label{fig:matching-blossom-lift}
+\end{figure}
+
+\begin{intuition}
+Why does contraction not lose information? Because a blossom is exactly the
+structure that can be entered and left \emph{on either side} without breaking
+the alternation --- the odd cycle has one way round of each parity, so whatever
+the rest of the path needs, the blossom can supply. Contracting it says: ``do
+not worry about how to get across this thing, it can always be crossed.'' The
+even cycle case of \cref{lem:matching-path-or-flower} is the mirror image ---
+an even cycle offers no such choice, which is why it is never needed and why
+bipartite graphs never produce blossoms at all.
+\end{intuition}
+
+\subsection{The algorithm}
+\label{sec:matching-algorithm}
+
+\begin{algorithm}[ht]
+\caption{Edmonds' algorithm}
+\label{alg:matching-edmonds}
+\begin{algorithmic}[1]
+  \State $M \gets$ any matching, for instance a greedy maximal one
+  \While{\textsc{FindAugmenting}$(G, M)$ returns a path $P$}
+     \State $M \gets M \,\triangle\, P$
+  \EndWhile
+  \State \Return $M$
+  \Statex
+  \Function{FindAugmenting}{$G$, $M$}
+     \State run \cref{alg:matching-walk}
+     \If{it reports that no alternating walk exists} \Return ``none'' \EndIf
+     \If{the walk $P'$ is a simple path} \Return $P'$ \EndIf
+     \State let $B$ be the blossom of the flower found in $P'$
+     \State $P \gets \textsc{FindAugmenting}(G/B,\ M/B)$
+     \If{$P$ is ``none''} \Return ``none'' \EndIf
+     \State \Return the lift of $P$ through $B$
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Correctness is \cref{thm:matching-berge} for the outer loop and
+\cref{thm:matching-blossom} for the recursion --- the latter is what licenses
+returning ``none'' when the contracted instance has no augmenting path.
+
+\begin{theorem}[\citet{Edmonds1965}]\label{thm:matching-edmonds-time}
+A maximum matching can be found in $\bigoh{n^2m}$ time.
+\end{theorem}
+
+\begin{proof}
+Each augmentation increases $|M|$ by one, so the outer loop runs at most $n/2$
+times. Within one call to \textsc{FindAugmenting}, each contraction removes at
+least two vertices, so the recursion has depth $\bigoh{n}$, and the work per
+level --- building $D$, one graph search, one contraction, one lift --- is
+$\bigoh{m}$. That gives $\bigoh{nm}$ per augmentation and $\bigoh{n^2m}$ in
+total.
+\end{proof}
+
+Better bookkeeping and better data structures bring this to $\bigoh{n^3}$, and
+\citet{MicaliVazirani1980} achieve $\bigoh{\sqrt{n}\,m}$ by much more
+complicated means. A similar but more intricate algorithm solves minimum cost
+perfect matching in polynomial time.
+
+%==============================================================================
+\section{Regular bipartite graphs: Schrijver's algorithm}
+\label{sec:matching-schrijver}
+%==============================================================================
+
+We already know from \cref{thm:mcf-regular-bipartite} that every $d$-regular
+bipartite graph has a perfect matching. That proof was an existence argument
+resting on integrality, and it gives an algorithm only by way of a maximum-flow
+computation. \citet{Schrijver1999} does better, and the algorithm is startlingly
+short.
+
+Give every edge a weight $w(e)$, all initialised to $1$, and write $G_w$ for the
+subgraph of edges of positive weight.
+
+\begin{algorithm}[ht]
+\caption{Schrijver's algorithm}
+\label{alg:matching-schrijver}
+\begin{algorithmic}[1]
+  \State $w(e) \gets 1$ for every edge $e$
+  \While{$G_w$ contains a cycle $C$}
+     \State split $C$ into its two matchings $M$ and $N$, labelled so that
+            $w(M) \ge w(N)$
+     \State $w(e) \gets w(e) + 1$ for every $e \in M$
+     \State $w(e) \gets w(e) - 1$ for every $e \in N$
+  \EndWhile
+  \State \Return $G_w$
+\end{algorithmic}
+\end{algorithm}
+
+The graph is bipartite, so every cycle has even length and its edges do split
+alternately into two matchings. Why the output is a perfect matching is the
+following invariant.
+
+\begin{lemma}\label{lem:matching-schrijver-invariant}
+Throughout the algorithm, for every vertex $v$ the weights of the edges incident
+to $v$ sum to $d$.
+\end{lemma}
+
+\begin{proof}
+Initially every vertex has $d$ incident edges of weight $1$. A cycle visits each
+of its vertices exactly once, using two incident edges, one from $M$ and one
+from $N$; the update adds $1$ to the first and subtracts $1$ from the second, so
+the sum at that vertex is unchanged. Vertices off the cycle are untouched.
+\end{proof}
+
+\begin{theorem}\label{thm:matching-schrijver}
+\Cref{alg:matching-schrijver} returns a perfect matching, in
+$\bigoh{nd^2} = \bigoh{dm}$ time.
+\end{theorem}
+
+\begin{proof}
+\emph{Correctness.} On termination $G_w$ is acyclic. Every vertex has positive
+total incident weight $d$ by \cref{lem:matching-schrijver-invariant}, so every
+vertex has at least one incident edge in $G_w$; a forest in which every vertex
+has degree at least one and which has no vertex of degree greater than one would
+be a perfect matching, so it suffices to rule out a vertex of degree $\ge 2$ in
+$G_w$. Suppose $v$ had two incident edges of positive weight. Following
+positive-weight edges from $v$, the invariant guarantees that every vertex
+reached again has another positive-weight edge to continue along, so the walk
+cannot stop, and in a finite graph it must repeat a vertex --- a cycle,
+contradicting termination. Hence every vertex of $G_w$ has degree exactly one,
+and, weights being integers summing to $d$ at each vertex, that single edge has
+weight $d$. So $G_w$ is a perfect matching.
+
+\emph{Termination and running time.} Consider the potential
+$\Phi = \sum_{e} w(e)^2$. Splitting a cycle $C$ into $M$ and $N$ with
+$w(M) \ge w(N)$ and updating changes $\Phi$ by
+\[ \sum_{e \in M}\bigl((w(e)+1)^2 - w(e)^2\bigr)
+ + \sum_{e \in N}\bigl((w(e)-1)^2 - w(e)^2\bigr)
+ \;=\; |C| + 2\bigl(w(M) - w(N)\bigr) \;\ge\; |C|, \]
+using $|M| + |N| = |C|$. So every iteration increases $\Phi$ by at least $|C|$.
+Initially $\Phi = m$, and it never exceeds $nd^2$, since no weight exceeds $d$
+and there are at most $nd/2$ edges. A cycle in $G_w$ can be found in
+$\bigoh{|C|}$ amortised time by maintaining a path of edges of weight strictly
+between $0$ and $d$ and extending it until it closes, with $\bigoh{n+m}$
+overhead. Charging each cycle's cost against the increase in $\Phi$ gives
+$\bigoh{nd^2 + n + m} = \bigoh{nd^2}$, which is $\bigoh{dm}$ since
+$m = nd/2$.
+\end{proof}
+
+\begin{intuition}
+Read the invariant as a fractional perfect matching: dividing every weight by
+$d$ gives non-negative values summing to $1$ at every vertex, which is exactly
+the fractional flow of \cref{thm:mcf-regular-bipartite}. The algorithm is
+therefore doing something very concrete --- pushing a fractional perfect
+matching towards an integral one, one cycle at a time, never disturbing the
+vertex sums. The potential $\sum_e w(e)^2$ measures how far along that journey
+it has come; it is maximised exactly when the weights are as unequal as
+possible, which is to say integral.
+\end{intuition}
+
+%==============================================================================
+\section{Application: edge colouring and classroom scheduling}
+\label{sec:matching-edge-colouring}
+%==============================================================================
+
+A school has teachers and class groups, and it has already been decided which
+teacher teaches which group and for how many hours. We must build a timetable
+in which no teacher takes two groups at once and no group has two lessons at
+once. How many hours are needed?
+
+\paragraph{The model.} Build a bipartite graph with a vertex per teacher, a
+vertex per group, and one edge per lesson that must be scheduled. A timetable
+assigns each lesson an hour, and the two constraints say exactly that two edges
+sharing a vertex get different hours. That is an \emph{edge colouring}, and the
+question is the minimum number of colours.
+
+A lower bound is immediate: a teacher who must teach $d$ lessons needs $d$
+distinct hours, so at least $\Delta(G)$ colours are needed, where $\Delta$ is
+the maximum degree. Remarkably, for bipartite graphs that bound is always
+attained.
+
+\begin{theorem}[König's edge colouring theorem]\label{thm:matching-edge-colouring}
+Every bipartite graph $G$ with maximum degree $d$ has an edge colouring with $d$
+colours.
+\end{theorem}
+
+\begin{proof}
+First make $G$ $d$-regular without decreasing $d$. Let the sides be $V_1$ and
+$V_2$; add isolated vertices to the smaller side until $|V_1| = |V_2|$. Now,
+while some vertex has degree less than $d$, pick $v \in V_1$ and $w \in V_2$
+both of degree less than $d$ and add the edge $\{v,w\}$. Such a pair exists
+whenever any vertex is deficient: the two sides have equal size, so
+$\sum_{V_1} \deg = \sum_{V_2} \deg$, and if some vertex of $V_1$ has degree
+below $d$ then the sum over $V_1$ is below $d|V_1|$, hence so is the sum over
+$V_2$, so some vertex of $V_2$ is deficient too. The graph stays bipartite and
+simple, and the process terminates because the number of edges increases.
+
+Now repeat $d$ times: the graph is regular bipartite, so by
+\cref{thm:mcf-regular-bipartite} it has a perfect matching $M$; take $M$ as the
+next colour class and delete it. Deleting a perfect matching lowers every degree
+by exactly one, so the graph remains regular and the argument repeats. After $d$
+rounds every edge has a colour.
+
+Finally discard the edges that were added, keeping the colours of the original
+ones.
+\end{proof}
+
+\begin{corollary}
+A classroom timetable using the minimum number of hours can be computed in
+$\bigoh{nd^3}$ time.
+\end{corollary}
+
+\begin{proof}
+$d$ rounds, each a perfect matching in a regular bipartite graph, at
+$\bigoh{nd^2}$ each by \cref{thm:matching-schrijver}.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{50mm}{Two panels. Left: a small teacher/group table, three
+teachers across the top and three groups down the side, with crosses marking who
+teaches whom --- as on the slides. Right: the same data as a bipartite graph
+with the edges coloured, one colour per hour, showing that no vertex has two
+edges of the same colour. Use three or four clearly distinguishable colours and
+add a small legend mapping colour to hour.}
+\caption{A timetable is an edge colouring; the number of hours is the number of
+colours.}
+\label{fig:matching-edge-colouring}
+\end{figure}
+
+%==============================================================================
+\section{Partitioning a graph into cycles}
 \label{sec:matching-modelling}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Cycle covers, $2$-factors, and partitioning a graph into simple cycles.
+\begin{probdef}{Partition into Cycles}
+  \instance An undirected graph $G = (V,E)$.
+  \question Is there a collection of simple cycles $C_1, \ldots, C_r$ in $G$
+  such that every vertex belongs to exactly one of them?
+\end{probdef}
 
+A collection of vertex-disjoint cycles covering every vertex is the same thing
+as a spanning subgraph in which every vertex has degree exactly $2$ --- a
+\emph{$2$-factor}. Indeed a graph all of whose degrees are $2$ is a disjoint
+union of cycles, and in a simple graph those cycles have length at least $3$ and
+so are simple cycles.
+
+So the question is whether $G$ has a $2$-factor, and that is a matching problem
+in disguise.
+
+\begin{theorem}\label{thm:matching-two-factor}
+\lang{Partition into Cycles} can be solved in polynomial time.
+\end{theorem}
+
+\begin{proof}
+If any vertex has degree less than $2$ the answer is no, so assume
+$\deg(v) \ge 2$ throughout. Build an auxiliary graph $H$ as follows. For each
+vertex $v$ of $G$:
+\begin{itemize}[nosep]
+  \item add $\deg(v)$ \emph{external} vertices, one for each edge incident to
+        $v$;
+  \item add $\deg(v) - 2$ \emph{internal} vertices;
+  \item join every internal vertex of $v$ to every external vertex of $v$.
+\end{itemize}
+Finally, for each edge $\{u,v\}$ of $G$, join the external vertex of $u$
+belonging to that edge to the external vertex of $v$ belonging to it. We claim
+$G$ has a $2$-factor if and only if $H$ has a perfect matching.
+
+($\Rightarrow$) Given a $2$-factor $F$, match across for the two edges of $F$ at
+each vertex $v$, and match the remaining $\deg(v)-2$ external vertices of $v$ to
+its $\deg(v)-2$ internal vertices, which is possible because they form a
+complete bipartite graph on two sets of equal size. Every vertex of $H$ is then
+matched.
+
+($\Leftarrow$) Given a perfect matching of $H$, call an edge of $G$
+\emph{selected} if the corresponding external--external edge is in the matching.
+Fix $v$. Its internal vertices are matched, and their only neighbours are
+external vertices of $v$, so exactly $\deg(v)-2$ of $v$'s external vertices are
+matched internally. The remaining two are matched across, so exactly two edges
+at $v$ are selected. Hence the selected edges form a $2$-factor.
+
+The construction takes polynomial time: $H$ has $\sum_v (2\deg(v) - 2) = 4m-2n$
+vertices and $\sum_v \deg(v)(\deg(v)-2) + m = \bigoh{nm}$ edges. Running
+\cref{alg:matching-edmonds} on $H$ therefore decides the question in polynomial
+time.
+\end{proof}
+
+\begin{intuition}
+The gadget is worth remembering, because it generalises immediately. Replacing
+``$\deg(v)-2$ internal vertices'' by ``$\deg(v)-k$'' forces every vertex to have
+degree exactly $k$, so the same construction decides whether $G$ has a
+$k$-factor --- and with two sets of internal vertices, degrees between a lower
+and an upper bound. The internal vertices are a counting device: they soak up
+exactly the edges you do \emph{not} want used.
+
+Note also which matching algorithm is needed. $H$ is not bipartite --- the
+external--external edges see to that --- so the flow model of
+\cref{sec:matching-bipartite} does not apply and \cref{thm:matching-edmonds-time}
+is doing real work.
+\end{intuition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{55mm}{The $2$-factor gadget. Left: a vertex $v$ of degree $4$ in
+$G$ with its four incident edges. Right: its gadget in $H$ --- four external
+vertices in a row, two internal vertices below them, all eight
+internal--external pairs joined, and the four external vertices continuing out
+to the gadgets of the neighbours. Highlight one perfect matching of the gadget
+and mark which two of the four edges of $G$ it selects.}
+\caption{Forcing degree exactly two: the two external vertices left over after
+the internal ones are matched are the two selected edges.}
+\label{fig:matching-two-factor}
+\end{figure}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:matching-further-reading}
+%==============================================================================
+
+This chapter is based on the course slides of Jesper Nederlof and Johan van
+Rooij.
+
+Blossoms, the algorithm and \cref{thm:matching-berge} in the form used here are
+\citet{Edmonds1965} --- the paper is also the origin of the argument that
+polynomial time is the right formalisation of ``efficient'', and is worth
+reading for that alone. The fastest known general matching algorithm is
+\citet{MicaliVazirani1980}. \Cref{alg:matching-schrijver} and the edge colouring
+application are \citet{Schrijver1999}.
+
+\citet[Chapters 16, 17 and 24]{Schrijver2003} is the reference for matching
+theory in full. \citet[Chapters 24 and 25]{CLRS2022} covers the bipartite case
+only. \citet{AhujaMagnantiOrlin1993} treats the assignment problem and its
+applications at length.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-matching}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Show that a maximal matching is always at least half the size of a maximum
+matching, and give a graph where it is exactly half.
+\end{exercise}
+
+\begin{exercise}
+Prove that a graph has a perfect matching only if every one of its components
+has an even number of vertices, and show that the converse fails.
+\end{exercise}
+
+\begin{exercise}
+Answer the three questions the lecture leaves open about
+\cref{fig:matching-blossom-lift}: what happens if the lifted path would leave
+the blossom one vertex further round; must the lifted path always pass through
+the stem; and when does the case where the path \emph{ends} at the contracted
+vertex actually occur?
+\end{exercise}
+
+\begin{exercise}
+Show that contracting a blossom can create parallel edges or self-loops in
+$G/B$, and explain why neither harms \cref{alg:matching-edmonds}.
+\end{exercise}
+
+\begin{exercise}
+Why does \cref{alg:matching-walk} search for a \emph{shortest} path in $D$?
+Give an alternating walk that is not shortest and closes an even cycle, and show
+what goes wrong if the algorithm returns it.
+\end{exercise}
+
+\begin{exercise}
+Run \cref{alg:matching-schrijver} by hand on the $3$-regular bipartite graph
+$K_{3,3}$, starting from all weights $1$. How many iterations does it take?
+\end{exercise}
+
+\begin{exercise}
+Prove the claim used in \cref{thm:matching-schrijver} that no weight ever
+exceeds $d$, and that weights never go negative.
+\end{exercise}
+
+\begin{exercise}
+Adapt \cref{thm:matching-two-factor} to decide whether a graph has a
+$k$-factor, and then to decide whether it has a spanning subgraph in which every
+vertex $v$ has degree between $\ell(v)$ and $u(v)$.
+\end{exercise}
+
+\begin{exercise}
+\lang{Partition into Cycles} asks for cycles covering every vertex. What
+changes if we ask instead for cycles covering every \emph{edge} exactly once?
+Which chapter answers that?
+\end{exercise}

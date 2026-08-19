@@ -56,7 +56,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 8 figures open |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🟡 prose complete; 6 figures open |
 | 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 17 figures open |
-| 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🔲 |
+| 6 | Matching | `06-matching.tex` | W4 Tue | 7 | 🟡 prose complete; 7 figures open |
 
 ### Part II — Real Computation and the Existential Theory of the Reals
 
@@ -243,9 +243,9 @@ rewrite.
 
 | Deck | Slides | Chapters it covers |
 | --- | --- | --- |
-| `Flows and Matching 2026.pptx` | 1–56 | 3 (maximum flow) |
-| | 57–91 | 4 (minimum cost flow) |
-| | 92–141 | 6 (matching) |
+| `Flows and Matching 2026.pptx` | 1–56 | 3 (maximum flow) ✅ checked |
+| | 57–91 | 4 (minimum cost flow) ✅ checked |
+| | 92–141 | 6 (matching) ✅ checked |
 | `planar.pdf` | — | 5 (planar graphs) |
 | `Real-Compuation.pdf` | — | 7 (real models of computation) |
 
@@ -262,6 +262,16 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 6 — Matching
+
+- **7 figure placeholders.** Two carry the argument and should be drawn first:
+  the flower/blossom/stem picture, and the three-panel lift of an augmenting
+  path back through a contracted blossom.
+- Hall's and König's *matching* theorems are deliberately absent: they are not
+  in the deck. König's *edge colouring* theorem is, and is in the chapter.
+  Chapter 17 should introduce whatever it needs of the others rather than
+  assuming this chapter supplies them.
 
 ### Chapter 4 — Minimum Cost Flow
 

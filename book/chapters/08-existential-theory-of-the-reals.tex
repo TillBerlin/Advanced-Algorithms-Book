@@ -1,67 +1,592 @@
 %% Chapter 8: The Existential Theory of the Reals
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted, figures in place.
+%%
+%% Written against chapter 2 of Real-Compuation.pdf ("Beyond Bits", Tillmann
+%% Miltzow), plus the ETR-AM normal form from its chapter 3.  The four
+%% membership proofs in section "Showing membership" are new material, added
+%% because the exam needs worked examples of both definitions.
+%%
+%% The order type section is deliberately marked non-examinable: the lecture no
+%% longer covers it, and pool question 8 items 4 and 6 are withdrawn.
 
 \chapter{The Existential Theory of the Reals}
 \label{ch:etr}
 
 A striking number of natural problems --- in geometry, in graph drawing, in game
-theory, in machine learning --- are not known to be in \textbf{NP}, and the
-obstruction is always the same: a solution is a tuple of real numbers that may
-need exponentially many bits to write down. The class $\ER$ is the right home
-for these problems.
+theory, in machine learning --- are NP-hard and yet not known to be \emph{in}
+\textbf{NP}. The obstruction is always the same. A solution exists, but it is a
+tuple of real numbers, and there is no reason it should be describable in
+polynomially many bits. The class $\ER$ is the right home for these problems: it
+is what you get from \textbf{NP} by letting the witness be real and the verifier
+compute with real numbers exactly.
 
 \begin{goals}
-  \poolgoal{8.1}{give a definition of the algorithmic problem \ETR{} and of the complexity class $\ER$ based on it}
-  \poolgoal{8.2}{give the machine model description of $\ER$ and a sketch of a proof that it is equivalent with the logic-based definition}
+  \poolgoal{8.1}{give a definition of the algorithmic problem \ETR{} and of the
+        complexity class $\ER$ based on it}
+  \poolgoal{8.2}{give the machine model description of $\ER$ and a sketch of a
+        proof that it is equivalent with the logic-based definition}
   \poolgoal{8.3}{show that $\mathrm{NP} \subseteq \ER$}
-  \poolgoal{8.4}{define the order types and the order type problem, and give a motivation to study order types}
+  \poolgoal{8.7}{show that \lang{Euclidean TSP} is in $\ER$, using the
+        logic-based definition}
+  \poolgoal{8.8}{show that \lang{PosSLP} is in $\ER$, using the logic-based
+        definition}
+  \poolgoal{8.9}{show that \lang{Geometric Packing} is in $\ER$, using the
+        machine model definition}
+  \poolgoal{8.10}{show that the \lang{Art Gallery Problem} is in $\ER$, using
+        the machine model definition, and explain why the logic-based route is
+        much harder here}
   \poolgoal{8.5}{define \textsc{ETR-AM} and show that it is $\ER$-complete}
-  \poolgoal{8.6}{define the partial order type problem and show that it is $\ER$-complete}
 \end{goals}
 
-\section{\texorpdfstring{The problem \ETR{}}{The problem ETR}}
+%==============================================================================
+\section{Motivation}
+\label{sec:etr-motivation}
+%==============================================================================
+
+The existential theory of the reals gives rise to a complexity class written
+$\ER$ and pronounced ``ER'' or ``exists R''. It is the real-number analogue of
+\textbf{NP}: instead of binary witnesses we allow witnesses over $\R$, and the
+verifier may perform exact real arithmetic.
+
+This is useful because so many natural decision problems in geometry are
+NP-hard and yet come with no obvious \textbf{NP} certificate. A solution exists,
+but it cannot be written down with few bits --- it may require irrational
+coordinates, or coordinates needing doubly exponentially many digits. $\ER$
+captures exactly this phenomenon, and $\ER$-completeness is a robust hardness
+notion for such questions: it says that a problem is not merely hard, but hard
+\emph{in the specific way} that real solutions make it hard.
+
+Historically a growing body of geometric and topological problems was shown
+complete for this class, and Marcus Schaefer unified many of the results under
+the name $\ER$ in 2010.
+
+%==============================================================================
+\section{The problem \texorpdfstring{\ETR{}}{ETR} and the class \texorpdfstring{$\ER$}{exists-R}}
 \label{sec:etr-problem}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{probdef}{ETR (Existential Theory of the Reals)}
+  \instance A finite set of real variables $x_1, \ldots, x_n$ and a finite
+  collection of polynomial constraints
+  \[ p(x_1,\ldots,x_n) \mathrel{R} 0, \qquad
+     R \in \{<, \le, =, \ge, >\}, \]
+  each $p$ a polynomial with integer coefficients given in standard form,
+  combined with ``and'', ``or'' and ``not''.
+  \question Is there an assignment of real numbers to
+  $x_1, \ldots, x_n$ satisfying the formula?
+\end{probdef}
 
-\section{\texorpdfstring{The class $\ER$}{The class exists-R}}
+A small example is
+\[ \exists x, y \;:\; x^2 + y^2 \le 1 \;\wedge\; x \ge \tfrac{1}{2}, \]
+asking for a point of the unit disk whose first coordinate is at least a half.
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.28\textwidth]{etr-algebraic-set}
+\caption{The region of the plane satisfying both constraints. The formula is
+satisfiable exactly when this region is non-empty.}
+\label{fig:etr-algebraic-set}
+\end{figure}
+
+\begin{definition}[The class $\ER$]\label{def:er-logic}
+$\ER$ is the class of problems that reduce in polynomial time to \ETR{}.
+\end{definition}
+
+The reductions here are ordinary reductions on a standard discrete machine --- a
+Turing machine or a word RAM --- so the input is still a finite binary string.
+The real numbers enter only through the quantified variables of the \ETR{}
+instance. This is worth saying twice, because it is the point at which $\ER$
+differs from a vague ``computing with reals'': the \emph{problem} is discrete,
+and only the \emph{solution} is real.
+
+%==============================================================================
+\section{The machine model definition}
 \label{sec:er-class}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Logic-based definition, the machine model over the reals, and the sandwich $\mathrm{NP} \subseteq \ER \subseteq \mathrm{PSPACE}$.
+For \textbf{NP} we have two equivalent definitions: everything that reduces to
+\lang{Satisfiability}, and everything with a polynomial-time verifier. Formally,
+$P \in \textbf{NP}$ if there is a polynomial-time word RAM algorithm $A$ with
+\[ I \in P \;\Longleftrightarrow\; \exists w \in \{0,1\}^{*} : A(I,w) = 1. \]
+Writing $\R^{*} = \bigcup_{i \in \N} \R^i$ for the set of finite real vectors of
+any dimension, the same move defines $\ER$.
 
-\section{\texorpdfstring{$\mathrm{NP} \subseteq \ER$}{NP is contained in exists-R}}
+\begin{theorem}\label{thm:er-machine-model}
+A problem $P$ is in $\ER$ if and only if there is a polynomial-time algorithm
+$A$ running on a real RAM such that, for every binary-encoded instance $I$,
+\[ I \in P \;\Longleftrightarrow\;
+   \exists w \in \R^{*} : A(I,w) = 1. \]
+\end{theorem}
+
+Compared with \textbf{NP} there are exactly two differences: the verifier runs
+on a real RAM, and the witness may be real rather than binary. As in
+\cref{def:real-ram}, the instruction set is fixed and the only real constants
+available are $0$ and $1$.
+
+\begin{proof}[Proof sketch]
+Two directions.
+
+\emph{From a formula to a machine.} Take the existentially quantified real
+variables of the \ETR{} formula as the witness $w$. Evaluating the formula is
+routine for a real RAM: it computes the polynomials with $+$, $-$ and $\times$,
+performs the comparisons with sign tests, and combines the results according to
+the Boolean structure of the formula.
+
+\emph{From a machine to a formula.} Use \ETR{} as a very low-level programming
+language. Fix an instance $I$ of size $n$ and a running-time bound $T(n)$ for
+the real RAM algorithm $A$. Introduce variables representing the contents of
+every register at every time step $t \in \{0,1,\ldots,T(n)\}$, together with
+variables encoding the current instruction, and then write constraints
+enforcing three things: \emph{initiate}, that the time-$0$ registers hold the
+input encoding; \emph{update}, that each step follows one legal transition of
+the instruction set; and \emph{accept}, that some time step is accepting. The
+resulting formula is satisfiable exactly when a witness $w$ with $A(I,w)=1$
+exists.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.72\textwidth]{etr-cook-levin}
+\caption{The Cook--Levin tableau. We encode the contents of the memory cells,
+and the current instruction, at each time step, and constrain consecutive time
+steps to follow the program.}
+\label{fig:etr-cook-levin}
+\end{figure}
+
+It is hard to say when this theorem was first established. The proof ideas go
+back to the original arguments of Cook and Levin; for real models they were
+first adapted by Blum, Shub and Smale, whose model does not quite match ours.
+The theorem is distinctly easier to prove for the real Turing machine than for
+the real RAM, simply because the Turing machine has fewer operations to
+simulate --- indirect addressing is the hard case, and
+\cref{ex:etr-indirect-addressing} isolates the idea. Conceptually the two proofs
+are the same.
+
+\begin{intuition}
+Why bother with a machine model at all, when the logical definition is shorter?
+
+Three reasons. First, it is a far more usable tool for proving membership,
+which is what \cref{sec:er-membership} is about. Researchers fluent in
+manipulating formulas may not need it --- they have an intuition for what
+\ETR{} can express --- but for everyone else, ``write a verifier'' is much more
+accessible than ``write a formula''.
+
+Second, it explains why the real RAM is the \emph{right} model rather than an
+arbitrary one. It is the answer to the question: what machine model stands to
+$\ER$ as the word RAM stands to \textbf{NP}?
+
+Third, some statements can only be made in terms of a machine. Oracle access to
+$\ER$, and its comparison with oracle access to \textbf{NP}, needs a machine to
+attach the oracle to.
+\end{intuition}
+
+%==============================================================================
+\section{Showing membership}
+\label{sec:er-membership}
+%==============================================================================
+
+Both definitions are used in practice, and it is worth seeing each of them do
+real work. The two definitions are not equally convenient, and which one is
+easier depends entirely on the problem.
+
+\subsection{Using the formula: Euclidean TSP}
+\label{sec:er-membership-tsp}
+
+\begin{probdef}{Euclidean TSP}
+  \instance $n$ points $p_1, \ldots, p_n$ in the plane with rational
+  coordinates, and a rational number $t$.
+  \question Is there a tour visiting all $n$ points of total Euclidean length
+  at most $t$?
+\end{probdef}
+
+\begin{proposition}\label{prop:er-tsp}
+\lang{Euclidean TSP} is in $\ER$.
+\end{proposition}
+
+\begin{proof}
+We give a polynomial-time reduction to \ETR{}.
+
+The obstruction to membership in \textbf{NP} is the square roots: a tour's
+length is a sum of $n$ square roots of rationals, and comparing such a sum with
+$t$ is not known to be possible in polynomial time. In \ETR{} we simply give
+each distance a variable and constrain its square. Introduce, for every pair
+$i \ne j$,
+\[ d_{ij} \ge 0 \;\wedge\;
+   d_{ij}^2 = (x_i-x_j)^2 + (y_i-y_j)^2, \]
+where the $x_i, y_i$ are the given rational coordinates, so that $d_{ij}$ is
+forced to be exactly the Euclidean distance.
+
+Next the tour. Introduce a variable $e_{ij}$ for every ordered pair with the
+constraint $e_{ij}(e_{ij}-1) = 0$, which forces $e_{ij} \in \{0,1\}$; read
+$e_{ij} = 1$ as ``the tour goes from $p_i$ to $p_j$''. Add the degree
+constraints $\sum_j e_{ij} = 1$ and $\sum_i e_{ij} = 1$ for every $i$ and $j$,
+which say that the chosen arcs form a disjoint union of directed cycles
+covering all points. To force a single cycle, introduce real variables
+$u_2, \ldots, u_n$ and the constraints
+\[ 1 \le u_i \le n \quad\text{and}\quad
+   u_i - u_j + n\, e_{ij} \le n-1 \quad (i \ne j,\ i,j \ge 2), \]
+which are satisfiable exactly when the arcs form one cycle through all points.
+Here the real variables are doing something they could not do in a purely
+combinatorial encoding: they carry a \emph{position along the tour}, and
+polynomially many constraints suffice where subtour elimination would otherwise
+need exponentially many.
+
+Finally add $\sum_{i \ne j} e_{ij} d_{ij} \le t$. The whole formula has
+$\bigoh{n^2}$ variables and constraints and is built in polynomial time, and it
+is satisfiable exactly when a tour of length at most $t$ exists.
+\end{proof}
+
+\begin{remark}
+It is not known whether \lang{Euclidean TSP} is in \textbf{NP} --- that is the
+notorious sum-of-square-roots problem --- and it is not known to be
+$\ER$-hard either. It sits in $\ER$ and nobody can place it more precisely.
+\end{remark}
+
+\subsection{Using the formula: PosSLP}
+\label{sec:er-membership-posslp}
+
+Recall \lang{PosSLP} from \cref{sec:posslp}: given a straight-line program,
+decide whether the number it computes is positive.
+
+\begin{proposition}\label{prop:er-posslp}
+\lang{PosSLP} is in $\ER$.
+\end{proposition}
+
+\begin{proof}
+Let the program be $a_0 = 1$ and $a_k = a_i \circ a_j$ for $k = 1, \ldots, m$,
+with $i,j < k$ and $\circ \in \{+,-,\times\}$. Introduce one real variable
+$v_k$ per line and the constraints
+\[ v_0 = 1, \qquad v_k = v_i \circ v_j \quad (k = 1, \ldots, m), \qquad
+   v_m > 0. \]
+Each constraint is a polynomial equation of degree at most two, there are
+$m+1$ of them, and the translation is immediate --- the formula is nothing but
+the program, read as a system of equations.
+
+The system has exactly one solution, namely $v_k = a_k$, so it is satisfiable if
+and only if $a_m > 0$.
+\end{proof}
+
+\begin{intuition}
+This is worth pausing on, because it is the whole difficulty of \lang{PosSLP}
+in one line. The value $a_m$ may need $2^m$ bits, so a word RAM cannot even
+write it down; but a \emph{formula} of size $\bigoh{m}$ pins it down exactly,
+and a real RAM holds it in one register. Combined with
+\cref{thm:posslp-pr}, this places $\mathrm{P}_{\R}$ inside $\ER$ in the way one
+would hope.
+\end{intuition}
+
+\subsection{Using the machine: geometric packing}
+\label{sec:er-membership-packing}
+
+\begin{probdef}{Geometric Packing}
+  \instance $n$ polygonal pieces and a polygonal container in the plane, all
+  with rational vertex coordinates.
+  \question Can the pieces be translated and rotated so that no two overlap and
+  all lie inside the container?
+\end{probdef}
+
+\begin{proposition}\label{prop:er-packing}
+\lang{Geometric Packing} is in $\ER$.
+\end{proposition}
+
+\begin{proof}
+We use \cref{thm:er-machine-model} and exhibit a real RAM verifier.
+
+The witness is, for each piece $i$, four real numbers: a translation
+$(t_x^i, t_y^i)$ and a pair $(c_i, s_i)$ standing for
+$(\cos\theta_i, \sin\theta_i)$. The verifier first checks
+$c_i^2 + s_i^2 = 1$, which is one multiplication and one comparison per piece
+and is exactly the statement that $(c_i,s_i)$ describes a rotation. It then
+applies the rigid motion
+\[ (x,y) \;\longmapsto\; (c_i x - s_i y + t_x^i,\; s_i x + c_i y + t_y^i) \]
+to each vertex of piece $i$, which is a constant number of real operations per
+vertex.
+
+What remains is to check that the transformed pieces are pairwise
+non-overlapping and all contained in the container. Both are standard
+computational geometry: two simple polygons overlap if and only if a pair of
+their edges cross or one contains a vertex of the other, and containment is
+tested the same way plus one point-in-polygon test. Every primitive here ---
+segment intersection, orientation of a triple, point in polygon --- is a
+constant number of additions, multiplications and sign tests, and there are
+polynomially many of them. So the verifier runs in polynomial time on a real
+RAM.
+
+Finally, a packing exists if and only if such a witness exists, which is the
+statement of \cref{thm:er-machine-model}.
+\end{proof}
+
+Note how little work that was. The same result via \ETR{} is also achievable
+--- one writes down the rigid motions and encodes non-overlap as a disjunction
+of separating-axis conditions --- but the machine version needs no encoding at
+all: it simply runs the algorithm one would write anyway.
+
+\subsection{Using the machine: the art gallery problem}
+\label{sec:er-membership-art-gallery}
+
+\begin{probdef}{Art Gallery Problem}
+  \instance A simple polygon $P$ with rational vertex coordinates and an
+  integer $k$.
+  \question Are there $k$ points (\emph{guards}) in $P$ such that every point of
+  $P$ is seen by at least one guard? A guard $g$ \emph{sees} a point $p$ if the
+  segment $gp$ is contained in $P$.
+\end{probdef}
+
+\begin{proposition}\label{prop:er-art-gallery}
+The \lang{Art Gallery Problem} is in $\ER$.
+\end{proposition}
+
+\begin{proof}
+Again we exhibit a real RAM verifier. The witness is the $2k$ coordinates of
+the guards.
+
+The verifier first checks that each guard lies in $P$, by a point-in-polygon
+test. It then computes, for each guard $g$, the \emph{visibility polygon}
+$V(g)$ --- the set of points of $P$ seen by $g$. This is a classical
+computational geometry computation: it is a polygon whose vertices are vertices
+of $P$ together with points where a ray from $g$ through a reflex vertex first
+hits the boundary, and every such point is obtained by intersecting two lines.
+On a real RAM those intersections are exact and cost a constant number of
+operations, so $V(g)$ is computed in polynomial time.
+
+Finally the verifier checks whether $\bigcup_{i=1}^{k} V(g_i) = P$. Taking the
+union of $k$ polygons and comparing it with $P$ is again polynomial, using only
+arithmetic and comparisons. The guards cover $P$ exactly when this test
+succeeds.
+\end{proof}
+
+\begin{intuition}
+This is the example that justifies the machine model. The verifier above is
+short and needs no cleverness --- it is the algorithm anybody would write to
+\emph{check} a proposed set of guards. Producing an equivalent \ETR{} formula
+is a different matter entirely: the condition ``every point of $P$ is seen'' is
+universally quantified, and \ETR{} has no $\forall$. One must instead argue that
+the uncovered region, if non-empty, contains a witness point of a restricted
+form, and encode that. It can be done, but the first such proof took its author
+several days to find and runs to five pages.
+
+If universal quantifiers \emph{were} allowed, the encoding would be a single
+line: $\exists g_1,\ldots,g_k \, \forall p \in P \, \exists i : p$ is seen by
+$g_i$. That formula lives in the second level of the first-order theory of the
+reals, not in $\ER$.
+\end{intuition}
+
+%==============================================================================
+\section{Comparison with known complexity classes}
 \label{sec:np-in-er}
+%==============================================================================
 
-\todo{Write this section.}
+Two inclusions place $\ER$ on the map:
+\[ \mathrm{NP} \;\subseteq\; \ER \;\subseteq\; \mathrm{PSPACE}. \]
+The second is highly non-trivial and goes back to Canny; we do not prove it.
+The first is easy, and we give two proofs, because they illustrate the two
+definitions.
 
-\section{Order types}
-\label{sec:order-types}
+\begin{lemma}\label{lem:np-in-er}
+$\mathrm{NP} \subseteq \ER$.
+\end{lemma}
 
-\todo{Write this section.}
-% Planned content: Definition, the order type realizability problem, and why order types are the right combinatorial abstraction of a point set.
+\begin{proof}[First proof, via the formula]
+We reduce \ThreeCol{} to \ETR{}. Let $G = (V,E)$ with $V = \{1,\ldots,n\}$.
+Introduce one real variable $x_v$ per vertex, intended to carry the colour of
+$v$, encoded as one of the numbers $0$, $1$, $2$. Enforce this with
+\[ (x_v - 0)(x_v - 1)(x_v - 2) = 0, \]
+whose real roots are exactly $\{0,1,2\}$, and for every edge $\{u,v\} \in E$ add
+$x_u \ne x_v$. The formula is satisfiable if and only if $G$ is $3$-colourable.
 
-\section{Normal forms: \textsc{ETR-INV} and \textsc{ETR-AM}}
+Since every problem in \textbf{NP} reduces to \ThreeCol{}, every problem in
+\textbf{NP} reduces to \ETR{}.
+\end{proof}
+
+\begin{proof}[Second proof, via the machine]
+Note that $\{0,1\}^{*} \subseteq \R^{*}$ and that a real RAM can simulate any
+word RAM algorithm. So if $A$ witnesses $P \in \mathrm{NP}$, the same algorithm
+witnesses $P \in \ER$, with one extra check that every entry of the witness is
+$0$ or $1$.
+\end{proof}
+
+The first proof is the more informative of the two: it shows how an \ETR{}
+formula encodes a combinatorial problem, and the trick --- a polynomial whose
+roots are exactly the values you want a variable to take --- recurs constantly.
+
+%==============================================================================
+\section{A normal form: ETR-AM}
 \label{sec:etr-am}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Restricting the variable range and the shape of the equations, without losing $\ER$-hardness.
+\ETR{} in full generality is unwieldy for hardness proofs, where one wants to
+reduce \emph{from} it. The following stripped-down version is far easier to work
+with, and is no easier to solve.
 
-\section{The partial order type problem}
-\label{sec:partial-order-types}
+\begin{probdef}{ETR-AM}
+  \instance A conjunction of constraints, each of one of the three forms
+  \[ x = 1, \qquad x + y = z, \qquad x \cdot y = z. \]
+  \question Is the conjunction satisfiable over $\R$?
+\end{probdef}
 
-\todo{Write this section.}
+The letters stand for \emph{addition} and \emph{multiplication}. Note that the
+constraint $x = 1$ is needed: without it, setting every variable to zero
+satisfies everything.
 
+\begin{lemma}\label{lem:etr-am}
+\lang{ETR-AM} is $\ER$-complete.
+\end{lemma}
+
+\begin{proof}
+Membership is immediate: \lang{ETR-AM} is a syntactic restriction of \ETR{}.
+
+For hardness, let $\Phi$ be an arbitrary \ETR{} instance; we transform it in
+polynomial time by a sequence of normal-form steps.
+
+\emph{Remove negations and disjunctions.} Push negations down to the atomic
+constraints, so that $\neg(p > 0)$ becomes $p \le 0$, and distribute
+disjunctions until they occur only between polynomial (in)equalities. Strict and
+non-strict inequalities are then removed with a fresh variable:
+\[ p > 0 \iff \exists x : p \cdot x^2 = 1, \qquad
+   p \ge 0 \iff \exists x : p = x^2, \]
+the first because $p$ has an inverse exactly when it is non-zero and $x^2 > 0$
+forces the sign, the second because the squares are exactly the non-negative
+reals. A disjunction of equalities becomes a product:
+\[ (p = 0) \vee (q = 0) \iff p \cdot q = 0. \]
+What remains is a conjunction of polynomial equations.
+
+\emph{Remove coefficients.} Build the constants from $1$ with auxiliary
+variables: $b = 1+1$ gives $2$, then $c = b+b$ gives $4$, $d = c+c$ gives $8$,
+and $e = d+b$ gives $10$. Repeated doubling produces any integer coefficient
+with logarithmically many constraints.
+
+\emph{Arithmetise.} For every sum and every product occurring in a polynomial,
+introduce a fresh variable for its value and the corresponding constraint. A
+final equation $c = 0$ becomes $c + 1 = 1$, which is expressible in the allowed
+forms. For instance $x^2y + z = 0$ becomes
+\[ \exists a,b,c \;:\; a = x \cdot x \;\wedge\; b = a \cdot y \;\wedge\;
+   c = b + z \;\wedge\; c + 1 = 1. \]
+
+Every step is polynomial and preserves satisfiability, so the result is an
+equivalent \lang{ETR-AM} instance.
+\end{proof}
+
+\Cref{lem:etr-am} is the starting point for essentially every geometric
+$\ER$-hardness proof, including those of \cref{ch:geometric-er}: one reduces
+from \lang{ETR-AM} and builds a gadget for each of the three constraint types.
+
+%==============================================================================
+\section{Order types (non-examinable)}
+\label{sec:order-types}
+%==============================================================================
+
+\nonexam{The lecture no longer covers this material, and items 4 and 6 of pool
+question 8 have been withdrawn accordingly. It is kept because it is the
+historical route into $\ER$, because it explains where the geometric hardness
+proofs of \cref{ch:geometric-er} come from, and because the motivation below is
+worth reading even if nothing here is examined.}
+
+Numerical instability was a problem computational geometers noticed early, and
+it produced a wish for algorithms that solve geometric problems but are
+combinatorial in nature. Remarkably, many geometric problems can be solved
+knowing only the \emph{order type} of a point set.
+
+\begin{definition}[Order type]\label{def:order-type}
+The \emph{order type} of a point set specifies, for each ordered triple of
+points, whether the third point lies on, to the left of, or to the right of the
+line through the first two --- equivalently, whether the triple is collinear,
+oriented clockwise, or oriented counterclockwise.
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\includegraphics[width=0.9\textwidth]{er-order-type}
+\caption{The order type records, for every ordered triple, whether it turns
+left, turns right, or is collinear.}
+\label{fig:er-order-type}
+\end{figure}
+
+The convex hull of a point set, for instance, is completely determined by the
+order type: once the order type has been extracted, the hull can be computed
+without ever looking at a coordinate again. A second motivation is structural.
+If we accept that the order type contains all the essential information about a
+point set, then for each $n$ there are only finitely many order types, and hence
+only finitely many point configurations up to order type --- so one may hope to
+prove structural theorems about point sets the way one does about graphs.
+
+Out of mathematical curiosity, Ringel asked in 1956: are there two point sets
+$P$ and $Q$ in the plane that cannot be moved continuously into one another
+without changing the order type along the way? The answer is yes, but it is
+hard to give a concrete example or a simple proof; the smallest known such
+configuration has $13$ points and was found in 2012.
+
+To answer Ringel's question, Mn\"ev and Shor studied the realisation space of
+order types in full generality, in the equivalent language of
+\emph{stretchability}. That is where \cref{ch:geometric-er} picks up the story:
+one reduces \lang{ETR-AM} to a question about order types by placing a point on
+a line for each variable and building a geometric gadget for each addition and
+each multiplication constraint. The problem of deciding whether a given
+abstract order type is realised by an actual point set --- and its variant, the
+\lang{Partial Order Type Problem}, in which only some of the triples are
+prescribed --- is $\ER$-complete.
+
+%==============================================================================
 \section{Notes and further reading}
 \label{sec:etr-further-reading}
+%==============================================================================
 
-This chapter is based on lecture notes by Tillmann Miltzow.
+This chapter follows \citet{Miltzow2026}, apart from
+\cref{sec:er-membership}, which is new.
 
-\todo{Add the literature: Shor and Canny for $\ER \subseteq \mathrm{PSPACE}$,
-Mn\"ev's universality theorem, Richter-Gebert's work on order types, and
-Schaefer's surveys of $\ER$-completeness.}
+\Cref{thm:er-machine-model} has no single clean origin: the ideas go back to
+Cook and Levin, were first adapted to real models by
+\citet{BlumCuckerShubSmale1998}, and were proved for a real RAM model close to
+ours by Erickson, van der Hoog and Miltzow. The inclusion
+$\ER \subseteq \mathrm{PSPACE}$ is due to Canny. The name $\ER$ and the
+unification of the early completeness results are due to Schaefer.
+\Cref{lem:etr-am} and the geometric reduction it feeds are from Mn\"ev and Shor.
 
+\todo{Add proper bibliography entries for Canny, Schaefer, Mn\"ev, Shor, and
+Erickson--van der Hoog--Miltzow; the manuscript cites them as [9,10], [25],
+[20], [29] and [15,14] respectively. Each needs its DOI verified before it goes
+in.}
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-etr}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}
+Write a formula $\varphi$ such that the solution set
+$S = \{x \in \R^2 : \varphi(x)\}$ is an annulus.
+\end{exercise}
+
+\begin{exercise}
+Write a formula $\varphi$ such that $\varphi(x)$ holds if and only if $x$ is an
+integer between $1$ and $n$. Can you do it with $\bigoh{\log n}$ symbols?
+\end{exercise}
+
+\begin{exercise}\label{ex:etr-indirect-addressing}
+Let $U_1, \ldots, U_n$ and $x$ be variables. Write a formula
+$\varphi(x, U_1, \ldots, U_n, z)$ that holds if and only if $x$ is an integer
+between $1$ and $n$ and $z = U_x$. Writing $U_x$ in a formula is of course
+forbidden. This is the main idea behind simulating indirect addressing, which is
+the hardest part of \cref{thm:er-machine-model}.
+\end{exercise}
+
+\begin{exercise}
+Give a second proof that \lang{Geometric Packing} is in $\ER$, this time using
+the logic-based definition. Encoding non-overlap is the interesting part.
+\end{exercise}
+
+\begin{exercise}
+Suppose universal quantifiers were allowed. Write a one-line formula expressing
+solvability of the art gallery problem, and say precisely which step of
+\cref{prop:er-art-gallery} it replaces.
+\end{exercise}
+
+\begin{exercise}
+It is unknown whether \lang{Euclidean TSP} is in \textbf{NP}, and unknown
+whether it is $\ER$-hard. Speculate, in one line each, about why.
+\end{exercise}
+
+\begin{exercise}
+Show that the $\ne$ used in the proof of \cref{lem:np-in-er} can be removed:
+give an \ETR{} formula equivalent to $x \ne y$ using only the relations
+$=, \le, <$ and one extra variable.
+\end{exercise}

@@ -42,7 +42,7 @@ pool question.
 5  & Planar Graphs                       & 4  & \cref{ch:planar} \\
 6  & Real Models of Computation          & 5  & \cref{ch:real-models} \\
 7  & Partition into Cycles               & 6  & \cref{ch:matching} \\
-8  & Existential Theory of the Reals     & 7  & \cref{ch:etr} \\
+8  & Existential Theory of the Reals\rlap{$^\dagger$} & 7  & \cref{ch:etr} \\
 9  & Exact Algorithm for Exact 3-SAT     & 8  & \cref{ch:exact-i} \\
 10 & Bisection Width                     & 8  & \cref{ch:exact-i} \\
 11 & Duality and geometric $\ER$-hardness & 9  & \cref{ch:geometric-er} \\
@@ -67,6 +67,9 @@ pool question.
 \bottomrule
 \end{tabular}
 \end{center}
+
+$^\dagger$ Question~8 has been revised: items~4 and~6 are withdrawn and
+items~7--10 are new. See the remark at the question itself.
 
 \begin{remark}
 Lecture~3 is headed \emph{Min Flow Max Cut} in the pool PDF, repeating the
@@ -296,15 +299,35 @@ existential theory of the reals.
   \item Give the machine model description of $\ER$ and a sketch of a proof that
         it is equivalent with the logic based definition.
   \item Show that $\mathrm{NP} \subseteq \ER$.
-  \item Define the order types and the order type problem. Give a motivation to
-        study order types.
+  \item \emph{(Withdrawn.)} Define the order types and the order type problem.
+        Give a motivation to study order types.
   \item Define \textsc{ETR-AM} as in the lecture and show that it is
         $\ER$-complete.
-  \item Define the \textsc{Partial Order Type Problem}. Suppose that we can use
-        order types to also enforce pairs of lines, defined by two points each,
-        to be parallel. Show that the \textsc{Partial Order Type Problem} is
-        $\ER$-complete.
+  \item \emph{(Withdrawn.)} Define the \textsc{Partial Order Type Problem}.
+        Suppose that we can use order types to also enforce pairs of lines,
+        defined by two points each, to be parallel. Show that the
+        \textsc{Partial Order Type Problem} is $\ER$-complete.
+  \item Show that \textsc{Euclidean TSP} is in $\ER$, using the logic-based
+        definition of the class.
+  \item Show that \textsc{PosSLP} is in $\ER$, using the logic-based definition
+        of the class.
+  \item Show that \textsc{Geometric Packing} is in $\ER$, using the machine
+        model definition of the class. In \textsc{Geometric Packing} we are
+        given $n$ polygonal pieces and a polygonal container in the plane, and
+        we may translate and rotate the pieces so that no two overlap and all
+        lie inside the container.
+  \item Show that the \textsc{Art Gallery Problem} is in $\ER$, using the
+        machine model definition of the class, and explain why the logic-based
+        route is much harder for this problem.
 \end{enumerate}
+
+\begin{remark}
+Items~4 and~6 are withdrawn: the lecture no longer covers order types. The
+material is kept in the book, marked non-examinable, in
+\cref{sec:order-types}. Items~7--10 were added so that both definitions of
+$\ER$ come with worked membership proofs --- two apiece, which is what the
+exam needs and what the original question lacked.
+\end{remark}
 
 \subsection*{Lecture 8: Exact Exponential-Time Algorithms}
 

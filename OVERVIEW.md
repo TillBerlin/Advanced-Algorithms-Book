@@ -63,7 +63,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
 | 7 | Real Models of Computation | `07-real-models-of-computation.tex` | ER 1 (W3 Thu) | 6 | ✅ drafted, figures in place |
-| 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | 🔲 |
+| 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | 🟡 drafted; figures in place, one bibliography todo |
 | 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11 | 🔲 |
 
 ### Part III — Exact Exponential-Time Algorithms
@@ -282,6 +282,20 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 8 — The Existential Theory of the Reals
+
+- **Bibliography gap.** The chapter names Canny, Schaefer, Mn\'ev, Shor and
+  Erickson--van der Hoog--Miltzow in its reading list but cites none of them:
+  the manuscript's numeric citations need resolving to actual works and their
+  DOIs verified before entries go into `references.bib`. There is a `\todo`
+  saying so.
+- **Order types are non-examinable.** The lecture dropped them, so pool
+  question 8 items 4 and 6 are withdrawn and the section carries the marking.
+  The material stays because it is where the geometric hardness proofs of
+  chapter 9 come from.
+- Pool question 8 gained items 7--10, four worked membership proofs, two by
+  each definition of the class.
 
 ### Chapter 7 — Real Models of Computation
 

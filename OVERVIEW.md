@@ -11,6 +11,33 @@ then created as a `.tex` file and `\include`d in `book/main.tex`.
   to replace a placeholder
 - Exam question pool, transcribed and mapped: [`book/appendix/a-pool-questions.tex`](book/appendix/a-pool-questions.tex)
 
+## Repository layout
+
+Two directories, and nothing loose in the root.
+
+```
+book/                       everything that becomes the PDF
+  main.tex                  master file; chapters are \include'd here
+  preamble.tex              packages, theorem environments, shared macros
+  references.bib            bibliography, DOIs verified against publishers
+  chapters/                 one .tex per chapter, numbered
+  appendix/                 pool questions, preliminaries
+  frontmatter/              preface
+  figures/                  every figure the book uses, and nothing else
+material/                   everything the book is written *from*
+  slides/                   the lecture decks
+  notes/                    manuscripts and lecture notes
+  pool/                     the exam pool as circulated
+  schedule.md               last year's schedule
+```
+
+**Figures.** `book/preamble.tex` sets `\graphicspath{{figures/}}`, so a figure
+is included as `\includegraphics{planar-fary}` with no path and no extension.
+Every figure the text refers to is in `book/figures/`; nothing else is.
+
+**Build artefacts are not tracked.** `book/main.pdf` and the `.aux`, `.log`,
+`.toc` family are in `.gitignore`, so a `git status` after a build stays clean.
+
 ## Design principles
 
 1. **The pool is the contract, and the pool is the learning goals.** The course
@@ -251,6 +278,13 @@ literature.
 - **65 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two are
   more than half of the total. The ones that carry argument rather than
   decoration are listed per chapter under *Open work in drafted chapters*.
+- **Five uploaded figures are in `book/figures/` but used nowhere**, all from
+  the ∃R material: `er-annulus`, `er-different-embedding`,
+  `er-non-parallel-addition`, `er-staudt-construction` (5 pages) and
+  `etr-cube-poset` (2 pages). They were drawn for passages that have since been
+  cut or moved — the von Staudt construction and the partial order type problem
+  in particular. They should either be placed or deleted; leaving them is how a
+  figures folder rots.
 - **Appendix B** is deliberately deferred: it will be written from what the
   finished chapters actually use, and it will not repeat set theory. The policy
   is recorded in the file.
@@ -265,9 +299,9 @@ literature.
 - **The ETH/SETH pool item** moved off chapter 11's question, which is where it
   used to sit, onto the two new questions of chapter 12.
 
-## Source decks## Source decks## Source decks
+## Source material
 
-The slide decks the course was taught from are in the repository root and are
+Everything the course was taught from lives under `material/`, and the decks are
 the authority on **what a chapter must cover**. Check a chapter against its deck
 before calling the prose complete — this was missed once already and cost a
 rewrite.

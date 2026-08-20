@@ -38,6 +38,11 @@ Every figure the text refers to is in `book/figures/`; nothing else is.
 **Build artefacts are not tracked.** `book/main.pdf` and the `.aux`, `.log`,
 `.toc` family are in `.gitignore`, so a `git status` after a build stays clean.
 
+**Branches.** Work happens on `claude/advanced-algorithms-textbook-564jrw`, and
+`main` is fast-forwarded to it after each chapter, so what GitHub shows by
+default is current. See [`CLAUDE.md`](CLAUDE.md) for the rest of the working
+agreements.
+
 ## Design principles
 
 1. **The pool is the contract, and the pool is the learning goals.** The course
@@ -248,8 +253,8 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after chapters 10, 11 and 12. Six `\todo` markers and 65
-`\figplaceholder` boxes remain.
+Re-audited after chapters 10, 11 and 12. Six `\todo` markers and 71
+`\figplaceholder` boxes remain, over 254 pages.
 
 ### Chapters not yet written
 
@@ -275,8 +280,8 @@ literature.
 
 ### Other open work
 
-- **65 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two are
-  more than half of the total. The ones that carry argument rather than
+- **71 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two are
+  half of the total. The ones that carry argument rather than
   decoration are listed per chapter under *Open work in drafted chapters*.
 - **Five uploaded figures are in `book/figures/` but used nowhere**, all from
   the ∃R material: `er-annulus`, `er-different-embedding`,

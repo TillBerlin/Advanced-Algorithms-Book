@@ -219,24 +219,58 @@ Requires a TeX Live installation with `latexmk`. The GitHub Actions workflow in
 `.github/workflows/build-book.yml` builds the book on every push and uploads the
 PDF as an artefact.
 
-## Roadmap
+## What is left
 
-1. ~~Repository skeleton, chapter outline, pool transcription.~~ ✅
-2. Write Part I, in reading order — it is the most self-contained and has the
-   most pool questions per page. Chapter 5 (Planar Graphs) is drafted; what it
-   still needs is listed under *Open work* below.
-3. Write Parts III–V (the "responses to hardness" arc), which share notation and
-   should be written together.
-4. Write Part II (ER track) last: it is the most research-flavoured and the
-   least standard, so it will need the most iteration.
-5. Fill in Appendix B once the main text has settled and it is clear what
-   actually needs to be assumed.
-6. Add exercises beyond the pool questions.
-7. ~~Bibliography and attribution pass.~~ ✅ `book/references.bib` exists, is
-   wired in through `natbib`/`bibtex`, and carries verified DOIs. New chapters
-   cite into it rather than listing references by hand.
+Audited after chapter 12 was written. Fourteen `\todo` markers and 68
+`\figplaceholder` boxes remain.
 
-## Source decks
+### Chapters not yet written
+
+| # | Chapter | Source | Notes |
+| --- | --- | --- | --- |
+| 10 | Exact Algorithms I | ✅ deck, slides 1–53 | Ready to write |
+| 11 | Exact Algorithms II | ✅ deck, slides 54–75 | Ready to write |
+| 18 | Kernelization | ✅ deck, `aa-fpt.pdf` 67–83 | Ready to write |
+| 17 | Complexity for Approximation and Parameterization | ❌ **no deck** | See below |
+| 19 | Randomized Algorithms | ❌ **no deck** | Blackboard + colour coding |
+| 1 | Introduction | ❌ no deck, none needed | Write last, once the notation has settled |
+
+**Chapter 17 has no source.** The approximation deck mentions APX-completeness
+four times and always as a cross-reference — "last lecture", "next lecture" —
+and never teaches it; `aa-fpt.pdf` does not contain the words *L-reduction*,
+*APX-hard* or *PCP* at all. Yet chapter 14 forward-references it three times for
+the APX-hardness of independent set and of vertex cover, and two pool questions
+(*L-reduction for Maximum Cut on Multigraphs*, *Complexity for Approximation and
+FPT*) are answered there. Either slides exist somewhere or the chapter must be
+written from the literature.
+
+**Chapter 19 has no source either**, and this is known and expected: the
+randomized `O(1.5^n)` 3-colouring algorithm was lectured at the blackboard, and
+`Directed k-Path` by colour coding has no slides.
+
+### Other open work
+
+- **Chapter 2** carries two `\todo`s: the opening section on the chapter's
+  theme, and **Euler tours** — which is a pool item, so it is examinable and
+  currently missing.
+- **Appendix B** (preliminaries) is five empty sections. Deliberately left until
+  the main text settles and it is clear what actually needs assuming.
+- **The preface** has an acknowledgements `\todo`.
+- **68 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two
+  account for more than half. The ones that carry argument rather than
+  illustration are listed per chapter under *Open work in drafted chapters*
+  below.
+
+### Order I would suggest
+
+1. Chapters 10 and 11 — one deck, ready, and they are what chapter 12 bounds.
+2. Chapter 18 — the rest of the FPT deck, and chapter 15 already points at it.
+3. Chapter 17 — but decide the source question first.
+4. Euler tours in chapter 2, since it is examinable.
+5. Chapter 19, from the literature.
+6. Figures, then Appendix B, then chapter 1.
+
+## Source decks## Source decks
 
 The slide decks the course was taught from are in the repository root and are
 the authority on **what a chapter must cover**. Check a chapter against its deck

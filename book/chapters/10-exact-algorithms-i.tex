@@ -1,24 +1,777 @@
 %% Chapter 10: Exact Exponential-Time Algorithms I: Branching
-%% Status: skeleton.  Only the learning goals are fixed; they come from the
-%% exam pool.  The sectioning is deliberately not invented in advance --
-%% it will follow the source material once that has been read.
+%% Status: drafted; 2 figure placeholders.
+%%
+%% Written against "material/slides/Exponential Time Algorithms 2026.pptx",
+%% slides 1-53 (introduction, clever enumeration, branching, meet in the
+%% middle).  Dynamic programming over subsets is on slides 26-30 of the same
+%% deck but is answered by the pool question of chapter 11, so it lives there.
+%%
+%% The records quoted on the slides were checked rather than copied: the
+%% maximum independent set entry in particular is different here, see the notes
+%% section.
+%%
+%% The two pool exercises -- Exact 3-Satisfiability and Bisection Width -- are
+%% worked in full; neither is in the deck.
 
 \chapter{Exact Exponential-Time Algorithms I: Branching}
 \label{ch:exact-i}
 
-If a problem is NP-hard and we still need the exact optimum, the question is no
-longer polynomial versus exponential but $2^n$ versus $1.5^n$ --- a difference of
-a factor of a million already at $n = 40$. Branching, together with reduction
-rules that shrink the instance, is the basic technique.
+If a problem is \textrm{NP}-hard and we still need the exact optimum, the
+question is no longer polynomial versus exponential. It is $2^n$ versus
+$1.5^n$ --- and that is not a small difference. At $n = 100$ the ratio is
+$10^{13}$; at $n = 40$ it is already a factor of a million, which is the
+difference between a coffee break and a fortnight. This chapter is about
+techniques for pushing the base of the exponent down.
 
 \begin{goals}
-  \poolgoal{use $\Ostar$ notation and explain why polynomial factors may be suppressed}
-  \poolgoal{design branching algorithms and analyse them with branching vectors and recurrences}
-  \poolgoal{for \lang{Exact 3-Satisfiability}, give a polynomial-time reduction rule transforming an instance into an equivalent smaller one in which all clauses have size two or three}
-  \poolgoal{for the same problem, give a reduction rule after which all clauses have size exactly three}
-  \poolgoal{give an $\Ostar(c^n)$ algorithm with $c < 2$ for it, and analyse its running time}
-  \poolgoal{give an $\Ostar(c^n)$ algorithm with $c < 2$ for \lang{Bisection Width}}
+  \poolgoal{define $\Ostar$ notation and explain why polynomial factors may be
+        suppressed}
+  \goalitem{say what the \emph{trivial} algorithm for a problem in
+        \textrm{NP} is, and read off its running time from the certificate}
+  \goalitem{give the enumeration algorithm for maximum independent set, and
+        derive the bound $\bigoh{1.4423^n}$ on the number of maximal
+        independent sets}
+  \poolgoal{explain what a branching algorithm is, define branching vectors and
+        branching numbers, and show how to bound the size of the search tree by
+        solving the associated recurrence}
+  \goalitem{give a branching algorithm for $k$-SAT and analyse it}
+  \goalitem{give reduction rules for maximum independent set and the
+        $\bigoh{1.3803^n}$ branching algorithm that uses them}
+  \poolgoal{give reduction rules turning an \lang{Exact 3-Satisfiability}
+        instance into an equivalent one all of whose clauses have size two or
+        three, and then exactly three}
+  \poolgoal{give an $\Ostar(c^n)$ algorithm with $c < 2$ for \lang{Exact
+        3-Satisfiability} and analyse it}
+  \poolgoal{give an $\Ostar(c^n)$ algorithm with $c < 2$ for \lang{Bisection
+        Width}}
+  \goalitem{give the meet-in-the-middle algorithms for \lang{Subset Sum} and
+        \lang{Knapsack}, and explain the space improvement}
 \end{goals}
 
-\todo{This chapter is not written yet. Write it against
-\texttt{material/slides/Exponential Time Algorithms 2026.pptx}.}
+%==============================================================================
+\section{What counts as progress}
+\label{sec:exact-progress}
+%==============================================================================
+
+Before improving an exponential running time it is worth agreeing on what is
+being improved, and against what.
+
+\begin{definition}[$\Ostar$ notation]\label{def:ostar}
+$\Ostar(f(n)) = \bigoh{p(n) \cdot f(n)}$ for some polynomial $p$. That is,
+$\Ostar$ suppresses factors polynomial in the input size.
+\end{definition}
+
+The convention is harmless here and would be absurd in \cref{ch:max-flow}. The
+reason is that we are comparing $c^n$ against $d^n$ with $c < d$, and
+\emph{any} polynomial is eventually swamped by $(d/c)^n$: an algorithm running
+in $n^{10} \cdot 1.4^n$ beats one running in $1.5^n$ for all $n$ past a few
+hundred. When the exponential base is what varies, the polynomial is noise.
+
+\subsection{The trivial algorithm}
+
+Every problem in \textrm{NP} comes with a default algorithm, and it is the
+right thing to measure against.
+
+\begin{definition}[Certificate]\label{def:certificate}
+A problem $Q$ is in \textrm{NP} if there is a polynomial-time algorithm $A$
+taking two arguments such that an instance $i$ is a yes-instance if and only if
+there is a \emph{certificate} $c$ of size polynomial in $|i|$ with
+$A(i,c) = \textsc{true}$.
+\end{definition}
+
+The \emph{trivial algorithm} enumerates all certificates and checks each. Its
+running time is therefore the number of possible certificates, times a
+polynomial --- and the number of certificates is decided by how the certificate
+is encoded. That choice is worth making deliberately.
+
+\begin{example}\label{ex:trivial-algorithms}
+\begin{itemize}[leftmargin=*,nosep]
+  \item \lang{Satisfiability}: the certificate is a truth assignment, so
+        $\Ostar(2^n)$.
+  \item \lang{Independent Set} and \lang{Vertex Cover}: the certificate is a
+        subset of the vertices, so $\Ostar(2^n)$.
+  \item \lang{TSP}: the natural certificate is a permutation of the cities, so
+        $\Ostar(n!) = \Ostar(2^{n\log n})$. But a tour is also a subset of the
+        edges, giving $\Ostar(2^m)$ --- a different and sometimes better bound
+        from the same problem. \Cref{ch:exact-ii} does better still.
+\end{itemize}
+\end{example}
+
+\begin{intuition}
+Notice that the two \lang{TSP} bounds come from two encodings of the same
+object. Choosing the certificate is already a design decision, and the first
+question to ask about any exponential-time problem is which parameter the
+exponent should be measured in: vertices, edges, clauses, variables. A good
+choice can be worth more than a clever algorithm.
+\end{intuition}
+
+\subsection{Time is not the only resource}
+
+Exact algorithms are compared on two axes, and students consistently
+underweight the second. Exponential \emph{time} is something one can sometimes
+afford --- start the computation on Friday and read the answer on Monday.
+Exponential \emph{space} is not: a table of size $2^n$ exhausts the memory of
+any machine long before the clock becomes the problem, and once the machine
+starts swapping to disk the running time stops resembling the analysis. An
+$\Ostar(2^n)$-time, polynomial-space algorithm is usually preferable in
+practice to an $\Ostar(1.8^n)$-time algorithm that needs $\Ostar(1.8^n)$
+memory. \Cref{ch:exact-ii} is largely about buying space back.
+
+%==============================================================================
+\section{Clever enumeration}
+\label{sec:clever-enumeration}
+%==============================================================================
+
+The first technique is barely a technique: enumerate, but enumerate something
+smaller than the obvious thing.
+
+\begin{probdef}{Maximum Independent Set}
+  \instance A graph $G = (V,E)$ and an integer $k$.
+  \question Is there a set of at least $k$ pairwise non-adjacent vertices?
+\end{probdef}
+
+The trivial algorithm tries all $2^n$ subsets. The following does better by
+noticing that a maximum independent set cannot avoid a vertex \emph{and} all of
+its neighbours.
+
+\begin{algorithm}[ht]
+\caption{Enumeration for \lang{Maximum Independent Set}}
+\label{alg:exact-mis-enum}
+\begin{algorithmic}[1]
+  \Function{MIS}{$G = (V,E)$}
+    \If{$V = \emptyset$} \Return $0$ \EndIf
+    \State choose a vertex $v$ of minimum degree
+    \State \Return $1 + \max\bigl\{\, \Call{MIS}{G \setminus N[u]} \;:\;
+           u \in N[v] \,\bigr\}$
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+Here $N[u]$ is the closed neighbourhood of $u$, that is $u$ together with its
+neighbours, and $G \setminus N[u]$ deletes all of them.
+
+\begin{theorem}\label{thm:mis-enumeration}
+\Cref{alg:exact-mis-enum} is correct and runs in $\Ostar(3^{n/3}) =
+\bigoh{1.4423^n}$ time.
+\end{theorem}
+
+\begin{proof}
+\emph{Correctness.} Let $I$ be a maximum independent set and $v$ the chosen
+vertex. If $I$ contains no vertex of $N[v]$ then $I \cup \{v\}$ is independent,
+contradicting maximality. So $I$ contains some $u \in N[v]$, and
+$I \setminus \{u\}$ is a maximum independent set of $G \setminus N[u]$. The
+branch on that $u$ therefore returns the right value, and no branch can return
+too much.
+
+\emph{Running time.} Let $s = d(v)+1 = |N[v]|$. The algorithm makes $s$
+recursive calls, and each deletes $N[u]$ for a $u \in N[v]$; since $v$ has
+minimum degree, every such $u$ has $|N[u]| \ge s$. So, writing $T(n)$ for the
+number of leaves of the search tree,
+\[ T(n) \;\le\; s \cdot T(n-s). \]
+Unfolding gives $T(n) \le s^{n/s}$. The function $s \mapsto s^{1/s}$ over the
+positive integers is maximised at $s = 3$, where it is $3^{1/3}$, so
+$T(n) \le 3^{n/3} = \bigoh{1.4423^n}$, and each node does polynomial work.
+\end{proof}
+
+The same algorithm, with the chosen vertex recorded in each branch, enumerates
+something of independent interest.
+
+\begin{definition}\label{def:maximal-independent-set}
+An independent set is \emph{maximum} if no independent set is larger, and
+\emph{maximal} if no vertex can be added to it. Every maximum independent set
+is maximal; the converse fails badly.
+\end{definition}
+
+\begin{corollary}[\citet{MoonMoser1965}]\label{cor:moon-moser}
+All maximal independent sets of a graph can be enumerated in
+$\bigoh{1.4423^n}$ time, and consequently a graph on $n$ vertices has at most
+$3^{n/3}$ maximal independent sets. The bound is tight.
+\end{corollary}
+
+\begin{proof}
+Run \cref{alg:exact-mis-enum}, adding the chosen $u$ to every solution returned
+by its branch and collecting all of them. Every maximal independent set is
+produced, by the argument above applied at each level, and each leaf of the
+search tree yields at most one set, so the count is bounded by the same
+$3^{n/3}$.
+
+For tightness, take $n/3$ disjoint triangles. A maximal independent set picks
+exactly one vertex from each, so there are exactly $3^{n/3}$ of them.
+\end{proof}
+
+\begin{intuition}
+\Cref{cor:moon-moser} is the first place in this chapter where an algorithmic
+analysis produces a purely combinatorial theorem --- a bound on how many
+objects can exist, obtained by counting the leaves of a search tree that
+enumerates them. That pattern recurs; \cref{ch:exact-ii} uses the corollary
+itself as the running time of a subroutine.
+\end{intuition}
+
+%==============================================================================
+\section{Branching}
+\label{sec:branching}
+%==============================================================================
+
+\Cref{alg:exact-mis-enum} was already a branching algorithm: it split the
+instance into smaller instances and recursed. What makes the technique a
+technique is that the analysis is mechanical.
+
+\begin{definition}[Branching vector, branching number]\label{def:branching-vector}
+Suppose an algorithm reduces an instance of size $n$ to $k$ instances of sizes
+$n - d_1, \ldots, n - d_k$. The tuple $(d_1,\ldots,d_k)$ is the \emph{branching
+vector} of the rule. The number of leaves then satisfies
+\[ T(n) \;\le\; T(n-d_1) + T(n-d_2) + \cdots + T(n-d_k), \]
+and the solution is $T(n) = \Ostar(\alpha^n)$, where $\alpha$ is the unique
+positive root of
+\[ x^{n} - x^{n-d_1} - x^{n-d_2} - \cdots - x^{n-d_k} = 0 . \]
+This $\alpha$ is the \emph{branching number} of the vector, written
+$\tau(d_1,\ldots,d_k)$.
+\end{definition}
+
+So the design of a branching algorithm is the design of a branching vector, and
+the analysis is a root-finding exercise. Two rules of thumb are worth
+internalising: many branches are bad, and \emph{unbalanced} vectors are worse
+than balanced ones of the same total --- $\tau(1,3) \approx 1.4656$ is worse
+than $\tau(2,2) = \sqrt2 \approx 1.4142$.
+
+\subsection{Branching for \texorpdfstring{$k$}{k}-SAT}
+
+\begin{probdef}{$k$-SAT}
+  \instance A set $C$ of clauses over $n$ variables, each clause containing at
+  most $k$ literals.
+  \question Is there a truth assignment satisfying every clause?
+\end{probdef}
+
+The trivial algorithm is $\Ostar(2^n)$. The branching rule is forced by what a
+clause says: at least one of its literals is true.
+
+\begin{algorithm}[ht]
+\caption{Branching for $k$-SAT}
+\label{alg:exact-ksat}
+\begin{algorithmic}[1]
+  \Function{SAT}{$F$}
+    \If{$F$ contains the empty clause} \Return \textsc{false} \EndIf
+    \If{$F$ is the empty formula} \Return \textsc{true} \EndIf
+    \State choose a smallest clause $(\ell_1, \ell_2, \ldots, \ell_c)$ of $F$
+    \For{$i = 1$ to $c$}
+      \State recurse on $F$ with
+             $\ell_1 = \cdots = \ell_{i-1} = \textsc{false}$ and
+             $\ell_i = \textsc{true}$
+    \EndFor
+    \State \Return \textsc{true} if any recursive call did
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+The $c$ branches are exhaustive --- some literal of the clause is true, and we
+case on the first one --- and they are disjoint, though disjointness is not
+needed. Branch $i$ fixes $i$ variables, so the branching vector is
+$(1, 2, \ldots, c)$ and, in the worst case $c = k$,
+\[ T(n) \;\le\; T(n-1) + T(n-2) + \cdots + T(n-k). \]
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+$k$ & branching vector & running time \\
+\midrule
+$3$ & $\tau(1,2,3) < 1.8393$ & $\bigoh{1.8393^n}$ \\
+$4$ & $\tau(1,2,3,4) < 1.9276$ & $\bigoh{1.9276^n}$ \\
+$5$ & $\tau(1,2,3,4,5) < 1.9660$ & $\bigoh{1.9660^n}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The bases creep towards $2$ as $k$ grows, and they do so for a reason:
+\cref{ch:lower-bounds} shows that under the strong exponential time hypothesis
+they must.
+
+\subsection{Reduction rules, and a better algorithm for independent set}
+
+A branching algorithm is usually half branching rules and half \emph{reduction}
+rules --- rules that make the instance smaller without branching at all, and
+are therefore free. They are applied exhaustively before every branching step,
+and their job is to guarantee that when we do branch, the instance is in a shape
+where the branch is productive.
+
+\begin{observation}[Reduction rules for independent set]\label{obs:mis-reductions}
+Let $G$ be a graph and $v \in V$.
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item If $d(v) = 0$, some maximum independent set contains $v$: solve
+        $G - v$ and add $v$.
+  \item If $d(v) = 1$ with neighbour $w$, some maximum independent set contains
+        $v$: solve $G - \{v,w\}$ and add $v$. Indeed, an independent set
+        containing $w$ but not $v$ can exchange $w$ for $v$ without shrinking.
+  \item If every vertex has degree at most $2$, the graph is a disjoint union
+        of paths and cycles and the problem is solved directly in $\bigoh{n}$
+        time.
+\end{enumerate}
+\end{observation}
+
+\begin{algorithm}[ht]
+\caption{Branch and reduce for \lang{Maximum Independent Set}}
+\label{alg:exact-mis-branch}
+\begin{algorithmic}[1]
+  \State apply the rules of \cref{obs:mis-reductions} exhaustively
+  \State choose a vertex $v$ of \emph{maximum} degree
+  \State \Return the better of
+         \Call{MIS}{$G - v$} and $1 + $ \Call{MIS}{$G \setminus N[v]$}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:mis-branch}
+\Cref{alg:exact-mis-branch} solves \lang{Maximum Independent Set} in
+$\bigoh{1.3803^n}$ time and polynomial space.
+\end{theorem}
+
+\begin{proof}
+Correctness is the case distinction ``$v$ is in the solution or it is not'',
+together with \cref{obs:mis-reductions}.
+
+For the analysis, note that after the reduction rules every vertex has degree at
+least $3$, so the chosen $v$ of maximum degree has $d(v) \ge 3$. The first
+branch deletes one vertex; the second deletes $N[v]$, which is at least $4$
+vertices. The branching vector is therefore $(1,4)$ in the worst case, and
+$\tau(1,4) < 1.3803$.
+\end{proof}
+
+That is already better than the $1.4423^n$ of \cref{thm:mis-enumeration}, from
+a simpler algorithm, and it uses polynomial space where the enumeration would
+have to store its output.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{A small graph with a maximum-degree vertex $v$ circled;
+below it, the two children of the search tree --- $G - v$ with one vertex gone,
+and $G \setminus N[v]$ with $v$ and its four neighbours gone --- annotated with
+the branching vector $(1,4)$.}
+\caption{One branching step of \cref{alg:exact-mis-branch}. The reduction rules
+guarantee $d(v) \ge 3$, which is what makes the second branch remove four
+vertices rather than two.}
+\label{fig:mis-branching}
+\end{figure}
+
+\begin{intuition}
+The reduction rules are not there to speed up easy instances. They are there to
+\emph{establish a precondition} for the branching rule: without them the
+maximum degree could be $1$ and the second branch would remove only two
+vertices, giving $\tau(1,2) \approx 1.6180$. This is the standard division of
+labour --- reduction rules buy a guarantee, and the branching rule spends it.
+\end{intuition}
+
+%==============================================================================
+\section{Exact satisfiability}
+\label{sec:exact-sat}
+%==============================================================================
+
+The first of the chapter's two pool exercises. The problem is a variant of
+satisfiability in which a clause demands \emph{exactly} one true literal rather
+than at least one.
+
+\begin{probdef}{Exact 3-Satisfiability}
+  \instance A set of clauses over variables $x_1,\ldots,x_n$, each clause a set
+  of at most three literals.
+  \question Is there a truth assignment under which every clause contains
+  \emph{exactly} one true literal?
+\end{probdef}
+
+For instance $\{x_1,x_2,x_3\}$ and $\{\neg x_1, x_2, x_4\}$ are satisfied by
+setting $x_1$ and $x_4$ true and $x_2, x_3$ false; setting both $x_1$ and $x_2$
+true is not allowed, because the first clause would then contain two true
+literals.
+
+The plan is the one of \cref{sec:branching}: reduction rules first, then a
+branching rule whose branching vector the rules have made good.
+
+\subsection{Cleaning up a clause}
+
+Three degenerate shapes have to go before anything else can be said.
+
+\begin{observation}\label{obs:x3sat-cleanup}
+In an instance of \lang{Exact 3-Satisfiability}:
+\begin{enumerate}[label=(\roman*),leftmargin=*,nosep]
+  \item an empty clause makes the instance unsatisfiable;
+  \item if a clause contains the same literal twice, that literal must be
+        false, since two true literals are one too many;
+  \item if a clause contains both $x$ and $\neg x$, exactly one of them is true
+        already, so every other literal of the clause must be false and the
+        clause may be deleted.
+\end{enumerate}
+\end{observation}
+
+Each of these either answers the instance or removes literals, so they can be
+applied exhaustively in polynomial time. From now on every clause is a set of
+literals on distinct variables.
+
+\subsection{Rule 1: no clauses of size one}
+
+\begin{lemma}\label{lem:x3sat-rule1}
+There is a polynomial-time rule transforming an instance into an equivalent one
+in which every clause has size two or three, without increasing the number of
+variables or the number of clauses.
+\end{lemma}
+
+\begin{proof}
+Let $\{\ell\}$ be a clause of size one. Exactly one of its literals is true, so
+$\ell$ is true. Propagate that:
+\begin{itemize}[leftmargin=*,nosep]
+  \item delete the clause $\{\ell\}$;
+  \item in every other clause containing $\ell$: the quota is already used, so
+        every other literal of that clause is false. Set them, and delete the
+        clause;
+  \item in every clause containing $\bar\ell$: that literal is false, so delete
+        it from the clause. The clause shrinks by one.
+\end{itemize}
+Setting a literal to false is itself propagated the same way: delete it from
+every clause containing it, and if it occurs positively somewhere, that clause
+is satisfied and its other literals are set false.
+
+The rule assigns at least one variable and deletes at least one clause, so
+neither count increases, and each application is a scan of the formula. Applying
+it exhaustively --- interleaved with \cref{obs:x3sat-cleanup}, since a clause
+may shrink to size one or zero --- leaves only clauses of size two and three.
+\end{proof}
+
+\subsection{Rule 2: no clauses of size two}
+
+\begin{lemma}\label{lem:x3sat-rule2}
+There is a polynomial-time rule transforming an instance into an equivalent one
+in which every clause has size exactly three, without increasing the number of
+variables or the number of clauses.
+\end{lemma}
+
+\begin{proof}
+Let $\{\ell_1, \ell_2\}$ be a clause of size two. Exactly one of the two is
+true, which says precisely
+\[ \ell_2 = \neg \ell_1 . \]
+So the variable of $\ell_2$ is determined by the variable of $\ell_1$, and we
+may substitute: replace every occurrence of $\ell_2$ by $\neg\ell_1$ and every
+occurrence of $\neg\ell_2$ by $\ell_1$ throughout the formula, then delete the
+clause. Concretely, if $\ell_1 = x$ and $\ell_2 = y$ then $y := \neg x$; if
+$\ell_1 = x$ and $\ell_2 = \neg y$ then $y := x$; and symmetrically.
+
+Every solution of the new instance extends to one of the old by setting the
+eliminated variable according to the substitution, and conversely every solution
+of the old instance respects it. One variable and one clause disappear, so
+neither count increases. Substitution may create a repeated or complementary
+literal inside some clause, which \cref{obs:x3sat-cleanup} then removes, so the
+two rules are applied alternately until neither applies.
+\end{proof}
+
+\subsection{The algorithm}
+
+\begin{theorem}\label{thm:x3sat}
+\lang{Exact 3-Satisfiability} is solvable in $\Ostar(3^{n/3}) =
+\bigoh{1.4423^n}$ time and polynomial space.
+\end{theorem}
+
+\begin{proof}
+Apply \cref{obs:x3sat-cleanup,lem:x3sat-rule1,lem:x3sat-rule2} exhaustively. If
+the instance is decided, stop; if no clause is left, report satisfiable.
+Otherwise every clause has exactly three literals, on three distinct variables.
+
+Take any clause $\{\ell_1, \ell_2, \ell_3\}$. Exactly one of its literals is
+true, which gives three branches, and each of them fixes all three variables:
+\[ (\ell_1, \ell_2, \ell_3) \;=\;
+   (\textsc{t},\textsc{f},\textsc{f}), \quad
+   (\textsc{f},\textsc{t},\textsc{f}), \quad
+   (\textsc{f},\textsc{f},\textsc{t}). \]
+The branches are exhaustive by the definition of the problem, so the algorithm
+is correct. Each removes three variables, so the branching vector is $(3,3,3)$
+and
+\[ T(n) \;\le\; 3\,T(n-3), \qquad\text{hence}\qquad
+   T(n) \le 3^{n/3} = \bigoh{1.4423^n}. \]
+Every node does polynomial work and the recursion depth is $\bigoh{n}$, so the
+space is polynomial.
+\end{proof}
+
+\begin{intuition}
+The whole exercise turns on the difference between ``at least one'' and
+``exactly one''. In ordinary $3$-SAT a clause gives three branches that fix
+$1$, $2$ and $3$ variables --- the vector $(1,2,3)$, worth $1.8393$. In exact
+$3$-SAT the same clause gives three branches that each fix all three, because
+knowing which literal is true also tells us that the other two are false. The
+extra information in the problem statement is worth the whole gap between
+$1.84^n$ and $1.45^n$, and it costs nothing to collect.
+\end{intuition}
+
+%==============================================================================
+\section{Bisection width}
+\label{sec:bisection-width}
+%==============================================================================
+
+The second pool exercise, and the technique it needs is different again.
+
+\begin{probdef}{Bisection Width}
+  \instance A graph $G = (V,E)$ with $|V| = n$ even.
+  \goal A partition of $V$ into $V_1, V_2$ with $|V_1| = |V_2| = n/2$
+  minimising the number of edges with one endpoint in each.
+\end{probdef}
+
+The obvious algorithm enumerates the $\binom{n}{n/2}$ balanced partitions, and
+that is no help: $\binom{n}{n/2} = \Theta(2^n/\sqrt n)$, which is $\Ostar(2^n)$.
+Restricting to balanced sets saves a polynomial factor and nothing more, so
+beating $2^n$ needs a genuinely different idea.
+
+\subsection{Split and list}
+
+The idea is a three-way relative of the meet-in-the-middle technique of
+\cref{sec:meet-in-the-middle}: split the variables into three groups instead of
+two, list all partial solutions per group, and recombine.
+
+\begin{theorem}\label{thm:bisection}
+\lang{Bisection Width} is solvable in $\Ostar(2^{\omega n/3}) =
+\bigoh{1.7315^n}$ time, where $\omega < 2.373$ is the exponent of matrix
+multiplication.
+\end{theorem}
+
+\begin{proof}
+Write $\mathrm{cut}(V_1)$ for the objective. Since every edge is either cut or
+not,
+\[ \mathrm{cut}(V_1) \;=\; \sum_{uv \in E}
+   \bigl[\, u,v \text{ on different sides} \,\bigr], \]
+a sum of terms each depending on two vertices only. That is what makes the
+technique apply.
+
+Split $V$ arbitrarily into three groups $A_1, A_2, A_3$ of $n/3$ vertices each.
+For each group list all $N = 2^{n/3}$ ways of assigning its vertices to sides
+$1$ and $2$; this gives three lists of $N$ \emph{partial assignments}, computed
+in $\Ostar(2^{n/3})$ time.
+
+Build a tripartite graph with these $3N$ partial assignments as nodes, joining
+every node of one list to every node of another. Give the edge between
+$u \in A_i$'s list and $v \in A_j$'s list the weight
+\[ w(u,v) \;=\; \tfrac12 \mathrm{cut}_i(u) + \tfrac12 \mathrm{cut}_j(v)
+   + \mathrm{cut}_{ij}(u,v), \]
+where $\mathrm{cut}_i(u)$ counts the cut edges inside group $A_i$ under $u$ and
+$\mathrm{cut}_{ij}(u,v)$ counts the cut edges between $A_i$ and $A_j$ under $u$
+and $v$ together. A triangle $u_1u_2u_3$, one node from each list, then has
+total weight exactly $\mathrm{cut}(V_1)$ for the combined assignment: each
+within-group contribution is counted twice at weight $\tfrac12$, and each
+between-group contribution once.
+
+So \lang{Bisection Width} is the problem of finding a minimum-weight triangle in
+a tripartite graph on $3N$ nodes --- subject to balance. Balance is handled by
+bookkeeping: label each partial assignment with the number of its vertices put
+on side $1$, and for each of the $\bigoh{n^2}$ triples $(c_1,c_2,c_3)$ with
+$c_1 + c_2 + c_3 = n/2$, restrict each list to the nodes carrying that label and
+search there. Only balanced partitions survive.
+
+Finally, a minimum-weight triangle in a graph on $N$ nodes with integer weights
+bounded by a polynomial can be found in $\Ostar(N^{\omega})$ time by fast matrix
+multiplication \citep{Williams2005}. With $N = 2^{n/3}$ the total is
+$\Ostar(2^{\omega n /3})$, and $2^{\omega/3} < 2^{0.7911} < 1.7315$.
+\end{proof}
+
+\begin{intuition}
+Two things are worth taking away, and neither is the constant. First, the
+objective had to \emph{decompose over pairs}: cut edges are counted one at a
+time and each touches two vertices, so a three-way split leaves nothing
+uncounted. A problem whose objective couples three or more vertices at once
+would not fit. Second, the cardinality constraint --- exactly $n/2$ per side ---
+cost only a polynomial factor, because it is a constraint on \emph{counts},
+and counts can be carried as labels. Both observations transfer directly to
+\lang{Max Cut} and to any other 2-constraint problem.
+\end{intuition}
+
+Any $c < 2$ answers the pool question, so a reader who reaches
+$\bigoh{1.9^n}$ by some other route has answered it. What the split-and-list
+solution shows is that the right constant is not close to $2$ at all.
+
+%==============================================================================
+\section{Meet in the middle}
+\label{sec:meet-in-the-middle}
+%==============================================================================
+
+The last technique of the chapter is the one with the best ratio of simplicity
+to payoff, and it applies when a solution is a subset and the objective is a
+sum.
+
+\begin{probdef}{Subset Sum}
+  \instance Positive integers $S = \{a_1,\ldots,a_n\}$ and a target $t$.
+  \question Is there a subset of $S$ summing to exactly $t$?
+\end{probdef}
+
+\begin{theorem}\label{thm:subset-sum-mitm}
+\lang{Subset Sum} is solvable in $\Ostar(2^{n/2}) = \bigoh{1.4143^n}$ time and
+$\Ostar(2^{n/2})$ space.
+\end{theorem}
+
+\begin{proof}
+Split $S$ into halves $S_1 = \{a_1,\ldots,a_{n/2}\}$ and
+$S_2 = \{a_{n/2+1},\ldots,a_n\}$. Compute the list $L_1$ of all $2^{n/2}$ sums
+of subsets of $S_1$ and the list $L_2$ likewise for $S_2$, and sort both; this
+costs $\bigoh{2^{n/2} \cdot n} = \Ostar(2^{n/2})$.
+
+A solution is a subset of $S_1$ together with a subset of $S_2$, so the question
+is whether some $x \in L_1$ and $y \in L_2$ have $x + y = t$. Answer it with two
+pointers: start at the smallest element of $L_1$ and the largest of $L_2$, and
+repeat --- if $x + y < t$ advance in $L_1$, if $x+y > t$ retreat in $L_2$, and
+if $x + y = t$ report success. Each step advances one pointer, so the scan is
+linear in the list lengths.
+
+Correctness of the scan is the usual monotonicity argument: if $x + y < t$ then
+no smaller $y'$ can help, so nothing is lost by advancing $x$; symmetrically for
+the other case.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{4.5cm}{Two sorted lists drawn as horizontal rulers, $L_1$
+increasing left to right and $L_2$ decreasing, with a pointer on each and the
+current sum annotated; three successive positions showing an advance, a retreat
+and a hit.}
+\caption{The two-pointer scan of \cref{thm:subset-sum-mitm}. Each comparison
+eliminates one element of one list, so the whole search is a single pass.}
+\label{fig:mitm-scan}
+\end{figure}
+
+The same split works for the optimisation version, with one extra idea.
+
+\begin{probdef}{Knapsack}
+  \instance $n$ items with integer values and weights, a capacity $W$.
+  \question A subset of weight at most $W$ maximising the total value.
+\end{probdef}
+
+Here each half produces a list of pairs (weight, value). Sort each list by
+weight and \emph{discard dominated pairs} --- those for which the list contains
+another pair of no greater weight and no smaller value. What remains is sorted
+increasingly by weight and by value simultaneously, and the same two-pointer
+scan then finds the best combination: walk up $L_1$ and down $L_2$, keeping the
+best feasible total seen. The running time is again $\Ostar(2^{n/2})$.
+
+\subsection{Trading time for space}
+
+The lists are the problem: $\Ostar(2^{n/2})$ space is a great deal of memory. It
+can be reduced without losing any time.
+
+\begin{theorem}[\citet{SchroeppelShamir1981}]\label{thm:schroeppel-shamir}
+\lang{Subset Sum} and \lang{Knapsack} are solvable in $\Ostar(2^{n/2})$ time and
+$\Ostar(2^{n/4})$ space.
+\end{theorem}
+
+\begin{proof}[Idea]
+Split $S$ into four quarters $S_1, S_2, S_3, S_4$ and store only the four tables
+of subset sums of the quarters, which is $\Ostar(2^{n/4})$ space. The
+two-pointer scan of \cref{thm:subset-sum-mitm} needs the sums of
+$S_1 \cup S_2$ in increasing order and those of $S_3 \cup S_4$ in decreasing
+order --- but it needs them \emph{one at a time}, so they need not be stored.
+
+Generate them on demand with a priority queue. To list the sums of
+$S_1 \cup S_2$ in increasing order, hold pairs $(e, s)$ with $e$ a subset sum of
+$S_1$ and $s$ one of $S_2$, keyed by $e+s$; initialise the queue with the
+smallest $e$ paired with every $s \in S_2$'s table. Whenever the next value is
+wanted, extract the minimum $(e,s)$, output $e+s$, and insert $(e', s)$ where
+$e'$ is the next $S_1$-sum after $e$. Every sum of $S_1 \cup S_2$ is generated
+exactly once and in increasing order, the queue never holds more than
+$\Ostar(2^{n/4})$ items, and there are $2^{n/2}$ extractions each costing
+$\bigoh{\log}$ of the queue size.
+\end{proof}
+
+\begin{intuition}
+This is the shape of a great many results in the subject: the time was already
+good and the space was the bottleneck, so the table is replaced by a generator
+that produces the same sequence on demand. \Cref{ch:exact-ii} does the same
+thing to dynamic programming, using inclusion--exclusion instead of a priority
+queue, and gets polynomial space out of an algorithm that stored $2^n$ numbers.
+\end{intuition}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:exact-i-further-reading}
+%==============================================================================
+
+This chapter follows Johan van Rooij's lecture slides. \citet{FominKratsch2010}
+is the standard book on the subject, and its Chapters~1--3 cover everything
+here; \citet[Chapter~6]{CyganEtAl2015} is a shorter treatment.
+
+\Cref{cor:moon-moser} is \citet{MoonMoser1965}, who proved the combinatorial
+bound; the enumeration algorithm achieving it is standard. Lawler's dynamic
+programming for graph colouring \citep{Lawler1976} is in
+\cref{ch:exact-ii}. \Cref{thm:schroeppel-shamir} is
+\citet{SchroeppelShamir1981}, and \cref{thm:bisection} follows
+\citet{Williams2005}, whose split-and-list technique also gives the best known
+algorithms for \lang{Max Cut} and other $2$-constraint problems --- and which
+reappears in \cref{ch:lower-bounds} for an entirely different purpose.
+
+\emph{On the records.} The best known base for \lang{Maximum Independent Set}
+in \emph{polynomial} space is $\bigoh{1.1996^n}$
+\citep{XiaoNagamochi2017}, which improves on the published
+$\bigoh{1.2109^n}$ exponential-space algorithm of \citet{Robson1986}; a further
+improvement to $1.1844^n$ was announced by Robson in an unpublished 2001
+report and is often quoted, but has not been refereed. For $3$-colouring the
+current record is $\bigoh{1.3217^n}$ \citep{Meijer2023}. Numbers of this kind
+move, and a reader consulting this paragraph some years after it was written
+should assume it is out of date.
+
+The analysis of branch-and-reduce algorithms by branching vectors is crude,
+because it measures an instance by its number of vertices and nothing else.
+\emph{Measure and conquer} \citep{FominGrandoniKratsch2009} replaces that by a
+weighted measure in which, for instance, a degree-three vertex counts for less
+than a degree-five one, and re-analyses the \emph{same} algorithm to a much
+better bound. It is the reason a simple algorithm can be shown to run in
+$\bigoh{1.2201^n}$ where the naive analysis gives $1.38^n$.
+
+%==============================================================================
+\section{Exercises}
+\label{sec:ex-exact-i}
+%==============================================================================
+
+\begin{exercise}
+Compute $\tau(1,2)$, $\tau(2,2)$, $\tau(1,3)$ and $\tau(1,4)$, and confirm the
+claim that a balanced branching vector beats an unbalanced one of the same
+total.
+\end{exercise}
+
+\begin{exercise}
+Show that $s^{1/s}$ over the positive integers is maximised at $s = 3$, as used
+in \cref{thm:mis-enumeration}. Where does the algorithm actually meet this
+worst case?
+\end{exercise}
+
+\begin{exercise}
+The bound of \cref{cor:moon-moser} is attained by disjoint triangles. What is
+the maximum number of \emph{maximum} independent sets a graph on $n$ vertices
+can have?
+\end{exercise}
+
+\begin{exercise}
+Improve \cref{alg:exact-mis-branch} by adding a reduction rule for a vertex $v$
+of degree $2$ whose two neighbours are adjacent, and one for a vertex of degree
+$2$ whose neighbours are not. What branching vector does the improved algorithm
+have?
+\end{exercise}
+
+\begin{exercise}
+Adapt \cref{alg:exact-ksat} to \lang{Max SAT}, where we must satisfy as many
+clauses as possible. Does the same branching vector apply?
+\end{exercise}
+
+\begin{exercise}
+In the proof of \cref{lem:x3sat-rule2}, the substitution can make two clauses
+identical. Does that matter, and if not, why is it worth removing duplicates
+anyway?
+\end{exercise}
+
+\begin{exercise}
+Show that \lang{Exact 3-Satisfiability} restricted to clauses of size exactly
+two is solvable in polynomial time.
+\end{exercise}
+
+\begin{exercise}
+Give an $\Ostar(2^{n/2})$ algorithm for the following problem: given $n$
+integers, split them into two sets of equal size whose sums differ as little as
+possible. Which of the two techniques of this chapter applies?
+\end{exercise}
+
+\begin{exercise}
+The dominance pruning in the knapsack algorithm removes pairs that can never be
+part of an optimal solution. Show that after it the surviving list is sorted by
+weight and by value simultaneously, and that this is what makes the two-pointer
+scan correct.
+\end{exercise}
+
+\begin{exercise}
+\Cref{thm:bisection} splits the vertices into three groups. What running time
+does the same argument give with two groups, and with four? Why is three the
+right number?
+\end{exercise}

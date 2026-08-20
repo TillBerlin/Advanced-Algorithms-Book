@@ -1,5 +1,8 @@
 %% Chapter 2: Combinatorics via Algorithms and Stable Marriage
-%% Status: the stable marriage half is drafted; the Euler tour half is not.
+%% Status: drafted; 18 figures are still placeholders.
+%%
+%% Euler tours were dropped from the course, so the section and the pool item
+%% that asked for them are gone.
 %%
 %% The stable marriage sections are integrated from stablemarriagenotes.tex
 %% (kept in material/notes/).  19 figures are still \figplaceholder boxes --
@@ -10,13 +13,12 @@
 \label{ch:stable-marriage}
 
 Many combinatorial theorems are most cleanly proved by exhibiting an algorithm
-and arguing that it terminates with the desired object. This chapter develops
-that idea on two examples: Euler tours, where an algorithm proves a classical
-characterisation, and stable matchings, where the Gale--Shapley algorithm proves
-that a stable matching always exists.
+and arguing that it terminates with the object we wanted. This chapter develops
+that idea on one long example: stable matchings, where the Gale--Shapley
+algorithm proves --- and this is the only known proof --- that a stable matching
+always exists.
 
 \begin{goals}
-  \poolgoal{define an Euler tour and show that every connected graph with all even degrees must have an Euler tour}
   \poolgoal{define the stable marriage problem, blocking pairs and stable matchings}
   \poolgoal{define the greedy algorithm and show that it might run forever}
   \poolgoal{explain the Gale--Shapley algorithm and show that it returns a stable matching}
@@ -28,21 +30,22 @@ that a stable matching always exists.
 \label{sec:combinatorics-via-algorithms}
 %==============================================================================
 
-\todo{Write this section: the theme that ties the chapter together. An
-existence theorem can be proved by giving a procedure and showing it halts with
-what was wanted; the two running examples are Euler tours below and
-Gale--Shapley in \cref{sec:sm-gs}.}
+There are two ways to prove that something exists. One is to argue that it must,
+without saying what it is --- by counting, by contradiction, by a fixed-point
+theorem. The other is to give a procedure that constructs it and show that the
+procedure halts. The second is more work and gives more: an algorithm, a bound
+on how long the object takes to build, and often extra structure that the
+existence proof alone would not have revealed.
 
-%==============================================================================
-\section{Euler tours}
-\label{sec:euler-tours}
-%==============================================================================
-
-\todo{Write this section. Definition of an Euler tour; the characterisation
-that a connected graph has one if and only if every vertex has even degree;
-Hierholzer's algorithm as the constructive proof of the hard direction. This is
-the first item of the pool question \emph{Stable Matchings} and is not yet
-covered anywhere in the book.}
+This chapter is a sustained example of the second kind. The theorem is that
+every instance of the stable marriage problem has a solution. It is a purely
+combinatorial statement --- no algorithms, no running times, nothing about
+computation --- and the only proof anybody knows is to run the Gale--Shapley
+algorithm and watch what it does. Along the way that proof hands us three
+things the statement did not ask for: the algorithm is fast, its answer does not
+depend on the order in which it does things, and the answer it produces is the
+best possible for one of the two sides simultaneously and the worst possible for
+the other.
 
 %==============================================================================
 \section{Stable marriage: markets that clear themselves}

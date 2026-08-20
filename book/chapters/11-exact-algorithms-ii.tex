@@ -1,24 +1,531 @@
-%% Chapter 11: Exact Exponential-Time Algorithms II: Subsets, Inclusion--Exclusion, and Lower Bounds
-%% Status: skeleton.  Only the learning goals are fixed; they come from the
-%% exam pool.  The sectioning is deliberately not invented in advance --
-%% it will follow the source material once that has been read.
+%% Chapter 11: Exact Algorithms II: Subsets and Inclusion--Exclusion
+%% Status: drafted; 1 figure placeholder.
+%%
+%% Written against "material/slides/Exponential Time Algorithms 2026.pptx".
+%% The deck puts dynamic programming over subsets in the first lecture
+%% (slides 26-30) and inclusion/exclusion in the second (54-75).  The pool
+%% question for THIS chapter asks for subset dynamic programming and
+%% Held-Karp, so both live here; the deck order and the pool order differ and
+%% the pool is what is examined.
+%%
+%% The ETH/SETH item was removed from this chapter's pool question: it is
+%% covered far more thoroughly by the question of chapter 12.
+%%
+%% The pool exercise -- counting minimum set covers -- is worked in full.
 
-\chapter[Exact Algorithms II: Inclusion--Exclusion]{Exact Exponential-Time Algorithms II: Subsets, Inclusion--Exclusion, and Lower Bounds}
+\chapter[Exact Algorithms II: Inclusion--Exclusion]{Exact Algorithms II:
+Subsets and Inclusion--Exclusion}
 \label{ch:exact-ii}
 
-Branching is not the only way to spend an exponential budget. Dynamic
-programming over subsets gives $\Ostar(2^n)$ for problems where the obvious
-algorithm is $n!$, and inclusion--exclusion often gives the same running time in
-polynomial space. We close by asking how much better one could hope to do, which
-is where the Exponential Time Hypothesis comes in.
+Branching is not the only way to spend an exponential budget, and for some
+problems it is the wrong way. This chapter is about two techniques that both
+arrive at $\Ostar(2^n)$ from different directions. Dynamic programming over
+subsets turns an $n!$ algorithm into a $2^n$ one by remembering, for each set of
+cities visited, only what is worth remembering. Inclusion--exclusion arrives at
+the same running time while storing almost nothing --- and space, as
+\cref{ch:exact-i} argued, is the resource that runs out first.
 
 \begin{goals}
-  \poolgoal{design dynamic programming algorithms over subsets and analyse their time and space}
-  \poolgoal{solve \lang{TSP} in $\Ostar(2^n)$ time by the Held--Karp algorithm}
-  \poolgoal{state the inclusion--exclusion principle and use it to trade space for time}
-  \poolgoal{give an $\Ostar(2^m)$ time, polynomial-space algorithm that counts the number of minimum set covers}
-  \poolgoal{state ETH and SETH and derive conditional lower bounds from them}
+  \poolgoal{explain what dynamic programming over subsets is, and analyse its
+        time and space requirements}
+  \poolgoal{give the Held--Karp algorithm solving \lang{TSP} in $\Ostar(2^n)$
+        time, and analyse it}
+  \goalitem{give Lawler's dynamic programming algorithm for graph colouring and
+        analyse its running time}
+  \poolgoal{state the inclusion/exclusion principle, prove it, and explain how
+        it is used to trade space for time}
+  \goalitem{give the $\Ostar(2^n)$-time, polynomial-space algorithm that counts
+        Hamiltonian cycles}
+  \goalitem{give the $\Ostar(2^n)$ inclusion--exclusion algorithm for graph
+        colouring}
+  \poolgoal{give an $\Ostar(2^m)$-time, polynomial-space algorithm that counts
+        the minimum set covers of a family of subsets of an $m$-element set}
 \end{goals}
 
-\todo{This chapter is not written yet. Write it against
-\texttt{material/slides/Exponential Time Algorithms 2026.pptx}.}
+%==============================================================================
+\section{Dynamic programming over subsets}
+\label{sec:subset-dp}
+%==============================================================================
+
+The pattern is always the same. A solution is built one element at a time; what
+matters about a partial solution is not the order in which it was built but the
+\emph{set} of elements used, together with a small amount of extra information;
+so tabulate over subsets. There are $2^n$ of them, which is a lot --- but far
+fewer than the $n!$ orders.
+
+\subsection{Travelling salesman}
+
+\begin{probdef}{TSP}
+  \instance $n$ cities with a distance $d(u,v)$ for every ordered pair.
+  \question A shortest cycle visiting every city exactly once.
+\end{probdef}
+
+The trivial algorithm of \cref{ex:trivial-algorithms} tries all $\Ostar(n!)$
+tours. The following is the oldest non-trivial exact exponential algorithm there
+is, and still the best known for general TSP.
+
+Fix a starting city $s$. For $S \subseteq V \setminus \{s\}$ and $v \in S$, let
+\[ B(S,v) \;=\; \text{the length of a shortest path that starts at } s,
+   \text{ visits exactly } S \text{ after } s, \text{ and ends at } v. \]
+The order in which the cities of $S$ were visited does not matter for what
+happens next; only the set and the current position do. That is the whole idea.
+
+\begin{algorithm}[ht]
+\caption{Held--Karp for \lang{TSP}}
+\label{alg:held-karp}
+\begin{algorithmic}[1]
+  \State $B(\{v\}, v) \gets d(s,v)$ for every $v \ne s$
+  \For{$j = 2$ to $n-1$}
+    \For{every $S \subseteq V \setminus \{s\}$ with $|S| = j$ and every
+         $v \in S$}
+      \State $B(S,v) \gets \displaystyle\min_{w \in S \setminus \{v\}}
+             \bigl\{\, B(S \setminus \{v\},\, w) + d(w,v) \,\bigr\}$
+    \EndFor
+  \EndFor
+  \State \Return $\min\bigl\{\, B(V \setminus \{s\},\, v) + d(v,s)
+         \;:\; v \ne s \,\bigr\}$
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[\citet{HeldKarp1962}]\label{thm:held-karp}
+\Cref{alg:held-karp} solves \lang{TSP} in $\bigoh{n^2 2^n} = \Ostar(2^n)$ time
+and $\bigoh{n 2^n} = \Ostar(2^n)$ space.
+\end{theorem}
+
+\begin{proof}
+\emph{Correctness.} A shortest path from $s$ through $S$ ending at $v$ arrives
+at $v$ from some $w \in S \setminus \{v\}$, and the part before that arrival is
+a shortest path from $s$ through $S \setminus \{v\}$ ending at $w$ --- otherwise
+it could be replaced by a shorter one, which is legal because the remaining
+cities to visit depend only on $S$. So the recurrence is exact. The final line
+closes the tour.
+
+\emph{Resources.} The table has one entry per pair $(S,v)$, that is
+$\bigoh{n2^n}$ entries, and each is computed by a minimum over at most $n$
+predecessors.
+\end{proof}
+
+\begin{intuition}
+Held and Karp published this in 1962, before \textrm{NP}-completeness existed
+as a concept, and nobody has improved the base of the exponent since. That is
+worth pausing on. \Cref{ch:lower-bounds} explains part of it: under the strong
+exponential time hypothesis, several close relatives of this problem provably
+cannot be solved in $\bigoh{(2-\varepsilon)^n}$ time. The $2$ is not a failure
+of imagination.
+\end{intuition}
+
+\subsection{Graph colouring}
+
+\begin{probdef}{Graph Colouring}
+  \instance A graph $G = (V,E)$.
+  \question The \emph{chromatic number} $\chi(G)$: the least $k$ such that the
+  vertices can be coloured with $k$ colours, adjacent vertices receiving
+  different colours.
+\end{probdef}
+
+Note that $k$ is not fixed here --- we are asked for the best $k$, not whether a
+particular one works. The trivial algorithm is $\Ostar(n^n)$, or $\Ostar(3^n)$
+if one is content to test $3$-colourability. The following does much better, and
+it is where \cref{cor:moon-moser} earns its keep.
+
+\begin{observation}[\citet{Lawler1976}]\label{obs:lawler}
+$G$ is $k$-colourable if and only if there is an independent set $S$ such that
+$G[V \setminus S]$ is $(k-1)$-colourable, and $S$ may be taken \emph{maximal}.
+Hence
+\[ \chi(G) \;=\; 1 + \min\bigl\{\, \chi(G[V \setminus S]) \;:\;
+   S \text{ a maximal independent set of } G \,\bigr\}. \]
+\end{observation}
+
+\begin{proof}
+One colour class of a proper colouring is an independent set, and enlarging it
+to a maximal one only helps: moving a vertex into the first colour class leaves
+the rest properly coloured.
+\end{proof}
+
+\begin{theorem}\label{thm:lawler}
+The chromatic number can be computed in $\bigoh{2.4423^n}$ time and
+$\Ostar(2^n)$ space.
+\end{theorem}
+
+\begin{proof}
+Tabulate $\chi(G[W])$ over all $W \subseteq V$ in increasing order of $|W|$,
+using \cref{obs:lawler} on each. Computing one entry requires enumerating the
+maximal independent sets of $G[W]$, which by \cref{cor:moon-moser} takes
+$\Ostar(1.4423^{|W|})$ time. Summing over all subsets,
+\[ \sum_{i=0}^{n} \binom{n}{i} \, 1.4423^{i}
+   \;=\; \sum_{i=0}^{n} \binom{n}{i} \, 1.4423^{i}\, 1^{\,n-i}
+   \;=\; (1.4423 + 1)^n \;=\; \bigoh{2.4423^n} \]
+by the binomial theorem. The table holds one number per subset.
+\end{proof}
+
+\begin{intuition}
+The binomial-theorem step is worth remembering as a device, not just as a
+calculation. Whenever a subset-indexed algorithm does $c^{|W|}$ work on the
+subset $W$, the total is $(1+c)^n$ rather than $2^n c^n$ --- because most
+subsets are not large. It is the reason $\bigoh{2.4423^n}$ and not
+$\bigoh{2 \cdot 1.4423}^n = \bigoh{2.89^n}$.
+\end{intuition}
+
+%==============================================================================
+\section{The space problem}
+\label{sec:space-problem}
+%==============================================================================
+
+Both algorithms of the previous section store a number for every subset of the
+vertex set. For $n = 40$ that is a table with $10^{12}$ entries: at eight bytes
+each, eight terabytes. The time, meanwhile, is about $10^{12}$ operations, which
+is a few minutes.
+
+This is the normal situation, and it is the reason the rest of this chapter
+exists. The remainder is about a technique that reaches the same $\Ostar(2^n)$
+running time while storing a constant number of counters.
+
+%==============================================================================
+\section{The inclusion--exclusion principle}
+\label{sec:inclusion-exclusion}
+%==============================================================================
+
+Start with a question that has nothing to do with algorithms. How many integers
+in $\{1, \ldots, 10\,000\}$ are divisible by none of $2$, $3$ and $5$?
+
+Let $P_x$ be the set of integers in the range divisible by $x$, so
+$|P_2| = 5000$, $|P_3| = 3333$ and $|P_5| = 2000$. Subtracting all three from
+$10\,000$ gives $-333$, which is visibly wrong: the integers divisible by
+$6 = 2 \cdot 3$ were subtracted twice. Adding back
+$|P_2 \cap P_3| = 1666$, $|P_2 \cap P_5| = 1000$ and $|P_3 \cap P_5| = 666$
+gives $2999$, which is now too large, because the integers divisible by $30$
+have been subtracted three times and added back three times. Subtracting
+$|P_2 \cap P_3 \cap P_5| = 333$ gives the answer, $2666$.
+
+The alternating pattern is the whole principle.
+
+\begin{theorem}[Inclusion--exclusion]\label{thm:inclusion-exclusion}
+Let $N$ be a finite collection of objects and let $1, 2, \ldots, n$ be
+requirements that an object may or may not satisfy. For $R \subseteq
+\{1,\ldots,n\}$ let $N(R)$ be the number of objects satisfying \emph{none} of
+the requirements in $R$ --- so $N(\emptyset) = |N|$. Then the number of objects
+satisfying \emph{all} of the requirements is
+\[ \sum_{R \subseteq \{1,\ldots,n\}} (-1)^{|R|} N(R). \]
+\end{theorem}
+
+\begin{proof}
+Count the contribution of a single object $o$, and let
+$P \subseteq \{1,\ldots,n\}$ be the set of requirements that $o$ fails.
+The object is counted in $N(R)$ exactly when $R \subseteq P$, so its total
+contribution to the sum is
+\[ \sum_{R \subseteq P} (-1)^{|R|}
+   \;=\; \sum_{i=0}^{|P|} \binom{|P|}{i} (-1)^i
+   \;=\; (1-1)^{|P|}
+   \;=\; \begin{cases} 1 & \text{if } P = \emptyset, \\
+                       0 & \text{otherwise,}\end{cases} \]
+by the binomial theorem. So each object satisfying every requirement
+contributes $1$ and every other object contributes $0$.
+\end{proof}
+
+\begin{intuition}
+There is a second way to see the formula, and some people find it more natural.
+Think of a branching algorithm that processes the requirements one at a time,
+using the identity
+\[ \textit{required} \;=\; \textit{optional} \;-\; \textit{forbidden}. \]
+``Not divisible by $2$'' is ``may be divisible by $2$'' minus ``is divisible by
+$2$''. Branching on all $n$ requirements gives $2^n$ leaves, one for each set
+$R$ of requirements sent down the \emph{forbidden} side; the requirements
+outside $R$ are optional there, and the sign $(-1)^{|R|}$ records how many
+subtractions were taken to reach that leaf. Summing over the leaves is exactly
+the formula.
+\end{intuition}
+
+The reason this is an algorithmic technique and not just an identity is the
+following. Computing the left-hand side --- the number of objects meeting every
+requirement --- is typically what is hard. Computing $N(R)$ for a single $R$ is
+typically easy, because dropping requirements makes the objects less
+constrained and therefore easier to count. Inclusion--exclusion buys that trade:
+$2^n$ easy counts instead of one hard one. And $2^n$ easy counts need only one
+accumulator.
+
+%==============================================================================
+\section{Counting Hamiltonian cycles in polynomial space}
+\label{sec:ie-hamilton}
+%==============================================================================
+
+\Cref{thm:held-karp} solves \lang{TSP} in $\Ostar(2^n)$ time and $\Ostar(2^n)$
+space. Here is the same running time in polynomial space, for the decision
+problem.
+
+The hard part of a Hamiltonian cycle is the word \emph{Hamiltonian}: counting
+closed walks of a given length is easy, and counting those that visit every
+vertex is not. So make ``visit $v$'' a requirement, one per vertex, and let the
+objects be closed walks.
+
+\begin{lemma}\label{lem:counting-walks}
+Let $G' \subseteq G$ be an induced subgraph containing $v_1$. The number of
+closed walks of length $n$ from $v_1$ to $v_1$ in $G'$ can be computed in
+$\bigoh{n \cdot m}$ time and $\bigoh{n}$ space.
+\end{lemma}
+
+\begin{proof}
+Let $W[v,k]$ be the number of walks of length $k$ from $v_1$ to $v$ in $G'$,
+where a walk may repeat vertices and edges freely. Then $W[v_1,0] = 1$ and
+$W[v,0] = 0$ for $v \ne v_1$, and
+\[ W[v,k] \;=\; \sum_{u \in N(v)} W[u,k-1]. \]
+The answer is $W[v_1,n]$. Only the previous layer is needed at any time, so the
+space is $\bigoh{n}$.
+\end{proof}
+
+\begin{theorem}\label{thm:ie-hamilton}
+The number of Hamiltonian cycles of $G$ can be computed in $\Ostar(2^n)$ time
+and polynomial space.
+\end{theorem}
+
+\begin{proof}
+Take as objects the closed walks of length $n$ from $v_1$ to $v_1$ in $G$, and
+as requirements ``the walk visits $v$'', one for each vertex $v$. A walk of
+length $n$ that visits all $n$ vertices visits each exactly once, so the objects
+satisfying every requirement are precisely the Hamiltonian cycles, each counted
+once per starting direction.
+
+For $R \subseteq V$, the objects satisfying none of the requirements in $R$ are
+the closed walks avoiding every vertex of $R$, that is the closed walks of
+length $n$ in $G[V \setminus R]$; call that count
+$\mathrm{CycleWalks}(V \setminus R)$. By \cref{thm:inclusion-exclusion} the
+number of Hamiltonian cycles is
+\[ \sum_{R \subseteq V} (-1)^{|R|}\, \mathrm{CycleWalks}(V \setminus R). \]
+Each term is computed in polynomial time and space by
+\cref{lem:counting-walks}, and there are $2^n$ of them; the running sum needs
+one accumulator.
+\end{proof}
+
+\begin{intuition}
+Compare the two algorithms. Held--Karp remembers which cities have been visited,
+which is why it needs $2^n$ memory; inclusion--exclusion never remembers
+anything --- it recomputes, $2^n$ times, a quantity that ignores the constraint
+entirely, and lets the alternating signs cancel away everything that is not
+Hamiltonian. The exponential is paid in the number of terms rather than in the
+size of a table, and terms can be discarded once added.
+\end{intuition}
+
+%==============================================================================
+\section{Graph colouring in \texorpdfstring{$\Ostar(2^n)$}{O*(2n)} time}
+\label{sec:ie-colouring}
+%==============================================================================
+
+The same idea improves \cref{thm:lawler} from $2.4423^n$ to $2^n$, and this was
+a genuine surprise when it appeared.
+
+The objects will be sequences of independent sets and the requirements will be
+that every vertex is covered by one of them.
+
+\begin{definition}\label{def:ck}
+For a graph $G$ and an integer $k$, let $c_k(G)$ be the number of ordered
+$k$-tuples $(I_1, \ldots, I_k)$ of independent sets of $G$ with
+$I_1 \cup \cdots \cup I_k = V$. The sets may overlap and may repeat.
+\end{definition}
+
+\begin{lemma}\label{lem:ck-colourable}
+$G$ is $k$-colourable if and only if $c_k(G) > 0$.
+\end{lemma}
+
+\begin{proof}
+A proper $k$-colouring is a partition of $V$ into $k$ independent sets, which is
+in particular a covering, so $c_k(G) > 0$. Conversely, given a covering
+$(I_1,\ldots,I_k)$, assign each vertex the least $i$ with $v \in I_i$; the
+resulting colour classes are subsets of independent sets, hence independent.
+\end{proof}
+
+\begin{lemma}\label{lem:ck-formula}
+For $S \subseteq V$ let $s(S)$ be the number of independent sets of $G[S]$,
+including the empty set. Then
+\[ c_k(G) \;=\; \sum_{R \subseteq V} (-1)^{|R|} \, s(V \setminus R)^k . \]
+\end{lemma}
+
+\begin{proof}
+Apply \cref{thm:inclusion-exclusion} with the objects being all $k$-tuples of
+independent sets, and one requirement per vertex $v$: ``some $I_i$ contains
+$v$''. A tuple satisfies none of the requirements in $R$ exactly when no $I_i$
+meets $R$, that is when every $I_i$ is an independent set of
+$G[V \setminus R]$; there are $s(V\setminus R)^k$ such tuples.
+\end{proof}
+
+\begin{lemma}\label{lem:counting-independent-sets}
+All the values $s(S)$, for $S \subseteq V$, can be computed in $\Ostar(2^n)$
+time and space.
+\end{lemma}
+
+\begin{proof}
+For $S \ne \emptyset$ pick any $v \in S$ and split on whether an independent set
+of $G[S]$ contains $v$:
+\[ s(S) \;=\; s(S \setminus \{v\}) \;+\; s(S \setminus N[v]), \qquad
+   s(\emptyset) = 1, \]
+the second term counting the sets that do contain $v$. Fill the table bottom-up
+over subsets in increasing size.
+\end{proof}
+
+\begin{theorem}[\citet{BjorklundHusfeldtKoivisto2009}]\label{thm:ie-colouring}
+The chromatic number can be computed in $\Ostar(2^n)$ time and space.
+\end{theorem}
+
+\begin{proof}
+Compute all $s(S)$ by \cref{lem:counting-independent-sets}. For
+$k = 1, 2, \ldots, n$ evaluate $c_k(G)$ by \cref{lem:ck-formula} --- a sum of
+$2^n$ terms, each a $k$-th power of a stored number --- and return the first $k$
+with $c_k(G) > 0$, which is $\chi(G)$ by \cref{lem:ck-colourable}. There are at
+most $n$ values of $k$, so the total is $\Ostar(2^n)$.
+\end{proof}
+
+\begin{remark}[Polynomial space, at a price]\label{rem:colouring-poly-space}
+The table of $s(S)$ is the only exponential storage, and it can be dispensed
+with by recomputing $s(V \setminus R)$ from scratch for each $R$. The cost is
+whatever it takes to count independent sets in a graph, and doing that by the
+enumeration of \cref{cor:moon-moser} gives $\Ostar(2.4423^n)$ overall --- the
+same time as \cref{thm:lawler} but in polynomial space. Faster counting
+algorithms bring this down further.
+\end{remark}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{A table of four algorithms for graph colouring --- Lawler
+DP, inclusion--exclusion with the table, inclusion--exclusion recomputing, and
+the trivial one --- plotted as points on time--space axes, with the Pareto
+frontier marked.}
+\caption{The trade-off. Inclusion--exclusion moves the exponential cost from
+space to time, and which point on the curve is best depends on the machine, not
+on the problem.}
+\label{fig:colouring-tradeoff}
+\end{figure}
+
+%==============================================================================
+\section{Counting minimum set covers}
+\label{sec:ie-set-cover}
+%==============================================================================
+
+The chapter's pool exercise, and it is inclusion--exclusion applied exactly as
+in \cref{sec:ie-colouring}.
+
+\begin{probdef}{Set Cover}
+  \instance A set $U$ with $|U| = m$ and a family $F$ of subsets of $U$.
+  \question A subfamily $C \subseteq F$ of minimum size with
+  $\bigcup_{S \in C} S = U$.
+\end{probdef}
+
+\begin{theorem}\label{thm:count-set-covers}
+The number of minimum set covers of $(U,F)$ can be computed in $\Ostar(2^m)$
+time and polynomial space.
+\end{theorem}
+
+\begin{proof}
+For $k \ge 1$ let $c_k$ be the number of ordered $k$-tuples
+$(S_1, \ldots, S_k) \in F^k$ with $S_1 \cup \cdots \cup S_k = U$, repetitions
+allowed.
+
+\emph{A formula for $c_k$.} Take the objects to be all $k$-tuples of members of
+$F$, and one requirement per element $u \in U$: ``some $S_i$ contains $u$''. A
+tuple satisfies none of the requirements in $R \subseteq U$ exactly when no
+$S_i$ meets $R$, that is when every $S_i$ is drawn from
+\[ F(R) \;=\; \{\, S \in F \;:\; S \cap R = \emptyset \,\}. \]
+There are $|F(R)|^k$ such tuples, so \cref{thm:inclusion-exclusion} gives
+\[ c_k \;=\; \sum_{R \subseteq U} (-1)^{|R|}\, |F(R)|^{k}. \]
+
+\emph{From $c_k$ to the answer.} Let $k^{*}$ be the least $k$ with $c_k > 0$;
+this is the minimum size of a set cover, and $k^{*} \le m$ whenever a cover
+exists. In a $k^{*}$-tuple counted by $c_{k^{*}}$ the sets must be pairwise
+distinct --- a repetition would leave a cover with fewer than $k^{*}$ distinct
+sets, contradicting minimality --- so each minimum set cover, which is an
+unordered family of $k^{*}$ distinct sets, is counted exactly $k^{*}!$ times.
+The number of minimum set covers is therefore
+\[ \frac{c_{k^{*}}}{k^{*}!}. \]
+
+\emph{Resources.} For each of the $2^m$ subsets $R$, computing $|F(R)|$ is one
+scan of $F$, and the term is added to a running total; nothing else is stored.
+That is $\Ostar(2^m)$ time and polynomial space per value of $k$, and at most
+$m$ values of $k$ are tried.
+\end{proof}
+
+\begin{intuition}
+Notice that the exponent is $m = |U|$, the number of \emph{elements}, and not
+$|F|$, which may be exponentially larger. That is the choice of certificate
+again, from \cref{sec:exact-progress}: the requirements are indexed by
+elements, so the sum runs over subsets of $U$. Had we set the problem up with
+one requirement per set, the same technique would have given a useless bound.
+\end{intuition}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:exact-ii-further-reading}
+%==============================================================================
+
+This chapter follows Johan van Rooij's lecture slides.
+\citet[Chapter~4]{FominKratsch2010} covers inclusion--exclusion, and
+\citet[Section~10.1]{CyganEtAl2015} gives a compact treatment of the same
+material.
+
+\Cref{thm:held-karp} is \citet{HeldKarp1962} and \cref{obs:lawler} is
+\citet{Lawler1976}. \Cref{thm:ie-colouring} is
+\citet{BjorklundHusfeldtKoivisto2009}, found independently by Koivisto; it
+ended a long sequence of improvements to Lawler's bound --- $2.4151^n$,
+$2.4023^n$, $2.3236^n$ --- by reaching $2^n$ in a single step, and the same
+paper solves a whole family of set partitioning problems the same way.
+
+Inclusion--exclusion is not confined to exact exponential algorithms. It is the
+engine behind fast subset convolution, which \cref{ch:treewidth} uses to
+evaluate the join node of a tree decomposition, and behind several
+fixed-parameter algorithms for connectivity problems.
+
+%==============================================================================
+\section{Exercises}
+\label{sec:ex-exact-ii}
+%==============================================================================
+
+\begin{exercise}
+How many integers in $\{1,\ldots,10^6\}$ are divisible by none of $2$, $3$, $5$
+and $7$? Do it with \cref{thm:inclusion-exclusion} and check the answer against
+the exact count $10^6 \prod_{p} (1 - 1/p)$ rounded appropriately.
+\end{exercise}
+
+\begin{exercise}
+\Cref{alg:held-karp} stores $B(S,v)$ for all $S$ and $v$. Show that only the
+entries with $|S| = j$ and $|S| = j-1$ are needed at any moment, and that this
+does not change the asymptotic space.
+\end{exercise}
+
+\begin{exercise}
+Adapt \cref{alg:held-karp} to count the number of Hamiltonian paths from $s$ to
+$t$, and to find a longest path with $k$ vertices.
+\end{exercise}
+
+\begin{exercise}
+Where does the proof of \cref{obs:lawler} use maximality, and what running time
+would \cref{thm:lawler} have if arbitrary independent sets were enumerated
+instead?
+\end{exercise}
+
+\begin{exercise}
+\Cref{thm:ie-hamilton} counts each Hamiltonian cycle more than once. Exactly how
+many times, and how would you correct for it?
+\end{exercise}
+
+\begin{exercise}
+The closed walks counted in \cref{lem:counting-walks} may traverse an edge twice
+in a row, going out and immediately back. Why does this not spoil
+\cref{thm:ie-hamilton}?
+\end{exercise}
+
+\begin{exercise}
+Give an inclusion--exclusion formula for the number of \emph{perfect matchings}
+of a graph, and say what running time it gives.
+\end{exercise}
+
+\begin{exercise}
+In \cref{thm:count-set-covers}, suppose we wanted the number of minimum covers
+\emph{allowing} a set to be used twice. What changes?
+\end{exercise}
+
+\begin{exercise}
+\Cref{lem:ck-formula} raises $s(V \setminus R)$ to the $k$-th power, and these
+numbers can be astronomically large. How many bits do they need, and does the
+$\Ostar$ notation hide anything important here?
+\end{exercise}
+
+\begin{exercise}
+Use inclusion--exclusion to count the surjective functions from an $n$-element
+set onto a $k$-element set, and check your formula for $n = k = 3$.
+\end{exercise}

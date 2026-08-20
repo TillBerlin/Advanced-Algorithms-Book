@@ -267,7 +267,9 @@ Three details deserve a word. First, $|W|$ is even, because in any graph the
 number of odd-degree vertices is even, so the matching exists. Second, adding a
 perfect matching on $W$ raises the degree of exactly the odd vertices by one, so
 every vertex of $T+M$ has even degree and the multigraph is connected: it is
-Eulerian, and \cref{ch:stable-marriage} supplies the Euler tour. Third, the
+Eulerian --- and a connected multigraph all of whose degrees are even has a
+closed walk using every edge exactly once, found in linear time by repeatedly
+following unused edges and splicing in the detours. Third, the
 matching is computed by the algorithm of \cref{ch:matching}, in polynomial
 time --- this step is the reason Christofides' algorithm is not a five-line
 exercise.

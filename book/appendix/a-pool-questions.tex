@@ -44,6 +44,8 @@ learning goals that no existing question reached.
 Four further changes have been made.
 
 \begin{itemize}[leftmargin=*]
+  \item \emph{Stable Matchings} lost its first item, on Euler tours: the course
+        no longer covers them.
   \item \emph{Planar Graphs}, item~7 asked for $3$-colouring in
         $2^{O(\sqrt n)}$ time. It now asks for maximum independent set, which
         is what \cref{ch:planar} proves.
@@ -71,8 +73,6 @@ second.
 \paragraph{Stable Matchings.}
 This set of questions captures the learning goals of the chapter.
 \begin{enumerate}
-  \item Define an Euler Tour and show that every connected graph with all even
-        degrees must have an Euler Tour.
   \item Define the term stable marriage problem, blocking pair and stable
         matching.
   \item Define the Greedy Algorithm as in the lecture and show that it might run
@@ -407,9 +407,13 @@ covered by the exercise above.
         time, and analyse it.
   \item State the inclusion/exclusion principle and explain how it is used to
         trade space for time.
-  \item State the Exponential Time Hypothesis and its strong form, and derive a
-        conditional lower bound from each.
 \end{enumerate}
+
+\begin{remark}
+An item asking for the exponential time hypothesis and its strong form used to
+sit here. It has moved to the questions of \cref{ch:lower-bounds}, which treat
+both hypotheses and their consequences at length.
+\end{remark}
 
 \subsection*{Fine-Grained Lower Bounds (\cref{ch:lower-bounds})}
 

@@ -52,7 +52,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
-| 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | 1 | 🟡 stable marriage drafted; Euler tours + 19 figures open |
+| 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | Stable Matchings | ✅ drafted; 18 figure placeholders |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 8 figures open |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🟡 prose complete; 6 figures open |
 | 5 | Planar Graphs | `05-planar-graphs.tex` | W2 Thu | 5 | 🟡 prose complete; 17 figures open |
@@ -70,8 +70,8 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 10 | Exact Exponential-Time Algorithms I: Branching | `10-exact-algorithms-i.tex` | W5 Tue | Exact 3-SAT, Bisection Width, Branching | 🔲 |
-| 11 | Exact Algorithms II: Inclusion–Exclusion | `11-exact-algorithms-ii.tex` | W6 Tue | Set Cover, Subset DP | 🔲 |
+| 10 | Exact Exponential-Time Algorithms I: Branching | `10-exact-algorithms-i.tex` | W5 Tue | Exact 3-SAT, Bisection Width, Branching | ✅ drafted; 2 figure placeholders |
+| 11 | Exact Algorithms II: Inclusion–Exclusion | `11-exact-algorithms-ii.tex` | W6 Tue | Set Cover, Subset DP | ✅ drafted; 1 figure placeholder |
 | 12 | Fine-Grained Lower Bounds | `12-fine-grained-lower-bounds.tex` | **new lecture, unscheduled** | Dominating Pairs, Fine-Grained Lower Bounds | ✅ drafted; 3 figure placeholders |
 
 ### Part IV — Approximation Algorithms
@@ -96,7 +96,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | File | Contents | Status |
 | --- | --- | --- |
 | `appendix/a-pool-questions.tex` | The exam pool, transcribed verbatim, with a question → chapter map | ✅ drafted |
-| `appendix/b-preliminaries.tex` | Notation, graph terminology, complexity classes, LP, probability | 🔲 |
+| `appendix/b-preliminaries.tex` | Notation only — see the policy note in the file | 🟡 deliberately deferred to the end |
 
 ## The exam pool
 
@@ -221,56 +221,51 @@ PDF as an artefact.
 
 ## What is left
 
-Audited after chapter 12 was written. Fourteen `\todo` markers and 68
+Re-audited after chapters 10, 11 and 12. Six `\todo` markers and 65
 `\figplaceholder` boxes remain.
 
 ### Chapters not yet written
 
 | # | Chapter | Source | Notes |
 | --- | --- | --- | --- |
-| 10 | Exact Algorithms I | ✅ deck, slides 1–53 | Ready to write |
-| 11 | Exact Algorithms II | ✅ deck, slides 54–75 | Ready to write |
 | 18 | Kernelization | ✅ deck, `aa-fpt.pdf` 67–83 | Ready to write |
 | 17 | Complexity for Approximation and Parameterization | ❌ **no deck** | See below |
-| 19 | Randomized Algorithms | ❌ **no deck** | Blackboard + colour coding |
-| 1 | Introduction | ❌ no deck, none needed | Write last, once the notation has settled |
+| 19 | Randomized Algorithms | ❌ no deck, and none expected | Blackboard + colour coding |
+| 1 | Introduction | ❌ none needed | Write last |
 
 **Chapter 17 has no source.** The approximation deck mentions APX-completeness
 four times and always as a cross-reference — "last lecture", "next lecture" —
 and never teaches it; `aa-fpt.pdf` does not contain the words *L-reduction*,
-*APX-hard* or *PCP* at all. Yet chapter 14 forward-references it three times for
-the APX-hardness of independent set and of vertex cover, and two pool questions
-(*L-reduction for Maximum Cut on Multigraphs*, *Complexity for Approximation and
-FPT*) are answered there. Either slides exist somewhere or the chapter must be
-written from the literature.
+*APX-hard* or *PCP* at all. Chapter 14 forward-references it three times for the
+APX-hardness of independent set and of vertex cover, and two pool questions are
+answered there. Either slides exist somewhere or it gets written from the
+literature.
 
-**Chapter 19 has no source either**, and this is known and expected: the
-randomized `O(1.5^n)` 3-colouring algorithm was lectured at the blackboard, and
-`Directed k-Path` by colour coding has no slides.
+**Chapter 19 has no source either, and this is settled**: the randomized
+`O(1.5^n)` 3-colouring algorithm was lectured at the blackboard, and
+`Directed k-Path` by colour coding has no slides. It will be written from the
+literature.
 
 ### Other open work
 
-- **Chapter 2** carries two `\todo`s: the opening section on the chapter's
-  theme, and **Euler tours** — which is a pool item, so it is examinable and
-  currently missing.
-- **Appendix B** (preliminaries) is five empty sections. Deliberately left until
-  the main text settles and it is clear what actually needs assuming.
-- **The preface** has an acknowledgements `\todo`.
-- **68 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two
-  account for more than half. The ones that carry argument rather than
-  illustration are listed per chapter under *Open work in drafted chapters*
-  below.
+- **65 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two are
+  more than half of the total. The ones that carry argument rather than
+  decoration are listed per chapter under *Open work in drafted chapters*.
+- **Appendix B** is deliberately deferred: it will be written from what the
+  finished chapters actually use, and it will not repeat set theory. The policy
+  is recorded in the file.
+- **The preface** needs its acknowledgements, at the end.
 
-### Order I would suggest
+### Settled, no longer open
 
-1. Chapters 10 and 11 — one deck, ready, and they are what chapter 12 bounds.
-2. Chapter 18 — the rest of the FPT deck, and chapter 15 already points at it.
-3. Chapter 17 — but decide the source question first.
-4. Euler tours in chapter 2, since it is examinable.
-5. Chapter 19, from the literature.
-6. Figures, then Appendix B, then chapter 1.
+- **Euler tours are out.** The section, the chapter-2 goal and the first item of
+  the *Stable Matchings* pool question are gone. Christofides' algorithm in
+  chapter 13 was the one place that relied on them; it now states the fact it
+  needs in one sentence.
+- **The ETH/SETH pool item** moved off chapter 11's question, which is where it
+  used to sit, onto the two new questions of chapter 12.
 
-## Source decks## Source decks
+## Source decks## Source decks## Source decks
 
 The slide decks the course was taught from are in the repository root and are
 the authority on **what a chapter must cover**. Check a chapter against its deck
@@ -283,8 +278,8 @@ rewrite.
 | | 57–91 | 4 (minimum cost flow) ✅ checked |
 | | 92–141 | 6 (matching) ✅ checked |
 | `material/slides/planar.pdf` | — | 5 (planar graphs) |
-| `material/slides/Exponential Time Algorithms 2026.pptx` | 1–53 | 10 (branching, enumeration, meet in the middle) |
-| | 54–75 | 11 (inclusion–exclusion) |
+| `material/slides/Exponential Time Algorithms 2026.pptx` | 1–53 | 10 (branching, enumeration, meet in the middle) ✅ checked |
+| | 54–75 | 11 (inclusion–exclusion) ✅ checked |
 | `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 13 (approximation I) ✅ checked |
 | | 30–74 | 14 (approximation II) ✅ checked |
 | `material/slides/aa-fpt.pdf` | 1–66 | 15 (parameterized algorithms I) ✅ checked |
@@ -309,6 +304,31 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapters 10 and 11 — Exact Exponential-Time Algorithms
+
+- Written from the exponential-time deck. **The deck order and the pool order
+  differ**, and the pool won: the deck teaches dynamic programming over subsets
+  in the first lecture (slides 26–30), but the pool question for chapter 11 asks
+  for subset DP and Held–Karp, so Lawler and Held–Karp are in chapter 11.
+  Chapter 10 is enumeration, branching and meet-in-the-middle.
+- **The records on the slides were checked, not copied**, at the author's
+  suggestion — and one is wrong. The deck quotes `O(1.1844^n)` (Robson 2001) as
+  the best known for maximum independent set; that is an unrefereed technical
+  report. The published record in polynomial space is `O(1.1996^n)`
+  (Xiao–Nagamochi 2017), improving Robson's published `O(1.2109^n)` from 1986.
+  The chapter says so and adds a line warning that numbers of this kind move.
+  The 3-colouring record `O(1.3217^n)` (Meijer 2023) checked out.
+- **Both pool exercises are worked in full, and neither is in the deck.**
+  *Exact 3-SAT*: the two reduction rules plus three cleanup rules the pool
+  question does not mention but a correct algorithm needs (empty clause,
+  repeated literal, complementary pair), then branching on a 3-clause with
+  vector (3,3,3) for `O(1.4423^n)`. *Bisection width*: the balanced enumeration
+  is `Θ(2^n/√n)`, so beating 2 needs split-and-list — three groups, a
+  min-weight triangle, and fast matrix multiplication, for `O(1.7315^n)`. The
+  chapter notes that any `c < 2` answers the question.
+- **3 figure placeholders.** The `(1,4)` branching step is the one that carries
+  argument.
 
 ### Chapter 12 — Fine-Grained Lower Bounds
 

@@ -1,31 +1,594 @@
 %% Chapter 19: Randomized Algorithms
-%% Status: skeleton.  Only the learning goals are fixed; they come from the
-%% exam pool.  The sectioning is deliberately not invented in advance --
-%% it will follow the source material once that has been read.
+%% Status: drafted; 2 figure placeholders.
+%%
+%% Written against "material/slides/an-randomized2122(1).pptx"
+%% (Jesper Nederlof), 18 slides: one-sided error, Stirling, colour coding for
+%% k-path in k^k and then (2e)^k, Schoening's algorithm, feedback vertex set
+%% in 4^k.
+%%
+%% The deck does NOT contain 2-list colouring or the randomized O(1.5^n)
+%% algorithm for 3-colouring; those were lectured at the blackboard, and the
+%% two pool items asking for them are written here from the literature.
 
 \chapter{Randomized Algorithms}
 \label{ch:randomized}
 
-Randomness buys simplicity and, sometimes, speed. This chapter collects the
-probabilistic toolbox, distinguishes the flavours of randomized algorithm, and
-then does the two things the course asks of you: solving $2$-list colouring
-exactly, and using it inside a randomized $O(1.5^n)$ algorithm for
-$3$-colouring.
+Every algorithm so far has been told exactly what to do. This chapter lets them
+flip coins, and the effect is out of all proportion to the licence granted. A
+random guess makes the $k$-path problem fixed-parameter tractable; a random
+starting point turns a local search into the best simple algorithm known for
+$k$-SAT; a random vertex solves feedback vertex set in $\Ostar(4^k)$ with an
+algorithm that fits on half a page. In each case the deterministic version is
+either much harder to design or unknown.
+
+The price is that the answers are sometimes wrong --- but only in one
+direction, and only with a probability we control.
 
 \begin{goals}
-  \goalitem{use Markov's and Chernoff's inequalities and the union bound}
-  \goalitem{distinguish Monte Carlo and Las Vegas algorithms and one- from two-sided error}
-  \goalitem{explain constant one-sided error and amplify it by repetition}
-  \poolgoal{define \lang{2-List Coloring} and show that it can be solved in polynomial time}
-  \poolgoal{describe a randomized constant one-sided error algorithm for \lang{3-Coloring} a graph with running time $O(1.5^n)$}
+  \goalitem{define a one-sided error algorithm, and amplify its success
+        probability by repetition}
+  \goalitem{use Stirling's approximation in the form $n! \approx (n/e)^n$}
   \poolgoal{define the \lang{Directed $k$-Path} problem and acyclic graphs, and
-        show that \lang{Directed $k$-Path} can be solved in polynomial time on
+        show that \lang{Directed $k$-Path} is solvable in polynomial time on
         acyclic graphs}
   \poolgoal{give a randomized constant one-sided error algorithm for
-        \lang{Directed $k$-Path} with running time $O(k^k \cdot n^c)$}
+        \lang{Directed $k$-Path} with running time $\Ostar(k^k)$}
+  \goalitem{improve it to $\Ostar((2e)^k)$ using colourful paths and dynamic
+        programming over colour sets}
+  \goalitem{give Sch\"oning's algorithm for $k$-SAT and analyse its running
+        time}
+  \goalitem{give the $\Ostar(4^k)$ randomized algorithm for \lang{Feedback
+        Vertex Set}, and prove the lemma about multigraphs of minimum degree
+        three that it rests on}
+  \poolgoal{define \lang{2-List Coloring} and show that it can be solved in
+        polynomial time}
+  \poolgoal{using the previous item, describe a randomized constant one-sided
+        error algorithm for \lang{3-Coloring} with running time
+        $\bigoh{1.5^n}$}
 \end{goals}
 
-\todo{This chapter is not written yet, and no deck in \texttt{material/}
-covers it: the randomized $\bigoh{1.5^n}$ algorithm for $3$-colouring was
-lectured at the blackboard, and \lang{Directed $k$-Path} by colour coding has
-no slides either. Both need writing from scratch.}
+%==============================================================================
+\section{One-sided error}
+\label{sec:one-sided-error}
+%==============================================================================
+
+Every algorithm in this chapter has the same contract, and it is worth stating
+once.
+
+\begin{definition}[Constant one-sided error]\label{def:one-sided-error}
+A randomized algorithm for a decision problem has \emph{constant one-sided
+error} if
+\begin{itemize}[leftmargin=*,nosep]
+  \item on a no-instance it always answers \textsc{no} --- there are no false
+        positives;
+  \item on a yes-instance it answers \textsc{yes} with probability at least
+        some constant $c > 0$.
+\end{itemize}
+\end{definition}
+
+Such algorithms are called \emph{Monte Carlo}. The asymmetry is what makes them
+usable: a \textsc{yes} is a fact, because the algorithm found something and can
+show it to you, while a \textsc{no} is only evidence. And the evidence
+strengthens as fast as you like.
+
+\begin{lemma}[Amplification]\label{lem:amplification}
+Running an algorithm with one-sided success probability $p$ independently
+$t$ times and answering \textsc{yes} if any run does gives success probability
+at least $1 - (1-p)^t$. In particular $t = 1/p$ repetitions give success
+probability at least $1 - 1/e > 0.63$.
+\end{lemma}
+
+\begin{proof}
+The runs are independent, so all $t$ fail with probability $(1-p)^{t}$. For the
+second claim use $1 + x \le e^x$ with $x = -p$:
+\[ (1-p)^{1/p} \;\le\; \bigl(e^{-p}\bigr)^{1/p} \;=\; e^{-1}. \qedhere \]
+\end{proof}
+
+The inequality $1+x \le e^{x}$ is used four times in this chapter; it is worth
+committing to memory. So is the following, in the crude form on the right.
+
+\begin{proposition}[Stirling's approximation]\label{prop:stirling}
+$\sqrt{2\pi n}\,(n/e)^n \le n! \le e\sqrt{n}\,(n/e)^n$, and therefore
+$n! = \Ostar\bigl((n/e)^n\bigr)$.
+\end{proposition}
+
+Under $\Ostar$ the polynomial factors vanish and only $(n/e)^n$ survives, which
+is all we shall need.
+
+%==============================================================================
+\section{Colour coding}
+\label{sec:colour-coding}
+%==============================================================================
+
+\begin{probdef}{Directed $k$-Path}
+  \instance A directed graph $G$ and an integer $k$.
+  \parameter $k$.
+  \question Does $G$ contain a simple directed path on at least $k$ vertices?
+\end{probdef}
+
+The word \emph{simple} is the whole problem. Without it --- a \emph{walk} on $k$
+vertices, repetitions allowed --- the question is a two-line dynamic program. It
+is remembering which vertices have already been used that costs, and remembering
+a subset of $V$ costs $2^n$.
+
+\subsection{The acyclic case is easy}
+
+\begin{definition}\label{def:acyclic}
+A directed graph is \emph{acyclic} --- a DAG --- if it contains no directed
+cycle. Equivalently, its vertices admit a \emph{topological order}
+$v_1, \ldots, v_n$ in which every arc goes forwards, from $v_i$ to $v_j$ with
+$i < j$.
+\end{definition}
+
+\begin{proposition}\label{prop:kpath-dag}
+\lang{Directed $k$-Path} is solvable in $\bigoh{n+m}$ time on acyclic graphs.
+\end{proposition}
+
+\begin{proof}
+In a DAG every walk is automatically a simple path: an arc always increases the
+position in the topological order, so no vertex can recur. The constraint that
+made the problem hard has evaporated.
+
+Compute a topological order, and let $L[v]$ be the largest number of vertices on
+a path ending at $v$. Processing the vertices in topological order,
+\[ L[v] \;=\; 1 + \max\bigl\{\, L[u] \;:\; (u,v) \text{ an arc} \,\bigr\}, \]
+with the maximum over the empty set read as $0$. Answer \textsc{yes} if some
+$L[v] \ge k$. Every arc is examined once.
+\end{proof}
+
+\subsection{Forcing the graph to be acyclic}
+
+The idea is to guess, and to guess in a way that makes the general graph
+acyclic.
+
+\begin{algorithm}[ht]
+\caption{Colour coding for \lang{Directed $k$-Path}, first version}
+\label{alg:colour-coding-1}
+\begin{algorithmic}[1]
+  \For{$k^k$ rounds}
+    \State choose $c(v) \in \{1,\ldots,k\}$ independently and uniformly at
+           random, for every $v \in V$
+    \State let $G'$ keep only the arcs $(u,v)$ of $G$ with $c(v) = c(u) + 1$
+    \If{$G'$ has a path on $k$ vertices} \Return \textsc{yes} \EndIf
+  \EndFor
+  \State \Return \textsc{no}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:colour-coding-1}
+\Cref{alg:colour-coding-1} has constant one-sided error and runs in
+$\Ostar(k^k)$ time.
+\end{theorem}
+
+\begin{proof}
+\emph{$G'$ is acyclic, and line~4 is polynomial.} Along an arc of $G'$ the
+label strictly increases, so no directed cycle survives; apply
+\cref{prop:kpath-dag}. Moreover a path on $k$ vertices in $G'$ has labels
+$c, c+1, \ldots, c+k-1$, which are $k$ distinct values in $\{1,\ldots,k\}$, so
+the labels are exactly $1,\ldots,k$ in order.
+
+\emph{No false positives.} A path of $G'$ is a path of $G$, since $G'$ only
+deletes arcs, and its $k$ vertices carry distinct labels and so are distinct.
+
+\emph{Success probability.} Suppose $G$ has a $k$-path $p_1, \ldots, p_k$. If
+the random labelling happens to give $c(p_i) = i$ for every $i$, then all $k-1$
+arcs of the path survive in $G'$ and line~4 finds a $k$-path. This happens with
+probability at least
+\[ \Pr\bigl[\, \forall i:\, c(p_i) = i \,\bigr] \;=\;
+   \Bigl(\frac1k\Bigr)^{k}. \]
+By \cref{lem:amplification} with $p = k^{-k}$, the $k^k$ repetitions bring the
+failure probability below $1/e$.
+\end{proof}
+
+\subsection{Colourful paths}
+
+Insisting that the path's labels be $1, 2, \ldots, k$ \emph{in order} is more
+than we need. All we want is that the $k$ vertices be distinguishable, and for
+that it is enough that their labels be distinct in any order. That is a much
+likelier event.
+
+\begin{definition}\label{def:colourful}
+Given $c : V \to \{1,\ldots,k\}$, a $k$-path $p_1,\ldots,p_k$ is
+\emph{colourful} if $c(p_i) \ne c(p_j)$ for $i \ne j$ --- equivalently, if the
+path uses every colour exactly once.
+\end{definition}
+
+\begin{lemma}\label{lem:colourful-prob}
+For a fixed $k$-path, a uniformly random colouring makes it colourful with
+probability $k!/k^k \ge e^{-k}$.
+\end{lemma}
+
+\begin{proof}
+There are $k^k$ colourings of the path's vertices and $k!$ of them are
+injective. By \cref{prop:stirling}, $k! \ge \sqrt{2\pi k}(k/e)^k \ge (k/e)^k$,
+so $k!/k^k \ge e^{-k}$.
+\end{proof}
+
+\begin{lemma}\label{lem:colourful-dp}
+Given a colouring $c$, a colourful $k$-path can be found in $\Ostar(2^k)$ time.
+\end{lemma}
+
+\begin{proof}
+Dynamic programming over \emph{colour sets} rather than vertex sets --- there
+are only $2^k$ of the former. For $v \in V$ and $S \subseteq \{1,\ldots,k\}$,
+let $T[v,S]$ be true when there is a path ending at $v$ whose vertices use
+exactly the colours of $S$, each once. Then $T[v,\{c(v)\}]$ is true for every
+$v$, and
+\[ T[v,S] \;=\; \bigvee_{(u,v) \text{ an arc}}
+   T\bigl[u,\, S \setminus \{c(v)\}\bigr]
+   \qquad \text{when } c(v) \in S, \]
+and false otherwise. The answer is whether $T[v,\{1,\ldots,k\}]$ holds for some
+$v$. The table has $n2^k$ entries and each costs $\bigoh{\deg v}$.
+\end{proof}
+
+\begin{theorem}[\citet{AlonYusterZwick1995}]\label{thm:colour-coding-2}
+\lang{Directed $k$-Path} has a constant one-sided error algorithm running in
+$\Ostar\bigl((2e)^k\bigr)$ time.
+\end{theorem}
+
+\begin{proof}
+Repeat $e^k$ times: colour randomly and run \cref{lem:colourful-dp}. A colourful
+path is in particular simple, so there are no false positives. By
+\cref{lem:colourful-prob} each round succeeds with probability at least
+$e^{-k}$, so by \cref{lem:amplification} the failure probability is below
+$1/e$. The cost is $e^k \cdot \Ostar(2^k) = \Ostar((2e)^k)$, and
+$2e < 5.44$.
+\end{proof}
+
+\begin{intuition}
+Compare the two algorithms. Both guess a colouring; the difference is what they
+demand of it. The first wants the path's colours to come out in a prescribed
+order, which happens with probability $k^{-k}$ and buys a polynomial-time
+subroutine. The second wants only distinctness, which happens with probability
+$e^{-k}$ --- exponentially likelier --- and pays for it with a $2^k$ subroutine.
+The product is what matters, and the trade is worth making: $k^k$ against
+$(2e)^k$ is $10^{20}$ against $10^7$ at $k = 10$.
+\end{intuition}
+
+%==============================================================================
+\section{Sch\"oning's algorithm}
+\label{sec:schoening}
+%==============================================================================
+
+Randomness helps outside the parameterized world too. Recall from
+\cref{ch:exact-i} the local search subroutine for satisfiability.
+
+\begin{lemma}[\Cref{ch:exact-i}]\label{lem:hamming-ball}
+Given a $k$-CNF formula $F$ and a truth assignment $a$, one can decide in
+$\Ostar(k^d)$ time whether $F$ has a satisfying assignment at Hamming distance
+at most $d$ from $a$.
+\end{lemma}
+
+The deterministic algorithm of \cref{ch:exact-i} applied this at the two
+assignments \textsc{all-true} and \textsc{all-false}, taking $d = n/2$, and got
+$\Ostar(3^{n/2}) = \bigoh{1.7321^n}$ for $3$-SAT. Randomness does better simply
+by choosing the centre at random and taking a much smaller radius.
+
+\begin{algorithm}[ht]
+\caption{Sch\"oning's algorithm for $k$-SAT}
+\label{alg:schoening}
+\begin{algorithmic}[1]
+  \State $d \gets n/(k+1)$
+  \For{enough rounds}
+    \State choose $a \in \{0,1\}^n$ uniformly at random
+    \If{\cref{lem:hamming-ball} finds a satisfying assignment within distance
+        $d$ of $a$} \Return \textsc{yes} \EndIf
+  \EndFor
+  \State \Return \textsc{no}
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}[\citet{Schoening1999}]\label{thm:schoening}
+\Cref{alg:schoening} decides $k$-SAT with constant one-sided error in
+\[ \Ostar\Bigl( \Bigl(\frac{2k}{k+1}\Bigr)^{\!n} \Bigr) \text{ time.} \]
+For $k = 3$ this is $\bigoh{1.5^n}$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+There are no false positives, because \cref{lem:hamming-ball} returns an actual
+satisfying assignment.
+
+Fix a satisfying assignment $y$. A uniformly random $a$ lands within Hamming
+distance $d$ of $y$ with probability
+\[ p \;=\; 2^{-n}\sum_{i \le d}\binom{n}{i}, \]
+so $1/p$ repetitions suffice by \cref{lem:amplification}, and the total cost is
+$\Ostar(k^{d}/p)$. Writing $d = \alpha n$ and using the standard estimate
+$\sum_{i\le \alpha n}\binom{n}{i} = \Ostar(2^{H(\alpha)n})$, where
+$H(\alpha) = -\alpha\log_2\alpha - (1-\alpha)\log_2(1-\alpha)$ is the binary
+entropy, the running time is
+\[ \Ostar\Bigl( \bigl( 2^{\,1 - H(\alpha)} \, k^{\alpha} \bigr)^{n} \Bigr), \]
+and this expression is minimised at $\alpha = 1/(k+1)$, where it equals
+$\bigl(2k/(k+1)\bigr)^n$.
+\end{proof}
+
+\begin{example}\label{ex:schoening-numbers}
+For $k = 3$ the bound is $(6/4)^n = 1.5^n$, against $1.7321^n$ for the
+deterministic version of \cref{ch:exact-i} and $1.8393^n$ for plain branching.
+For $k = 100$ it is $(200/101)^n = 1.9802^n$ --- still below $2^n$, which is
+the point: the saving degrades as $k$ grows but never disappears.
+\Cref{ch:lower-bounds} explains why it must degrade.
+\end{example}
+
+%==============================================================================
+\section{Feedback vertex set}
+\label{sec:fvs}
+%==============================================================================
+
+The last algorithm of the chapter is the one where the randomness looks most
+like magic: it picks a vertex essentially at random and deletes it.
+
+\begin{probdef}{Feedback Vertex Set}
+  \instance A multigraph $G = (V,E)$ and an integer $k$.
+  \parameter $k$.
+  \question Is there a set $X$ of at most $k$ vertices such that $G - X$ is a
+  forest? Equivalently, such that every cycle of $G$ contains a vertex of $X$?
+\end{probdef}
+
+We work with multigraphs, where two parallel edges form a cycle and a loop
+forms a cycle by itself. Degrees count parallel edges separately and a loop
+counts twice.
+
+Three reduction rules put the graph in shape.
+
+\begin{observation}\label{obs:fvs-reductions}
+\begin{enumerate}[label=(\roman*),leftmargin=*,nosep]
+  \item A vertex of degree $0$ or $1$ lies on no cycle and may be deleted.
+  \item A vertex $v$ of degree $2$ may be \emph{suppressed}: delete $v$ and add
+        an edge between its two neighbours. Every cycle through $v$ becomes a
+        cycle through the new edge and conversely.
+  \item If there is a loop at $v$, then $v$ is in every solution: put it in the
+        solution, delete it, and decrease $k$ by one.
+\end{enumerate}
+\end{observation}
+
+After applying these exhaustively, every vertex has degree at least three. That
+is exactly the hypothesis of the following lemma, which is the heart of the
+matter.
+
+\begin{lemma}\label{lem:fvs-half-edges}
+Let $G$ be a multigraph of minimum degree at least $3$ and let $X$ be a feedback
+vertex set of $G$. Then at least half the edges of $G$ have an endpoint in $X$.
+\end{lemma}
+
+\begin{proof}
+Write $F = V \setminus X$, which induces a forest. Let $I$ be the set of edges
+with at least one endpoint in $X$, and $E_F$ the set of edges with both
+endpoints in $F$. These partition $E$, so it suffices to show
+$|I| \ge |E_F|$.
+
+For $v \in F$ let $d_F(v)$ be the number of edges from $v$ into $F$. Since
+$\deg(v) \ge 3$, the vertex $v$ sends at least $3 - d_F(v)$ edges into $X$, and
+every such edge lies in $I$ and is counted at only one end. Hence
+\[ |I| \;\ge\; \sum_{v \in F} \max\bigl(0,\, 3 - d_F(v)\bigr)
+       \;\ge\; 2\,|F_{\le 1}| + |F_2|, \]
+where $F_{\le 1}$, $F_2$ and $F_{\ge 3}$ are the vertices of $F$ with
+$d_F(v) \le 1$, $=2$ and $\ge 3$ respectively.
+
+Now use that $F$ is a forest. In any forest the vertices of degree at least
+three are strictly fewer than those of degree at most one: root each tree and
+induct, replacing a lowest branch vertex and everything below it by a single
+leaf. So $|F_{\ge 3}| < |F_{\le 1}|$ and
+\[ |I| \;\ge\; 2|F_{\le 1}| + |F_2|
+       \;>\; |F_{\le 1}| + |F_2| + |F_{\ge 3}| \;=\; |F| \;>\; |E_F|, \]
+the last step because a forest has fewer edges than vertices.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{The vertex set split into $X$ on the left and the forest
+$F$ on the right; the edges of $F$ drawn thin, the edges from $F$ to $X$ drawn
+thick, with a leaf of $F$ shown sending two thick edges into $X$ because its
+degree in $G$ is at least three.}
+\caption{\Cref{lem:fvs-half-edges}. Minimum degree three forces every leaf of
+the forest to send two edges into $X$, and a forest has more leaves than branch
+vertices.}
+\label{fig:fvs-lemma}
+\end{figure}
+
+\begin{algorithm}[ht]
+\caption{Randomized \lang{Feedback Vertex Set}}
+\label{alg:fvs}
+\begin{algorithmic}[1]
+  \Function{FVS}{$G$, $k$}
+    \State apply \cref{obs:fvs-reductions} exhaustively, adjusting $k$
+    \If{$G$ has no edges} \Return \textsc{yes} \EndIf
+    \If{$k = 0$} \Return \textsc{no} \EndIf
+    \State pick an edge of $G$ uniformly at random, then one of its two
+           endpoints uniformly at random; call it $v$
+    \State \Return \Call{FVS}{$G - v$, $k-1$}
+  \EndFunction
+\end{algorithmic}
+\end{algorithm}
+
+\begin{theorem}\label{thm:fvs}
+\Cref{alg:fvs} has no false positives, and on a yes-instance it answers
+\textsc{yes} with probability at least $4^{-k}$. Repeating it $4^k$ times gives
+a constant one-sided error algorithm running in $\Ostar(4^k)$ time.
+\end{theorem}
+
+\begin{proof}
+The reduction rules are sound, and the algorithm only ever answers \textsc{yes}
+when the graph really has become a forest, so there are no false positives.
+
+For the success probability, induct on $k$. For $k = 0$ the claim is trivial.
+For $k > 0$, let $X$ be a feedback vertex set of size $k$. After the reduction
+rules the minimum degree is at least $3$, so by \cref{lem:fvs-half-edges} at
+least half the edges have an endpoint in $X$; the random edge is one of them
+with probability at least $1/2$, and the random endpoint is in $X$ with
+probability at least $1/2$ given that. So $\Pr[v \in X] \ge 1/4$. Conditioned on
+that event, $X \setminus \{v\}$ is a feedback vertex set of $G - v$ of size
+$k-1$, and the induction hypothesis gives success probability at least
+$4^{-(k-1)}$ from there. Multiplying,
+\[ \Pr[\textsc{yes}] \;\ge\; \tfrac14 \cdot 4^{-(k-1)} \;=\; 4^{-k}. \]
+Finally apply \cref{lem:amplification} with $p = 4^{-k}$.
+\end{proof}
+
+\begin{intuition}
+Look at what the lemma is really doing. Picking a vertex at random would be
+hopeless --- the solution might be four vertices out of a million. Picking a
+random \emph{edge} and then one of its ends is a biased sample: it favours
+high-degree vertices, and the lemma says the solution carries at least half the
+edge mass. Sampling proportionally to the right quantity is the whole trick, and
+it is the reason the reduction rules exist: they establish minimum degree
+three, without which the lemma is false.
+\end{intuition}
+
+%==============================================================================
+\section{Three-colouring in \texorpdfstring{$\bigoh{1.5^n}$}{O(1.5 to the n)}}
+\label{sec:randomized-3col}
+%==============================================================================
+
+The last algorithm is the pool exercise, and it is a two-step argument: solve an
+easier colouring problem exactly, then guess your way to it.
+
+\begin{probdef}{2-List Coloring}
+  \instance A graph $G = (V,E)$ and, for each vertex $v$, a list
+  $L(v)$ of at most two permitted colours.
+  \question Is there a proper colouring $c$ with $c(v) \in L(v)$ for every $v$?
+\end{probdef}
+
+\begin{proposition}\label{prop:2-list-colouring}
+\lang{2-List Coloring} is solvable in polynomial time.
+\end{proposition}
+
+\begin{proof}
+It is $2$-SAT in disguise. A vertex with an empty list makes the instance a
+no-instance. A vertex with a list of one colour is forced. For a vertex $v$ with
+$L(v) = \{\alpha,\beta\}$ introduce a Boolean variable $x_v$, read as ``$v$ gets
+colour $\alpha$'' --- so $\neg x_v$ means $v$ gets $\beta$, and every assignment
+of the variables is a list colouring, proper or not.
+
+For each edge $\{u,v\}$ and each colour $\gamma \in L(u) \cap L(v)$, add a
+clause forbidding both ends from taking $\gamma$: with $\ell_u^\gamma$ denoting
+the literal that says ``$u$ gets $\gamma$'', add
+$(\neg \ell_u^{\gamma} \vee \neg \ell_v^{\gamma})$. Each clause has two
+literals, and the whole formula has $\bigoh{m}$ clauses. A satisfying assignment
+is exactly a proper list colouring, and $2$-SAT is solvable in linear time.
+\end{proof}
+
+\begin{theorem}\label{thm:randomized-3col}
+\lang{3-Coloring} has a constant one-sided error algorithm running in
+$\bigoh{1.5^n}$ time.
+\end{theorem}
+
+\begin{proof}
+Repeat $(3/2)^n$ times: for each vertex $v$ independently, choose $L(v)$
+uniformly at random among the three two-element subsets of $\{1,2,3\}$; then
+decide the resulting \lang{2-List Coloring} instance by
+\cref{prop:2-list-colouring}. Answer \textsc{yes} if any round succeeds.
+
+\emph{No false positives.} A proper list colouring is in particular a proper
+$3$-colouring.
+
+\emph{Success probability.} Suppose $G$ is $3$-colourable and fix a proper
+colouring $c$. The round succeeds whenever $c$ is a legal list colouring, that
+is whenever $c(v) \in L(v)$ for every $v$. For a single vertex this has
+probability $2/3$ --- two of the three lists contain any given colour --- and
+the choices are independent, so
+\[ \Pr\bigl[\,\forall v:\, c(v) \in L(v)\,\bigr] \;=\;
+   \Bigl(\frac23\Bigr)^{\! n}. \]
+By \cref{lem:amplification} with $p = (2/3)^n$, the $(3/2)^n$ repetitions leave
+failure probability below $1/e$. Each round is polynomial, so the total is
+$\Ostar((3/2)^n) = \bigoh{1.5^n}$.
+\end{proof}
+
+\begin{intuition}
+The step worth admiring is the choice of what to guess. Guessing the colouring
+outright costs $3^n$. Guessing, for each vertex, which colour it does
+\emph{not} get costs $(3/2)^n$, because it leaves a problem that is still
+solvable --- two colours per vertex is $2$-SAT, three is
+\textrm{NP}-complete. The art of a randomized algorithm is usually to find the
+largest amount of information you can afford to discard while keeping the
+remaining problem tractable, and $3$-colouring sits exactly one colour above
+that line.
+\end{intuition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{4.5cm}{A small graph with each vertex labelled by a randomly
+drawn two-element list, beside the same graph properly coloured from those
+lists; and a second copy where one vertex's list excludes its colour in every
+proper colouring, so the round fails.}
+\caption{One round of \cref{thm:randomized-3col}. The round succeeds exactly
+when some proper $3$-colouring happens to lie inside all the lists.}
+\label{fig:randomized-3col}
+\end{figure}
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:randomized-further-reading}
+%==============================================================================
+
+This chapter follows Jesper Nederlof's lecture slides, apart from
+\cref{sec:randomized-3col}, which was lectured at the blackboard and is written
+here from the literature.
+
+Colour coding is \citet{AlonYusterZwick1995}, who also showed how to
+derandomise it using families of perfect hash functions, at the cost of a larger
+polynomial factor. \Cref{thm:schoening} is \citet{Schoening1999}; the algorithm
+as Sch\"oning gave it uses a random walk rather than the exhaustive search of
+\cref{lem:hamming-ball} and achieves the same bound.
+\citet[Chapter~5]{CyganEtAl2015} covers colour coding, random separation and the
+feedback vertex set algorithm; \citet[Chapter~5]{FominKratsch2010} covers the
+exponential-time side.
+
+%==============================================================================
+\section{Exercises}
+\label{sec:ex-randomized}
+%==============================================================================
+
+\begin{exercise}
+An algorithm has one-sided error with success probability $p = 0.01$. How many
+repetitions are needed to push the failure probability below $10^{-9}$?
+\end{exercise}
+
+\begin{exercise}
+Why is there no useful analogue of \cref{lem:amplification} for an algorithm
+that may err in \emph{both} directions with probability $1/2$ each? What is the
+right notion of amplification there?
+\end{exercise}
+
+\begin{exercise}
+\Cref{alg:colour-coding-1} keeps the arcs with $c(v) = c(u)+1$. What happens if
+we keep the arcs with $c(v) > c(u)$ instead? Is the graph still acyclic, and
+what does that do to the analysis?
+\end{exercise}
+
+\begin{exercise}
+Adapt \cref{lem:colourful-dp} to find a colourful path of exactly $k$ vertices
+\emph{between two given vertices} $s$ and $t$.
+\end{exercise}
+
+\begin{exercise}
+Show that colour coding also solves the problem of finding a $k$-vertex cycle,
+and that it solves \lang{Directed $k$-Path} on undirected graphs.
+\end{exercise}
+
+\begin{exercise}
+Verify the optimisation in \cref{thm:schoening}: show that
+$2^{1-H(\alpha)}k^{\alpha}$ is minimised at $\alpha = 1/(k+1)$ and that the
+minimum is $2k/(k+1)$.
+\end{exercise}
+
+\begin{exercise}
+\Cref{lem:fvs-half-edges} needs minimum degree three. Give a multigraph of
+minimum degree two and a feedback vertex set of it for which the conclusion
+fails.
+\end{exercise}
+
+\begin{exercise}
+In \cref{alg:fvs}, what goes wrong if the random vertex is chosen uniformly
+from $V$ instead of via a random edge?
+\end{exercise}
+
+\begin{exercise}
+\Cref{prop:2-list-colouring} reduces to $2$-SAT. Show that the corresponding
+statement for lists of size three is false unless $\mathrm{P} = \mathrm{NP}$.
+\end{exercise}
+
+\begin{exercise}
+Generalise \cref{thm:randomized-3col}: give a randomized one-sided error
+algorithm for $q$-colouring, and work out its running time as a function of
+$q$. For which $q$ does it beat the $\Ostar(2^n)$ algorithm of
+\cref{ch:exact-ii}?
+\end{exercise}

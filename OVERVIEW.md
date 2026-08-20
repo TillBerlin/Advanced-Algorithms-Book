@@ -119,9 +119,9 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | --- | --- | --- | --- | --- | --- |
 | 15 | Parameterized Algorithms I | `15-fpt-i.tex` | W7 Thu | Parameterized Complexity | ✅ drafted; 3 figure placeholders |
 | 16 | Treewidth | `16-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
-| 17 | Complexity Theory for Approximation and Parameterization | `17-hardness-of-approximation-and-fpt.tex` | W9 Tue | L-reduction, Complexity for Approximation and FPT | 🔲 |
+| 17 | Complexity Theory for Approximation and Parameterization | `17-hardness-of-approximation-and-fpt.tex` | W9 Tue | L-reduction, Complexity for Approximation and FPT | ✅ drafted; 2 figure placeholders |
 | 18 | Kernelization | `18-kernelization.tex` | W9 Thu (FPT 2) | Vertex Cover Kernel (first half) | 🔲 |
-| 19 | Randomized Algorithms | `19-randomized-algorithms.tex` | W9 Thu | Vertex Cover Kernel (second half), Directed k-Path | 🔲 |
+| 19 | Randomized Algorithms | `19-randomized-algorithms.tex` | W9 Thu | Vertex Cover Kernel (second half), Directed k-Path | ✅ drafted; 2 figure placeholders |
 
 ### Appendices
 
@@ -253,46 +253,36 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after chapters 10, 11 and 12. Six `\todo` markers and 71
-`\figplaceholder` boxes remain, over 254 pages.
+Re-audited after chapters 17 and 19. **Four `\todo` markers** and 75
+`\figplaceholder` boxes remain, over 273 pages.
 
 ### Chapters not yet written
 
-All four now have what they need. The two decks that were missing arrived on
-2026-08-20.
+| # | Chapter | Source |
+| --- | --- | --- |
+| 18 | Kernelization | ✅ `aa-fpt.pdf` 67–83 — Nemhauser–Trotter, cluster editing kernel |
+| 1 | Introduction | none needed; write last, once the notation has settled |
 
-| # | Chapter | Source | Notes |
-| --- | --- | --- | --- |
-| 17 | Complexity for Approximation and Parameterization | ✅ `FPT and Approximation Complexity.pptx`, 50 slides | **Newly supplied** — was the one real blocker |
-| 18 | Kernelization | ✅ `aa-fpt.pdf` 67–83 | Nemhauser–Trotter, cluster editing kernel |
-| 19 | Randomized Algorithms | ✅ `an-randomized2122(1).pptx`, 18 slides | **Newly supplied**; the `O(1.5^n)` 3-colouring was lectured at the blackboard, so check whether the deck has it |
-| 1 | Introduction | no deck, none needed | Write last, once the notation has settled |
+That is the whole list. Every other chapter is drafted.
 
 ### Other open work
 
-- **71 figure placeholders.** Chapters 2 and 5 hold 18 each, so those two are
-  half of the total. The ones that carry argument rather than
-  decoration are listed per chapter under *Open work in drafted chapters*.
-- **Five uploaded figures are in `book/figures/` but used nowhere**, all from
-  the ∃R material: `er-annulus`, `er-different-embedding`,
-  `er-non-parallel-addition`, `er-staudt-construction` (5 pages) and
-  `etr-cube-poset` (2 pages). They were drawn for passages that have since been
-  cut or moved — the von Staudt construction and the partial order type problem
-  in particular. They should either be placed or deleted; leaving them is how a
-  figures folder rots.
-- **Appendix B** is deliberately deferred: it will be written from what the
-  finished chapters actually use, and it will not repeat set theory. The policy
-  is recorded in the file.
+- **75 figure placeholders**, and this is now by far the largest item. Chapters
+  2 and 5 hold 18 each. They need drawing; nothing else is blocking.
+- **Five uploaded figures are unused**: `er-annulus`,
+  `er-different-embedding`, `er-non-parallel-addition`,
+  `er-staudt-construction`, `etr-cube-poset`. Place or delete.
+- **Appendix B** — a notation appendix, written from what the finished chapters
+  actually use, at the end. No set theory.
 - **The preface** needs its acknowledgements, at the end.
 
-### Settled, no longer open
+### One gap worth naming
 
-- **Euler tours are out.** The section, the chapter-2 goal and the first item of
-  the *Stable Matchings* pool question are gone. Christofides' algorithm in
-  chapter 13 was the one place that relied on them; it now states the fact it
-  needs in one sentence.
-- **The ETH/SETH pool item** moved off chapter 11's question, which is where it
-  used to sit, onto the two new questions of chapter 12.
+The pool question *Vertex Cover Kernel* has four items. Items 3 and 4 — 2-list
+colouring and the randomized `O(1.5^n)` 3-colouring — are **not in any deck**;
+they were lectured at the blackboard. They are now written in §19.5 from the
+literature, using the random-two-colour-lists argument, which gives exactly
+`(3/2)^n`. Worth checking against what was actually lectured.
 
 ## Source material
 
@@ -335,6 +325,52 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 17 — Complexity for Approximation and Parameterization
+
+- Written from the newly supplied deck (50 slides), which is two lectures:
+  parameterized complexity and reductions on 1–30, approximation complexity on
+  31–50. Both halves are conditional non-existence proofs, and the chapter is
+  built around that parallel.
+- The parameterized half is the deck's chain of three reductions —
+  clique → clique on regular graphs → multicoloured clique → dominating set —
+  all given in full. The instructive failure is included: the polynomial
+  reduction from independent set to vertex cover is not a parameterized one,
+  because the parameter becomes `n − k`.
+- The approximation half: APX-completeness, the PCP theorem as a black box,
+  L-reductions with the PTAS-preservation proof, Max 3-SAT ≤ Max 2-SAT
+  (a = 13, b = 1), and Max 2-SAT ≤ Max IS (a = b = 1), which closes the loop
+  chapter 14 left open.
+- **The pool exercise is worked**: Max Cut on multigraphs is APX-hard, by
+  L-reduction from Max NAE-3SAT with a = 14, b = 1/2. Two design decisions
+  carry it and are called out in the text — the two-literal clause gadget is
+  *doubled* so every satisfied clause contributes the same amount, and the
+  consistency multiplicity is `2·occ(x)`: large enough that inconsistency never
+  pays, small enough that the total stays proportional to `OPT` so that `a`
+  remains a constant.
+- **The pool question was rewritten** from five vague items to eleven that
+  follow the deck. The old item 5 asked for an ETH-based parameterized lower
+  bound; that belongs to chapter 12 and was dropped.
+
+### Chapter 19 — Randomized Algorithms
+
+- Written from the newly supplied deck (18 slides): one-sided error and
+  amplification, Stirling, colour coding for `k`-path in `k^k` and then
+  `(2e)^k`, Schöning, feedback vertex set in `4^k`.
+- **§19.5 is not from the deck.** The pool question *Vertex Cover Kernel* asks
+  for 2-list colouring and a randomized `O(1.5^n)` 3-colouring, and neither is
+  in any slides — that was blackboard material. It is written here from the
+  literature: 2-list colouring is 2-SAT in disguise, and drawing a random
+  two-element colour list per vertex keeps a fixed proper colouring alive with
+  probability `(2/3)^n`, so `(3/2)^n` rounds suffice. **Check this against what
+  was actually lectured.**
+- The two colour-coding algorithms are presented as a trade rather than as an
+  improvement: the first demands the path's colours come out in order
+  (probability `k^-k`, polynomial subroutine), the second only demands
+  distinctness (probability `e^-k`, `2^k` subroutine). The product is what
+  matters.
+- Schöning is a proof sketch — the entropy estimate for the binomial sum is
+  quoted rather than proved.
 
 ### Chapters 10 and 11 — Exact Exponential-Time Algorithms
 

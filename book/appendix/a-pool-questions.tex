@@ -674,18 +674,35 @@ from \textsc{Max Not-All-Equal 3-SAT}.
 
 \paragraph{Complexity for Approximation and FPT.}
 This set of questions captures the learning goals of the chapter that are not
-covered by
-the exercise above.
+covered by the exercise above.
 \begin{enumerate}
-  \item Define the class APX and the notion of an approximation-preserving
-        reduction.
-  \item Define an L-reduction, and show that L-reductions compose and preserve
-        constant-factor approximability.
-  \item State the PCP theorem and explain how it is used to prove
-        inapproximability results.
-  \item Define the W-hierarchy and W[1]-hardness, and give a W[1]-hard problem.
-  \item Derive a parameterized lower bound from the Exponential Time
-        Hypothesis.
+  \item Explain what a conditional non-existence proof is, and say what an
+        NP-hardness proof does and does not establish.
+  \item Define FPT and XP, state the inclusions
+        $\mathrm{FPT} \subseteq \mathrm{W}[1] \subseteq \cdots \subseteq
+        \mathrm{XP}$, and explain why ``\textsc{Clique} is not in FPT'' is
+        equivalent to $\mathrm{FPT} \ne \mathrm{W}[1]$.
+  \item Define a parameterized reduction, and prove that if $B$ is in FPT and
+        $A$ reduces to $B$ then $A$ is in FPT.
+  \item Show that, assuming $\mathrm{FPT} \ne \mathrm{W}[1]$,
+        \textsc{Independent Set} is not in FPT. Explain why the same argument
+        does not apply to \textsc{Vertex Cover}, which is in FPT.
+  \item Give the parameterized reduction from \textsc{Clique} to
+        \textsc{Clique on Regular Graphs}, and prove all three conditions.
+  \item Give the parameterized reduction from \textsc{Clique on Regular Graphs}
+        to \textsc{Multicoloured Clique on Regular Graphs}, and prove all three
+        conditions.
+  \item Give the parameterized reduction from \textsc{Multicoloured Independent
+        Set} to \textsc{Dominating Set}, and explain what each of the two kinds
+        of gadget enforces.
+  \item Define the class APX and APX-completeness, and state what the PCP
+        theorem contributes.
+  \item Define an L-reduction, and prove that L-reductions compose and that
+        they preserve the existence of a PTAS.
+  \item Give the L-reduction from \textsc{Max 3-SAT} to \textsc{Max 2-SAT} and
+        conclude that \textsc{Max 2-SAT} is APX-complete.
+  \item Give the L-reduction from \textsc{Max 2-SAT} to \textsc{Maximum
+        Independent Set} and conclude that maximum independent set has no PTAS.
 \end{enumerate}
 
 \subsection*{Kernelization and Randomized Algorithms (\cref{ch:kernelization})}

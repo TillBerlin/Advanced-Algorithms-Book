@@ -1,62 +1,863 @@
 %% Chapter 15: Treewidth
-%% Status: skeleton -- learning goals and section outline fixed, prose to be written.
+%% Status: drafted; figures are still placeholders.
+%%
+%% Written against "material/slides/Treewidth 2026.pptx" (Johan van Rooij),
+%% slides 1-65.  Slides 66-69 are marked "Bonus Topic" in the deck and carry no
+%% worked content; they are mentioned in the notes and nowhere else.
+%%
+%% The two pool exercises -- treewidth of grids, and cliques living in one bag
+%% -- are worked in the section on separators.
 
 \chapter{Treewidth}
 \label{ch:treewidth}
 
-Trees are easy. Treewidth measures how far a graph is from being a tree, and
-almost every problem that is easy on trees stays easy on graphs of bounded
-treewidth. This is the single most useful structural parameter in the book.
+Trees are easy. Independent set, dominating set, colouring, Hamiltonian cycle
+--- all \textrm{NP}-hard in general --- are solved on a tree by one bottom-up
+pass, and the reason is always the same: a vertex separates its subtree from the
+rest of the graph, so what happens above it and what happens below it interact
+only through the vertex itself. Treewidth is what you get when you insist on
+that property and ask how far a graph is from having it. It is the most useful
+structural parameter in this book, and this chapter is about both halves of its
+use: what it is, and how to compute with it.
 
 \begin{goals}
-  \poolgoal{27.1}{define tree decompositions and treewidth}
-  \poolgoal{27.2}{determine the treewidth of trees, cycles and series--parallel graphs}
-  \poolgoal{17}{show that for any tree decomposition of $G$ some bag contains every clique of $G$, and conclude that the treewidth of $G$ is at least $|C|-1$}
-  \poolgoal{16}{show, by constructing a tree decomposition, that the treewidth of a $p$ by $q$ grid graph with $p \le q$ is at most $p$}
-  \poolgoal{27.3}{design dynamic programming algorithms over a nice tree decomposition}
-  \poolgoal{27.4}{state Courcelle's theorem and explain what it does and does not give you}
+  \poolgoal{define tree decompositions and treewidth}
+  \poolgoal{determine the treewidth of trees, cycles and series--parallel
+        graphs}
+  \poolgoal{show that for any tree decomposition of $G$ some bag contains every
+        clique of $G$, and conclude that the treewidth of $G$ is at least
+        $|C|-1$}
+  \poolgoal{show, by constructing a tree decomposition, that the treewidth of a
+        $p$ by $q$ grid graph with $p \le q$ is at most $p$}
+  \poolgoal{define a nice tree decomposition and describe the transformation of
+        an arbitrary tree decomposition into one}
+  \poolgoal{design dynamic programming algorithms over a nice tree
+        decomposition, and analyse them}
+  \poolgoal{state Courcelle's theorem and explain what it does and does not give
+        you}
+  \goalitem{state the two alternative characterisations of treewidth --- by
+        $k$-boundary graphs and by the cops-and-robber game}
+  \goalitem{say what is known about computing a tree decomposition}
+  \goalitem{bound the treewidth of series--parallel graphs, of graphs of
+        maximum degree three and of planar graphs, and use those bounds to get
+        algorithms}
 \end{goals}
 
+%==============================================================================
+\section{Dynamic programming on trees}
+\label{sec:dp-on-trees}
+%==============================================================================
+
+Before defining anything, it is worth seeing the algorithm the whole chapter
+generalises. The problem is the weighted version of independent set.
+
+\begin{probdef}{Maximum Weight Independent Set}
+  \instance A graph $G = (V,E)$ and a weight $\omega(v) \in \N$ for each vertex.
+  \question An independent set --- a set of vertices no two of which are
+  adjacent --- of maximum total weight.
+\end{probdef}
+
+Suppose $G$ is a tree, rooted anywhere. Write $T[v]$ for the subtree rooted at
+$v$ and $\mathrm{ch}(v)$ for the children of $v$. The one thing worth knowing
+about $T[v]$, as far as the rest of the tree is concerned, is the best weight
+achievable inside it --- and that depends on the outside only through whether
+$v$ itself is taken. So define
+\[ A[v] = \text{the maximum weight of an independent set of } T[v], \]
+and split on the two cases at $v$. If $v$ is not taken, the children are
+unconstrained. If $v$ is taken, the children are excluded and the
+grandchildren are unconstrained. That gives
+
+\begin{equation}\label{eq:tw-tree-dp}
+  A[v] \;=\;
+  \begin{cases}
+    \omega(v) & \text{if } T[v] \text{ is a single node,} \\[4pt]
+    \max\Bigl\{\;
+      \displaystyle\sum_{c \,\in\, \mathrm{ch}(v)} A[c],
+      \quad
+      \omega(v) + \!\!\!\displaystyle\sum_{\substack{c_1 \in \mathrm{ch}(v) \\
+                                          c_2 \in \mathrm{ch}(c_1)}}\!\!\! A[c_2]
+    \;\Bigr\} & \text{otherwise.}
+  \end{cases}
+\end{equation}
+
+Evaluating this bottom-up touches every vertex a constant number of times, so
+the running time is $\bigoh{n}$.
+
+\begin{intuition}
+The table $A$ is small because the interface between $T[v]$ and the rest of the
+graph is a single vertex, so there are only two cases to remember: $v$ in, $v$
+out. Everything in this chapter follows from asking what happens when the
+interface is a set of $k$ vertices instead of one. The table then has $2^k$
+entries rather than $2$ --- still a constant if $k$ is --- and the algorithm
+still runs in linear time in $n$.
+\end{intuition}
+
+%==============================================================================
+\section{From trees to graphs: four operations}
+\label{sec:tw-four-operations}
+%==============================================================================
+
+Take an arbitrary graph $G$ and imagine building it up a vertex at a time. At
+every moment the vertices fall into three classes: those already \emph{done},
+those still \emph{to do}, and a \emph{separator} between them --- a set $S$ such
+that no edge joins a done vertex to a to-do vertex. The partial solutions worth
+remembering are indexed by what the solution does on $S$, and nothing else:
+two partial solutions that agree on $S$ are interchangeable as far as the rest
+of the graph is concerned.
+
+So we carry a table indexed by the $2^{|S|}$ subsets of $S$, whose entry is the
+best value of a partial solution on the done part that meets $S$ in that
+subset. Four operations suffice to build any graph this way, and each one says
+what happens to the table.
+
+\begin{description}[leftmargin=1.2em,style=nextline]
+  \item[New graph (leaf).] Start with a single vertex, which forms the
+        separator by itself. The table has two entries: the vertex in the
+        solution, or not.
+  \item[Introduce a vertex.] Move a vertex $v$ from ``to do'' into the
+        separator. Every existing entry splits in two, according to whether $v$
+        joins the solution, and the entries that would put $v$ next to a
+        separator vertex already in the solution are struck out.
+  \item[Forget a vertex.] Move a vertex $v$ from the separator into ``done''.
+        This is only legal when every neighbour of $v$ is already done or in the
+        separator, since afterwards $v$ can never be looked at again. The two
+        entries that differ only in $v$ are merged by taking the better one.
+  \item[Join.] Two parts of the graph that share the same separator are merged.
+        Entries with the same subset of $S$ are combined, taking care not to
+        count the separator twice.
+\end{description}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{6cm}{Four panels showing one small graph part-way built: the
+done part shaded, the to-do part in outline, the separator ringed, and the table
+beside it. One panel per operation --- new graph, introduce, forget, join ---
+with the table before and after.}
+\caption{The four operations. The graph grows and the separator moves across it;
+the table is always indexed by what the solution does on the separator.}
+\label{fig:tw-four-operations}
+\end{figure}
+
+Repeat until every vertex is done: nothing is left to do, the separator is
+empty, and the single remaining table entry is the answer. The tree structure
+along which the operations were applied is exactly what the next section
+defines, and \cref{sec:dp-on-trees} was this algorithm on a tree, with the
+separator a single vertex, all along.
+
+%==============================================================================
 \section{Tree decompositions}
 \label{sec:tree-decompositions}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: Definition, the three conditions, and first examples.
+The bookkeeping of the previous section needs a name. What we were carrying was
+a tree whose nodes hold sets of vertices, and the conditions those sets must
+satisfy are exactly the ones that make the separator argument valid.
 
-\section{Bags as separators}
+\begin{definition}[Tree decomposition]\label{def:tree-decomposition}
+A \emph{tree decomposition} of a graph $G = (V,E)$ is a tree $T$ together with a
+set $X_i \subseteq V$ for every node $i$ of $T$, called the \emph{bag} of $i$,
+such that
+\begin{enumerate}[label=(\roman*),leftmargin=*]
+  \item every vertex of $G$ is in some bag;
+  \item for every edge $\{v,w\} \in E$ there is a bag containing both $v$ and
+        $w$;
+  \item for every vertex $v \in V$, the nodes whose bags contain $v$ form a
+        connected subtree of $T$.
+\end{enumerate}
+\end{definition}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5.5cm}{A graph on eight vertices $a,\dots,h$ beside a tree
+decomposition of it: a tree of bags, with one vertex highlighted in the graph
+and the connected subtree of bags containing it highlighted alongside.}
+\caption{A graph and a tree decomposition of it. Condition~(iii) is the one to
+check on a picture: the bags containing any fixed vertex must form a connected
+piece of the tree.}
+\label{fig:tw-decomposition}
+\end{figure}
+
+\begin{definition}[Width, treewidth]\label{def:treewidth}
+The \emph{width} of a tree decomposition is $\max_{i \in T} |X_i| - 1$. The
+\emph{treewidth} $\tw(G)$ of a graph $G$ is the minimum width over all its tree
+decompositions.
+\end{definition}
+
+The $-1$ looks arbitrary and is not. It is there so that trees come out with
+treewidth exactly $1$, which is the convention everyone wants; without it every
+statement about treewidth would carry a stray $+1$.
+
+\begin{proposition}\label{prop:tw-trees}
+Every tree has treewidth $1$, and every graph with at least one edge has
+treewidth at least $1$.
+\end{proposition}
+
+\begin{proof}
+Let $T$ be a tree, rooted at any node $r$. Put $X_r = \{r\}$ and, for every
+other node $i$, $X_i = \{i, \mathrm{parent}(i)\}$. Every bag has size at most
+$2$, so the width is $1$. The three conditions hold: every vertex is in its own
+bag; every edge $\{i,\mathrm{parent}(i)\}$ is inside $X_i$; and the bags
+containing a fixed vertex $v$ are $X_v$ together with the bags of the children
+of $v$, which form a connected piece of the tree around $v$.
+
+Conversely a decomposition of width $0$ has all bags of size at most one, so by
+condition~(ii) the graph has no edges.
+\end{proof}
+
+\begin{example}[Cycles]\label{ex:tw-cycle}
+A cycle $v_1 v_2 \cdots v_n v_1$ has treewidth $2$. For the upper bound take a
+path of $n-2$ nodes with bags $\{v_1, v_i, v_{i+1}\}$ for $i = 2, \ldots, n-1$:
+every edge of the cycle appears in some bag, including the closing edge
+$\{v_n,v_1\}$, and the bags containing $v_1$ are all of them. For the lower
+bound, a graph of treewidth $1$ is a forest, by the argument of
+\cref{prop:tw-trees}, and a cycle is not.
+\end{example}
+
+%==============================================================================
+\section{Bags are separators}
 \label{sec:bags-separators}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: The separator property, and the fact that every clique lives inside a single bag.
+Condition~(iii) of \cref{def:tree-decomposition} is the one that does the work,
+and this section says what it buys. Everything else in the chapter --- the
+correctness of the dynamic programming, the lower bounds on treewidth --- is a
+consequence.
 
-\section{Treewidth of grids}
-\label{sec:treewidth-grids}
+\begin{lemma}[Separator property]\label{lem:tw-separator}
+Let $(T, \{X_i\})$ be a tree decomposition of $G$ and let $i$ be a node of $T$.
+Removing $i$ from $T$ leaves several subtrees. If $v$ and $w$ are vertices
+outside $X_i$ occurring in bags of two different subtrees, then every path from
+$v$ to $w$ in $G$ passes through a vertex of $X_i$.
+\end{lemma}
 
-\todo{Write this section.}
-% Planned content: An explicit decomposition of the $p \times q$ grid of width $p$, and the matching lower bound.
+\begin{proof}
+It is enough to prove that $v$ and $w$ are not adjacent, and then apply that to
+each edge of the path in turn.
 
+Suppose $\{v,w\} \in E$. By condition~(ii) some bag $X_j$ contains both. The
+node $j$ lies in one of the subtrees, say the one containing $v$'s bags. Then
+$w \in X_j$, so the subtree of bags containing $w$ meets that subtree; but by
+assumption it also meets a different one, and by condition~(iii) it is
+connected, so it must pass through the node $i$ --- that is, $w \in X_i$,
+contradicting the assumption.
+
+For a general path $v = u_0, u_1, \ldots, u_r = w$, let $u_s$ be the first
+vertex on it lying in a bag outside $v$'s subtree or in $X_i$. If $u_s \in X_i$
+we are done; otherwise $u_{s-1}$ and $u_s$ are adjacent and lie in different
+subtrees, which the previous paragraph forbids.
+\end{proof}
+
+\begin{intuition}
+Deleting a bag from the tree and its vertices from the graph splits both at
+once: the graph falls apart into pieces, and each piece inherits a tree
+decomposition from one of the subtrees. That is precisely the situation the
+four operations of \cref{sec:tw-four-operations} exploit, and it is why a
+bounded-width decomposition makes dynamic programming possible: the bag is the
+interface, and it has at most $k+1$ vertices.
+\end{intuition}
+
+Now two consequences, both of which are pool exercises.
+
+\begin{proposition}[Cliques live in one bag]\label{prop:tw-clique}
+Let $C$ be a clique of $G$. Then every tree decomposition of $G$ has a bag $X_i$
+with $C \subseteq X_i$. Consequently $\tw(G) \ge |C| - 1$.
+\end{proposition}
+
+\begin{proof}
+For each $v \in C$ let $T_v$ be the subtree of nodes whose bags contain $v$; by
+condition~(iii) it is a subtree, and by condition~(i) it is non-empty. For any
+two $v,w \in C$ the edge $\{v,w\}$ lies in some bag, so $T_v$ and $T_w$
+intersect. Subtrees of a tree have the \emph{Helly property}: a family of
+pairwise intersecting subtrees has a node common to all of them. Hence some node
+$i$ lies in $T_v$ for every $v \in C$, which says $C \subseteq X_i$.
+
+The Helly property itself is a short induction. Root $T$ arbitrarily and let
+$i_v$ be the node of $T_v$ closest to the root. Take $v$ with $i_v$ deepest.
+Every other $T_w$ meets $T_v$, and since $T_w$ contains a node in the subtree
+below $i_v$ and its own topmost node $i_w$ is no deeper than $i_v$, it contains
+$i_v$ as well.
+
+Finally the bag containing $C$ has size at least $|C|$, so the width of the
+decomposition is at least $|C|-1$, and this holds for every decomposition.
+\end{proof}
+
+This is the standard way of proving a lower bound on treewidth: exhibit a large
+clique. It is also the reason a graph on $n$ vertices can have treewidth
+$n-1$ --- the complete graph does, and nothing has more.
+
+\begin{proposition}[Grids]\label{prop:tw-grid}
+Let $GR_{p \times q}$ be the $p \times q$ grid graph, with vertices $v_{i,j}$
+for $1 \le i \le p$ and $1 \le j \le q$, and edges between vertically and
+horizontally consecutive vertices. If $p \le q$ then
+$\tw(GR_{p \times q}) \le p$.
+\end{proposition}
+
+\begin{proof}
+Sweep a window of $p+1$ vertices across the grid in column-major order. Number
+the vertices $u_1, u_2, \ldots, u_{pq}$ column by column, so that
+$u_{(j-1)p + i} = v_{i,j}$, and take a path of $pq - p$ nodes with bags
+\[ X_t = \{u_t, u_{t+1}, \ldots, u_{t+p}\}, \qquad t = 1, \ldots, pq-p. \]
+Each bag has $p+1$ vertices, so the width is $p$.
+
+The conditions hold. Every vertex is in some bag, and the bags containing a
+fixed $u_t$ are those with index in $[t-p, t]$, a contiguous stretch of the
+path, hence connected. For the edges: a vertical edge joins $u_t$ and $u_{t+1}$,
+which lie together in $X_t$; a horizontal edge joins $v_{i,j}$ and $v_{i,j+1}$,
+that is $u_t$ and $u_{t+p}$, which lie together in $X_t$ as well. Every edge of
+the grid is of one of these two kinds.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{4.5cm}{A $4 \times 6$ grid with the sweeping window of five
+vertices drawn as a shaded band cutting across it in three successive
+positions.}
+\caption{The window of $p+1$ consecutive vertices sweeping across a $p \times q$
+grid. At every moment it separates the part already passed from the part still
+ahead.}
+\label{fig:tw-grid}
+\end{figure}
+
+The bound is tight --- the $p \times q$ grid has treewidth exactly $\min(p,q)$
+--- but the lower bound is harder and we do not prove it. It matters more than
+it looks: grids are the canonical graphs of large treewidth, and
+\cref{sec:tw-minors} makes that precise.
+
+%==============================================================================
 \section{Nice tree decompositions}
 \label{sec:nice-decompositions}
+%==============================================================================
 
-\todo{Write this section.}
+An arbitrary tree decomposition is awkward to program against: a node may have
+any number of children and its bag may differ from its children's bags in any
+way at all. It is convenient to insist that each node does exactly one of the
+four things of \cref{sec:tw-four-operations}, and it costs nothing to do so.
 
-\section{Dynamic programming over tree decompositions}
+\begin{definition}[Nice tree decomposition]\label{def:nice-decomposition}
+A \emph{nice tree decomposition} is a rooted tree decomposition in which every
+node $i$ is of one of four types:
+\begin{description}[leftmargin=1.2em,style=nextline,nosep]
+  \item[Leaf:] a leaf of $T$ with $|X_i| = 1$.
+  \item[Introduce:] one child $j$, with $X_i = X_j \cup \{v\}$ for a vertex
+        $v \notin X_j$.
+  \item[Forget:] one child $j$, with $X_i = X_j \setminus \{v\}$ for a vertex
+        $v \in X_j$.
+  \item[Join:] two children $j, j'$, with $X_i = X_j = X_{j'}$.
+\end{description}
+\end{definition}
+
+\begin{lemma}\label{lem:nice-decomposition}
+Every tree decomposition of width $k$ with $n$ nodes can be transformed in
+$\bigoh{n}$ time into a nice tree decomposition of the same width, with
+$\bigoh{kn}$ nodes.
+\end{lemma}
+
+\begin{proof}[Construction]
+Five steps, each preserving the three conditions of
+\cref{def:tree-decomposition} and never enlarging a bag.
+\begin{enumerate}[leftmargin=*]
+  \item Choose an arbitrary node as the root.
+  \item Give every node at most two children. A node $i$ with children
+        $j_1,\ldots,j_q$ and $q > 2$ is replaced by a binary caterpillar of
+        $q-1$ copies of $i$, all with the bag $X_i$, each carrying one of the
+        $j_t$ as its other child.
+  \item Every node with exactly two children now has the same bag as its two
+        copies, so it is already a join node.
+  \item A node $i$ with one child $j$ is replaced by a path: first forget, one
+        at a time, the vertices of $X_j \setminus X_i$, then introduce, one at
+        a time, the vertices of $X_i \setminus X_j$. Every intermediate bag is
+        contained in $X_i \cup X_j$ --- in fact in $X_j$ during the forgetting
+        and in $X_i$ during the introducing --- so no bag grows.
+  \item A leaf with bag $\{v_1,\ldots,v_r\}$ is replaced by a path of introduce
+        nodes below it, starting from the bag $\{v_1\}$.
+\end{enumerate}
+Each step adds $\bigoh{k}$ nodes per original node, giving $\bigoh{kn}$ in
+total, and each is a linear scan.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{6.5cm}{The tree decomposition of \cref{fig:tw-decomposition}
+beside its nice version, with the four node types labelled: leaf, introduce,
+forget, join.}
+\caption{A tree decomposition and a nice tree decomposition of the same graph
+and the same width.}
+\label{fig:tw-nice}
+\end{figure}
+
+%==============================================================================
+\section{Dynamic programming over a tree decomposition}
 \label{sec:tw-dp}
+%==============================================================================
 
-\todo{Write this section.}
-% Planned content: \lang{Independent Set}, \lang{Dominating Set}, and the general shape of the argument.
+Now the payoff. The recipe is always the same, and it is worth stating before
+the example so that the example reads as an instance of it rather than as a
+trick.
 
+\begin{enumerate}[leftmargin=*]
+  \item \emph{Find a tree decomposition} of width bounded by some small $k$ ---
+        either because the graphs in hand are known to have small treewidth
+        (\cref{sec:tw-graph-classes}), or by running an algorithm or heuristic
+        (\cref{sec:computing-treewidth}). Make it nice.
+  \item \emph{Decide what a partial solution must remember about a bag.} This
+        is the creative step, and it determines the size of the tables and
+        hence the running time.
+  \item \emph{Give the four rules}, one per node type, and prove each correct.
+  \item \emph{Read the answer off the root}, whose bag is empty.
+\end{enumerate}
+
+For independent set, step~2 is answered by a subset of the bag: which of its
+vertices are in the solution. For dominating set it is not, and that is why the
+following is the better example.
+
+\begin{probdef}{Weighted Dominating Set}
+  \instance A graph $G = (V,E)$ with vertex weights $\omega : V \to \N$.
+  \question A set $S \subseteq V$ of minimum total weight such that every
+  vertex is in $S$ or adjacent to a vertex of $S$.
+\end{probdef}
+
+The complication is that a vertex may be dominated by a neighbour that has not
+been looked at yet. On a tree this already shows up, and it is resolved by
+giving each vertex three states rather than two: let $A_I[v]$ be the minimum
+weight of a dominating set of $T[v]$ containing $v$; $A_D[v]$ the minimum weight
+of a set that dominates all of $T[v]$ without containing $v$; and $A_U[v]$ the
+minimum weight of a set dominating $T[v] \setminus \{v\}$, leaving the fate of
+$v$ to the parent. The recurrences are
+\begin{align*}
+  A_I[v] &= \omega(v) + \sum_{c \in \mathrm{ch}(v)} A_U[c], \\
+  A_U[v] &= \sum_{c \in \mathrm{ch}(v)} \min\bigl(A_I[c], A_D[c]\bigr), \\
+  A_D[v] &= \min_{c \in \mathrm{ch}(v)} \Bigl( A_I[c] +
+            \!\!\sum_{c' \in \mathrm{ch}(v) \setminus \{c\}}\!\!
+            \min\bigl(A_I[c'], A_D[c']\bigr) \Bigr),
+\end{align*}
+with $A_I[v] = \omega(v)$, $A_U[v] = 0$ and $A_D[v] = \infty$ at a leaf --- the
+last because a leaf not in the set has no child to dominate it. The formula for
+$A_D$ says: somebody has to dominate $v$, so pick which child does.
+
+\subsection{The same three states on a bag}
+
+Over a tree decomposition, each vertex of the bag independently carries one of
+the three states, so the table is indexed by an ordered partition of the bag.
+
+\begin{definition}\label{def:tw-ds-table}
+For a node $i$ with bag $X_i$ and a partition of $X_i$ into three sets
+$I, D, U$, let $T_i[I,D,U]$ be the minimum weight of a set $S$ of \emph{done}
+vertices such that $S \cap X_i = I$, every done vertex outside $U$ is dominated
+by $S$, and no vertex of $U$ is required to be dominated yet.
+\end{definition}
+
+There are $3^{|X_i|} \le 3^{k+1}$ entries per node --- three states per bag
+vertex, not two, which is the whole cost of the complication. The four rules:
+
+\paragraph{Leaf, $X_i = \{v\}$.}
+\[ T_i[\{v\},\emptyset,\emptyset] = \omega(v), \qquad
+   T_i[\emptyset,\{v\},\emptyset] = \infty, \qquad
+   T_i[\emptyset,\emptyset,\{v\}] = 0, \]
+exactly as at a leaf of a tree: a single vertex cannot already be dominated by
+somebody else.
+
+\paragraph{Introduce $v$, $X_i = X_j \cup \{v\}$.} Three cases by the state of
+$v$. If $v \in I$ then $v$ joins the solution and dominates its neighbours in
+the bag, so the vertices $Y = N(v) \cap D$ may have been in state $U$ before:
+\[ T_i[I,D,U] = T_j[I \setminus \{v\},\, D \setminus Y,\, U \cup Y] +
+   \omega(v). \]
+If $v \in D$ then $v$ claims to be dominated already, which is only possible if
+one of its bag neighbours is in the solution:
+\[ T_i[I,D,U] = \begin{cases}
+     T_j[I, D \setminus \{v\}, U] & \text{if } N(v) \cap I \ne \emptyset, \\
+     \infty & \text{otherwise.}
+   \end{cases} \]
+If $v \in U$ then nothing changes: $T_i[I,D,U] = T_j[I,D,U \setminus \{v\}]$.
+
+\paragraph{Forget $v$, $X_i = X_j \setminus \{v\}$.} The vertex leaves the bag
+and can never be looked at again, so its state must be settled: it is either in
+the solution or dominated. State $U$ is not allowed to survive.
+\[ T_i[I,D,U] = \min\bigl\{\, T_j[I \cup \{v\}, D, U],\;
+                            T_j[I, D \cup \{v\}, U] \,\bigr\}. \]
+
+\paragraph{Join, $X_i = X_j = X_{j'}$.} Both children have solved their side of
+the graph. A bag vertex in state $I$ is in both solutions and its weight would
+be counted twice; a bag vertex in state $U$ is unresolved on both sides; but a
+vertex in state $D$ need only be dominated on \emph{one} of the two sides, so we
+must try both ways round. Writing $D = D_j \uplus D_{j'}$ for a partition of $D$
+into two disjoint parts,
+\[ T_i[I,D,U] \;=\; \min_{D = D_j \uplus D_{j'}}
+   \Bigl( T_j[I, D_j, U \cup D_{j'}] + T_{j'}[I, D_{j'}, U \cup D_j] \Bigr)
+   \;-\; \omega(I). \]
+
+\begin{theorem}\label{thm:tw-dominating-set}
+Given a tree decomposition of width $k$, \lang{Weighted Dominating Set} can be
+solved in $\bigoh{4^k \poly(k)\, n}$ time and $\bigoh{3^k \poly(k)\, n}$ space.
+\end{theorem}
+
+\begin{proof}
+Correctness is the four rules above, each an immediate consequence of
+\cref{lem:tw-separator}: a vertex that has been forgotten has all its
+neighbours among the done vertices and the bag, so its domination status can
+never change again.
+
+For the running time, every node but the join nodes does $\bigoh{3^k}$ work.
+A join node loops, for each of the $3^{k+1}$ entries, over all partitions of $D$
+into two parts. Summing over all entries, the number of (entry, partition) pairs
+is the number of ways to give each bag vertex one of the states
+$I, U, D_j, D_{j'}$, that is $4^{k+1}$.
+\end{proof}
+
+\begin{intuition}
+The gap between $3^k$ space and $4^k$ time sits entirely in the join. It looks
+unavoidable --- the sum over subsets is a convolution and the naive way to
+compute a convolution is to enumerate the pairs --- but it is not:
+\citet{VanRooijBodlaenderRossmanith2009} evaluate the join by fast subset
+convolution and bring the running time to $\Ostar(3^k)$, matching the space.
+And that is the end of the road: \citet{LokshtanovMarxSaurabh2018} show that an
+$\bigoh{(3-\varepsilon)^k}$ algorithm for dominating set would refute the strong
+exponential time hypothesis. The three states are not an artefact of the
+presentation; they are the truth about the problem.
+\end{intuition}
+
+%==============================================================================
+\section{Two other characterisations}
+\label{sec:tw-characterisations}
+%==============================================================================
+
+Treewidth has several equivalent definitions that look nothing like each other,
+which is usually the sign of a robust notion. Two are worth knowing, one because
+it is how the dynamic programming really works and one because it is how people
+think about lower bounds.
+
+\subsection{\texorpdfstring{Building the graph: $k$-boundary graphs}{Building the graph: k-boundary graphs}}
+
+A \emph{$k$-boundary graph} is a triple $G = (V,E,B)$ with $B \subseteq V$ and
+$|B| = k$; the vertices of $B$ are the \emph{boundary}. Four operations build
+boundary graphs out of smaller ones:
+\begin{enumerate}[leftmargin=*,nosep]
+  \item take the $1$-boundary graph consisting of a single boundary vertex;
+  \item add a new boundary vertex, with edges only to existing boundary
+        vertices;
+  \item make a boundary vertex normal;
+  \item glue two $l$-boundary graphs along their boundaries.
+\end{enumerate}
+These are the leaf, introduce, forget and join of
+\cref{def:nice-decomposition}, in that order, and the correspondence is exact:
+the treewidth of $G$ is the least $k$ such that $G$ can be built using only
+$l$-boundary graphs with $l \le k+1$. Operation~2 is where the requirement that
+new edges go only to the boundary bites, and it is the reason a nice tree
+decomposition may introduce a vertex only after all of its future neighbours
+are in the bag or still to come.
+
+\subsection{Cops and robber}
+
+The second characterisation replaces the bags by a pursuit game. It is the one
+people reach for when they want to \emph{see} a bound rather than prove one.
+
+\begin{definition}[The cops-and-robber game]\label{def:cops-robber}
+$k$ cops chase a robber on a graph $G$. Everyone sees everything. In each turn
+the cops announce which vertices they will occupy and fly there by helicopter;
+the robber, who moves infinitely fast along edges but may not pass through an
+occupied vertex, then moves anywhere still reachable. The cops win if they
+eventually land on the robber.
+\end{definition}
+
+\begin{theorem}[\citet{SeymourThomas1993}]\label{thm:cops-robber}
+$k+1$ cops can win on $G$ if and only if $\tw(G) \le k$.
+\end{theorem}
+
+We do not prove this; the hard direction is genuinely hard. But it is a useful
+way to \emph{estimate} treewidth, because the strategies are concrete. On a
+tree two cops suffice: one stands on a vertex, the other on the neighbour into
+whose component the robber has fled, and the robber's territory shrinks every
+turn. On the $l \times l$ grid, $l$ cops can hold one row and sweep, and $l$
+cops are needed --- which recovers the lower bound of \cref{prop:tw-grid}
+without any bag-counting.
+
+%==============================================================================
+\section{Computing a tree decomposition}
+\label{sec:computing-treewidth}
+%==============================================================================
+
+Step~1 of the recipe assumed a decomposition of small width was available.
+Getting one is a problem in its own right.
+
+\begin{theorem}[\citet{ArnborgCorneilProskurowski1987}]\label{thm:treewidth-npc}
+Deciding whether a given graph has treewidth at most $k$, with $k$ part of the
+input, is \textrm{NP}-complete.
+\end{theorem}
+
+\begin{theorem}[\citet{Bodlaender1996}]\label{thm:bodlaender}
+For every fixed $k$ there is an algorithm that, in $\bigoh{n}$ time, either
+outputs a tree decomposition of $G$ of width at most $k$ or reports that
+$\tw(G) > k$.
+\end{theorem}
+
+So treewidth is fixed-parameter tractable in itself, and the linear running
+time is best possible in $n$. The catch is the constant: it is
+$2^{\Theta(k^3)}$, which makes the algorithm unusable for any $k$ one would
+actually meet. In practice one uses something else --- exact algorithms that are
+fast on the instances that arise, of which the best current one is due to
+Tamaki, or simple heuristics such as repeatedly eliminating a vertex of minimum
+degree, which give a decomposition with no guarantee but often a good one. For
+$k \le 4$ there are direct practical algorithms.
+
+%==============================================================================
 \section{Courcelle's theorem}
 \label{sec:courcelle}
+%==============================================================================
 
-\todo{Write this section.}
+Every dynamic programming algorithm in this chapter followed the same recipe,
+which raises the question of whether the recipe can be automated. It can.
 
-\section{Computing treewidth}
-\label{sec:computing-treewidth}
+\begin{theorem}[\citet{Courcelle1990}]\label{thm:courcelle}
+Every graph property definable in monadic second-order logic can be decided in
+time $f(k) \cdot n$ on graphs given with a tree decomposition of width $k$.
+\end{theorem}
 
-\todo{Write this section.}
+Monadic second-order logic allows quantification over vertices, edges, sets of
+vertices and sets of edges, together with adjacency and incidence. That is
+enough to express $3$-colourability ($\exists$ three vertex sets, partitioning
+$V$, each independent), Hamiltonicity, dominating set, and essentially every
+property in this book. So the theorem says: if a problem can be \emph{stated}
+in that language, it is linear-time solvable for fixed treewidth, and no
+algorithm needs to be designed at all.
 
+Two warnings, and they are why the rest of the chapter is not redundant. First,
+linear time means linear in $n$, not in $k$: the function $f$ is a tower of
+exponentials in the size of the formula, and unavoidably so. Second, the
+theorem gives existence, not a usable algorithm. The
+$\Ostar(3^k)$ dominating set algorithm mentioned in
+\cref{thm:tw-dominating-set} is not a consequence of Courcelle's theorem and
+could not be: every efficient treewidth algorithm anyone actually runs is
+hand-designed.
+
+%==============================================================================
+\section{Graph classes of bounded treewidth}
+\label{sec:tw-graph-classes}
+%==============================================================================
+
+Treewidth is only useful if the graphs one cares about have small treewidth, or
+at least treewidth small enough to beat the trivial algorithm. Three examples,
+of increasing strength.
+
+\subsection{Series--parallel graphs}
+
+A \emph{series--parallel graph} is built from single edges by two operations:
+placing two such graphs in series, identifying the second terminal of one with
+the first terminal of the other, and placing them in parallel, identifying both
+terminals. The name comes from electrical circuits, where the two operations are
+exactly the two rules for combining resistances, and the tree recording how the
+circuit was built is what one evaluates to compute the total resistance.
+
+\begin{proposition}\label{prop:tw-series-parallel}
+Series--parallel graphs have treewidth at most $2$.
+\end{proposition}
+
+The proof is the natural one --- turn the construction tree into a tree
+decomposition, with the two terminals of each subgraph in the corresponding bag
+--- and is left as \cref{ex:tw-series-parallel}. The same bound holds for
+\emph{generalised} series--parallel graphs, which allow trees to grow out of any
+vertex. Consequently everything that is linear-time on trees is linear-time on
+series--parallel graphs.
+
+\subsection{Graphs of maximum degree three}
+
+Bounded degree does not bound treewidth outright --- there are graphs of degree
+three with treewidth $\Theta(n)$ --- but it does push it below $n$ by a
+constant factor, and that is already worth an algorithm.
+
+\begin{theorem}[\citet{FominHoie2006}]\label{thm:fomin-hoie}
+For every $\varepsilon > 0$ there is an $n_\varepsilon$ such that every graph on
+$n > n_\varepsilon$ vertices with maximum degree at most three has pathwidth at
+most $(1/6 + \varepsilon)n$, and a path decomposition of that width can be
+computed in polynomial time.
+\end{theorem}
+
+A \emph{path decomposition} is a tree decomposition whose tree is a path; a nice
+path decomposition is a nice tree decomposition without join nodes. Combining
+the theorem with \cref{thm:tw-dominating-set} gives an exact exponential-time
+algorithm for a problem that has nothing to do with treewidth on the face of
+it: dominating set on a cubic graph is solved in
+$\bigoh{3^{(1/6+\varepsilon)n}} = \bigoh{1.2010^n}$ time by choosing
+$\varepsilon$ small enough. Compare the trivial $\Ostar(2^n)$ of
+\cref{ch:exact-i}.
+
+\subsection{Planar graphs}
+
+The most useful of the three bounds, and the one that pays back the work of
+\cref{ch:planar}.
+
+\begin{theorem}\label{thm:tw-planar}
+Every planar graph on $n$ vertices has treewidth $\bigoh{\sqrt n}$.
+\end{theorem}
+
+\begin{proof}
+By the planar separator theorem of \cref{ch:planar}, every planar graph on $n$
+vertices has a separator of at most $2\sqrt{2n}$ vertices whose removal leaves
+components of at most $2n/3$ vertices each. Let $T(n)$ be the largest treewidth
+of a planar graph on $n$ vertices; we show $T(n) \le 100\sqrt n$ by induction.
+
+For small $n$ the claim holds outright, since $T(n) \le n-1 \le 100\sqrt n$ for
+$n$ up to $10{,}000$. For larger $n$, take the separator $S$, decompose each
+component recursively, and add $S$ to every bag: this is a tree decomposition
+of the whole graph, and its width is at most $|S| + T(2n/3)$. Hence
+\[ T(n) \;\le\; 2\sqrt{2n} + T(2n/3) \;\le\; 2\sqrt{2n} + 100\sqrt{2n/3}
+        \;\le\; 100\sqrt{n}, \]
+the last step because $2\sqrt2 + 100\sqrt{2/3} \approx 2.83 + 81.6 < 100$.
+\end{proof}
+
+With \cref{sec:tw-dp} this gives $2^{\bigoh{\sqrt n}}$ algorithms for
+independent set, dominating set and much else on planar graphs --- which is
+where \cref{ch:planar} left the matter, now with the algorithm supplied.
+
+%==============================================================================
+\section{Minors and the grid minor theorem}
+\label{sec:tw-minors}
+%==============================================================================
+
+One last property, and it is the one that makes treewidth a structural notion
+rather than an algorithmic convenience.
+
+\begin{definition}[Minor]\label{def:minor}
+A graph $H$ is a \emph{minor} of $G$ if $H$ can be obtained from $G$ by deleting
+vertices, deleting edges and contracting edges.
+\end{definition}
+
+\begin{proposition}\label{prop:tw-minor-monotone}
+If $H$ is a minor of $G$ then $\tw(H) \le \tw(G)$.
+\end{proposition}
+
+\begin{proof}
+It suffices to check the three operations. Deleting a vertex $v$: remove $v$
+from every bag. Deleting an edge: change nothing. Contracting $\{u,v\}$ into a
+new vertex $x$: replace $u$ and $v$ by $x$ in every bag containing either. The
+first two conditions are immediate; for the third, the subtrees of $u$ and of
+$v$ both contain a bag holding the edge $\{u,v\}$, so they overlap, and their
+union is connected. No bag grows.
+\end{proof}
+
+So a graph containing a large grid as a minor has large treewidth, by
+\cref{prop:tw-grid}. The remarkable fact is the converse.
+
+\begin{theorem}[Grid minor theorem, \citet{RobertsonSeymour1986}]
+\label{thm:grid-minor}
+For every $l$, every planar graph either contains the $l \times l$ grid as a
+minor or has treewidth at most $5l$. Moreover a minor model or a tree
+decomposition can be found in polynomial time. For general graphs, a graph with
+no $l \times l$ grid minor has treewidth $l^{\bigoh{1}}$.
+\end{theorem}
+
+That is a genuine dichotomy: either the graph is tree-like, or it contains a
+grid, and grids are the only obstruction. It generalises
+\cref{thm:tw-planar}, since an $l \times l$ grid minor of a planar graph needs
+$l^2 \le n$ vertices.
+
+\begin{example}[Planar $k$-path]\label{ex:planar-k-path}
+Does a planar graph contain a path on $k$ vertices? Note that a $k$-path
+survives taking minors --- if $H$ is a minor of $G$ and $H$ has a $k$-path, so
+does $G$ --- and that an $l \times l$ grid contains a path on $l^2$ vertices,
+snaking up and down its columns. So if $\tw(G) > 5\sqrt k$ then by
+\cref{thm:grid-minor} the graph has a $\sqrt k \times \sqrt k$ grid minor,
+hence a $k$-path, and the answer is yes without further work. Otherwise the
+treewidth is $\bigoh{\sqrt k}$ and dynamic programming settles it. The result is
+an algorithm running in $k^{\bigoh{\sqrt k}} n^{\bigoh{1}}$ time.
+\end{example}
+
+\begin{example}[Planar $k$-dominating set]\label{ex:planar-k-dominating}
+The same argument with the inequality reversed. A graph containing an
+$l \times l$ grid minor has no dominating set smaller than $l^2/5$, since a
+vertex of the grid dominates at most five others. So if $\tw(G) > 5\cdot
+5\sqrt k$ the answer is no, and otherwise the treewidth is $\bigoh{\sqrt k}$
+and \cref{thm:tw-dominating-set} finishes in $2^{\bigoh{\sqrt k}} n^{\bigoh{1}}$
+time.
+\end{example}
+
+The pattern in both examples --- either the treewidth is small and we compute,
+or it is large and the answer is forced --- is called \emph{bidimensionality},
+and it is the standard route to subexponential parameterized algorithms on
+planar graphs.
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:tw-further-reading}
+%==============================================================================
+
+This chapter follows Johan van Rooij's lecture slides.
+\citet[Chapter~7]{CyganEtAl2015} is the modern textbook treatment of dynamic
+programming over tree decompositions, and \citet[Chapter~11]{CyganEtAl2015}
+covers bidimensionality.
+
+\Cref{thm:treewidth-npc} is \citet{ArnborgCorneilProskurowski1987} and
+\cref{thm:bodlaender} is \citet{Bodlaender1996}.
+\Cref{thm:courcelle} is \citet{Courcelle1990} and
+\cref{thm:cops-robber} is \citet{SeymourThomas1993}. The
+$\bigoh{4^k n}$ dominating set algorithm is
+\citet{AlberBodlaenderFernauKloksNiedermeier2002}, improved to $\Ostar(3^k)$ by
+\citet{VanRooijBodlaenderRossmanith2009} and shown optimal under the strong
+exponential time hypothesis by \citet{LokshtanovMarxSaurabh2018}.
+\Cref{thm:fomin-hoie} is \citet{FominHoie2006}.
+\Cref{thm:grid-minor} is \citet{RobertsonSeymour1986}; the bound for general
+graphs was exponential in $l$ until \citet{ChekuriChuzhoy2016} made it
+polynomial.
+
+The lecture closes with a bonus discussion, not examined and not reproduced
+here, of how fast \lang{Hamiltonian Cycle} can be solved on graphs of small
+treewidth. The naive dynamic program remembers a matching on the bag and costs
+$k^{\bigoh{k}}$; the matchings connectivity matrix turns out to have rank
+$2^{k/2-1}$ over $\mathrm{GF}(2)$, which brings the running time down to
+single-exponential.
+
+%==============================================================================
 \section{Exercises}
 \label{sec:ex-treewidth}
+%==============================================================================
 
-\todo{Write this section.}
+\begin{exercise}\label{ex:tw-series-parallel}
+Prove \cref{prop:tw-series-parallel}: series--parallel graphs have treewidth at
+most $2$. Use the construction tree, and put the two terminals of each subgraph
+into the corresponding bag.
+\end{exercise}
+
+\begin{exercise}
+Determine the treewidth of the complete bipartite graph $K_{2,n}$, and of the
+$n$-vertex wheel.
+\end{exercise}
+
+\begin{exercise}
+Show that treewidth does not increase when an edge is subdivided, and give a
+graph whose treewidth strictly increases when an edge is added.
+\end{exercise}
+
+\begin{exercise}
+Write out the four rules of \cref{sec:tw-dp} for \lang{Maximum Weight
+Independent Set}, and show that the resulting algorithm runs in
+$\bigoh{2^k k n}$ time. Why is the join node easy here and hard for dominating
+set?
+\end{exercise}
+
+\begin{exercise}
+Give the four rules for $3$-colouring over a nice tree decomposition, and
+analyse the running time.
+\end{exercise}
+
+\begin{exercise}
+In \cref{lem:nice-decomposition}, step~2 duplicates a node and gives both
+copies the same bag. Check that condition~(iii) of
+\cref{def:tree-decomposition} survives this, and explain what would go wrong if
+the copies were given different bags.
+\end{exercise}
+
+\begin{exercise}
+Show that a graph of treewidth $k$ has a vertex of degree at most $k$, and
+conclude that it has at most $kn$ edges. Hint: look at a leaf bag of a
+decomposition in which no bag contains another.
+\end{exercise}
+
+\begin{exercise}
+Give a winning strategy for three cops on any planar graph on at most $9$
+vertices, or find a $9$-vertex planar graph where three cops lose.
+\end{exercise}
+
+\begin{exercise}
+\Cref{ex:planar-k-dominating} uses that a vertex of a grid dominates at most
+five vertices including itself. Where exactly does the constant $5$ enter the
+running time, and what does the argument give for planar
+$k$-\lang{Independent Set}?
+\end{exercise}

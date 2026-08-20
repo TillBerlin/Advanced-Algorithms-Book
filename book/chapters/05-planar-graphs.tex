@@ -15,15 +15,15 @@ do with algorithms. It turns out to be one of the most algorithmically
 consequential structural restrictions we know.
 
 \begin{goals}
-  \poolgoal{5.1}{give and prove Euler's formula}
-  \poolgoal{5.2}{show that $m \le 3n-6$ and that the average degree is below $6$}
-  \poolgoal{5.3}{define graph minors and state Kuratowski's theorem}
-  \poolgoal{5.4}{show that planar graphs are $5$-colourable}
-  \poolgoal{5.5}{show that $K_{3,3}$ is non-planar in an elementary way}
+  \poolgoal{give and prove Euler's formula}
+  \poolgoal{show that $m \le 3n-6$ and that the average degree is below $6$}
+  \poolgoal{define graph minors and state Kuratowski's theorem}
+  \poolgoal{show that planar graphs are $5$-colourable}
+  \poolgoal{show that $K_{3,3}$ is non-planar in an elementary way}
   \goalitem{explain how planarity can be tested in $\bigoh{n^3}$ time using segments and interlacement}
-  \poolgoal{5.6}{state the planar separator theorem}
-  \poolgoal{5.7}{show that \MIS{} can be solved in $2^{\bigoh{\sqrt n}}$ time on planar graphs}
-  \poolgoal{5.8}{show that $3$-colouring is NP-hard for planar graphs}
+  \poolgoal{state the planar separator theorem}
+  \poolgoal{show that \MIS{} can be solved in $2^{\bigoh{\sqrt n}}$ time on planar graphs}
+  \poolgoal{show that $3$-colouring is NP-hard for planar graphs}
 \end{goals}
 
 %==============================================================================
@@ -139,6 +139,10 @@ one face rather than two.}
 \end{figure}
 
 \subsection{Euler's formula}\label{sec:planar-euler}
+
+Every quantitative statement about planar graphs in this chapter descends from
+one identity, which Euler found for polyhedra in 1750. It relates the three
+things a plane drawing has.
 
 \begin{theorem}[Euler]\label{thm:planar-euler}
 Let $G$ be a connected plane graph with $n \ge 1$ vertices, $m$ edges and $f$
@@ -375,6 +379,10 @@ than the problem deserves, and it came thirty years later.)
 
 \subsection{Colouring planar graphs}\label{sec:planar-colouring}
 
+Planarity limits how tangled a graph can be, and colouring is the classical
+way of measuring that. We prove what an elementary argument gives, and then say
+what is true but much harder.
+
 \begin{definition}
 A \emph{$k$-colouring} of $G$ is a map $c : V \to \{1,\dots,k\}$ such that
 $c(u) \neq c(v)$ for every edge $\{u,v\} \in E$. $G$ is \emph{$k$-colourable}
@@ -479,6 +487,9 @@ planar colouring is completely mapped: $k \le 2$ easy, $k = 3$ NP-hard,
 $k \ge 4$ always yes.
 
 \subsection{Drawing with straight lines}\label{sec:planar-fary}
+
+Our drawings so far have used curved edges freely, so it is natural to ask
+whether the curves were doing any work.
 
 \begin{theorem}[Fáry, 1936]
 Every planar graph can be drawn in the plane with no crossings and with every
@@ -766,6 +777,9 @@ turns a continuous drawing problem into a discrete two-way choice --- and
 two-way choices are exactly what $2$-colouring solves.
 
 \subsection{Segments and interlacement}\label{sec:planar-segments}
+
+The planarity test needs a vocabulary for the pieces of the graph that hang off
+a cycle, and for when two such pieces get in each other's way.
 
 \begin{definition}[Segment]\label{def:planar-segment}
 Fix a cycle $C$ in $G$. A \emph{segment} (also called a \emph{bridge} of $C$)
@@ -1080,6 +1094,10 @@ big survives.}
 
 \subsection{The bound is tight}
 
+A separator theorem is only as good as its size bound, so it is worth asking
+whether $\bigoh{\sqrt n}$ can be improved. It cannot, and the grid is the
+reason.
+
 \begin{proposition}\label{prop:planar-gridtight}
 The $\sqrt{n} \times \sqrt{n}$ grid has no $\tfrac{9}{10}$-balanced separator
 of size $\sqrt{n}/20$.
@@ -1343,6 +1361,10 @@ we gain is better exponential algorithms, not polynomial ones.
 There are a few notable exceptions, and one of them is a pleasant surprise.
 
 \subsection{Planar Clique is easy}
+
+One pleasant consequence of the edge bound: a problem that is
+\textrm{NP}-hard in general collapses on planar graphs, for a reason that takes
+two lines.
 
 \begin{probdef}{Planar Clique}
   \instance A planar graph $G$ and an integer $k$.

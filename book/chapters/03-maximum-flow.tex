@@ -1,7 +1,7 @@
 %% Chapter 3: Maximum Flow and Minimum Cut
 %% Status: drafted; figures are still placeholders.
 %%
-%% Pool questions 2 (vertex capacities) and 3 (grid escape) live here.  Both
+%% The pool exercises Minimum Vertex Cut and Escaping a Grid live here.  Both
 %% are modelling questions, which is why Section "Modelling with flows" is the
 %% longest one and carries an explicit recipe.
 
@@ -17,24 +17,28 @@ standard algorithms, and --- at greatest length, because it is what the
 exercises and the exam actually ask for --- the modelling.
 
 \begin{goals}
-  \poolgoal{20.1}{define flow networks, feasible flows, $s$--$t$ cuts and the value of a flow}
-  \poolgoal{20.2}{construct the residual graph and prove that augmenting along a path yields a feasible flow of larger value}
-  \poolgoal{20.3}{prove the max-flow min-cut theorem and derive the integrality theorem from it}
-  \poolgoal{20.4}{state the Ford--Fulkerson method, and explain why its running time depends on the capacities rather than on the size of the input}
-  \poolgoal{20.5}{define preflows, excesses and height functions, state the height invariant, and explain why it forces the final preflow to be a maximum flow}
-  \poolgoal{20.6}{state the push and lift operations and verify that each preserves the invariant}
-  \poolgoal{20.7}{bound the number of lifts, of saturating pushes and of non-saturating pushes, and conclude that generic preflow-push runs in $\bigoh{n^2m}$ time}
-  \poolgoal{20.8}{state Goldberg's highest-label rule and prove the $\bigoh{n^3}$ bound}
-  \poolgoal{20.9}{solve the maximum flow problem with lower bounds on arcs, by reducing first to an admissible circulation and then to two ordinary maximum flow computations}
-  \poolgoal{20.10}{model the consistent matrix rounding problem as a circulation with lower bounds, and explain why integrality is the crux}
-  \poolgoal{2}{show that determining the maximum flow in a network with arc \emph{and} vertex capacity constraints reduces to an ordinary maximum-flow problem on a network of comparable size}
-  \poolgoal{3}{describe an algorithm polynomial in $n$ that solves the grid escape problem, and analyse its running time}
+  \poolgoal{define flow networks, feasible flows, $s$--$t$ cuts and the value of a flow}
+  \poolgoal{construct the residual graph and prove that augmenting along a path yields a feasible flow of larger value}
+  \poolgoal{prove the max-flow min-cut theorem and derive the integrality theorem from it}
+  \poolgoal{state the Ford--Fulkerson method, and explain why its running time depends on the capacities rather than on the size of the input}
+  \poolgoal{define preflows, excesses and height functions, state the height invariant, and explain why it forces the final preflow to be a maximum flow}
+  \poolgoal{state the push and lift operations and verify that each preserves the invariant}
+  \poolgoal{bound the number of lifts, of saturating pushes and of non-saturating pushes, and conclude that generic preflow-push runs in $\bigoh{n^2m}$ time}
+  \poolgoal{state Goldberg's highest-label rule and prove the $\bigoh{n^3}$ bound}
+  \poolgoal{solve the maximum flow problem with lower bounds on arcs, by reducing first to an admissible circulation and then to two ordinary maximum flow computations}
+  \poolgoal{model the consistent matrix rounding problem as a circulation with lower bounds, and explain why integrality is the crux}
+  \poolgoal{show that determining the maximum flow in a network with arc \emph{and} vertex capacity constraints reduces to an ordinary maximum-flow problem on a network of comparable size}
+  \poolgoal{describe an algorithm polynomial in $n$ that solves the grid escape problem, and analyse its running time}
 \end{goals}
 
 %==============================================================================
 \section{Flow networks}
 \label{sec:flow-networks}
 %==============================================================================
+
+We begin with the objects. A network is a graph whose arcs have capacities,
+and a flow is an assignment of traffic to arcs that respects those capacities
+and loses nothing on the way.
 
 \begin{definition}[Flow network]
 A \emph{flow network} is a directed graph $G = (V,E)$ together with a capacity
@@ -199,6 +203,11 @@ returns.
 \section{The max-flow min-cut theorem}
 \label{sec:flow-maxflow-mincut}
 %==============================================================================
+
+So far we have definitions and one algorithmic idea. The following theorem
+ties them together, and it is why the subject exists: it identifies a quantity
+we want to make large with one we want to make small, so that a single object
+certifies both at once.
 
 \begin{theorem}[Max-flow min-cut]\label{thm:flow-mfmc}
 Let $f$ be a flow in $G$. The following are equivalent.
@@ -724,6 +733,10 @@ The plan is to call an ordinary maximum-flow algorithm twice.
 
 \subsection{Phase 1a: from flows to circulations}
 
+The first step removes the source and the sink. A flow with a source and a
+sink becomes a flow that conserves everywhere, as soon as one arc is added to
+carry the flow back.
+
 \begin{definition}[Circulation]
 An \emph{admissible circulation} in a network with bounds $\ell \le c$ is a
 function $f$ with $\ell(e) \le f(e) \le c(e)$ for all $e$, satisfying
@@ -974,6 +987,10 @@ problem where every arc has an obligation. Rounding is the canonical one.
 \subsection{Consistent matrix rounding}
 \label{sec:flow-matrix-rounding}
 
+Here is an application that looks nothing like a flow problem. It comes from
+the publication of statistical tables: a table of real numbers is to be
+released as integers without the margins ceasing to add up.
+
 \begin{probdef}{Consistent Matrix Rounding}
   \instance A $p \times q$ matrix of non-negative reals $(b_{ij})$, with row
   sums $r_i = \sum_j b_{ij}$ and column sums $s_j = \sum_i b_{ij}$.
@@ -1109,6 +1126,10 @@ sets of vertices --- is worth memorising. It is the whole of the next section.
 \section{Case study: escaping a grid}
 \label{sec:flow-grid-escape}
 %==============================================================================
+
+The chapter closes with a pool exercise, worked in full. It is a good test of
+whether the machinery has been understood, because nothing in the statement
+mentions flows.
 
 \begin{probdef}{Grid Escape}
   \instance The $n \times n$ grid graph, whose vertices are $v_{i,j}$ for

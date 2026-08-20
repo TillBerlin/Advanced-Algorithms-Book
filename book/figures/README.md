@@ -46,7 +46,7 @@ manuscript *Beyond Bits*. They are **not** extracted from the manuscript PDF;
 they were supplied as separate files and are used as they came.
 
 `word-ram.pdf`, `real-ram.pdf` and `turing-machine.pdf` are pages 1--3 of the
-supplied `RegiserMachine.pdf`, split with `pdfseparate`.
+supplied `material/notes/RegiserMachine.pdf`, split with `pdfseparate`.
 
 Several of the remaining files carry more than one page, so the chapters that
 use them will need `\includegraphics[page=N]{...}`:

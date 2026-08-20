@@ -1,8 +1,8 @@
 %% Chapter 12: Approximation Algorithms I
 %% Status: drafted; figures are still placeholders.
 %%
-%% Written against slides 1-29 of "Approximation Algorithms 2026.pdf"
-%% (Johan van Rooij).  Pool question 13 (asymmetric TSP) is worked in the last
+%% Written against slides 1-29 of "material/slides/Approximation Algorithms 2026.pdf"
+%% (Johan van Rooij).  The pool exercise on asymmetric TSP is worked in the last
 %% section before the exercises.
 %%
 %% Material deliberately NOT here because it is not in the deck: local search,
@@ -20,23 +20,23 @@ therefore goes through some third quantity that we \emph{can} reason about, and
 that is squeezed between the two.
 
 \begin{goals}
-  \poolgoal{25.1}{define the approximation ratio for minimisation and for
+  \poolgoal{define the approximation ratio for minimisation and for
         maximisation problems, and define the class APX}
-  \poolgoal{25.2}{give a $2$-approximation algorithm for \lang{Max SAT} and
+  \poolgoal{give a $2$-approximation algorithm for \lang{Max SAT} and
         prove its ratio}
-  \poolgoal{25.3}{give the $2$-approximation and Christofides' algorithm for
+  \poolgoal{give the $2$-approximation and Christofides' algorithm for
         metric \lang{TSP}, and prove their ratios}
-  \poolgoal{25.4}{describe the general shape of an approximation ratio proof: a
+  \poolgoal{describe the general shape of an approximation ratio proof: a
         quantity that bounds both $\OPT$ and the value the algorithm returns}
-  \poolgoal{25.5}{give a $2$-approximation algorithm for \lang{Vertex Cover} and
+  \poolgoal{give a $2$-approximation algorithm for \lang{Vertex Cover} and
         prove its ratio}
-  \poolgoal{25.6}{formulate the LP relaxation of \lang{Minimum Weight Vertex
+  \poolgoal{formulate the LP relaxation of \lang{Minimum Weight Vertex
         Cover}, give the rounding algorithm, and prove that it is a
         $2$-approximation}
-  \poolgoal{25.7}{explain the gap technique, and use it to show that \lang{TSP}
+  \poolgoal{explain the gap technique, and use it to show that \lang{TSP}
         without the triangle inequality admits no $c$-approximation for any
         constant $c$ unless $\mathrm{P} = \mathrm{NP}$}
-  \poolgoal{13}{give a polynomial-time $c$-approximation algorithm for
+  \poolgoal{give a polynomial-time $c$-approximation algorithm for
         \lang{TSP} instances that are not symmetric but satisfy the triangle
         inequality and $d(i,j) \le 2 d(j,i)$}
 \end{goals}
@@ -168,6 +168,10 @@ from one side and $\mathrm{ALG}$ from the other. We return to this in
 \section{Metric TSP}
 \label{sec:metric-tsp}
 %==============================================================================
+
+The second example is the problem approximation algorithms are most often
+illustrated with, and the one where the choice of the third quantity is
+prettiest.
 
 \begin{probdef}{TSP}
   \instance A set of $n$ cities and a distance $d(x,y)$ for every pair.
@@ -393,6 +397,10 @@ $n$; \cref{ch:approx-ii} pushes it to polynomial $c$.
 \label{sec:vertex-cover-approx}
 %==============================================================================
 
+The next example is the one everybody meets first, and its analysis is three
+lines. What is worth watching is where the lower bound on $\OPT$ comes from:
+the algorithm produces it as a by-product of doing its job.
+
 \begin{probdef}{Vertex Cover}
   \instance An undirected graph $G = (V,E)$.
   \question A smallest set $C \subseteq V$ such that every edge has at least
@@ -538,7 +546,8 @@ a spanning tree has no direction, and shortcutting a walk uses the triangle
 inequality in both directions.
 
 If the asymmetry is bounded, however, the whole analysis survives at a constant
-loss. This is pool question~13, and it is worth working through because the
+loss. This is the pool exercise \emph{Approximation non-symmetric TSP}, and it
+is worth working through because the
 argument is a template for what to do with a hypothesis of the form ``almost
 symmetric''.
 

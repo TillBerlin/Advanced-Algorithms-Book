@@ -16,11 +16,11 @@ characterisation, and stable matchings, where the Gale--Shapley algorithm proves
 that a stable matching always exists.
 
 \begin{goals}
-  \poolgoal{1.1}{define an Euler tour and show that every connected graph with all even degrees must have an Euler tour}
-  \poolgoal{1.2}{define the stable marriage problem, blocking pairs and stable matchings}
-  \poolgoal{1.3}{define the greedy algorithm and show that it might run forever}
-  \poolgoal{1.4}{explain the Gale--Shapley algorithm and show that it returns a stable matching}
-  \poolgoal{1.5}{define a men-optimal stable matching and show that Gale--Shapley returns one}
+  \poolgoal{define an Euler tour and show that every connected graph with all even degrees must have an Euler tour}
+  \poolgoal{define the stable marriage problem, blocking pairs and stable matchings}
+  \poolgoal{define the greedy algorithm and show that it might run forever}
+  \poolgoal{explain the Gale--Shapley algorithm and show that it returns a stable matching}
+  \poolgoal{define a men-optimal stable matching and show that Gale--Shapley returns one}
 \end{goals}
 
 %==============================================================================
@@ -41,7 +41,8 @@ Gale--Shapley in \cref{sec:sm-gs}.}
 \todo{Write this section. Definition of an Euler tour; the characterisation
 that a connected graph has one if and only if every vertex has even degree;
 Hierholzer's algorithm as the constructive proof of the hard direction. This is
-item~1 of pool question~1 and is not yet covered anywhere in the book.}
+the first item of the pool question \emph{Stable Matchings} and is not yet
+covered anywhere in the book.}
 
 %==============================================================================
 \section{Stable marriage: markets that clear themselves}
@@ -166,6 +167,10 @@ matches are only ever formed between the sides and never within one. Read
 
 \subsection{Definitions}
 
+Everything in this chapter rests on three notions --- what an instance is,
+what a matching is, and what makes a matching stable. We fix them in that
+order.
+
 \begin{definition}[Instance]
 An instance of the \emph{stable marriage problem} consists of a set
 $\Men = \{m_1,\dots,m_n\}$ of $n$ men and a set
@@ -253,6 +258,9 @@ mutually acceptable couples.
 \end{remark}
 
 \subsection{A worked example}\label{sec:sm-example}
+
+One example, carried through the rest of the chapter. It is small enough to
+check by hand and large enough that the answer is not obvious in advance.
 
 \begin{example}\label{ex:sm-main}
 Take $n=3$, with $\Men = \{\text{Arie},\text{Bert},\text{Carl}\}$ and
@@ -531,6 +539,9 @@ for stable marriage that would also work for roommates must be wrong.
 \section{The Gale--Shapley algorithm}\label{sec:sm-gs}
 %==============================================================================
 
+It is worth stating the main theorem before the algorithm that proves it,
+because half of the statement says nothing about algorithms at all.
+
 \begin{theorem}[Gale--Shapley, 1962]\label{thm:sm-main}
 There is an algorithm which, given a stable marriage instance on $n{+}n$
 participants, outputs a stable matching using at most $n^2$ proposals. In
@@ -733,6 +744,10 @@ two facts.
 
 \subsection{Termination and running time}
 
+Two things must be checked before the procedure can be called an algorithm:
+that it never gets stuck with nothing to do, and that it stops. The first is
+the one that needs an argument.
+
 \begin{lemma}[Free men always have somewhere to go]\label{lem:sm-notstuck}
 If a man is free at some point during the execution, then there is a woman to
 whom he has not yet proposed. Hence line~4 is always well defined and the
@@ -927,6 +942,10 @@ the same question:
 
 \subsection{It does matter}
 
+It is fair to ask whether the asymmetry between the two sides is a real
+phenomenon or an artefact of the analysis. The smallest interesting instance
+settles it.
+
 \begin{example}[The battle of the sexes]\label{ex:sm-2x2}
 Take $n = 2$:
 \[
@@ -983,6 +1002,9 @@ we can hope for instead is a precise description of \emph{which} stable
 matching the algorithm produces. The answer is as clean as one could wish.
 
 \subsection{Best and worst stable partners}
+
+To compare stable matchings we need a way of speaking about the best and the
+worst a participant can hope for across all of them at once.
 
 \begin{definition}[Stable partner]
 A woman $w$ is a \emph{stable partner} of a man $m$ if there exists \emph{some}

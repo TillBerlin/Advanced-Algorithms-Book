@@ -127,21 +127,21 @@
   {\small\itshape\noindent\textbf{Not examinable.}\ #1\par}\smallskip}
 
 % A chapter's learning goals.  The exam pool is exactly this list restated as
-% questions, so there is one list, not two: goals that are pool questions carry
-% their number.  Usage:
+% questions, so there is one list, not two: goals that are in the pool are
+% marked, and the pool itself carries no numbering.  Usage:
 %   \begin{goals}
 %     \goalitem{state what is assumed as background}
-%     \poolgoal{1.1}{define an Euler tour and show that ...}
+%     \poolgoal{define an Euler tour and show that ...}
 %   \end{goals}
-\newcommand{\pooltag}[1]{{\footnotesize\upshape[pool~#1]}}
+\newcommand{\pooltag}{{\footnotesize\upshape[pool]}}
 \newcommand{\goalitem}[1]{\item #1}
-\newcommand{\poolgoal}[2]{\item #2\ \pooltag{#1}}
+\newcommand{\poolgoal}[1]{\item #1\ \pooltag}
 \newenvironment{goals}
   {\section*{Learning goals}%
    \addcontentsline{toc}{section}{Learning goals}%
    After this chapter you should be able to do each of the following. The exam
-   pool is this list restated as questions, so a goal tagged
-   \pooltag{$n$.$i$} is item~$i$ of question~$n$ of \cref{app:pool} and can be
-   set on the exam word for word.
+   pool is this list restated as questions, so a goal marked \pooltag{} is an
+   item of one of the questions of \cref{app:pool} and can be set on the exam
+   word for word.
    \begin{itemize}[leftmargin=*]}
   {\end{itemize}}

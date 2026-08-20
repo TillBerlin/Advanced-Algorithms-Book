@@ -1,8 +1,8 @@
 %% Chapter 4: Minimum Cost Flow
 %% Status: drafted; figures are still placeholders.
 %%
-%% Written against slides 57-91 of "Flows and Matching 2026.pptx".
-%% Pool question 4 (phasing out capital equipment) is worked in full in the
+%% Written against slides 57-91 of "material/slides/Flows and Matching 2026.pptx".
+%% The pool exercise Phasing out capital equipment is worked in full in the
 %% applications section -- it is a modelling question, and the only way the
 %% book can discharge it is to show the modelling done.
 
@@ -17,22 +17,25 @@ inventory over time and a good deal of image processing are minimum cost flow
 problems in disguise, and the disguises are worth learning to see through.
 
 \begin{goals}
-  \poolgoal{21.1}{define the minimum cost flow problem and the cost of a flow}
-  \poolgoal{21.2}{recognise when unbounded capacities make the problem unbounded, and remove them otherwise}
-  \poolgoal{21.3}{convert between the single-source, multiple-source and supply/demand formulations}
-  \poolgoal{21.4}{transform an instance with negative arc costs into one with non-negative costs}
-  \poolgoal{21.5}{write both maximum flow and minimum cost flow as linear programs, and say what is gained and lost by doing so}
-  \poolgoal{21.6}{prove that every circulation decomposes into a non-negative combination of cycles, and every flow into paths and cycles}
-  \poolgoal{21.7}{define the residual network with costs}
-  \poolgoal{21.8}{state the cycle cancelling algorithm and prove the optimality criterion it rests on: a flow is minimum cost if and only if its residual network has no negative-cost cycle}
-  \poolgoal{21.9}{state the successive shortest paths algorithm and prove it correct}
-  \poolgoal{4}{formulate the problem of phasing out capital equipment --- and other applications you have not seen --- as a minimum cost flow problem, and justify the model}
+  \poolgoal{define the minimum cost flow problem and the cost of a flow}
+  \poolgoal{recognise when unbounded capacities make the problem unbounded, and remove them otherwise}
+  \poolgoal{convert between the single-source, multiple-source and supply/demand formulations}
+  \poolgoal{transform an instance with negative arc costs into one with non-negative costs}
+  \poolgoal{write both maximum flow and minimum cost flow as linear programs, and say what is gained and lost by doing so}
+  \poolgoal{prove that every circulation decomposes into a non-negative combination of cycles, and every flow into paths and cycles}
+  \poolgoal{define the residual network with costs}
+  \poolgoal{state the cycle cancelling algorithm and prove the optimality criterion it rests on: a flow is minimum cost if and only if its residual network has no negative-cost cycle}
+  \poolgoal{state the successive shortest paths algorithm and prove it correct}
+  \poolgoal{formulate the problem of phasing out capital equipment --- and other applications you have not seen --- as a minimum cost flow problem, and justify the model}
 \end{goals}
 
 %==============================================================================
 \section{The problem}
 \label{sec:mcf-problem}
 %==============================================================================
+
+Maximum flow asked how much can be shipped. Minimum cost flow asks what the
+shipping costs, and answering it needs one more number on every arc.
 
 \begin{definition}[Cost of a flow]
 Let $G = (V,A)$ be a directed graph with capacities $c : A \to \R_{\ge 0}$ and
@@ -251,6 +254,10 @@ $(t,s)$ sum to $F$, since that is what the arc carries.
 \section{The residual network with costs}
 \label{sec:mcf-residual}
 %==============================================================================
+
+The residual network carried us through the whole of \cref{ch:max-flow}, and
+it does the same here --- once it has been told what an arc costs. The only
+new idea is that undoing a unit of flow refunds what that unit paid.
 
 \begin{definition}[Residual network with costs]\label{def:mcf-residual}
 Let $f$ be a flow. The residual network $G_f$ has capacities as in
@@ -644,6 +651,10 @@ conventions change the arcs slightly and nothing else.
 \section{Bipartite matching, again}
 \label{sec:mcf-matching}
 %==============================================================================
+
+Costs turn a problem we have already solved into a more useful one. Maximum
+bipartite matching becomes the assignment problem: not just \emph{can}
+everybody be matched, but at what cost.
 
 \begin{definition}
 A \emph{matching} in an undirected graph is a set of edges no two of which share

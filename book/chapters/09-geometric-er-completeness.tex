@@ -1,7 +1,7 @@
 %% Chapter 9: Geometric exists-R-Completeness
 %% Status: drafted, figures in place.
 %%
-%% Written against chapters 3 and 4 of Real-Compuation.pdf ("Beyond Bits",
+%% Written against chapters 3 and 4 of material/notes/Real-Compuation.pdf ("Beyond Bits",
 %% Tillmann Miltzow).
 %%
 %% Ordering, per the author:
@@ -29,16 +29,16 @@ where \lang{Stretchability} comes from; neither is examined, and nothing in the
 main line of the chapter depends on them.
 
 \begin{goals}
-  \poolgoal{8.5}{define \lang{ETR-AM} and show that it is $\ER$-complete}
+  \poolgoal{define \lang{ETR-AM} and show that it is $\ER$-complete}
   \goalitem{define \lang{ETR-INV}, and show how inversion constraints replace
         multiplication and how the variable range is made compact}
   \goalitem{define pseudoline arrangements and \lang{Stretchability}, and state
         what is known about its complexity}
-  \poolgoal{11.4}{define geometric intersection graphs, and unit disk graphs in
+  \poolgoal{define geometric intersection graphs, and unit disk graphs in
         particular}
-  \poolgoal{11.5}{show that deciding whether a given graph is a unit disk
+  \poolgoal{show that deciding whether a given graph is a unit disk
         intersection graph is $\ER$-complete}
-  \poolgoal{11.6}{show that \lang{Optimal Curve Straightening} is
+  \poolgoal{show that \lang{Optimal Curve Straightening} is
         $\ER$-complete}
   \goalitem{explain how a variable and an inversion constraint are encoded in
         the art gallery problem, and why the encoding must be compact}
@@ -285,6 +285,10 @@ to. The next three sections do exactly that, three times.
 \label{sec:intersection-graphs}
 %==============================================================================
 
+The first family of geometric problems we prove hard consists of recognition
+problems: given an abstract graph, can it be realised as the intersection
+pattern of geometric objects of a prescribed shape?
+
 \begin{definition}[Intersection graph]
 Let $W$ be a finite set of objects in the plane. The \emph{intersection graph}
 $G(W)$ has one vertex per object, with two vertices adjacent exactly when the
@@ -309,6 +313,9 @@ most elegant.
 \section{Recognising unit disk graphs}
 \label{sec:udg-hardness}
 %==============================================================================
+
+Here is the first hardness proof, chosen because it is the most elegant one in
+the subject.
 
 \begin{theorem}[\citet{McDiarmidMuller2013}]\label{thm:udg}
 It is $\ER$-complete to decide whether a graph is a unit disk intersection
@@ -513,6 +520,11 @@ provides. That is what the whole apparatus of
 
 \subsection{Encoding inversion}
 
+A variable gadget on its own proves nothing; the constraints of
+\lang{ETR-INV} have to be enforced as well. The following configuration
+enforces inversion, which is the only non-linear constraint the normal form
+needs.
+
 \begin{lemma}\label{lem:art-gallery-inversion}
 In the configuration of \cref{fig:er-art-inversion}, assume no other guard
 interferes and that the two guards lie on their respective segments,
@@ -631,8 +643,8 @@ topological reason in one sentence.
 \label{sec:duality}
 %==============================================================================
 
-\nonexam{The lecture no longer covers point--line duality, and items 1--3 of
-pool question~11 have been withdrawn accordingly. The material is kept because
+\nonexam{The lecture no longer covers point--line duality, and the three pool
+items asking for it have been withdrawn. The material is kept because
 it is how \cref{sec:order-types} connects order types to pseudoline
 arrangements, and because it is the standard vocabulary of the area. Nothing
 earlier in the chapter depends on it.}
@@ -688,6 +700,9 @@ relations but preserves the order type. What survives needs care.
 
 \subsection{Cyclic order}
 \label{sec:cyclic-orders}
+
+Duality preserves above and below. Order types are about left and right, so one
+more notion is needed before the two can be connected.
 
 \begin{definition}[Cyclic order]
 Let $P$ be a point set and $p$ a point. Rotate a vertical line clockwise around
@@ -747,8 +762,8 @@ change combinatorially? Hint: watch the leftmost and rightmost crossings.
 \label{sec:order-types}
 %==============================================================================
 
-\nonexam{The lecture no longer covers order types, and items 4 and 6 of pool
-question~8 have been withdrawn accordingly. The material is kept because it is
+\nonexam{The lecture no longer covers order types, and the two pool items
+asking for them have been withdrawn. The material is kept because it is
 the historical route into $\ER$ and because it is where
 \cref{thm:stretchability} --- which the reductions earlier in this chapter do
 use --- comes from. Nothing in this section is examined, and nothing earlier in

@@ -1,8 +1,8 @@
 %% Chapter 7: Real Models of Computation
 %% Status: drafted, figures in place.
 %%
-%% Written against chapter 1 of Real-Compuation.pdf ("Beyond Bits", Tillmann
-%% Miltzow).  The three figures are pages 1-3 of the author's RegiserMachine.pdf,
+%% Written against chapter 1 of material/notes/Real-Compuation.pdf ("Beyond Bits", Tillmann
+%% Miltzow).  The three figures are pages 1-3 of the author's material/notes/RegiserMachine.pdf,
 %% split into book/figures/{word-ram,real-ram,turing-machine}.pdf.
 
 \chapter{Real Models of Computation}
@@ -17,21 +17,21 @@ turns out to be more powerful than it looks, in a way that is both useful and
 slightly alarming.
 
 \begin{goals}
-  \poolgoal{6.1}{explain a program on a word RAM (not a formal definition)}
-  \poolgoal{6.2}{explain a Turing machine (not a formal definition)}
-  \poolgoal{6.3}{give a comparison of advantages and disadvantages of the two
+  \poolgoal{explain a program on a word RAM (not a formal definition)}
+  \poolgoal{explain a Turing machine (not a formal definition)}
+  \poolgoal{give a comparison of advantages and disadvantages of the two
         models}
-  \poolgoal{6.4}{explain what a program on a real RAM is, and give both a
+  \poolgoal{explain what a program on a real RAM is, and give both a
         motivation for and concerns about this model of computation}
-  \poolgoal{6.5}{show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM
+  \poolgoal{show how to compute $k!$ in $O(\log^2 k)$ time on a real RAM
         that is allowed to use rounding}
-  \poolgoal{6.6}{show how to compute $\gcd(a,b)$ in
+  \poolgoal{show how to compute $\gcd(a,b)$ in
         $O(\min\{\log a, \log b\})$ time on a real RAM that is allowed to use
         rounding}
-  \poolgoal{6.7}{show that a factor of a number can be found in polynomial time
+  \poolgoal{show that a factor of a number can be found in polynomial time
         on a real RAM that is allowed to use rounding}
-  \poolgoal{6.8}{define a straight line program and \textsc{PosSLP}}
-  \poolgoal{6.9}{show that $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}
+  \poolgoal{define a straight line program and \textsc{PosSLP}}
+  \poolgoal{show that $\mathrm{P}^{\textsc{PosSLP}} = \mathrm{P}_{\R}$}
 \end{goals}
 
 %==============================================================================
@@ -387,6 +387,10 @@ and a binary search on $k$. We do the first two and then assemble.
 
 \subsection{Computing factorials fast}
 
+How much can a real RAM actually do that a Turing machine cannot? Two small
+results give the flavour, and both turn on a register holding an arbitrarily
+large number at unit cost.
+
 \begin{lemma}\label{lem:real-ram-power}
 Let $k, n$ be integers with $n$ of binary length $b = \bigoh{\log n}$. Then
 $k^n$ can be computed in $\bigoh{b}$ steps on a real RAM.
@@ -456,6 +460,9 @@ number.
 \end{example}
 
 \subsection{Computing greatest common divisors}
+
+The second example uses rounding rather than exact arithmetic, and it beats the
+classical bound for a reason that has nothing to do with number theory.
 
 \begin{lemma}\label{lem:real-ram-gcd}
 For natural numbers $a \le b$, $\gcd(a,b)$ can be computed in

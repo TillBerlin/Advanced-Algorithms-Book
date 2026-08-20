@@ -1,13 +1,13 @@
 %% Chapter 8: The Existential Theory of the Reals
 %% Status: drafted, figures in place.
 %%
-%% Written against chapter 2 of Real-Compuation.pdf ("Beyond Bits", Tillmann
+%% Written against chapter 2 of material/notes/Real-Compuation.pdf ("Beyond Bits", Tillmann
 %% Miltzow), plus the ETR-AM normal form from its chapter 3.  The four
 %% membership proofs in section "Showing membership" are new material, added
 %% because the exam needs worked examples of both definitions.
 %%
 %% The order type section is deliberately marked non-examinable: the lecture no
-%% longer covers it, and pool question 8 items 4 and 6 are withdrawn.
+%% longer covers it, and the two order-type items of the pool are withdrawn.
 
 \chapter{The Existential Theory of the Reals}
 \label{ch:etr}
@@ -21,18 +21,18 @@ is what you get from \textbf{NP} by letting the witness be real and the verifier
 compute with real numbers exactly.
 
 \begin{goals}
-  \poolgoal{8.1}{give a definition of the algorithmic problem \ETR{} and of the
+  \poolgoal{give a definition of the algorithmic problem \ETR{} and of the
         complexity class $\ER$ based on it}
-  \poolgoal{8.2}{give the machine model description of $\ER$ and a sketch of a
+  \poolgoal{give the machine model description of $\ER$ and a sketch of a
         proof that it is equivalent with the logic-based definition}
-  \poolgoal{8.3}{show that $\mathrm{NP} \subseteq \ER$}
-  \poolgoal{8.7}{show that \lang{Euclidean TSP} is in $\ER$, using the
+  \poolgoal{show that $\mathrm{NP} \subseteq \ER$}
+  \poolgoal{show that \lang{Euclidean TSP} is in $\ER$, using the
         logic-based definition}
-  \poolgoal{8.8}{show that \lang{PosSLP} is in $\ER$, using the logic-based
+  \poolgoal{show that \lang{PosSLP} is in $\ER$, using the logic-based
         definition}
-  \poolgoal{8.9}{show that \lang{Geometric Packing} is in $\ER$, using the
+  \poolgoal{show that \lang{Geometric Packing} is in $\ER$, using the
         machine model definition}
-  \poolgoal{8.10}{show that the \lang{Art Gallery Problem} is in $\ER$, using
+  \poolgoal{show that the \lang{Art Gallery Problem} is in $\ER$, using
         the machine model definition, and explain why the logic-based route is
         much harder here}
 \end{goals}
@@ -63,6 +63,9 @@ the name $\ER$ in 2010.
 \section{The problem \texorpdfstring{\ETR{}}{ETR} and the class \texorpdfstring{$\ER$}{exists-R}}
 \label{sec:etr-problem}
 %==============================================================================
+
+Here is the problem the class is named after. Read it as the question: does
+this system of polynomial equations and inequalities have a real solution?
 
 \begin{probdef}{ETR (Existential Theory of the Reals)}
   \instance A finite set of real variables $x_1, \ldots, x_n$ and a finite
@@ -184,12 +187,30 @@ attach the oracle to.
 \label{sec:er-membership}
 %==============================================================================
 
-Both definitions are used in practice, and it is worth seeing each of them do
-real work. The two definitions are not equally convenient, and which one is
-easier depends entirely on the problem.
+Having two definitions of the same class is only useful if we do something with
+both, so this section proves four membership results, two by each route. Let us
+say at once which route to reach for: \emph{the machine model is much easier.}
+To show that a problem is in $\ER$, one exhibits a real RAM verifier, and the
+verifier is almost always the checking algorithm anybody would write anyway ---
+walk over the vertices, test each edge, compare the total against the bound.
+The formula-based route asks for the same statement expressed with nothing but
+polynomial equations and inequalities and no universal quantifier, and that can
+take real ingenuity.
+
+The two proofs by formula below are therefore not there because that route is
+recommended. They are there because they show where the difficulty lies. In
+\lang{Euclidean TSP} the obstacle is a condition --- ``the chosen arcs form one
+cycle, not several'' --- that is trivial to check with an algorithm and needs a
+genuinely clever construction to state as a system of inequalities. Seeing that
+once is what makes the machine model feel like a relief rather than a
+technicality.
 
 \subsection{Using the formula: Euclidean TSP}
 \label{sec:er-membership-tsp}
+
+The first example is the travelling salesman problem with straight-line
+distances. Whether it lies in \textrm{NP} is a well-known open question;
+that it lies in $\ER$ is not hard, but it is not free either.
 
 \begin{probdef}{Euclidean TSP}
   \instance $n$ points $p_1, \ldots, p_n$ in the plane with rational
@@ -218,22 +239,59 @@ forced to be exactly the Euclidean distance.
 Next the tour. Introduce a variable $e_{ij}$ for every ordered pair with the
 constraint $e_{ij}(e_{ij}-1) = 0$, which forces $e_{ij} \in \{0,1\}$; read
 $e_{ij} = 1$ as ``the tour goes from $p_i$ to $p_j$''. Add the degree
-constraints $\sum_j e_{ij} = 1$ and $\sum_i e_{ij} = 1$ for every $i$ and $j$,
-which say that the chosen arcs form a disjoint union of directed cycles
-covering all points. To force a single cycle, introduce real variables
-$u_2, \ldots, u_n$ and the constraints
+constraints $\sum_j e_{ij} = 1$ and $\sum_i e_{ij} = 1$ for every $i$ and $j$.
+These say that every point is left exactly once and entered exactly once, which
+makes the chosen arcs a disjoint union of directed cycles covering all points
+--- but not necessarily \emph{one} cycle, and that is the whole difficulty.
+
+To force a single cycle, introduce real variables $u_2, \ldots, u_n$ and the
+constraints
 \[ 1 \le u_i \le n \quad\text{and}\quad
-   u_i - u_j + n\, e_{ij} \le n-1 \quad (i \ne j,\ i,j \ge 2), \]
-which are satisfiable exactly when the arcs form one cycle through all points.
-Here the real variables are doing something they could not do in a purely
-combinatorial encoding: they carry a \emph{position along the tour}, and
-polynomially many constraints suffice where subtour elimination would otherwise
-need exponentially many.
+   u_i - u_j + n\, e_{ij} \le n-1 \qquad (i \ne j,\ i,j \ge 2). \]
+Think of $u_i$ as the position of $p_i$ along the tour, counted from $p_1$.
+Note that $p_1$ has no variable; it is the designated start, and that asymmetry
+is what makes the constraints work.
+
+\emph{Why one cycle is forced.} Suppose the arcs are chosen and the $u_i$ can
+be set consistently. Look at any arc with $e_{ij} = 1$ and $i,j \ge 2$: the
+constraint reads $u_i - u_j + n \le n-1$, that is
+\[ u_j \ge u_i + 1. \]
+So position strictly increases along every arc that avoids $p_1$. Now suppose
+the arcs formed two or more cycles. The cycles are disjoint and cover all
+points, so at least one of them does not contain $p_1$; call it
+$p_{i_1} \to p_{i_2} \to \cdots \to p_{i_k} \to p_{i_1}$, with every index at
+least $2$. Applying the inequality along each of its $k$ arcs gives
+\[ u_{i_1} < u_{i_2} < \cdots < u_{i_k} < u_{i_1}, \]
+which is impossible. Hence there is exactly one cycle, and since the degree
+constraints make it cover every point, it is a tour.
+
+\emph{Why a genuine tour can always set the $u_i$.} Conversely, given a tour,
+start at $p_1$ and let $u_i \in \{2,\ldots,n\}$ be the position of $p_i$ in it,
+which satisfies $1 \le u_i \le n$. For an arc with $e_{ij} = 1$ and
+$i,j \ge 2$ we have $u_j = u_i+1$, so $u_i - u_j + n = n-1$ and the constraint
+holds with equality. For a pair with $e_{ij} = 0$ the constraint reads
+$u_i - u_j \le n-1$, which holds because $u_i \le n$ and $u_j \ge 2$. So the
+constraints are satisfiable exactly when the arcs form one cycle through all
+points.
 
 Finally add $\sum_{i \ne j} e_{ij} d_{ij} \le t$. The whole formula has
 $\bigoh{n^2}$ variables and constraints and is built in polynomial time, and it
 is satisfiable exactly when a tour of length at most $t$ exists.
 \end{proof}
+
+\begin{intuition}
+The subtour constraints are the point of this example. The obvious way to
+forbid several cycles is to write down, for every proper subset $S$ of the
+points, ``at least one arc leaves $S$'' --- and there are exponentially many
+such subsets, so the formula would not be polynomial. What rescues the
+construction is that the real variables $u_i$ can carry a \emph{position along
+the tour}, a quantity that has nothing to do with the geometry of the problem
+and exists only to certify that everything hangs together in one piece. Finding
+that trick takes a clever idea. Checking the same condition with an algorithm
+takes one traversal: follow the arcs from $p_1$ and see whether you meet all
+$n$ points before returning. That contrast, in miniature, is the whole argument
+for the machine model, and \cref{sec:er-membership-packing} onwards will use it.
+\end{intuition}
 
 \begin{remark}
 It is not known whether \lang{Euclidean TSP} is in \textbf{NP} --- that is the
@@ -276,6 +334,10 @@ would hope.
 
 \subsection{Using the machine: geometric packing}
 \label{sec:er-membership-packing}
+
+Now the other route, on a problem of cutting and packing --- the kind that
+arises whenever shapes must be cut from a sheet of material with as little
+waste as possible.
 
 \begin{probdef}{Geometric Packing}
   \instance $n$ polygonal pieces and a polygonal container in the plane, all
@@ -323,6 +385,10 @@ all: it simply runs the algorithm one would write anyway.
 \subsection{Using the machine: the art gallery problem}
 \label{sec:er-membership-art-gallery}
 
+The last example is the one that motivated the machine model in the first
+place. Placing guards in a polygon so that every point is watched sounds like a
+problem about geometry; the obstacle turns out to be one about logic.
+
 \begin{probdef}{Art Gallery Problem}
   \instance A simple polygon $P$ with rational vertex coordinates and an
   integer $k$.
@@ -364,10 +430,18 @@ the uncovered region, if non-empty, contains a witness point of a restricted
 form, and encode that. It can be done, but the first such proof took its author
 several days to find and runs to five pages.
 
-If universal quantifiers \emph{were} allowed, the encoding would be a single
-line: $\exists g_1,\ldots,g_k \, \forall p \in P \, \exists i : p$ is seen by
-$g_i$. That formula lives in the second level of the first-order theory of the
-reals, not in $\ER$.
+It is worth being precise about which quantifier is the problem. The choice of
+guard needs no quantifier at all: ``$p$ is seen by some guard'' is the finite
+disjunction
+\[ (\text{$p$ is seen by } g_1) \vee \cdots \vee (\text{$p$ is seen by } g_k), \]
+and $\ER$ formulas may contain disjunctions freely. The obstacle is the
+\emph{universal} quantifier over the points of $P$. If it were allowed, the
+encoding would be one line,
+\[ \exists g_1,\ldots,g_k \; \forall p \in P \;
+   \bigl[(\text{$p$ seen by } g_1) \vee \cdots \vee
+         (\text{$p$ seen by } g_k)\bigr], \]
+but a formula with a $\forall$ after the $\exists$ lives in the second level of
+the first-order theory of the reals, not in $\ER$.
 \end{intuition}
 
 %==============================================================================
@@ -413,8 +487,7 @@ roots are exactly the values you want a variable to take --- recurs constantly.
 \label{sec:etr-further-reading}
 %==============================================================================
 
-This chapter follows \citet{Miltzow2026}, apart from
-\cref{sec:er-membership}, which is new.
+This chapter follows \citet{Miltzow2026}.
 
 \Cref{thm:er-machine-model} has no single clean origin. The ideas go back to
 Cook and Levin; they were first adapted to real models by
@@ -427,9 +500,6 @@ unification of the early completeness results under it, are
 catalogue of what is known to be $\ER$-complete, and
 \citet{Matousek2014} is a short and beautiful introduction by way of segment
 graphs.
-
-Order types, stretchability and the normal form \lang{ETR-AM} are all deferred
-to \cref{ch:geometric-er}, where they are used.
 
 %==============================================================================
 \section{Exercises}

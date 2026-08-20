@@ -1,8 +1,8 @@
 %% Chapter 6: Matching
 %% Status: drafted; figures are still placeholders.
 %%
-%% Written against slides 92-141 of "Flows and Matching 2026.pptx".
-%% Pool question 7 (Partition into Cycles) is worked in the last section.
+%% Written against slides 92-141 of "material/slides/Flows and Matching 2026.pptx".
+%% The pool exercise Partition into Cycles is worked in the last section.
 
 \chapter{Matching}
 \label{ch:matching}
@@ -18,26 +18,26 @@ important: the paper that introduced it is also where the identification of
 ``efficient'' with ``polynomial time'' was first argued for in print.
 
 \begin{goals}
-  \poolgoal{22.1}{define a matching, and a maximal, maximum and perfect matching, and
+  \poolgoal{define a matching, and a maximal, maximum and perfect matching, and
         tell the three apart on an example}
-  \poolgoal{22.2}{solve maximum matching on bipartite graphs by reduction to maximum
+  \poolgoal{solve maximum matching on bipartite graphs by reduction to maximum
         flow}
-  \poolgoal{22.3}{define $M$-alternating walks, $M$-augmenting paths, $M$-flowers,
+  \poolgoal{define $M$-alternating walks, $M$-augmenting paths, $M$-flowers,
         $M$-blossoms and stems}
-  \poolgoal{22.4}{prove that a matching is maximum if and only if there is no
+  \poolgoal{prove that a matching is maximum if and only if there is no
         $M$-augmenting path}
-  \poolgoal{22.5}{describe the procedure that finds either an $M$-augmenting path or
+  \poolgoal{describe the procedure that finds either an $M$-augmenting path or
         an $M$-flower, and explain why the even-cycle case cannot arise}
-  \poolgoal{22.6}{prove that $G$ has an $M$-augmenting path if and only if $G/B$ has
+  \poolgoal{prove that $G$ has an $M$-augmenting path if and only if $G/B$ has
         an $M/B$-augmenting path, for an $M$-blossom $B$}
-  \poolgoal{22.7}{state Edmonds' algorithm and show that it runs in $\bigoh{n^2m}$
+  \poolgoal{state Edmonds' algorithm and show that it runs in $\bigoh{n^2m}$
         time}
-  \poolgoal{22.8}{state Schrijver's algorithm for perfect matchings in regular
+  \poolgoal{state Schrijver's algorithm for perfect matchings in regular
         bipartite graphs, prove its invariant, and analyse its running time}
-  \poolgoal{22.9}{prove that a bipartite graph of maximum degree $d$ has an edge
+  \poolgoal{prove that a bipartite graph of maximum degree $d$ has an edge
         colouring with $d$ colours, and use it to solve a classroom scheduling
         problem}
-  \poolgoal{7}{give a polynomial time algorithm that decides whether a graph
+  \poolgoal{give a polynomial time algorithm that decides whether a graph
         can be partitioned into simple cycles}
 \end{goals}
 
@@ -45,6 +45,9 @@ important: the paper that introduced it is also where the identification of
 \section{Matchings}
 \label{sec:matching-basics}
 %==============================================================================
+
+The vocabulary first. It is short, and it contains one distinction that is a
+standing source of confusion.
 
 \begin{definition}[Matching]
 A \emph{matching} in an undirected graph $G = (V,E)$ is a set $M \subseteq E$
@@ -225,6 +228,10 @@ cycle is even. In general it can, and the culprit has a name.
 \label{sec:matching-edmonds}
 %==============================================================================
 
+In a general graph the search for an augmenting path can fail in a way that has
+no analogue in the bipartite case: it can close an odd cycle. The vocabulary
+for that situation is the following.
+
 \begin{definition}[Flower, blossom, stem]\label{def:matching-flower}
 An \emph{$M$-flower} is an $M$-alternating walk of odd length that starts at an
 unmatched vertex and ends by closing an odd cycle. The odd cycle is the
@@ -317,6 +324,10 @@ augmenting path or a flower.}
 
 \subsection{Shrinking a blossom}
 \label{sec:matching-shrinking}
+
+Edmonds' idea is to contract the offending odd cycle to a single vertex and
+carry on. Before that can be justified we need to know that the contracted
+graph still carries a matching.
 
 \begin{definition}
 For a set $B \subseteq V$, write $G/B$ for the graph obtained by contracting $B$
@@ -599,6 +610,10 @@ colours.}
 \section{Partitioning a graph into cycles}
 \label{sec:matching-modelling}
 %==============================================================================
+
+The chapter closes with a pool exercise. The problem sounds nothing like
+matching, which is the point: recognising that it \emph{is} a matching problem
+is most of the solution.
 
 \begin{probdef}{Partition into Cycles}
   \instance An undirected graph $G = (V,E)$.

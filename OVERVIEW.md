@@ -85,7 +85,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
 | 14 | Parameterized Algorithms I | `14-fpt-i.tex` | W7 Thu | 15 | 🔲 |
-| 15 | Treewidth | `15-treewidth.tex` | W8 Tue | 16, 17 | 🔲 |
+| 15 | Treewidth | `15-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
 | 16 | Complexity Theory for Approximation and Parameterization | `16-hardness-of-approximation-and-fpt.tex` | W9 Tue | 18 | 🔲 |
 | 17 | Kernelization | `17-kernelization.tex` | W9 Thu (FPT 2) | 19 (items 1–2) | 🔲 |
 | 18 | Randomized Algorithms | `18-randomized-algorithms.tex` | W9 Thu | 19 (items 3–4) | 🔲 |
@@ -97,75 +97,33 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | `appendix/a-pool-questions.tex` | The exam pool, transcribed verbatim, with a question → chapter map | ✅ drafted |
 | `appendix/b-preliminaries.tex` | Notation, graph terminology, complexity classes, LP, probability | 🔲 |
 
-## Pool question → chapter map
+## The exam pool
 
-The pool numbers its sections by *lecture*, and that numbering does not match
-the schedule one to one (the ER lectures are interleaved). Authoritative map:
+The pool lives in `book/appendix/a-pool-questions.tex`. **The questions carry no
+numbers.** They are grouped there by the chapter that answers them, and referred
+to everywhere else by title — the pool is a set of questions, not a sequence,
+the order will change, and which lecture a question came from is not worth
+tracking. A learning goal that is also a pool item is marked `\poolgoal{...}`
+and prints `[pool]`.
 
-| Pool Q | Title | Pool lecture | Chapter |
-| --- | --- | --- | --- |
-| 1 | Stable Matchings | 1 | 2 |
-| 2 | Minimum Vertex Cut | 2 | 3 |
-| 3 | Escaping a Grid | 2 | 3 |
-| 4 | Phasing out capital equipment | 3 | 4 |
-| 5 | Planar Graphs | 4 | 5 |
-| 6 | Real Models of Computation | 5 | 7 |
-| 7 | Partition into Cycles | 6 | 6 |
-| 8 | Existential Theory of the Reals | 7 | 8 |
-| 9 | Exact Algorithm for Exact 3-SAT | 8 | 10 |
-| 10 | Bisection Width | 8 | 10 |
-| 11 | Duality and geometric ∃R-hardness | 9 | 9 |
-| 12 | Inclusion/exclusion for set cover | 10 | 11 |
-| 13 | Approximation non-symmetric TSP | 10 | 12 |
-| 14 | Approximating Steiner Tree | 11 | 13 |
-| 15 | Parameterized complexity | 12 | 14 |
-| 16 | Treewidth of grid graphs | 13 | 15 |
-| 17 | Treewidth and cliques | 13 | 15 |
-| 18 | L-reduction for Max Cut on Multigraphs | 14 | 16 |
-| 19 | Vertex Cover Kernel | 15 | 17 and 18 |
+Amendments made so far, all recorded in the appendix itself:
 
-Additions to the pool, already applied to Appendix A:
+- Nine questions were **added** (*Maximum Flow*, *Minimum Cost Flow*,
+  *Matching*, *Branching*, *Subset Dynamic Programming and Inclusion/Exclusion*,
+  *Approximation Algorithms*, *The Landscape of Approximation Algorithms*,
+  *Treewidth*, *Complexity for Approximation and FPT*) so that every learning
+  goal in the book is the content of some pool question. Before that, some
+  lectures were represented only by a single exercise.
+- *Planar Graphs* item 7: 3-colouring → maximum independent set.
+- *Existential Theory of the Reals*: items 4 and 6 withdrawn (order types),
+  items 7–10 added (four membership proofs, two by each definition of ∃R).
+- *Duality and geometric ∃R-hardness*: items 1–3 withdrawn (point–line duality).
+- *Approximation Algorithms* and *The Landscape of Approximation Algorithms*
+  rewritten after the deck was read; *Treewidth* expanded the same way.
 
-- **Questions 20--28** were added so that every learning goal in Johan's
-  chapters is the content of some pool question. The original pool represented
-  some lectures by a list of learning-goal questions (1, 5, 6, 8, 11, 15, 19)
-  and others by a single exercise (2/3, 4, 7, 9/10, 12, 13, 14, 16/17, 18); the
-  additions give the second group the same treatment as the first. Questions
-  20--22 are grounded in the flow deck; 23--28 are derived from the goals of
-  chapters that are still skeletons, so they will need revisiting when those
-  chapters are written.
-- Goals still untagged, all in Till's chapters, left alone: chapter 1 (the
-  book's own introduction, not a lecture), the planarity-testing goal in
-  chapter 5, and three goals each in chapters 17 and 18.
-
-Amendments to the pool, already applied to Appendix A:
-
-- **Q5, item 7** asked for $3$-colouring in $2^{O(\sqrt n)}$ time; it now asks
-  for **independent set** in $2^{O(\sqrt n)}$ time, which is what chapter 5
-  proves. The pool PDF in `material/` still carries the old wording.
-- **Q8, items 4 and 6** are withdrawn (order types), and **items 7–10** added
-  (four membership proofs, two by each definition of ∃R).
-- **Q11, items 1–3** are withdrawn (point–line duality), following the same
-  decision: the lecture no longer covers it.
-- **Q25 and Q26 were rewritten** once the approximation deck had actually been
-  read. Both had been drafted from the chapter skeletons, and both were wrong:
-  Q25 put set cover in lecture 10 (the deck has it in lecture 11) and Q26 asked
-  for the primal–dual method, which is not taught at all. Q25 now covers the
-  first lecture (ratios, Max SAT, metric TSP, the proof shape, vertex cover, LP
-  rounding, the gap technique) and Q26 the second (the five qualities, additive
-  approximation, the knapsack FPTAS, the knapsack gap argument, Baker's PTAS,
-  the polynomial-bound technique, greedy set cover, the self-reduction). Q26 is
-  also retitled *The Landscape of Approximation Algorithms*, after the deck.
-
-Known issues in the pool PDF, to raise with the course team:
-
-- **Q11** is titled "Exact Algorithm for Exact 3-SAT", a copy-paste error from
-  Q9; its items are about point–line duality and geometric ∃R-completeness.
-- **Q16** defines the grid graph's edge set twice with the same expression
-  (`{v_{i,j}, v_{i+1,j}}`); the second should be `{v_{i,j}, v_{i,j+1}}`. The
-  transcription in Appendix A silently uses the intended definition.
-- The pool has no question for the *Combinatorics via algorithms* part of the
-  first lecture beyond the Euler tour item, and none for the *Introduction*.
+Known issue to raise with the course team: in the pool PDF the duality question
+is titled *Exact Algorithm for Exact 3-SAT*, a copy-paste error from the
+question above it. We use an accurate title.
 
 ## Chapter template
 
@@ -179,7 +137,7 @@ One paragraph: what this chapter is about and why it belongs here.
 
 \begin{goals}
   \goalitem{a goal the lectures cover but the pool does not}
-  \poolgoal{1.1}{a goal that is item 1 of pool question 1, worded as the pool words it}
+  \poolgoal{a goal that is also a pool item, worded as the pool words it}
 \end{goals}
 
 \section{...}
@@ -231,6 +189,22 @@ Conventions:
 - Labels carry the chapter's topic as a prefix — `sec:planar-euler`,
   `thm:planar-pst`, `fig:planar-k33-cycle` — so that labels never collide
   across chapters.
+- **Nothing starts cold.** A problem definition, a definition, a theorem or a
+  lemma is preceded by one to three sentences saying why it is coming and what
+  it is for. A section that opens directly with `\begin{definition}` is a bug;
+  the reader is being asked to memorise before being told what for.
+- **Do not tell the reader how the book differs from its sources.** The
+  provenance is in the preface and in each chapter's "Notes and further
+  reading"; remarks of the form "this section is new" or "this is deferred to
+  chapter N, where it is used" are noise.
+- **Skeleton chapters carry goals and nothing else.** Do not invent a section
+  outline for a chapter whose source material has not been read — the outline
+  will be wrong, and it reads as though the content exists. A skeleton is the
+  chapter heading, the goals (which come from the pool, so they are real), and
+  one `\todo` naming the deck to write it from.
+- Source material lives in `material/`: `material/slides/` for the lecture
+  decks, `material/notes/` for manuscripts and lecture notes, `material/pool/`
+  for the pool PDF. Figures live in `book/figures/` and nowhere else.
 
 ## Building
 
@@ -270,16 +244,16 @@ rewrite.
 
 | Deck | Slides | Chapters it covers |
 | --- | --- | --- |
-| `Flows and Matching 2026.pptx` | 1–56 | 3 (maximum flow) ✅ checked |
+| `material/slides/Flows and Matching 2026.pptx` | 1–56 | 3 (maximum flow) ✅ checked |
 | | 57–91 | 4 (minimum cost flow) ✅ checked |
 | | 92–141 | 6 (matching) ✅ checked |
-| `planar.pdf` | — | 5 (planar graphs) |
-| `Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
-| `Approximation Algorithms 2026.pdf` | 1–29 | 12 (approximation I) ✅ checked |
+| `material/slides/planar.pdf` | — | 5 (planar graphs) |
+| `material/slides/Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
+| `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 12 (approximation I) ✅ checked |
 | | 30–74 | 13 (approximation II) ✅ checked |
-| `aa-fpt.pdf` | — | 14, 17 |
-| `Treewidth 2026.pptx` | — | 15 |
-| `Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
+| `material/slides/aa-fpt.pdf` | — | 14, 17 |
+| `material/slides/Treewidth 2026.pptx` | — | 15 |
+| `material/notes/Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
 | | ch. 3–4 | 9 (duality, ETR-AM/ETR-INV, unit disk graphs, curve straightening, art gallery; order types and stretchability at the end, non-examinable) ✅ |
 
@@ -297,9 +271,23 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
 
+### Chapter 15 — Treewidth
+
+- Written from the treewidth deck, slides 1–65. Slides 66–69 are a "Bonus
+  Topic" on Hamiltonian cycle and the matchings connectivity matrix, with no
+  worked content in the deck; they are mentioned in the notes and nowhere else.
+- The two pool exercises — the grid decomposition and cliques living in one bag
+  — are worked in §15.4. The *Treewidth* pool question was expanded from four
+  items to ten to cover what the deck actually teaches.
+- **4 figure placeholders.** The one that carries real argument is the four
+  operations of §15.2 with the table beside the graph; the levels/sweep pictures
+  are illustration.
+- Two things are stated without proof, as in the deck: the cops-and-robber
+  characterisation, and the lower bound `tw(p × q grid) ≥ min(p,q)`.
+
 ### Chapters 12 and 13 — Approximation Algorithms
 
-- Written from `Approximation Algorithms 2026.pdf`, slides 1–29 and 30–74. The
+- Written from `material/slides/Approximation Algorithms 2026.pdf`, slides 1–29 and 30–74. The
   deck is two lectures in one file and splits cleanly at slide 30, where the
   second title page sits.
 - **Dropped from the skeletons because the deck does not have them:** local
@@ -337,7 +325,7 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 ### Chapter 8 — The Existential Theory of the Reals
 
 - **Bibliography gap closed.** The manuscript's own reference list, found
-  inside `Real-Compuation.pdf`, resolved the numeric citations; the entries are
+  inside `material/notes/Real-Compuation.pdf`, resolved the numeric citations; the entries are
   in `references.bib` with DOIs verified against publisher records, and the
   `\todo` is gone.
 - **Order types are non-examinable.** The lecture dropped them, so pool
@@ -349,7 +337,7 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ### Chapter 7 — Real Models of Computation
 
-- Figures are in place: pages 1--3 of the author's `RegiserMachine.pdf`, split
+- Figures are in place: pages 1--3 of the author's `material/notes/RegiserMachine.pdf`, split
   into `word-ram.pdf`, `real-ram.pdf` and `turing-machine.pdf`. **Do not
   extract figures from the manuscript PDF** — the author supplies them.
 - The manuscript carries its own pool-question list per chapter, and chapter

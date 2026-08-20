@@ -1,8 +1,8 @@
 %% Chapter 13: Approximation Algorithms II
 %% Status: drafted; figures are still placeholders.
 %%
-%% Written against slides 30-74 of "Approximation Algorithms 2026.pdf"
-%% (Johan van Rooij).  Pool question 14 (Steiner tree) is worked in the last
+%% Written against slides 30-74 of "material/slides/Approximation Algorithms 2026.pdf"
+%% (Johan van Rooij).  The pool exercise on Steiner tree is worked in the last
 %% section before the exercises; it is not in the deck, but it is in the pool,
 %% and both halves of it are applications of techniques that are.
 %%
@@ -23,29 +23,29 @@ gives the techniques for proving that a problem does \emph{not} sit higher on
 the scale than it does.
 
 \begin{goals}
-  \poolgoal{26.1}{name the five qualities of polynomial-time approximation and
+  \poolgoal{name the five qualities of polynomial-time approximation and
         give an example of each}
-  \poolgoal{26.2}{give a problem approximable within an absolute constant
+  \poolgoal{give a problem approximable within an absolute constant
         difference, and show that maximum independent set is not one unless
         $\mathrm{P} = \mathrm{NP}$}
-  \poolgoal{26.3}{define PTAS and FPTAS, and give an FPTAS for \lang{Knapsack}:
+  \poolgoal{define PTAS and FPTAS, and give an FPTAS for \lang{Knapsack}:
         the dynamic program, the scaling, the choice of the scaling constant,
         and the proofs of ratio and running time}
-  \poolgoal{26.4}{use the gap technique to show that \lang{Knapsack} admits no
+  \poolgoal{use the gap technique to show that \lang{Knapsack} admits no
         absolute constant difference approximation unless
         $\mathrm{P} = \mathrm{NP}$}
-  \poolgoal{26.5}{give the PTAS for maximum independent set on planar graphs,
+  \poolgoal{give the PTAS for maximum independent set on planar graphs,
         and prove its ratio and running time}
-  \poolgoal{26.6}{explain the polynomial-bound technique, and use it to show
+  \poolgoal{explain the polynomial-bound technique, and use it to show
         that maximum independent set admits no FPTAS unless
         $\mathrm{P} = \mathrm{NP}$}
-  \poolgoal{26.7}{give the greedy $(\ln n + 1)$-approximation for
+  \poolgoal{give the greedy $(\ln n + 1)$-approximation for
         \lang{Set Cover} and prove its ratio}
-  \poolgoal{26.8}{give the self-reduction from $G$ to $G \times G$ and use it to
+  \poolgoal{give the self-reduction from $G$ to $G \times G$ and use it to
         show that maximum independent set is not in APX unless it has a PTAS}
-  \poolgoal{14.1}{prove that the shortest-path-metric MST heuristic is a
+  \poolgoal{prove that the shortest-path-metric MST heuristic is a
         $2$-approximation for \lang{Steiner Tree}}
-  \poolgoal{14.2}{prove that there is no FPTAS for \lang{Steiner Tree} unless
+  \poolgoal{prove that there is no FPTAS for \lang{Steiner Tree} unless
         $\mathrm{P} = \mathrm{NP}$}
 \end{goals}
 
@@ -169,6 +169,9 @@ earned by an algorithm, it is a fact about the problem.
 \section{An FPTAS for knapsack}
 \label{sec:knapsack-fptas}
 %==============================================================================
+
+The example at level~2 of the scale is knapsack, and the route to it runs
+through an algorithm that is not polynomial at all.
 
 \begin{probdef}{Knapsack}
   \instance $n$ items, item $i$ having a positive integer weight $w(i)$ and a
@@ -390,6 +393,10 @@ FPTAS --- and the next section shows the cost is unavoidable.
 \label{sec:polynomial-bound}
 %==============================================================================
 
+Where the gap technique separates the bottom of the scale, one observation
+separates FPTAS from PTAS. It is almost too simple to be called a technique,
+and it applies to a remarkable number of problems.
+
 \begin{theorem}\label{thm:polynomial-bound}
 Let $\Pi$ be an optimisation problem with integer solution values on which
 $\OPT \le p(n)$ for a polynomial $p$, where $n$ is the input size. If $\Pi$ has
@@ -590,8 +597,8 @@ $f$.
 \label{sec:steiner-tree}
 %==============================================================================
 
-The last section applies both halves of the chapter to one problem. This is
-pool question~14.
+The last section applies both halves of the chapter to one problem: the pool
+exercise \emph{Approximating Steiner Tree}.
 
 \begin{probdef}{Steiner Tree}
   \instance A connected undirected graph $G = (V,E)$ and a set $T \subseteq V$
@@ -664,6 +671,9 @@ traversing every edge twice.
 \end{intuition}
 
 \subsection{No FPTAS}
+
+The second half of the pool question asks for the limits, and the previous
+sections supply them almost immediately.
 
 \begin{theorem}\label{thm:steiner-no-fptas}
 Unless $\mathrm{P} = \mathrm{NP}$, \lang{Steiner Tree} has no FPTAS.

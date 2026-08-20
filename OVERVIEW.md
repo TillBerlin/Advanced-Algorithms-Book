@@ -84,7 +84,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 14 | Parameterized Algorithms I | `14-fpt-i.tex` | W7 Thu | 15 | 🔲 |
+| 14 | Parameterized Algorithms I | `14-fpt-i.tex` | W7 Thu | Parameterized Complexity | ✅ drafted; 3 figure placeholders |
 | 15 | Treewidth | `15-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
 | 16 | Complexity Theory for Approximation and Parameterization | `16-hardness-of-approximation-and-fpt.tex` | W9 Tue | 18 | 🔲 |
 | 17 | Kernelization | `17-kernelization.tex` | W9 Thu (FPT 2) | 19 (items 1–2) | 🔲 |
@@ -251,7 +251,8 @@ rewrite.
 | `material/slides/Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
 | `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 12 (approximation I) ✅ checked |
 | | 30–74 | 13 (approximation II) ✅ checked |
-| `material/slides/aa-fpt.pdf` | — | 14, 17 |
+| `material/slides/aa-fpt.pdf` | 1–66 | 14 (parameterized algorithms I) ✅ checked |
+| | 67–83 | 17 (kernelization) |
 | `material/slides/Treewidth 2026.pptx` | — | 15 |
 | `material/notes/Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
@@ -270,6 +271,27 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 14 — Parameterized Algorithms I
+
+- Written from the FPT deck, slides 1–66: the classes, four branching
+  algorithms (vertex cover, cluster editing, planar independent set, closest
+  string), kernelisation, and the convex-string-recoloring and vertex-cover
+  kernels. Slides 67–83 — Nemhauser–Trotter and the cluster editing kernel —
+  are chapter 17's.
+- **Source gap.** Items 10 and 11 of the *Parameterized Complexity* pool
+  question ask for `Directed k-Path` and a one-sided error algorithm running in
+  `O(k^k n^c)`, i.e. colour coding. **No deck in `material/` covers this**, and
+  neither does the randomized half of the *Vertex Cover Kernel* question
+  (2-list colouring, randomized 3-colouring in `O(1.5^n)`). Those goals now sit
+  in chapter 18 with a `\todo` asking for the slides.
+- **3 figure placeholders.** The class diagram (FPT ⊆ W[1] ⊆ … ⊆ XP, with
+  para-NP beside it) is the one that earns its place.
+- Rule 1 of the convex string kernel bounds the drop in bad-colour blocks by 4
+  per change. The deck asserts it; the chapter gives the reason (a change
+  touches one block and its two neighbours and can make at most one colour
+  good) and notes that any constant gives an O(k²) kernel. Worth a look before
+  it is lectured.
 
 ### Chapter 15 — Treewidth
 

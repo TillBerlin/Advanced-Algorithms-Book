@@ -258,25 +258,15 @@ Re-audited after chapters 10, 11 and 12. Six `\todo` markers and 71
 
 ### Chapters not yet written
 
+All four now have what they need. The two decks that were missing arrived on
+2026-08-20.
+
 | # | Chapter | Source | Notes |
 | --- | --- | --- | --- |
-| 18 | Kernelization | ✅ deck, `aa-fpt.pdf` 67–83 | Ready to write |
-| 17 | Complexity for Approximation and Parameterization | ❌ **no deck** | See below |
-| 19 | Randomized Algorithms | ❌ no deck, and none expected | Blackboard + colour coding |
-| 1 | Introduction | ❌ none needed | Write last |
-
-**Chapter 17 has no source.** The approximation deck mentions APX-completeness
-four times and always as a cross-reference — "last lecture", "next lecture" —
-and never teaches it; `aa-fpt.pdf` does not contain the words *L-reduction*,
-*APX-hard* or *PCP* at all. Chapter 14 forward-references it three times for the
-APX-hardness of independent set and of vertex cover, and two pool questions are
-answered there. Either slides exist somewhere or it gets written from the
-literature.
-
-**Chapter 19 has no source either, and this is settled**: the randomized
-`O(1.5^n)` 3-colouring algorithm was lectured at the blackboard, and
-`Directed k-Path` by colour coding has no slides. It will be written from the
-literature.
+| 17 | Complexity for Approximation and Parameterization | ✅ `FPT and Approximation Complexity.pptx`, 50 slides | **Newly supplied** — was the one real blocker |
+| 18 | Kernelization | ✅ `aa-fpt.pdf` 67–83 | Nemhauser–Trotter, cluster editing kernel |
+| 19 | Randomized Algorithms | ✅ `an-randomized2122(1).pptx`, 18 slides | **Newly supplied**; the `O(1.5^n)` 3-colouring was lectured at the blackboard, so check whether the deck has it |
+| 1 | Introduction | no deck, none needed | Write last, once the notation has settled |
 
 ### Other open work
 
@@ -321,6 +311,8 @@ rewrite.
 | | 54–75 | 11 (inclusion–exclusion) ✅ checked |
 | `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 13 (approximation I) ✅ checked |
 | | 30–74 | 14 (approximation II) ✅ checked |
+| `material/slides/FPT and Approximation Complexity.pptx` | 50 slides | 17 (hardness of approximation) |
+| `material/slides/an-randomized2122(1).pptx` | 18 slides | 19 (randomized algorithms) |
 | `material/slides/aa-fpt.pdf` | 1–66 | 15 (parameterized algorithms I) ✅ checked |
 | | 67–83 | 18 (kernelization) |
 | `material/slides/Treewidth 2026.pptx` | 1–65 | 16 (treewidth) ✅ checked |
@@ -328,7 +320,7 @@ rewrite.
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
 | | ch. 3–4 | 9 (duality, ETR-AM/ETR-INV, unit disk graphs, curve straightening, art gallery; order types and stretchability at the end, non-examinable) ✅ |
 | **no source** | — | 12 (ETH/SETH — new chapter, written from the literature) |
-| **no source** | — | 19 (randomized 3-colouring was lectured at the blackboard; Directed k-Path has no slides) |
+| **no source** | — | 19 also needs the blackboard `O(1.5^n)` 3-colouring, if the new deck lacks it |
 
 Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.

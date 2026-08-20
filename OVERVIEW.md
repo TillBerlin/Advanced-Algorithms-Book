@@ -72,7 +72,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | --- | --- | --- | --- | --- | --- |
 | 10 | Exact Exponential-Time Algorithms I: Branching | `10-exact-algorithms-i.tex` | W5 Tue | Exact 3-SAT, Bisection Width, Branching | 🔲 |
 | 11 | Exact Algorithms II: Inclusion–Exclusion | `11-exact-algorithms-ii.tex` | W6 Tue | Set Cover, Subset DP | 🔲 |
-| 12 | Fine-Grained Lower Bounds | `12-fine-grained-lower-bounds.tex` | **new lecture, unscheduled** | **none yet** | ✅ drafted; 2 figure placeholders |
+| 12 | Fine-Grained Lower Bounds | `12-fine-grained-lower-bounds.tex` | **new lecture, unscheduled** | Dominating Pairs, Fine-Grained Lower Bounds | ✅ drafted; 3 figure placeholders |
 
 ### Part IV — Approximation Algorithms
 
@@ -278,43 +278,50 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 
 ### Chapter 12 — Fine-Grained Lower Bounds
 
-**New chapter, no deck, no pool question yet.** Written on request for a lecture
-on ETH and SETH. It contains: the two hypotheses and how they differ from
-P ≠ NP; the sparsification lemma; linear reductions; ETH ⇒ no 2^o(n) for
-3-colouring, with the full classical gadget reduction and the vertex count;
-Orthogonal Vectors and the SETH ⇒ OV reduction in full; the Fréchet distance,
-its quadratic dynamic program, and Bringmann's lower bound as a proof sketch
-from OV.
+**New chapter, no deck.** Written on request for a lecture on ETH and SETH, and
+then extended with every topic that was on the shortlist, so that the lecturer
+can choose. Two pool questions were added for it: *Dominating Pairs* (exercise)
+and *Fine-Grained Lower Bounds* (13 learning-goal items).
 
-- **Needs a pool question** before it can be examined. Every other chapter's
-  goals are pool items; this one's are all untagged.
-- The Fréchet lower bound is a **sketch**, deliberately. The gadget construction
-  is a paper's worth of work; the chapter gives the interface (each vector
-  becomes a curve piece; the leash fits iff the vectors are orthogonal; the
-  curves have O(Nd) vertices) and cites Bringmann for the rest. If the lecture
-  wants the real gadgets, that is another two or three pages and a figure that
-  is genuinely hard to draw.
-- **Candidates considered for this chapter and not included** — each is
-  self-contained and could be dropped in:
-  1. *Edit distance / LCS* (Backurs–Indyk). Same OV template as Fréchet, no
-     geometry, and probably the single most famous fine-grained result. The
-     cheapest addition of the lot.
-  2. *ETH ⇒ no 2^o(√n) for planar problems.* This is the one that would make
-     the book cohere: chapter 5 proves the 2^O(√n) upper bound via separators
-     and chapter 16 via treewidth, and this closes it from below. Currently an
-     exercise; promoting it to a section costs half a page.
-  3. *ETH ⇒ no f(k)·n^o(k) for Clique* (Chen–Huang–Kanj–Xia). Matches the XP
-     algorithm of chapter 15 and explains why W[1]-hardness is not the whole
-     story. Statement only, one paragraph.
-  4. *SETH ⇒ no (3−ε)^k dominating set on treewidth k* (Lokshtanov–Marx–
-     Saurabh). Already cited in chapter 16; moving the statement here makes the
-     three states of that dynamic program a theorem rather than a remark.
-  5. *The 3SUM and APSP conjectures.* The other two hubs. Half a page of
-     landscape, no proofs, and it turns three isolated results into a subject.
-  6. *A worked non-example*: a problem where the obvious OV reduction fails.
-     Good pedagogy, hard to source.
-  7. *Kernel lower bounds* (no polynomial kernel unless NP ⊆ coNP/poly). Fits
-     the theme but belongs with chapter 18.
+Contents: the two hypotheses; the sparsification lemma; linear reductions;
+ETH ⇒ no 2^o(n) for 3-colouring; ETH ⇒ no 2^o(√n) for planar 3-colouring;
+ETH ⇒ no f(k)·n^o(k) for clique; Orthogonal Vectors and SETH ⇒ OV; the discrete
+Fréchet distance as reachability, with the coordinate and vector gadgets;
+edit distance and LCS; two non-examples; SETH and treewidth DP; 3SUM and APSP;
+kernel lower bounds.
+
+**What is proved and what is quoted** — worth knowing before lecturing:
+
+| Result | Status |
+| --- | --- |
+| ETH ⇒ no 2^o(n) for 3-colouring | proved in full |
+| ETH ⇒ no 2^o(√n) for planar 3-colouring | proved in full |
+| SETH ⇒ OV conjecture | proved in full |
+| Fréchet coordinate + vector gadget | **proved in full** |
+| Fréchet OR gadget (§12.7.4) | **stated, cited to Bringmann** |
+| clique, edit distance, LCS, treewidth, 3SUM, APSP, kernels | stated, cited |
+
+- The **Fréchet vector gadget is the one piece of new exposition here.** The
+  gadget interleaves the coordinate points with a separator at position 3, which
+  blocks every off-parity cell and so forces any traversal onto the diagonal —
+  a five-line parity argument. Without it the gadget is simply wrong: for
+  a = b = (0,1,0) the path (1,1),(2,1),(3,2),(3,3) is free although a·b = 1,
+  and that counterexample is in the text and in an exercise. The construction
+  is one-dimensional and self-contained; Bringmann's is more elaborate because
+  it also has to handle the continuous distance and the approximation version.
+- **The OR over the N² pairs is not proved.** `people.mpi-inf.mpg.de` is blocked
+  by this container's egress proxy, so the paper could not be read, and writing
+  a reconstructed gadget into a textbook is worse than citing one. §12.7.4 says
+  exactly what the missing lemma must deliver and why it is the delicate step
+  (a traversal must consume both curves entirely, so "skipping" has to be paid
+  for). **If the paper is added to `material/`, this can be written out in
+  full.**
+- **3 figure placeholders**: the 3-colouring clause gadget, the traversal/grid
+  picture, and the vector-gadget grid. The last is the one that carries the
+  argument — a checkerboard with a broken diagonal.
+- The chapter forward-references chapters 15 and 16 (clique, treewidth) in two
+  places. That is deliberate: it sits in part III because it bounds the
+  algorithms of chapters 10 and 11, and the later references are in remarks.
 
 ### Chapter 15 — Parameterized Algorithms I
 

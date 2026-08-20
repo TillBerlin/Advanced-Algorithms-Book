@@ -411,6 +411,61 @@ covered by the exercise above.
         conditional lower bound from each.
 \end{enumerate}
 
+\subsection*{Fine-Grained Lower Bounds (\cref{ch:lower-bounds})}
+
+\paragraph{Dominating Pairs.}
+In the \textsc{Dominating Pairs} problem we are given two sets
+$A, B \subseteq \{0,1\}^d$ with $|A| = |B| = N$, and must decide whether there
+are $a \in A$ and $b \in B$ with $a_i \le b_i$ for every coordinate $i$.
+
+Show that, assuming the strong exponential time hypothesis, \textsc{Dominating
+Pairs} has no algorithm running in $O(N^{2-\delta}\,\mathrm{poly}(d))$ time,
+for any $\delta > 0$. You may use without proof that \textsc{Orthogonal
+Vectors} has no such algorithm.
+
+\paragraph{Fine-Grained Lower Bounds.}
+This set of questions captures the learning goals of the chapter that are not
+covered by the exercise above.
+\begin{enumerate}
+  \item State the exponential time hypothesis and the strong exponential time
+        hypothesis. Explain how each differs from
+        $\mathrm{P} \ne \mathrm{NP}$, and say which of the two is the more
+        firmly believed and why.
+  \item State the sparsification lemma, and explain what it is needed for in a
+        lower bound proof.
+  \item Define a linear reduction, and explain why an ordinary polynomial-time
+        reduction is not enough to transfer a subexponential lower bound.
+  \item Show that, assuming ETH, \textsc{3-Coloring} has no $2^{o(n)}$
+        algorithm, where $n$ is the number of vertices.
+  \item Show that, assuming ETH, \textsc{Planar 3-Coloring} has no
+        $2^{o(\sqrt n)}$ algorithm, and explain why this matches the
+        $2^{O(\sqrt n)}$ algorithm for planar graphs.
+  \item Define \textsc{Orthogonal Vectors} and prove that SETH implies it has
+        no $O(N^{2-\delta}\,\mathrm{poly}(d))$ algorithm.
+  \item Define the discrete Fr\'echet distance, give the $O(n^2)$ dynamic
+        programming algorithm, and restate the decision problem as reachability
+        in a grid of free cells.
+  \item Give the coordinate gadget and the vector gadget of the reduction from
+        \textsc{Orthogonal Vectors} to the discrete Fr\'echet distance, and
+        prove that two vector gadgets are at Fr\'echet distance at most one
+        exactly when the two vectors are orthogonal. Explain what the
+        separators are for.
+  \item State the conditional quadratic lower bounds for edit distance and for
+        the longest common subsequence, and explain how the last step of their
+        reductions differs from the last step of the Fr\'echet reduction.
+  \item Give a problem for which no conditional quadratic lower bound is
+        expected, and say what distinguishes it from one for which such a
+        bound is known.
+  \item State what SETH implies about the base of the exponent in dynamic
+        programming over a tree decomposition, for independent set, dominating
+        set and $q$-colouring.
+  \item State the 3SUM conjecture and the APSP conjecture, and give one
+        consequence of each.
+  \item Explain what it means for a parameterized problem to have no polynomial
+        kernel, name a problem for which this is known, and state the
+        hypothesis it rests on.
+\end{enumerate}
+
 \subsection*{Approximation Algorithms I (\cref{ch:approx-i})}
 
 \paragraph{Approximation non-symmetric TSP.}

@@ -1,11 +1,17 @@
 %% Chapter 12: Fine-Grained Lower Bounds
-%% Status: drafted; 2 figure placeholders.
+%% Status: drafted; 3 figure placeholders.
 %%
-%% NEW MATERIAL.  There is no deck for this chapter and no pool question yet.
-%% It was written on the author's request for a lecture on ETH and SETH, with
-%% the 3-colouring and Frechet distance lower bounds as the two worked
-%% examples.  See OVERVIEW.md for the list of further topics that were
-%% considered and what each would cost.
+%% NEW MATERIAL.  There is no deck for this chapter.  It was written on the
+%% author's request for a lecture on ETH and SETH.  Everything here is from the
+%% literature; the pool questions for it are new too.
+%%
+%% What is proved in full and what is quoted:
+%%   * 3-colouring under ETH               -- proved in full
+%%   * planar, no 2^o(sqrt n), under ETH   -- proved in full
+%%   * SETH => Orthogonal Vectors          -- proved in full
+%%   * the Frechet vector gadget           -- proved in full
+%%   * the Frechet OR gadget               -- STATED, cited to Bringmann
+%%   * clique, edit distance, LCS, tw, 3SUM, APSP, kernels -- stated, cited
 
 \chapter{Fine-Grained Lower Bounds}
 \label{ch:lower-bounds}
@@ -20,27 +26,44 @@ whether $3$-colouring needs $1.3^n$ or $1.0001^n$ or $2^{\sqrt n}$.
 
 This chapter is about the conjectures that do answer it, and about what follows
 from them. Two hypotheses --- the exponential time hypothesis and its strong
-form --- turn out to imply sharp lower bounds for a long list of concrete
-problems, exponential and polynomial alike. The technique is the one from
+form --- imply sharp lower bounds for a long list of concrete problems,
+exponential and polynomial alike. The technique is the one from
 \textrm{NP}-hardness, with the accounting made exact: it is no longer enough
 that the reduction be polynomial, it must not waste the resource we are
 measuring.
 
 \begin{goals}
-  \goalitem{state the exponential time hypothesis and the strong exponential
+  \poolgoal{state the exponential time hypothesis and the strong exponential
         time hypothesis, and explain how they differ from
-        $\mathrm{P} \ne \mathrm{NP}$}
-  \goalitem{state the sparsification lemma and explain what it is needed for}
-  \goalitem{explain what a linear reduction is and why an ordinary polynomial
+        $\mathrm{P} \ne \mathrm{NP}$ and how far each is believed}
+  \poolgoal{state the sparsification lemma and explain what it is needed for}
+  \poolgoal{explain what a linear reduction is and why an ordinary polynomial
         reduction is not good enough for a fine-grained lower bound}
-  \goalitem{show that, assuming ETH, \lang{3-Coloring} has no
-        $2^{o(n)}$ algorithm}
-  \goalitem{define \lang{Orthogonal Vectors} and prove that SETH implies it has
+  \poolgoal{show that, assuming ETH, \lang{3-Coloring} has no $2^{o(n)}$
+        algorithm}
+  \poolgoal{show that, assuming ETH, \lang{Planar 3-Coloring} has no
+        $2^{o(\sqrt n)}$ algorithm, and explain why this matches the algorithm
+        of \cref{ch:planar}}
+  \poolgoal{define \lang{Orthogonal Vectors} and prove that SETH implies it has
         no $\bigoh{N^{2-\delta}}$ algorithm}
-  \goalitem{define the discrete Fr\'echet distance, and explain how a lower
-        bound for it follows from \lang{Orthogonal Vectors}}
-  \goalitem{say what these hypotheses would mean if they turned out to be
-        false}
+  \poolgoal{define the discrete Fr\'echet distance, give its quadratic
+        algorithm, and restate the problem as reachability in a grid of free
+        cells}
+  \poolgoal{give the coordinate and vector gadgets of the reduction from
+        \lang{Orthogonal Vectors} to the discrete Fr\'echet distance, and prove
+        that the vector gadget is traversable exactly when the two vectors are
+        orthogonal}
+  \poolgoal{state the conditional quadratic lower bounds for edit distance and
+        for the longest common subsequence, and explain how their reductions
+        differ from the Fr\'echet one}
+  \poolgoal{give an example of a problem for which no such lower bound is
+        expected, and say what distinguishes it}
+  \poolgoal{state what SETH says about dynamic programming over a tree
+        decomposition}
+  \poolgoal{state the 3SUM and APSP conjectures and name one consequence of
+        each}
+  \poolgoal{explain in what sense a problem can fail to have a polynomial
+        kernel, and which hypothesis that rests on}
 \end{goals}
 
 %==============================================================================
@@ -59,8 +82,8 @@ almost every question an algorithm designer actually has, that is not enough:
         in $\Ostar{}(3^k)$ on a tree decomposition of width $k$. Is the $3$ an
         artefact of the three states, or is it forced?}
   \item \emph{Edit distance, Fr\'echet distance and longest common subsequence
-        all have textbook quadratic algorithms and no better one. Is that a
-        gap in our knowledge or a fact about the problems?}
+        all have textbook quadratic algorithms and no better one. Is that a gap
+        in our knowledge or a fact about the problems?}
 \end{itemize}
 
 None of these is a question about polynomial versus exponential. They are
@@ -117,12 +140,11 @@ $\mathrm{P} \ne \mathrm{NP}$. Neither converse is known.
 \end{proposition}
 
 \begin{proof}
-If $s_3 = 0$ then, since \citet{ImpagliazzoPaturi2001} show that the sequence
-$(s_k)$ satisfies $s_k \le c \cdot s_3$ for an absolute constant $c$ --- the
-complexity of $k$-SAT is controlled by that of $3$-SAT --- we would have
-$s_k = 0$ for every $k$, contradicting SETH. And a $2^{o(n)}$ algorithm for
-$3$-SAT is in particular not polynomial-time, so ETH is a stronger assumption
-than $\mathrm{P} \ne \mathrm{NP}$.
+\citet{ImpagliazzoPaturi2001} show that the sequence $(s_k)$ is controlled by
+its first term: $s_k \le c\, s_3$ for an absolute constant $c$ and every $k$.
+So if $s_3 = 0$ then $s_k = 0$ for all $k$ and $\lim_k s_k = 0 \ne 1$,
+contradicting SETH. For the second implication, a $2^{o(n)}$ algorithm for
+$3$-SAT is in particular not polynomial, so ETH is the stronger assumption.
 \end{proof}
 
 \begin{remark}[How much are they believed?]\label{rem:believing-eth}
@@ -132,7 +154,7 @@ CNF-SAT algorithm running in $\bigoh{1.99^n}$, and such algorithms are known
 for restricted classes of formulas. A refutation of SETH would be a major
 result rather than a catastrophe --- it would falsify a long list of
 conditional lower bounds without touching any algorithm. This is worth saying
-to students, because a conditional lower bound is only as interesting as its
+plainly, because a conditional lower bound is only as interesting as its
 hypothesis, and the two hypotheses in this chapter are not on the same footing.
 \end{remark}
 
@@ -174,17 +196,17 @@ that the clauses may as well be few.
 
 \begin{theorem}[Sparsification lemma, \citet{ImpagliazzoPaturiZane2001}]
 \label{thm:sparsification}
-For every $\varepsilon > 0$ and every $k$ there is a constant $C =
-C(k,\varepsilon)$ and an algorithm that, given a $k$-CNF formula $F$ on $n$
-variables, outputs in $\bigoh{2^{\varepsilon n}\poly(n)}$ time formulas
+For every $\varepsilon > 0$ and every $k$ there is a constant
+$C = C(k,\varepsilon)$ and an algorithm that, given a $k$-CNF formula $F$ on
+$n$ variables, outputs in $\bigoh{2^{\varepsilon n}\poly(n)}$ time formulas
 $F_1, \ldots, F_t$ with $t \le 2^{\varepsilon n}$, each a $k$-CNF on the same
 $n$ variables and with at most $Cn$ clauses, such that
 \[ F \text{ is satisfiable} \iff F_i \text{ is satisfiable for some } i. \]
 \end{theorem}
 
 \begin{corollary}\label{cor:eth-sparse}
-$\mathrm{ETH}$ implies that $3$-SAT has no algorithm running in
-$2^{o(n+m)}$ time, where $m$ is the number of clauses.
+$\mathrm{ETH}$ implies that $3$-SAT has no algorithm running in $2^{o(n+m)}$
+time, where $m$ is the number of clauses.
 \end{corollary}
 
 \begin{proof}
@@ -200,10 +222,10 @@ $\varepsilon$ was arbitrary, $s_3 = 0$.
 The sparsification lemma is doing something that sounds impossible: it removes
 clauses without changing satisfiability. It does not, of course --- it splits
 the formula into many formulas, and the point is that the number of pieces is
-sub-exponential while each piece is sparse. Read it as a licence: \emph{when
+subexponential while each piece is sparse. Read it as a licence: \emph{when
 proving lower bounds under ETH, you may assume $m = \bigoh{n}$}. Almost every
-reduction in this chapter and the literature uses it in exactly that way, and
-almost none uses anything else about it.
+reduction in this chapter and in the literature uses it in exactly that way,
+and almost none uses anything else about it.
 \end{intuition}
 
 %==============================================================================
@@ -230,9 +252,9 @@ Let $F$ be a $3$-CNF formula with variables $x_1,\ldots,x_n$ and clauses
 $C_1, \ldots, C_m$. By \cref{cor:eth-sparse} we may assume $m = \bigoh{n}$.
 Build a graph $G$ as follows.
 
-\emph{The palette.} Take a triangle on three vertices named
-$\mathsf{T}$, $\mathsf{F}$ and $\mathsf{B}$. In any $3$-colouring they receive
-three different colours, and we name the colours after them: the colour of
+\emph{The palette.} Take a triangle on three vertices named $\mathsf{T}$,
+$\mathsf{F}$ and $\mathsf{B}$. In any $3$-colouring they receive three
+different colours, and we name the colours after them: the colour of
 $\mathsf{T}$ is ``true'', that of $\mathsf{F}$ is ``false'', that of
 $\mathsf{B}$ is ``base''.
 
@@ -244,10 +266,10 @@ $\neg x_i$, a colouring of these vertices is exactly a truth assignment.
 
 \emph{Clauses.} For a clause $C = \ell_1 \vee \ell_2 \vee \ell_3$ add the
 six-vertex gadget of \cref{fig:eth-clause-gadget}: two triangles
-$\{a_1,a_2,a_3\}$ and $\{b_1,b_2,b_3\}$ wired so that $a_j$ is adjacent to the
-vertex of $\ell_j$ for $j = 1,2$, that $a_1a_2b_1$ and $b_1b_2b_3$ are
-triangles, that $b_2$ is adjacent to $\mathsf{F}$, and that $b_3$ is adjacent
-to the vertex of $\ell_3$. The gadget has the property that it can be
+$\{a_1,a_2,b_1\}$ and $\{b_1,b_2,b_3\}$, with $a_1$ adjacent to the vertex of
+$\ell_1$, $a_2$ adjacent to the vertex of $\ell_2$, $b_2$ adjacent to
+$\mathsf{F}$ and to $\mathsf{B}$, and $b_3$ adjacent to the vertex of
+$\ell_3$ and to $\mathsf{B}$. The gadget has the property that it can be
 $3$-coloured, given the colours of the three literal vertices, if and only if
 at least one literal vertex has the true colour.
 
@@ -266,10 +288,11 @@ follows because $|E| = \bigoh{|V|}$ here.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5.5cm}{The six-vertex clause gadget: two triangles, the three
-literal vertices on the left attached to $a_1$, $a_2$ and $b_3$, the vertex
-$\mathsf{F}$ of the palette attached to $b_2$. Beside it, the same gadget with
-all three literals coloured false, and the resulting conflict marked.}
+\figplaceholder{5.5cm}{The six-vertex clause gadget: two triangles sharing the
+vertex $b_1$, the three literal vertices on the left attached to $a_1$, $a_2$
+and $b_3$, and the palette vertices $\mathsf{F}$ and $\mathsf{B}$ attached on
+the right. Beside it, the same gadget with all three literals coloured false
+and the resulting collision marked.}
 \caption{The clause gadget of \cref{thm:eth-3col}. It extends to a
 $3$-colouring exactly when one of its three literal vertices is true; the
 picture on the right shows the collision that occurs otherwise.}
@@ -284,11 +307,90 @@ $\bigoh{(2-\varepsilon)^n}$'' do exist for some problems --- under SETH, not
 ETH --- but $3$-colouring is not among them.
 
 The bound does transfer, and cheaply. Any problem to which \lang{3-Coloring}
-reduces linearly inherits it. \Cref{ch:planar} gave a $2^{\bigoh{\sqrt n}}$
-algorithm for independent set on planar graphs, and the same technique gives one
-for planar $3$-colouring; \cref{ex:eth-planar} asks you to show that ETH makes
-the $\sqrt n$ optimal too.
+reduces linearly inherits it, and \cref{ex:eth-vc,ex:eth-is} ask you to do
+this for vertex cover and independent set.
 \end{remark}
+
+%==============================================================================
+\section{Two more bounds from ETH}
+\label{sec:eth-more}
+%==============================================================================
+
+Before turning to SETH, two further consequences of ETH. The first closes a
+gap the book has been carrying since \cref{ch:planar}; the second explains a
+running time in \cref{ch:fpt-i}.
+
+\subsection{Planar problems and the square root}
+
+\Cref{ch:planar} solved maximum independent set on planar graphs in
+$2^{\bigoh{\sqrt n}}$ time by recursively splitting on a separator, and
+\cref{ch:treewidth} obtained the same bound through treewidth. Neither said
+whether the square root is real. It is.
+
+\begin{theorem}\label{thm:eth-planar}
+Assuming $\mathrm{ETH}$, there is no algorithm deciding \lang{Planar
+3-Coloring} on a planar graph with $n$ vertices in $2^{o(\sqrt n)}$ time. The
+same holds for \lang{Independent Set} and \lang{Vertex Cover} on planar
+graphs.
+\end{theorem}
+
+\begin{proof}
+Start from the graph $G$ produced by \cref{thm:eth-3col}, which has
+$N = \bigoh{n}$ vertices and $\bigoh{n}$ edges and is $3$-colourable if and only
+if $F$ is satisfiable.
+
+Draw $G$ in the plane with straight-line edges in general position. Two edges
+cross at most once, so the number of crossings is at most
+$\binom{|E|}{2} = \bigoh{n^2}$, and such a drawing is found in polynomial
+time.
+
+Now remove the crossings. There is a planar \emph{crossover gadget} for
+$3$-colouring --- a constant-size planar graph with four terminals, which can be
+$3$-coloured exactly when the two opposite pairs of terminals carry equal
+colours, so that it transmits two colours across each other without
+interference. Replacing every crossing of the drawing by a copy of it yields a
+planar graph $G'$ that is $3$-colourable if and only if $G$ is. This is the
+construction that proves planar $3$-colourability \textrm{NP}-complete
+\citep{GareyJohnsonStockmeyer1976}.
+
+Each crossing costs a constant number of vertices, so
+$|V(G')| = \bigoh{n} + \bigoh{n^2} = \bigoh{n^2}$. An algorithm running in
+$2^{o(\sqrt{|V(G')|})}$ time therefore decides $3$-colourability of $G$ in
+$2^{o(\sqrt{n^2})} = 2^{o(n)}$ time, and hence $3$-SAT in $2^{o(n)}$ time,
+contradicting ETH.
+
+For independent set and vertex cover, compose with the linear reductions of
+\cref{ex:eth-is,ex:eth-vc}, which preserve planarity.
+\end{proof}
+
+\begin{intuition}
+The square in $|V(G')| = \bigoh{n^2}$ and the square root in $2^{o(\sqrt n)}$
+are the same square. Planarity costs a squaring to achieve, and buys a square
+root back in the running time, and the two cancel exactly. That is not a
+coincidence: it is the general shape of subexponential parameterized
+algorithms, and the reason the exponent $\sqrt n$ appears again and again for
+planar problems and essentially never for general ones.
+\end{intuition}
+
+\subsection{Clique and the price of the parameter}
+
+\Cref{ch:fpt-i} noted that \lang{Clique} is solvable in $\bigoh{n^{k+1}}$ time
+by trying every $k$-set, that it is $\mathrm{W}[1]$-complete, and that
+$\mathrm{W}[1]$-hardness is evidence against an $f(k)\,n^{\bigoh{1}}$
+algorithm. It is only evidence about the shape of the running time, though; it
+says nothing about the exponent. ETH says something about the exponent.
+
+\begin{theorem}[\citet{ChenHuangKanjXia2006}]\label{thm:eth-clique}
+Assuming $\mathrm{ETH}$, there is no algorithm deciding whether a graph on $n$
+vertices has a clique of size $k$ in time $f(k)\, n^{o(k)}$, for any computable
+function $f$.
+\end{theorem}
+
+We do not prove this. The consequence is worth stating: the trivial
+$\bigoh{n^{k+1}}$ algorithm is essentially optimal, so the gap between
+$\mathrm{FPT}$ and $\mathrm{XP}$ that \cref{ch:fpt-i} drew is not merely a
+difference in the shape of a formula --- for clique it is a difference nobody
+can remove.
 
 %==============================================================================
 \section{Orthogonal vectors}
@@ -298,8 +400,8 @@ the $\sqrt n$ optimal too.
 SETH is a statement about exponential time, and the lower bounds we now want
 are about \emph{polynomial} time: we want to say that a problem with a
 quadratic algorithm has no $\bigoh{n^{1.99}}$ one. The bridge between the two
-is a single problem, which serves the fine-grained world the way $3$-SAT serves
-\textrm{NP}-hardness.
+is a single problem, which serves the fine-grained world the way $3$-SAT
+serves \textrm{NP}-hardness.
 
 \begin{probdef}{Orthogonal Vectors (OV)}
   \instance Two sets $A, B \subseteq \{0,1\}^d$ with $|A| = |B| = N$.
@@ -343,15 +445,15 @@ that both halves fail to satisfy --- that is, if and only if the combined
 assignment $\alpha \cup \beta$ satisfies $F$. So $F$ is satisfiable exactly
 when $A$ and $B$ contain an orthogonal pair.
 
-Building the vectors costs $\bigoh{2^{n/2} m}$ and the assumed algorithm then
+Building the vectors costs $\bigoh{2^{n/2}m}$ and the assumed algorithm then
 costs
-\[ \bigoh{\bigl(2^{n/2}\bigr)^{2-\delta} \poly(m)}
-   = \bigoh{2^{(1 - \delta/2)n}\poly(m)}. \]
+\[ \bigoh{\bigl(2^{n/2}\bigr)^{2-\delta}\poly(m)}
+   = \bigoh{2^{(1-\delta/2)n}\poly(m)}. \]
 This is an algorithm for CNF-SAT with no bound on the clause width, running in
-$\bigoh{2^{\delta' n}\poly(m)}$ for the fixed constant $\delta' = 1-\delta/2 <
-1$. In particular it solves $k$-SAT within that bound for every $k$, so
-$s_k \le \delta'$ for all $k$ and $\lim_k s_k \le \delta' < 1$, contradicting
-SETH.
+$\bigoh{2^{\delta' n}\poly(m)}$ for the fixed constant
+$\delta' = 1-\delta/2 < 1$. In particular it solves $k$-SAT within that bound
+for every $k$, so $s_k \le \delta'$ for all $k$ and
+$\lim_k s_k \le \delta' < 1$, contradicting SETH.
 \end{proof}
 
 \begin{intuition}
@@ -376,12 +478,12 @@ tracks to a road network, comparing handwriting, clustering the paths of
 migrating birds.
 
 \begin{definition}[Discrete Fr\'echet distance]\label{def:discrete-frechet}
-Let $P = (p_1,\ldots,p_n)$ and $Q = (q_1,\ldots,q_n)$ be sequences of points.
-A \emph{traversal} is a sequence of pairs of indices starting at $(1,1)$ and
-ending at $(n,n)$, in which each step advances the first index, the second
-index, or both, by one. The \emph{discrete Fr\'echet distance}
-$d_{dF}(P,Q)$ is the minimum over all traversals of the largest distance
-$\lVert p_i - q_j \rVert$ occurring in it.
+Let $P = (p_1,\ldots,p_{n})$ and $Q = (q_1,\ldots,q_{m})$ be sequences of
+points. A \emph{traversal} is a sequence of index pairs starting at $(1,1)$ and
+ending at $(n,m)$, in which each step advances the first index, the second
+index, or both, by one. Its \emph{cost} is the largest distance
+$\lVert p_i - q_j \rVert$ over the pairs it visits, and the \emph{discrete
+Fr\'echet distance} $d_{dF}(P,Q)$ is the minimum cost of a traversal.
 \end{definition}
 
 The usual image is a person walking along $P$ and a dog along $Q$, joined by a
@@ -390,20 +492,179 @@ Fr\'echet distance is the shortest leash that suffices. The continuous version
 lets them stand anywhere on the curve rather than only at vertices.
 
 \begin{proposition}\label{prop:frechet-dp}
-$d_{dF}(P,Q)$ can be computed in $\bigoh{n^2}$ time.
+$d_{dF}(P,Q)$ can be computed in $\bigoh{nm}$ time.
 \end{proposition}
 
 \begin{proof}
-Fill an $n \times n$ table $D$, where $D[i][j]$ is the smallest leash length
-that suffices for a traversal from $(1,1)$ to $(i,j)$:
+Fill a table $D$, where $D[i][j]$ is the smallest cost of a traversal from
+$(1,1)$ to $(i,j)$:
 \[ D[i][j] = \max\Bigl\{ \lVert p_i - q_j\rVert, \;
    \min\bigl( D[i-1][j],\, D[i][j-1],\, D[i-1][j-1] \bigr) \Bigr\}, \]
-with $D[1][1] = \lVert p_1 - q_1 \rVert$. The answer is $D[n][n]$, and every
+with $D[1][1] = \lVert p_1 - q_1 \rVert$. The answer is $D[n][m]$, and every
 entry costs constant time.
 \end{proof}
 
 That algorithm is from 1994 and has never been improved beyond logarithmic
-factors. The following says why.
+factors. The rest of this section says why.
+
+\subsection{The problem as reachability}
+
+The reduction is easier to think about after one change of view, which is
+worth making explicit because everything below happens in this picture.
+
+\begin{definition}[Free cell]\label{def:free-cell}
+Fix a threshold $\rho > 0$. The cell $(i,j)$ is \emph{free} if
+$\lVert p_i - q_j\rVert \le \rho$ and \emph{blocked} otherwise.
+\end{definition}
+
+\begin{lemma}\label{lem:frechet-reachability}
+$d_{dF}(P,Q) \le \rho$ if and only if there is a path from $(1,1)$ to $(n,m)$
+in the grid $\{1,\ldots,n\} \times \{1,\ldots,m\}$ that uses only free cells
+and whose every step is $(+1,0)$, $(0,+1)$ or $(+1,+1)$.
+\end{lemma}
+
+\begin{proof}
+Such paths are exactly the traversals, and a traversal has cost at most $\rho$
+exactly when every pair it visits is free.
+\end{proof}
+
+So deciding the Fr\'echet distance is a reachability question in a grid of
+free cells, and building a hard instance means designing two point sequences
+whose grid of free cells has a monotone path exactly when we want one.
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{Two polygonal curves in the plane with a traversal drawn
+as a sequence of leash segments between them, beside the grid of
+\cref{lem:frechet-reachability}: free cells white, blocked cells grey, and a
+monotone staircase path through the free ones.}
+\caption{A traversal of two curves and the corresponding monotone path in the
+grid of free cells.}
+\label{fig:frechet}
+\end{figure}
+
+\subsection{The coordinate gadget}
+
+Everything below takes $\rho = 1$ and places all points on a line; distances
+are absolute differences. Nothing changes if the points are then embedded in
+the plane on the $x$-axis.
+
+Encode a bit of a vector of $A$ and a bit of a vector of $B$ by
+\[ \alpha(0) = 0, \quad \alpha(1) = 1, \qquad
+   \beta(0) = 0, \quad \beta(1) = -1. \]
+
+\begin{lemma}\label{lem:frechet-coordinate}
+For $x,y \in \{0,1\}$ the cell $(\alpha(x), \beta(y))$ is free if and only if
+not both $x = 1$ and $y = 1$.
+\end{lemma}
+
+\begin{proof}
+The four distances are $|0-0| = 0$, $|1-0| = 1$, $|0-(-1)| = 1$ and
+$|1-(-1)| = 2$. Only the last exceeds $1$.
+\end{proof}
+
+That is the whole arithmetic content of the reduction: a single pair of points
+whose distance detects the logical \textsc{and}. What remains is to force the
+traversal to compare the $k$-th coordinate of $a$ with the $k$-th coordinate of
+$b$, and nothing else --- and that turns out to be a parity argument.
+
+\subsection{The vector gadget}
+
+\begin{definition}[Vector gadget]\label{def:frechet-vector-gadget}
+For $a \in \{0,1\}^d$ put
+\[ \mathrm{VG}(a) \;=\; \bigl(\, 3,\; \alpha(a_1),\; 3,\; \alpha(a_2),\; 3,\;
+   \ldots,\; 3,\; \alpha(a_d),\; 3 \,\bigr), \]
+a sequence of $2d+1$ points that alternates the \emph{separator} $3$ with the
+coordinate points; and for $b \in \{0,1\}^d$ define $\mathrm{VG}(b)$ the same
+way with $\beta$ in place of $\alpha$.
+\end{definition}
+
+\begin{lemma}\label{lem:frechet-vector-gadget}
+For all $a,b \in \{0,1\}^d$,
+\[ d_{dF}\bigl(\mathrm{VG}(a), \mathrm{VG}(b)\bigr) \le 1
+   \iff a \cdot b = 0 . \]
+\end{lemma}
+
+\begin{proof}
+Index both sequences by $1, \ldots, 2d+1$, so that odd indices carry the
+separator $3$ and even index $2k$ carries $\alpha(a_k)$ on one side and
+$\beta(b_k)$ on the other. There are four kinds of cell, and we compute all
+four.
+\begin{itemize}[leftmargin=*]
+  \item \emph{Odd, odd.} The distance is $|3-3| = 0$: free.
+  \item \emph{Odd, even.} The distance is $|3 - \beta(b_l)|$, which is $3$ or
+        $4$: blocked.
+  \item \emph{Even, odd.} The distance is $|\alpha(a_k) - 3|$, which is $3$ or
+        $2$: blocked.
+  \item \emph{Even, even.} By \cref{lem:frechet-coordinate}, cell $(2k,2l)$ is
+        free if and only if not both $a_k = 1$ and $b_l = 1$.
+\end{itemize}
+So a cell can be free only if its two indices have the same parity.
+
+Now take any traversal of cost at most $1$, that is, by
+\cref{lem:frechet-reachability}, any monotone path of free cells from $(1,1)$
+to $(2d+1,2d+1)$. A step of the form $(+1,0)$ or $(0,+1)$ changes exactly one
+of the two indices, hence flips exactly one parity, hence lands on a cell whose
+indices have different parities --- a blocked cell. So every step of the path
+is diagonal, and since the path runs from $(1,1)$ to $(2d+1,2d+1)$ it is
+\emph{exactly} the diagonal
+\[ (1,1),\ (2,2),\ (3,3),\ \ldots,\ (2d+1,2d+1). \]
+This path exists if and only if all of its cells are free. The odd ones always
+are; the even one at $(2k,2k)$ is free if and only if not both $a_k = 1$ and
+$b_k = 1$. So the traversal exists if and only if there is no coordinate $k$
+with $a_k = b_k = 1$, which is to say $a \cdot b = 0$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{6cm}{The $(2d+1) \times (2d+1)$ grid of free cells for two
+vector gadgets with $d = 4$: the checkerboard of blocked off-parity cells, the
+free diagonal, and one blocked diagonal cell where the two vectors share a
+$1$, with the resulting break in the path.}
+\caption{The grid of free cells for two vector gadgets. Off-parity cells are
+blocked, which forces any traversal onto the diagonal; the traversal survives
+exactly when no diagonal cell is blocked, that is, exactly when the vectors are
+orthogonal.}
+\label{fig:frechet-vector-gadget}
+\end{figure}
+
+\begin{intuition}
+The separator is the whole trick, and it is worth seeing what it does. Without
+it, the grid for two vectors would be $d \times d$ with cell $(k,l)$ free
+whenever $\neg(a_k \wedge b_l)$, and a traversal could dodge a blocked diagonal
+cell by stepping around it --- with $a = b = (0,1,0)$, for instance, the path
+$(1,1),(2,1),(3,2),(3,3)$ is free although $a \cdot b = 1$. Interleaving the
+separators makes every non-diagonal step land on a blocked cell, so there is
+nowhere to dodge to. A gadget that computes the right thing on the diagonal is
+easy; a gadget that cannot be circumvented is the work.
+\end{intuition}
+
+\subsection{From one pair to all pairs}
+
+\Cref{lem:frechet-vector-gadget} decides one pair. An OV instance asks about
+all $N^2$ pairs at once, and the last step of the reduction is to build two
+curves whose free grid has a monotone path exactly when \emph{some} pair is
+orthogonal.
+
+This is the technical core of the reduction, and unlike the two gadgets above
+it is not a paragraph. The difficulty is worth naming, because it is what
+separates the Fr\'echet reduction from the string reductions of
+\cref{sec:edit-distance}. A traversal must consume both curves \emph{entirely}
+and \emph{monotonically}. So one cannot simply concatenate the $N$ gadgets on
+each side and hope: the traversal would have to get through all $N$ of the
+$b$-gadgets, not one, and it must pay for every point it passes. The
+construction therefore has to provide, in addition to the gadgets, a way for
+the traversal to move cheaply past the gadgets it is not testing, and to do so
+without opening a route that succeeds when no pair is orthogonal.
+
+\begin{lemma}[OR gadget, \citet{Bringmann2014}]\label{lem:frechet-or}
+Given $A, B \subseteq \{0,1\}^d$ with $|A| = |B| = N$, one can construct in
+$\bigoh{Nd}$ time two sequences $P$ and $Q$ of $\bigoh{Nd}$ points in the
+plane, containing the vector gadgets $\mathrm{VG}(a)$ for $a \in A$ and
+$\mathrm{VG}(b)$ for $b \in B$ as subsequences, such that
+\[ d_{dF}(P,Q) \le 1 \iff \text{there are } a \in A,\ b \in B
+   \text{ with } a \cdot b = 0 . \]
+\end{lemma}
 
 \begin{theorem}[\citet{Bringmann2014}]\label{thm:frechet}
 Assuming $\mathrm{SETH}$, there is no algorithm computing the discrete or the
@@ -412,44 +673,17 @@ $\bigoh{n^{2-\delta}}$ time, for any $\delta > 0$. The same holds for computing
 a $1.001$-approximation of it.
 \end{theorem}
 
-We do not give the full construction --- it is a careful piece of gadgetry and
-takes a paper --- but the shape of it is short, and the shape is the part worth
-teaching.
-
-\begin{proof}[Proof sketch]
-The reduction is from \lang{Orthogonal Vectors}, so by
-\cref{thm:seth-ov} it suffices to show that a strongly subquadratic Fr\'echet
-algorithm gives a strongly subquadratic OV algorithm.
-
-Given $A, B \subseteq \{0,1\}^d$ with $|A| = |B| = N$, one builds two curves,
-$P$ from $A$ and $Q$ from $B$. Each vector $a \in A$ becomes a short piece
-$P_a$ of the first curve, and each $b \in B$ a short piece $Q_b$ of the second,
-each piece having $\bigoh{d}$ vertices; the pieces are strung together with
-separating segments. The construction is arranged so that, for a fixed
-threshold $\rho$,
-\[ \text{the leash of length $\rho$ suffices to traverse $P_a$ against $Q_b$}
-   \iff a \text{ and } b \text{ are orthogonal}, \]
-and so that the separators force the traversal to line the pieces up one
-against another rather than skipping. Then
-\[ d_{dF}(P,Q) \le \rho \iff \text{some } a \in A, b \in B
-   \text{ are orthogonal}. \]
-
-The curves have $n = \bigoh{Nd}$ vertices. An
-$\bigoh{n^{2-\delta}}$ algorithm for the Fr\'echet distance therefore decides
-OV in $\bigoh{(Nd)^{2-\delta}} = \bigoh{N^{2-\delta}\poly(d)}$ time, which is
-what \cref{thm:seth-ov} forbids.
+\begin{proof}
+Let $\delta > 0$ and suppose the discrete Fr\'echet distance of two $n$-point
+curves is computable in $\bigoh{n^{2-\delta}}$ time. Given an OV instance with
+$|A| = |B| = N$ and dimension $d$, apply \cref{lem:frechet-or} to get curves on
+$n = \bigoh{Nd}$ points, and compute their Fr\'echet distance. By the lemma
+this decides the OV instance, and it costs
+\[ \bigoh{(Nd)^{2-\delta}} = \bigoh{N^{2-\delta} \poly(d)}, \]
+contradicting \cref{thm:seth-ov}, hence SETH. The statements for the continuous
+distance and for the approximation are proved by refining the same
+construction.
 \end{proof}
-
-\begin{figure}[ht]
-\centering
-\figplaceholder{5cm}{Two polygonal curves in the plane with a traversal drawn
-as a sequence of leash segments between them, beside the $n \times n$ table of
-\cref{prop:frechet-dp} with a monotone staircase path through it.}
-\caption{A traversal of two curves and the corresponding monotone path in the
-dynamic programming table. The Fr\'echet distance is the minimum over such
-paths of the largest leash used --- a bottleneck shortest path.}
-\label{fig:frechet}
-\end{figure}
 
 \begin{intuition}
 Notice what \cref{thm:frechet} costs and what it buys. It costs a hypothesis
@@ -458,8 +692,228 @@ statement about a problem with a perfectly good polynomial algorithm --- and
 that is something no classical complexity theory can say at all. This is the
 whole programme of fine-grained complexity: give up on unconditional bounds,
 fix a small number of hypotheses, and organise the polynomial world by
-reductions between concrete problems in the way the \textrm{NP}-hard world is
+reductions between concrete problems, in the way the \textrm{NP}-hard world is
 organised by reductions to \lang{SAT}.
+\end{intuition}
+
+%==============================================================================
+\section{Edit distance and longest common subsequence}
+\label{sec:edit-distance}
+%==============================================================================
+
+The same hypothesis settles two of the most-used algorithms in computing.
+
+\begin{probdef}{Edit Distance}
+  \instance Two strings $x$ and $y$ of length $n$.
+  \question The least number of insertions, deletions and substitutions of
+  single characters turning $x$ into $y$.
+\end{probdef}
+
+\begin{theorem}[\citet{BackursIndyk2018}]\label{thm:edit-distance}
+Assuming $\mathrm{SETH}$, there is no algorithm computing the edit distance of
+two strings of length $n$ in $\bigoh{n^{2-\delta}}$ time, for any $\delta > 0$.
+\end{theorem}
+
+\begin{theorem}[\citet{AbboudBackursVassilevskaWilliams2015}]\label{thm:lcs}
+The same holds for the length of a longest common subsequence of two strings of
+length $n$, and for dynamic time warping.
+\end{theorem}
+
+Both are proved from \lang{Orthogonal Vectors}, on the same three-level plan as
+\cref{sec:frechet}: a coordinate gadget, a vector gadget, and then an
+\textsc{or} over the $N^2$ pairs. The interesting difference is in the third
+level, and it is worth drawing out.
+
+The Fr\'echet distance is a \emph{bottleneck} problem: the cost of a traversal
+is a maximum, so the question is whether a route exists at all, and the
+\textsc{or} has to be built as reachability. Edit distance and LCS are
+\emph{additive}: the cost of an alignment is a sum. That gives the reduction a
+different and gentler tool. One arranges the strings so that the optimal
+alignment cost is
+\[ C - 1 \quad\text{if some pair is orthogonal,} \qquad
+   C \quad\text{otherwise,} \]
+for a value $C$ fixed by the construction. The \textsc{or} is then a
+\emph{minimum} over pairs rather than an existence of a path, and a minimum is
+easier to arrange than a route: each pair contributes its own alignment cost,
+and the best pair wins automatically. The price is that the construction has to
+control the cost of \emph{every} alignment to within $1$, which is why these
+proofs are full of carefully padded blocks.
+
+\begin{intuition}
+Bottleneck or additive is the first question to ask about a new problem when
+looking for an OV reduction. If the objective is a maximum or a minimum over
+the steps of a solution, you will be building reachability and the hard part
+will be preventing shortcuts. If it is a sum, you will be building an
+arithmetic identity and the hard part will be padding.
+\end{intuition}
+
+%==============================================================================
+\section{When no such bound is expected}
+\label{sec:no-lower-bound}
+%==============================================================================
+
+A lower bound is only informative against the background of problems that have
+none, so it is worth looking at two places where the machinery does not apply
+--- and at how little has to change for that to happen.
+
+\subsection{One word away}
+
+\lang{Longest Common Subsequence} asks for the longest string that appears in
+both inputs as a subsequence, with gaps allowed. \lang{Longest Common
+Substring} asks for the longest string that appears in both as a
+\emph{contiguous} block. The two statements differ by one word.
+
+By \cref{thm:lcs}, the first has no strongly subquadratic algorithm under
+SETH. The second is solvable in $\bigoh{n}$ time on a constant-size alphabet:
+build the suffix tree of $x \# y$ and find the deepest internal node having
+descendants from both halves.
+
+The difference is that a common substring is determined by two starting
+positions and a length, so there is nothing to search over but positions,
+whereas a common subsequence involves a monotone matching between the two
+strings --- exactly the structure that the alignment gadgets exploit. When
+looking for a conditional lower bound, that monotone matching is the feature to
+look for; a problem without one is usually not OV-hard.
+
+\subsection{The dimension is the hypothesis}
+
+\lang{Orthogonal Vectors} itself is the second example, and the caveat is one
+students should hear. \Cref{def:ov-conjecture} says there is no
+$\bigoh{N^{2-\delta}\poly(d)}$ algorithm --- and it must, because for small $d$
+better algorithms are known: when $d = \bigoh{\log N}$ there are algorithms
+saving a superpolylogarithmic factor over $N^2$. The conjecture therefore bites
+only in the regime $d = \omega(\log N)$, which is exactly the regime the
+reduction of \cref{thm:seth-ov} produces, since there $d$ is the number of
+clauses.
+
+The moral applies to every reduction in this chapter. A conditional lower bound
+inherits the fine print of its hypothesis, and ``no $\bigoh{n^{2-\delta}}$
+algorithm'' never means ``no algorithm beats $n^2$'' --- it means no algorithm
+beats it by a polynomial factor. Improvements by $\log$ factors, and even by
+$2^{\sqrt{\log n}}$ factors, are not excluded and in several cases are known.
+
+%==============================================================================
+\section{SETH and dynamic programming over tree decompositions}
+\label{sec:seth-treewidth}
+%==============================================================================
+
+The dominating set algorithm of \cref{ch:treewidth} carries three states per
+bag vertex --- in the solution, dominated, undecided --- and therefore runs in
+$\Ostar{}(3^k)$ on a tree decomposition of width $k$. Nothing in that chapter
+said whether a cleverer table might carry fewer.
+
+\begin{theorem}[\citet{LokshtanovMarxSaurabh2018}]\label{thm:seth-treewidth}
+Assume $\mathrm{SETH}$ and let $\varepsilon > 0$. Then, given a tree
+decomposition of width $k$, there is no algorithm solving
+\begin{itemize}[leftmargin=*,nosep]
+  \item \lang{Independent Set} or \lang{Vertex Cover} in
+        $\bigoh{(2-\varepsilon)^k \poly(n)}$ time;
+  \item \lang{Dominating Set} in $\bigoh{(3-\varepsilon)^k \poly(n)}$ time;
+  \item \lang{$q$-Coloring} in $\bigoh{(q-\varepsilon)^k \poly(n)}$ time.
+\end{itemize}
+\end{theorem}
+
+So the number of states really is the truth about each problem, and the pattern
+is exact: two states for independent set, three for dominating set, $q$ for
+$q$-colouring, and in every case the base of the exponent equals the number of
+states. \Cref{ch:treewidth} could give the dynamic programs but not this;
+without SETH there is no way to say that a table cannot be compressed.
+
+%==============================================================================
+\section{The other two hubs: 3SUM and APSP}
+\label{sec:3sum-apsp}
+%==============================================================================
+
+\lang{Orthogonal Vectors} is one of three problems around which fine-grained
+complexity is organised. The other two come with their own conjectures, neither
+implied by nor implying SETH, and each has its own family of consequences. A
+short tour, without proofs.
+
+\begin{probdef}{3SUM}
+  \instance A set $S$ of $n$ integers.
+  \question Are there $x,y,z \in S$ with $x + y + z = 0$?
+\end{probdef}
+
+Sorting and scanning solves this in $\bigoh{n^2}$ time, and the best known
+algorithms shave only subpolynomial factors. The \emph{3SUM conjecture} states
+that no $\bigoh{n^{2-\delta}}$ algorithm exists. \citet{GajentaanOvermars1995}
+showed that a long list of plane geometry problems are \emph{3SUM-hard} ---
+among them: given $n$ points, are three of them collinear; given $n$ triangles,
+do they cover a given triangle; given $n$ line segments, can a given polygon be
+translated between them. Each of these has an obvious quadratic algorithm and
+no better one, and the conjecture explains why.
+
+\begin{probdef}{All-Pairs Shortest Paths (APSP)}
+  \instance A directed graph on $n$ vertices with real edge weights.
+  \question The distance between every ordered pair of vertices.
+\end{probdef}
+
+Floyd--Warshall solves this in $\bigoh{n^3}$ time, and again only
+subpolynomial factors have been removed. The \emph{APSP conjecture} states that
+no $\bigoh{n^{3-\delta}}$ algorithm exists.
+\citet{VassilevskaWilliamsWilliams2018} proved something stronger and more
+useful than a list of consequences: a whole family of problems is
+\emph{equivalent} to APSP under subcubic reductions --- finding a negative
+triangle, computing the radius or the median of a graph, computing the second
+shortest path between two vertices, verifying a claimed distance matrix. Any
+one of them has a truly subcubic algorithm if and only if all of them do.
+
+\begin{intuition}
+Three hubs, three conjectures, three families. The value of the picture is that
+it converts a scattering of stubborn problems into a small number of open
+questions: instead of asking separately why nobody can beat $n^2$ for edit
+distance, for Fr\'echet distance, for collinearity and for $n^3$ for the graph
+radius, one asks whether SETH, the 3SUM conjecture and the APSP conjecture are
+true. That is exactly the service \textrm{NP}-completeness performed for the
+exponential world, and it is why the subject exists.
+\end{intuition}
+
+%==============================================================================
+\section{Lower bounds on kernels}
+\label{sec:kernel-lower-bounds}
+%==============================================================================
+
+One last kind of lower bound, on a different resource and under a different
+hypothesis. \Cref{thm:kernel-iff-fpt} said that a parameterized problem is in
+$\mathrm{FPT}$ if and only if it has a kernel, and observed that the kernel
+that argument produces may be astronomically large. The interesting question
+is which problems have \emph{polynomial} kernels.
+
+\begin{probdef}{$k$-Path}
+  \instance A graph $G$ and an integer $k$.
+  \parameter $k$.
+  \question Does $G$ contain a simple path on $k$ vertices?
+\end{probdef}
+
+\lang{$k$-Path} is in $\mathrm{FPT}$, so by \cref{thm:kernel-iff-fpt} it has a
+kernel. It has no polynomial one, unless something implausible happens in
+classical complexity theory.
+
+\begin{theorem}[\citet{BodlaenderDowneyFellowsHermelin2009}]
+\label{thm:no-poly-kernel}
+Unless $\mathrm{NP} \subseteq \mathrm{coNP}/\poly$, and hence unless the
+polynomial hierarchy collapses to its third level, \lang{$k$-Path} has no
+kernel of size polynomial in $k$.
+\end{theorem}
+
+The technique is called \emph{composition}. Suppose we could take $t$ instances
+of $k$-path, all with the same parameter $k$, and combine them in polynomial
+time into a single instance with parameter $\poly(k)$ that is a yes-instance
+exactly when one of the $t$ is --- for $k$-path this is easy, since the
+disjoint union does it. A polynomial kernel would then compress $t$ independent
+instances into $\poly(k)$ bits, and for large $t$ that is fewer bits than the
+instances contain. Making ``fewer bits than the instances contain'' into a
+complexity-theoretic contradiction is the content of the theorem.
+
+\begin{intuition}
+Note that the hypothesis has changed. ETH and SETH are conjectures about
+running times; $\mathrm{NP} \not\subseteq \mathrm{coNP}/\poly$ is a
+conjecture about the polynomial hierarchy, of exactly the kind that
+$\mathrm{P} \ne \mathrm{NP}$ is. That is not an accident: the resource being
+bounded here is \emph{the size of an instance}, not time, and information is
+the natural currency for it. When reading a conditional lower bound, always
+read the hypothesis first --- it tells you what kind of statement is being
+made.
 \end{intuition}
 
 %==============================================================================
@@ -470,43 +924,38 @@ organised by reductions to \lang{SAT}.
 ETH and SETH are \citet{ImpagliazzoPaturi2001}; the sparsification lemma is
 \citet{ImpagliazzoPaturiZane2001}. \Cref{thm:seth-ov} is due to
 \citet{Williams2005}, where it appears as a step in an algorithm rather than as
-a hardness result. \Cref{thm:frechet} is \citet{Bringmann2014}; the companion
-result for edit distance, proved the same way, is
-\citet{BackursIndyk2018}.
+a hardness result.
+
+\Cref{thm:frechet} is \citet{Bringmann2014}. The coordinate and vector gadgets
+of \cref{sec:frechet} are presented here in a stripped-down one-dimensional
+form; the paper's construction is more elaborate because it must also handle
+the continuous distance and the approximation version.
+\Cref{thm:edit-distance} is \citet{BackursIndyk2018} and \cref{thm:lcs} is
+\citet{AbboudBackursVassilevskaWilliams2015}.
+\Cref{thm:eth-clique} is \citet{ChenHuangKanjXia2006} and
+\cref{thm:seth-treewidth} is \citet{LokshtanovMarxSaurabh2018}. The
+3SUM-hardness of plane geometry is \citet{GajentaanOvermars1995}; the subcubic
+equivalences are \citet{VassilevskaWilliamsWilliams2018}.
+\Cref{thm:no-poly-kernel} is \citet{BodlaenderDowneyFellowsHermelin2009}.
 
 \citet[Chapter~14]{CyganEtAl2015} is the textbook account of ETH-based lower
-bounds, including the planar and treewidth cases mentioned above.
-\Cref{thm:tw-dominating-set} in \cref{ch:treewidth} is the treewidth example:
-\citet{LokshtanovMarxSaurabh2018} show that SETH forbids an
-$\bigoh{(3-\varepsilon)^k}$ algorithm for dominating set on a tree
-decomposition of width $k$, which is why the three states of that dynamic
-program are not an artefact. For clique,
-\citet{ChenHuangKanjXia2006} show that ETH forbids an
-$f(k)\, n^{o(k)}$ algorithm, so the $\bigoh{n^{k+1}}$ of
-\cref{ex:fpt-three} is essentially optimal too.
+bounds and \citet[Chapter~15]{CyganEtAl2015} of kernel lower bounds; both are
+the natural next reading after this chapter.
 
 %==============================================================================
 \section{Exercises}
 \label{sec:ex-lower-bounds}
 %==============================================================================
 
-\begin{exercise}
+\begin{exercise}\label{ex:eth-vc}
 Show that ETH implies \lang{Vertex Cover} has no $2^{o(n)}$ algorithm, where
 $n$ is the number of vertices. Which reduction do you use, and is it linear?
 \end{exercise}
 
-\begin{exercise}
+\begin{exercise}\label{ex:eth-is}
 The standard reduction from $3$-SAT to \lang{Independent Set} builds a triangle
 per clause and joins contradictory literals. Check that it is linear, and state
 the consequence.
-\end{exercise}
-
-\begin{exercise}\label{ex:eth-planar}
-\Cref{ch:planar} solves independent set on planar graphs in
-$2^{\bigoh{\sqrt n}}$ time. Show that, assuming ETH, there is no
-$2^{o(\sqrt n)}$ algorithm. Hint: the standard reduction to the planar case
-replaces each crossing by a constant-size gadget, and a graph with $\bigoh{n}$
-edges can be drawn with $\bigoh{n^2}$ crossings.
 \end{exercise}
 
 \begin{exercise}
@@ -522,10 +971,37 @@ choice?
 \end{exercise}
 
 \begin{exercise}
-\lang{Longest Common Subsequence} of two strings of length $n$ has a textbook
-$\bigoh{n^2}$ algorithm. Assuming the OV conjecture, would you expect an
-$\bigoh{n^{1.9}}$ one? Look up the answer and identify which step of the
-argument of \cref{thm:frechet} it replaces.
+In \lang{Dominating Pairs} we are given $A, B \subseteq \{0,1\}^d$ with
+$|A| = |B| = N$ and must decide whether there are $a \in A$ and $b \in B$ with
+$a_i \le b_i$ for every $i$. Show that, assuming SETH, it has no
+$\bigoh{N^{2-\delta}\poly(d)}$ algorithm. Hint: one line.
+\end{exercise}
+
+\begin{exercise}
+Verify the claim made in the intuition after
+\cref{lem:frechet-vector-gadget}: without the separators, the vectors
+$a = b = (0,1,0)$ admit a monotone path of free cells although
+$a \cdot b = 1$. Then find, for every $d \ge 3$, a non-orthogonal pair for
+which the same happens.
+\end{exercise}
+
+\begin{exercise}
+The separator in \cref{def:frechet-vector-gadget} is the point $3$. Determine
+the set of all real numbers that could be used in its place, and check that
+$2$ could not.
+\end{exercise}
+
+\begin{exercise}
+Suppose the coordinate gadget of \cref{lem:frechet-coordinate} were changed to
+$\alpha(1) = 2$, everything else unchanged. Which of the four cells change
+status, and what does the vector gadget then compute?
+\end{exercise}
+
+\begin{exercise}
+Give an $\bigoh{nm \log(nm)}$ algorithm for the discrete Fr\'echet distance by
+binary search over the candidate values together with
+\cref{lem:frechet-reachability}, and explain why this does not contradict
+\cref{thm:frechet}.
 \end{exercise}
 
 \begin{exercise}
@@ -534,8 +1010,9 @@ statements in this chapter survive, and which are lost?
 \end{exercise}
 
 \begin{exercise}
-The dynamic program of \cref{prop:frechet-dp} computes a bottleneck shortest
-path in a grid. Give an $\bigoh{n^2 \log n}$ algorithm for the same problem by
-binary search on the answer, and explain why this does not contradict
-\cref{thm:frechet}.
+\Cref{thm:seth-treewidth} says there is no $\bigoh{(2-\varepsilon)^k}$
+algorithm for independent set on a tree decomposition of width $k$. Reconcile
+this with the $\bigoh{1.3217^n}$ algorithm for $3$-colouring of
+\cref{ch:exact-i}, in which the base of the exponent \emph{is} below the number
+of colours.
 \end{exercise}

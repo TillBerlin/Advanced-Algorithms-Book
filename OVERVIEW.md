@@ -66,29 +66,30 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | 8 | The Existential Theory of the Reals | `08-existential-theory-of-the-reals.tex` | ER 2 (W4 Thu) | 8 | ✅ drafted; figures in place, bibliography resolved |
 | 9 | Geometric ∃R-Completeness | `09-geometric-er-completeness.tex` | ER 3 (W5 Thu) | 11, 8.5 | ✅ drafted; figures in place |
 
-### Part III — Exact Exponential-Time Algorithms
+### Part III — Exact Exponential-Time Algorithms and Lower Bounds
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 10 | Exact Exponential-Time Algorithms I: Branching | `10-exact-algorithms-i.tex` | W5 Tue | 9, 10 | 🔲 |
-| 11 | Exact Exponential-Time Algorithms II: Subsets, Inclusion–Exclusion, Lower Bounds | `11-exact-algorithms-ii.tex` | W6 Tue | 12 | 🔲 |
+| 10 | Exact Exponential-Time Algorithms I: Branching | `10-exact-algorithms-i.tex` | W5 Tue | Exact 3-SAT, Bisection Width, Branching | 🔲 |
+| 11 | Exact Algorithms II: Inclusion–Exclusion | `11-exact-algorithms-ii.tex` | W6 Tue | Set Cover, Subset DP | 🔲 |
+| 12 | Fine-Grained Lower Bounds | `12-fine-grained-lower-bounds.tex` | **new lecture, unscheduled** | **none yet** | ✅ drafted; 2 figure placeholders |
 
 ### Part IV — Approximation Algorithms
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 12 | Approximation Algorithms I | `12-approximation-i.tex` | W6 Thu | 13, 25 | ✅ drafted; 2 figure placeholders |
-| 13 | Approximation Algorithms II | `13-approximation-ii.tex` | W7 Tue | 14, 26 | ✅ drafted; 1 figure placeholder |
+| 13 | Approximation Algorithms I | `13-approximation-i.tex` | W6 Thu | non-symmetric TSP, Approximation Algorithms | ✅ drafted; 2 figure placeholders |
+| 14 | Approximation Algorithms II | `14-approximation-ii.tex` | W7 Tue | Steiner Tree, The Landscape | ✅ drafted; 1 figure placeholder |
 
 ### Part V — Parameterized Algorithms and Complexity
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 14 | Parameterized Algorithms I | `14-fpt-i.tex` | W7 Thu | Parameterized Complexity | ✅ drafted; 3 figure placeholders |
-| 15 | Treewidth | `15-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
-| 16 | Complexity Theory for Approximation and Parameterization | `16-hardness-of-approximation-and-fpt.tex` | W9 Tue | 18 | 🔲 |
-| 17 | Kernelization | `17-kernelization.tex` | W9 Thu (FPT 2) | 19 (items 1–2) | 🔲 |
-| 18 | Randomized Algorithms | `18-randomized-algorithms.tex` | W9 Thu | 19 (items 3–4) | 🔲 |
+| 15 | Parameterized Algorithms I | `15-fpt-i.tex` | W7 Thu | Parameterized Complexity | ✅ drafted; 3 figure placeholders |
+| 16 | Treewidth | `16-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
+| 17 | Complexity Theory for Approximation and Parameterization | `17-hardness-of-approximation-and-fpt.tex` | W9 Tue | L-reduction, Complexity for Approximation and FPT | 🔲 |
+| 18 | Kernelization | `18-kernelization.tex` | W9 Thu (FPT 2) | Vertex Cover Kernel (first half) | 🔲 |
+| 19 | Randomized Algorithms | `19-randomized-algorithms.tex` | W9 Thu | Vertex Cover Kernel (second half), Directed k-Path | 🔲 |
 
 ### Appendices
 
@@ -248,15 +249,18 @@ rewrite.
 | | 57–91 | 4 (minimum cost flow) ✅ checked |
 | | 92–141 | 6 (matching) ✅ checked |
 | `material/slides/planar.pdf` | — | 5 (planar graphs) |
-| `material/slides/Exponential Time Algorithms 2026.pptx` | — | 10, 11 |
-| `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 12 (approximation I) ✅ checked |
-| | 30–74 | 13 (approximation II) ✅ checked |
-| `material/slides/aa-fpt.pdf` | 1–66 | 14 (parameterized algorithms I) ✅ checked |
-| | 67–83 | 17 (kernelization) |
-| `material/slides/Treewidth 2026.pptx` | — | 15 |
+| `material/slides/Exponential Time Algorithms 2026.pptx` | 1–53 | 10 (branching, enumeration, meet in the middle) |
+| | 54–75 | 11 (inclusion–exclusion) |
+| `material/slides/Approximation Algorithms 2026.pdf` | 1–29 | 13 (approximation I) ✅ checked |
+| | 30–74 | 14 (approximation II) ✅ checked |
+| `material/slides/aa-fpt.pdf` | 1–66 | 15 (parameterized algorithms I) ✅ checked |
+| | 67–83 | 18 (kernelization) |
+| `material/slides/Treewidth 2026.pptx` | 1–65 | 16 (treewidth) ✅ checked |
 | `material/notes/Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
 | | ch. 3–4 | 9 (duality, ETR-AM/ETR-INV, unit disk graphs, curve straightening, art gallery; order types and stretchability at the end, non-examinable) ✅ |
+| **no source** | — | 12 (ETH/SETH — new chapter, written from the literature) |
+| **no source** | — | 19 (randomized 3-colouring was lectured at the blackboard; Directed k-Path has no slides) |
 
 Extract a `.pptx` with `markitdown deck.pptx`; that drops equations, so for the
 mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
@@ -272,19 +276,61 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
 
-### Chapter 14 — Parameterized Algorithms I
+### Chapter 12 — Fine-Grained Lower Bounds
+
+**New chapter, no deck, no pool question yet.** Written on request for a lecture
+on ETH and SETH. It contains: the two hypotheses and how they differ from
+P ≠ NP; the sparsification lemma; linear reductions; ETH ⇒ no 2^o(n) for
+3-colouring, with the full classical gadget reduction and the vertex count;
+Orthogonal Vectors and the SETH ⇒ OV reduction in full; the Fréchet distance,
+its quadratic dynamic program, and Bringmann's lower bound as a proof sketch
+from OV.
+
+- **Needs a pool question** before it can be examined. Every other chapter's
+  goals are pool items; this one's are all untagged.
+- The Fréchet lower bound is a **sketch**, deliberately. The gadget construction
+  is a paper's worth of work; the chapter gives the interface (each vector
+  becomes a curve piece; the leash fits iff the vectors are orthogonal; the
+  curves have O(Nd) vertices) and cites Bringmann for the rest. If the lecture
+  wants the real gadgets, that is another two or three pages and a figure that
+  is genuinely hard to draw.
+- **Candidates considered for this chapter and not included** — each is
+  self-contained and could be dropped in:
+  1. *Edit distance / LCS* (Backurs–Indyk). Same OV template as Fréchet, no
+     geometry, and probably the single most famous fine-grained result. The
+     cheapest addition of the lot.
+  2. *ETH ⇒ no 2^o(√n) for planar problems.* This is the one that would make
+     the book cohere: chapter 5 proves the 2^O(√n) upper bound via separators
+     and chapter 16 via treewidth, and this closes it from below. Currently an
+     exercise; promoting it to a section costs half a page.
+  3. *ETH ⇒ no f(k)·n^o(k) for Clique* (Chen–Huang–Kanj–Xia). Matches the XP
+     algorithm of chapter 15 and explains why W[1]-hardness is not the whole
+     story. Statement only, one paragraph.
+  4. *SETH ⇒ no (3−ε)^k dominating set on treewidth k* (Lokshtanov–Marx–
+     Saurabh). Already cited in chapter 16; moving the statement here makes the
+     three states of that dynamic program a theorem rather than a remark.
+  5. *The 3SUM and APSP conjectures.* The other two hubs. Half a page of
+     landscape, no proofs, and it turns three isolated results into a subject.
+  6. *A worked non-example*: a problem where the obvious OV reduction fails.
+     Good pedagogy, hard to source.
+  7. *Kernel lower bounds* (no polynomial kernel unless NP ⊆ coNP/poly). Fits
+     the theme but belongs with chapter 18.
+
+### Chapter 15 — Parameterized Algorithms I
 
 - Written from the FPT deck, slides 1–66: the classes, four branching
   algorithms (vertex cover, cluster editing, planar independent set, closest
   string), kernelisation, and the convex-string-recoloring and vertex-cover
   kernels. Slides 67–83 — Nemhauser–Trotter and the cluster editing kernel —
-  are chapter 17's.
+  are chapter 18's.
 - **Source gap.** Items 10 and 11 of the *Parameterized Complexity* pool
   question ask for `Directed k-Path` and a one-sided error algorithm running in
   `O(k^k n^c)`, i.e. colour coding. **No deck in `material/` covers this**, and
   neither does the randomized half of the *Vertex Cover Kernel* question
   (2-list colouring, randomized 3-colouring in `O(1.5^n)`). Those goals now sit
-  in chapter 18 with a `\todo` asking for the slides.
+  in chapter 19. The randomized 3-colouring was lectured at the blackboard,
+  so there never were slides for it; `Directed k-Path` by colour coding has
+  none either. Both must be written from the literature.
 - **3 figure placeholders.** The class diagram (FPT ⊆ W[1] ⊆ … ⊆ XP, with
   para-NP beside it) is the one that earns its place.
 - Rule 1 of the convex string kernel bounds the drop in bad-colour blocks by 4
@@ -293,37 +339,39 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   good) and notes that any constant gives an O(k²) kernel. Worth a look before
   it is lectured.
 
-### Chapter 15 — Treewidth
+### Chapter 16 — Treewidth
 
 - Written from the treewidth deck, slides 1–65. Slides 66–69 are a "Bonus
   Topic" on Hamiltonian cycle and the matchings connectivity matrix, with no
   worked content in the deck; they are mentioned in the notes and nowhere else.
 - The two pool exercises — the grid decomposition and cliques living in one bag
-  — are worked in §15.4. The *Treewidth* pool question was expanded from four
+  — are worked in §16.4. The *Treewidth* pool question was expanded from four
   items to ten to cover what the deck actually teaches.
 - **4 figure placeholders.** The one that carries real argument is the four
-  operations of §15.2 with the table beside the graph; the levels/sweep pictures
+  operations of §16.2 with the table beside the graph; the levels/sweep pictures
   are illustration.
 - Two things are stated without proof, as in the deck: the cops-and-robber
   characterisation, and the lower bound `tw(p × q grid) ≥ min(p,q)`.
 
-### Chapters 12 and 13 — Approximation Algorithms
+### Chapters 13 and 14 — Approximation Algorithms
 
 - Written from `material/slides/Approximation Algorithms 2026.pdf`, slides 1–29 and 30–74. The
   deck is two lectures in one file and splits cleanly at slide 30, where the
   second title page sits.
 - **Dropped from the skeletons because the deck does not have them:** local
   search, scheduling and load balancing, the primal–dual method, randomised
-  rounding. LP rounding moved from chapter 13 to chapter 12, where the deck
+  rounding. LP rounding moved from chapter 14 to chapter 13, where the deck
   puts it (slides 24–26).
 - **Added although the deck does not have them, because the pool does:** the
-  asymmetric TSP construction (Q13, chapter 12, worked as a 3-approximation via
-  symmetrising by the *maximum* of the two directions) and Steiner tree (Q14,
-  chapter 13, the MST heuristic plus the two impossibility proofs). Both are
+  asymmetric TSP construction (*Approximation non-symmetric TSP*, chapter 13,
+  worked as a 3-approximation via
+  symmetrising by the *maximum* of the two directions) and Steiner tree
+  (*Approximating Steiner Tree*, chapter 14, the MST heuristic plus the two
+  impossibility proofs). Both are
   applications of techniques the deck does teach.
 - **3 figure placeholders**: double-tree, Christofides in four panels, and the
   levels of a planar embedding. The Christofides one carries real argument.
-- Chapter 13 forward-references chapter 16 for APX-hardness three times; that
+- Chapter 14 forward-references chapter 17 for APX-hardness three times; that
   chapter needs to deliver the APX-hardness of maximum independent set and of
   vertex cover.
 
@@ -334,15 +382,16 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   (§9.9) and order types (§9.10) at the end**, both `(non-examinable)` in the
   heading with a `\nonexam{}` note.
 - **Stretchability is the exception, deliberately.** Both examinable hardness
-  proofs — unit disk recognition (pool 11.5) and optimal curve straightening
-  (pool 11.6) — reduce *from* Stretchability, so its definition and the
+  proofs — unit disk recognition and optimal curve straightening, both pool
+  items — reduce *from* Stretchability, so its definition and the
   Mnëv–Shor theorem are stated in the main line at §9.2 and used as a black
   box. Putting them at the end would make the two proofs point forwards. Only
   the order-type story behind the theorem is non-examinable.
-- Pool question 8 item 5 (ETR-AM) is answered here, not in chapter 8.
-- Pool question 11 items 1–3 (duality, above–below, cyclic order) are withdrawn,
-  matching 8.4 and 8.6. Question 11 is now items 4–6 only. The mapping table
-  carries a ‡ and the question carries a remark.
+- The ETR-AM item of *Existential Theory of the Reals* is answered here, not
+  in chapter 8.
+- The first three items of *Duality and geometric ∃R-hardness* (duality,
+  above–below, cyclic order) are withdrawn, matching the two order-type items of
+  *Existential Theory of the Reals*. Both questions carry a remark saying so.
 
 ### Chapter 8 — The Existential Theory of the Reals
 

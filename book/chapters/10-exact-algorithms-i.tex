@@ -327,10 +327,11 @@ $\bigoh{1.3803^n}$ time and polynomial space.
 Correctness is the case distinction ``$v$ is in the solution or it is not'',
 together with \cref{obs:mis-reductions}.
 
-For the analysis, note that after the reduction rules every vertex has degree at
-least $3$, so the chosen $v$ of maximum degree has $d(v) \ge 3$. The first
-branch deletes one vertex; the second deletes $N[v]$, which is at least $4$
-vertices. The branching vector is therefore $(1,4)$ in the worst case, and
+For the analysis, note that once the reduction rules no longer apply, some
+vertex has degree at least $3$ --- otherwise rule (iii) would have solved the
+instance outright --- so the chosen $v$ of maximum degree has $d(v) \ge 3$. The
+first branch deletes one vertex; the second deletes $N[v]$, which is at least
+$4$ vertices. The branching vector is therefore $(1,4)$ in the worst case, and
 $\tau(1,4) < 1.3803$.
 \end{proof}
 
@@ -340,10 +341,57 @@ have to store its output.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5cm}{A small graph with a maximum-degree vertex $v$ circled;
-below it, the two children of the search tree --- $G - v$ with one vertex gone,
-and $G \setminus N[v]$ with $v$ and its four neighbours gone --- annotated with
-the branching vector $(1,4)$.}
+\begin{tikzpicture}[scale=0.62,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    gone/.style={circle,draw=black!45,dashed,thin,inner sep=2.2pt},
+    ghost/.style={black!30,dotted,thick},
+    every node/.style={font=\footnotesize}]
+  % ---- the parent instance ----
+  \begin{scope}
+    \foreach \n/\x/\y/\l/\p in {w1/-1.2/1.2/{w_1}/{above left},
+        w2/1.2/1.2/{w_2}/{above right}, w3/0/-1.4/{w_3}/{right},
+        x1/-2.4/0/{x_1}/{left}, x2/2.4/0/{x_2}/{right},
+        x3/-1.2/-2.6/{x_3}/{below left}, x4/1.2/-2.6/{x_4}/{below right}}
+      {\node[vtx,label={[label distance=-1pt]\p:$\l$}] (\n) at (\x,\y) {};}
+    \node[vtx] (v) at (0,0) {};
+    \draw (v)--(w1) (v)--(w2) (v)--(w3) (w1)--(w2) (w1)--(x1) (w2)--(x2)
+          (w3)--(x3) (w3)--(x4) (x3)--(x4) (x1)--(x3) (x2)--(x4);
+    \draw[red!75!black,thick] (v) circle (9pt);
+    \node[red!75!black] at (0.95,0.6) {$v$};
+    \node[font=\small] at (0,2.5) {$G$, \quad $d(v) = 3$};
+  \end{scope}
+  % ---- left child: G - v ----
+  \begin{scope}[xshift=-105pt,yshift=-185pt]
+    \foreach \n/\x/\y in {w1/-1.2/1.2, w2/1.2/1.2, w3/0/-1.4, x1/-2.4/0,
+        x2/2.4/0, x3/-1.2/-2.6, x4/1.2/-2.6}
+      {\node[vtx] (l\n) at (\x,\y) {};}
+    \node[gone] (lv) at (0,0) {};
+    \draw[ghost] (lv)--(lw1) (lv)--(lw2) (lv)--(lw3);
+    \draw (lw1)--(lw2) (lw1)--(lx1) (lw2)--(lx2) (lw3)--(lx3) (lw3)--(lx4)
+          (lx3)--(lx4) (lx1)--(lx3) (lx2)--(lx4);
+    \node[font=\small] at (0,-3.7) {$G - v$};
+    \node at (0,-4.6) {one vertex gone};
+  \end{scope}
+  % ---- right child: G minus N[v] ----
+  \begin{scope}[xshift=105pt,yshift=-185pt]
+    \foreach \n/\x/\y in {x1/-2.4/0, x2/2.4/0, x3/-1.2/-2.6, x4/1.2/-2.6}
+      {\node[vtx] (r\n) at (\x,\y) {};}
+    \foreach \n/\x/\y in {v/0/0, w1/-1.2/1.2, w2/1.2/1.2, w3/0/-1.4}
+      {\node[gone] (r\n) at (\x,\y) {};}
+    \draw[ghost] (rv)--(rw1) (rv)--(rw2) (rv)--(rw3) (rw1)--(rw2)
+          (rw1)--(rx1) (rw2)--(rx2) (rw3)--(rx3) (rw3)--(rx4);
+    \draw (rx3)--(rx4) (rx1)--(rx3) (rx2)--(rx4);
+    \node[font=\small] at (0,-3.7) {$G \setminus N[v]$};
+    \node at (0,-4.6) {four vertices gone};
+  \end{scope}
+  % ---- the two branches ----
+  \draw[-{Latex[length=2mm]}] (-0.9,-3.3) -- (-2.6,-5.3)
+        node[midway,left=1pt,align=center] {$v \notin I$\\[-1pt] $-1$};
+  \draw[-{Latex[length=2mm]}] (0.9,-3.3) -- (2.6,-5.3)
+        node[midway,right=1pt,align=center] {$v \in I$\\[-1pt] $-4$};
+  \node[font=\small] at (0,-12.4)
+        {branching vector $(1,4)$, \quad $\tau(1,4) < 1.3803$};
+\end{tikzpicture}
 \caption{One branching step of \cref{alg:exact-mis-branch}. The reduction rules
 guarantee $d(v) \ge 3$, which is what makes the second branch remove four
 vertices rather than two.}
@@ -353,10 +401,66 @@ vertices rather than two.}
 \begin{intuition}
 The reduction rules are not there to speed up easy instances. They are there to
 \emph{establish a precondition} for the branching rule: without them the
-maximum degree could be $1$ and the second branch would remove only two
+maximum degree could be $1$, and the second branch would then remove only two
 vertices, giving $\tau(1,2) \approx 1.6180$. This is the standard division of
 labour --- reduction rules buy a guarantee, and the branching rule spends it.
 \end{intuition}
+
+\subsection{Branching on a distance instead of on the input}
+\label{sec:hamming-ball}
+
+Every branching algorithm so far has measured progress by the size of the
+instance. There is a second thing to measure, and for satisfiability it is the
+better one: the distance from a guess. Fix an assignment and ask only whether a
+satisfying assignment lies near it. The branching rule is the same as before,
+but each branch now costs a step of distance rather than a variable, so the
+search tree is governed by the radius and not by $n$.
+
+\begin{definition}[Hamming distance]\label{def:hamming}
+The \emph{Hamming distance} $H(a,b)$ between two truth assignments
+$a, b \in \{0,1\}^n$ is the number of variables on which they differ.
+\end{definition}
+
+\begin{lemma}[Searching a Hamming ball]\label{lem:hamming-ball}
+Given a $k$-CNF formula $F$ and a truth assignment $a$, one can decide in
+$\Ostar(k^d)$ time whether $F$ has a satisfying assignment $b$ with
+$H(a,b) \le d$.
+\end{lemma}
+
+\begin{proof}
+If $a$ satisfies $F$ we are done. Otherwise some clause $C$ of $F$ is
+unsatisfied by $a$, which means $a$ makes all of its literals false. Every
+satisfying assignment makes at least one literal of $C$ true, so it differs
+from $a$ on at least one of the at most $k$ variables occurring in $C$. Branch
+on which one: for each literal $\ell \in C$, recurse on the assignment obtained
+from $a$ by flipping the variable of $\ell$, with the radius reduced to $d-1$.
+Stop and report failure at $d = 0$.
+
+The branches are exhaustive, each fixes one further variable in the right
+direction, and the recursion has depth $d$ and branching factor at most $k$, so
+at most $k^d$ leaves. The work at a node is finding an unsatisfied clause, which
+is polynomial.
+\end{proof}
+
+The lemma is only useful with a way to choose the centres, and two of them
+already suffice, because a ball of radius $n/2$ is half the cube.
+
+\begin{theorem}\label{thm:local-search-3sat}
+$3$-SAT can be decided in $\Ostar(3^{n/2}) = \bigoh{1.7321^n}$ time.
+\end{theorem}
+
+\begin{proof}
+Any assignment is at Hamming distance at most $n/2$ from the all-true
+assignment or from the all-false assignment: it agrees with one of the two on
+at least half of the variables. So run \cref{lem:hamming-ball} twice, with
+$d = n/2$ and these two centres, and report \textsc{yes} if either call does.
+The cost is $2 \cdot \Ostar(3^{n/2})$, and $3^{1/2} < 1.7321$.
+\end{proof}
+
+This beats the $1.8393^n$ of \cref{alg:exact-ksat} without any new idea about
+satisfiability at all --- only a new thing to count down. Choosing the centres
+at random instead of taking these two does better still, and
+\cref{ch:randomized} carries this out.
 
 %==============================================================================
 \section{Exact satisfiability}

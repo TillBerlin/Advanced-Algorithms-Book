@@ -168,12 +168,36 @@ such that
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5.5cm}{A graph on eight vertices $a,\dots,h$ beside a tree
-decomposition of it: a tree of bags, with one vertex highlighted in the graph
-and the connected subtree of bags containing it highlighted alongside.}
-\caption{A graph and a tree decomposition of it. Condition~(iii) is the one to
-check on a picture: the bags containing any fixed vertex must form a connected
-piece of the tree.}
+\begin{tikzpicture}[scale=0.72,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    hi/.style={circle,fill=red!75!black,inner sep=2.2pt},
+    bag/.style={rounded corners=4pt,draw,inner sep=3pt,font=\footnotesize},
+    hibag/.style={bag,fill=red!12,draw=red!75!black},
+    every node/.style={font=\footnotesize}]
+  % ---- the graph ----
+  \node[vtx,label=left:$a$]        (a) at (-2.2,1.2) {};
+  \node[vtx,label=left:$b$]        (b) at (-2.2,-0.6) {};
+  \node[vtx,label={[label distance=-2pt]above left:$c$}] (c) at (0,0) {};
+  \node[vtx,label=below:$d$]       (d) at (-1.0,-2.1) {};
+  \node[vtx,label=below:$e$]       (e) at (0.6,-2.3) {};
+  \node[vtx,label=above:$f$]       (f) at (2.0,1.4) {};
+  \node[hi,label={[label distance=-1pt]above right:$g$}] (g) at (2.6,-0.2) {};
+  \node[vtx,label=below:$h$]       (h) at (3.6,-1.7) {};
+  \draw (a)--(b) (a)--(c) (b)--(c)
+        (c)--(d) (c)--(e) (d)--(e)
+        (c)--(f) (c)--(g) (f)--(g)
+        (g)--(h) (c)--(h);
+  % ---- a tree decomposition of it ----
+  \node[bag]   (X1) at (7.6,1.3)  {$\{a,b,c\}$};
+  \node[bag]   (X2) at (6.0,-0.5) {$\{c,d,e\}$};
+  \node[hibag] (X3) at (9.2,-0.5) {$\{c,f,g\}$};
+  \node[hibag] (X4) at (9.2,-2.3) {$\{c,g,h\}$};
+  \draw (X1)--(X2) (X1)--(X3) (X3)--(X4);
+\end{tikzpicture}
+\caption{A graph and a tree decomposition of it, of width $2$. Condition~(iii)
+is the one to check on a picture: the bags containing any fixed vertex must form
+a connected piece of the tree. Here $g$ and the two bags that contain it are
+marked; $c$ lies in all four bags, which are connected as well.}
 \label{fig:tw-decomposition}
 \end{figure}
 
@@ -204,13 +228,41 @@ Conversely a decomposition of width $0$ has all bags of size at most one, so by
 condition~(ii) the graph has no edges.
 \end{proof}
 
+The proposition leaves a small gap: it says that a tree has treewidth $1$, not
+that only forests do. The converse is needed as soon as one wants a lower bound
+on anything, and it is a first taste of how these arguments go.
+
+\begin{proposition}\label{prop:tw-forest}
+A graph has treewidth at most $1$ if and only if it is a forest.
+\end{proposition}
+
+\begin{proof}
+For one direction, \cref{prop:tw-trees} decomposes each tree of the forest with
+width $1$, and joining those decompositions by arbitrary edges into one tree
+keeps all three conditions.
+
+Conversely let $G$ be a non-empty graph with a tree decomposition
+$(T, \{X_i\})$ in which every bag has at most two vertices. If $T$ is a single
+node then $G$ has at most two vertices and is certainly a forest. Otherwise
+take a leaf $i$ of $T$ with neighbour $j$. If $X_i \subseteq X_j$, delete $i$
+from $T$; the result is still a tree decomposition, and this cannot go on
+forever. So we may assume some leaf $i$ has a vertex $v \in X_i \setminus X_j$.
+By condition~(iii) no other bag contains $v$, so by condition~(ii) every
+neighbour of $v$ lies in $X_i$, and $X_i$ holds at most one vertex besides $v$.
+So $G$ has a vertex of degree at most $1$. Deleting it leaves a graph with a
+decomposition of the same width, and the argument repeats, emptying $G$ one
+vertex of degree at most $1$ at a time. A graph containing a cycle cannot be
+emptied that way: as long as the cycle survives, each of its vertices has
+degree at least $2$. Hence $G$ is acyclic.
+\end{proof}
+
 \begin{example}[Cycles]\label{ex:tw-cycle}
 A cycle $v_1 v_2 \cdots v_n v_1$ has treewidth $2$. For the upper bound take a
 path of $n-2$ nodes with bags $\{v_1, v_i, v_{i+1}\}$ for $i = 2, \ldots, n-1$:
 every edge of the cycle appears in some bag, including the closing edge
 $\{v_n,v_1\}$, and the bags containing $v_1$ are all of them. For the lower
-bound, a graph of treewidth $1$ is a forest, by the argument of
-\cref{prop:tw-trees}, and a cycle is not.
+bound, a graph of treewidth $1$ is a forest by \cref{prop:tw-forest}, and a
+cycle is not.
 \end{example}
 
 %==============================================================================
@@ -309,9 +361,35 @@ the grid is of one of these two kinds.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{4.5cm}{A $4 \times 6$ grid with the sweeping window of five
-vertices drawn as a shaded band cutting across it in three successive
-positions.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    win/.style={draw=red!75!black,thick,circle,minimum size=13pt,inner sep=0pt},
+    every node/.style={font=\footnotesize}]
+  % the 4 x 6 grid, with v_{i,j} in row i and column j
+  \foreach \j in {1,...,6}{
+    \foreach \i in {1,...,4}{
+      \node[vtx] (v\i\j) at (\j,-\i) {};
+    }
+  }
+  \foreach \j in {1,...,6}{ \draw (v1\j)--(v4\j); }
+  \foreach \i in {1,...,4}{ \draw (v\i1)--(v\i6); }
+  % the column-major order u_1, u_2, ... snaking down one column at a time
+  \foreach \j [evaluate=\j as \k using int(\j+1)] in {1,...,5}{
+    \draw[black!40,dotted,thick,-{Latex[length=1.6mm]}] (v4\j) -- (v1\k);
+  }
+  \foreach \j in {1,...,6}{
+    \draw[black!40,dotted,thick,-{Latex[length=1.6mm]}]
+      ($(v1\j)+(0.09,0)$) -- ($(v4\j)+(0.09,0)$);
+  }
+  % three successive positions of the window of p+1 = 5 consecutive vertices
+  \foreach \c in {v11,v21,v31,v41,v12}{ \node[win] at (\c) {}; }
+  \foreach \c in {v42,v13,v23,v33,v43}{ \node[win] at (\c) {}; }
+  \foreach \c in {v34,v44,v15,v25,v35}{ \node[win] at (\c) {}; }
+  \node[red!75!black] at (0.35,-2.5) {$X_1$};
+  \node[red!75!black] at (2.5,-4.75) {$X_8$};
+  \node[red!75!black] at (4.5,-4.75) {$X_{15}$};
+  \node at (3.5,0.45) {$u_1, u_2, \ldots, u_{24}$ in column-major order};
+\end{tikzpicture}
 \caption{The window of $p+1$ consecutive vertices sweeping across a $p \times q$
 grid. At every moment it separates the part already passed from the part still
 ahead.}
@@ -377,11 +455,50 @@ total, and each is a linear scan.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{6.5cm}{The tree decomposition of \cref{fig:tw-decomposition}
-beside its nice version, with the four node types labelled: leaf, introduce,
-forget, join.}
-\caption{A tree decomposition and a nice tree decomposition of the same graph
-and the same width.}
+\begin{tikzpicture}[scale=0.62,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    bag/.style={rounded corners=4pt,draw,inner sep=3pt,font=\footnotesize},
+    ty/.style={font=\scriptsize\itshape,inner sep=2pt},
+    every node/.style={font=\footnotesize}]
+  % ---- a small graph ----
+  \node[vtx,label=above:$a$] (a) at (0,1.4) {};
+  \node[vtx,label=left:$b$]  (b) at (-1,-0.2) {};
+  \node[vtx,label={[label distance=-2pt]below left:$c$}] (c) at (1,-0.2) {};
+  \node[vtx,label=right:$d$] (d) at (2.3,-1.3) {};
+  \draw (a)--(b)--(c)--(a) (c)--(d);
+  \node at (0.6,-4.4) {a graph};
+  % ---- a tree decomposition of it ----
+  \node[bag] (Y1) at (5.2,0.7)  {$\{a,b,c\}$};
+  \node[bag] (Y2) at (5.2,-0.8) {$\{c,d\}$};
+  \draw (Y1)--(Y2);
+  \node at (5.2,-4.4) {a tree decomposition};
+  % ---- a nice tree decomposition of it ----
+  \node[bag] (J)  at (13.5,3.4)  {$\{c\}$};
+  \node[bag] (L1) at (11.6,1.9)   {$\{c\}$};
+  \node[bag] (L2) at (11.6,0.6)   {$\{b,c\}$};
+  \node[bag] (L3) at (11.6,-0.7)  {$\{a,b,c\}$};
+  \node[bag] (L4) at (11.6,-2.0)  {$\{a,b\}$};
+  \node[bag] (L5) at (11.6,-3.3)  {$\{a\}$};
+  \node[bag] (R1) at (15.4,1.9)  {$\{c\}$};
+  \node[bag] (R2) at (15.4,0.6)  {$\{c,d\}$};
+  \node[bag] (R3) at (15.4,-0.7) {$\{d\}$};
+  \draw (J)--(L1) (L1)--(L2) (L2)--(L3) (L3)--(L4) (L4)--(L5)
+        (J)--(R1) (R1)--(R2) (R2)--(R3);
+  \node[ty,right=1pt of J]  {join};
+  \node[ty,left=1pt of L1] {forget $b$};
+  \node[ty,left=1pt of L2] {forget $a$};
+  \node[ty,left=1pt of L3] {introduce $c$};
+  \node[ty,left=1pt of L4] {introduce $b$};
+  \node[ty,left=1pt of L5] {leaf};
+  \node[ty,right=1pt of R1] {forget $d$};
+  \node[ty,right=1pt of R2] {introduce $c$};
+  \node[ty,right=1pt of R3] {leaf};
+  \node at (13.5,-4.4) {a nice tree decomposition};
+\end{tikzpicture}
+\caption{A tree decomposition and a nice tree decomposition of the same graph,
+both of width $2$. Reading a branch from the bottom up, vertices enter the bag
+at introduce nodes and leave it at forget nodes; the join node has two children
+carrying the same bag.}
 \label{fig:tw-nice}
 \end{figure}
 
@@ -623,8 +740,8 @@ Two warnings, and they are why the rest of the chapter is not redundant. First,
 linear time means linear in $n$, not in $k$: the function $f$ is a tower of
 exponentials in the size of the formula, and unavoidably so. Second, the
 theorem gives existence, not a usable algorithm. The
-$\Ostar(3^k)$ dominating set algorithm mentioned in
-\cref{thm:tw-dominating-set} is not a consequence of Courcelle's theorem and
+$\Ostar(3^k)$ dominating set algorithm of \cref{sec:tw-dp} is not a consequence
+of Courcelle's theorem and
 could not be: every efficient treewidth algorithm anyone actually runs is
 hand-designed.
 
@@ -736,7 +853,8 @@ union is connected. No bag grows.
 So a graph containing a large grid as a minor has large treewidth, by
 \cref{prop:tw-grid}. The remarkable fact is the converse.
 
-\begin{theorem}[Grid minor theorem, \citet{RobertsonSeymour1986}]
+\begin{theorem}[Grid minor theorem, \citet{RobertsonSeymourThomas1994,
+RobertsonSeymour1986}]
 \label{thm:grid-minor}
 For every $l$, every planar graph either contains the $l \times l$ grid as a
 minor or has treewidth at most $5l$. Moreover a minor model or a tree
@@ -761,10 +879,20 @@ an algorithm running in $k^{\bigoh{\sqrt k}} n^{\bigoh{1}}$ time.
 \end{example}
 
 \begin{example}[Planar $k$-dominating set]\label{ex:planar-k-dominating}
-The same argument with the inequality reversed. A graph containing an
-$l \times l$ grid minor has no dominating set smaller than $l^2/5$, since a
-vertex of the grid dominates at most five others. So if $\tw(G) > 5\cdot
-5\sqrt k$ the answer is no, and otherwise the treewidth is $\bigoh{\sqrt k}$
+The same argument with the inequality reversed, and it needs one extra piece of
+care. Domination does not survive taking minors: deleting edges can only make a
+graph harder to dominate, and the complete graph on $l^2$ vertices contains the
+$l \times l$ grid as a minor while being dominated by a single vertex. What is
+true is that \emph{contracting} an edge never increases the domination number,
+since the image of a dominating set is again dominating. And the planar grid
+theorem has a contraction form: there is a constant $c$ such that every planar
+graph of treewidth more than $c\,l$ can be contracted to a partially
+triangulated $l \times l$ grid, that is, to the grid with at most one diagonal
+added inside each of its faces \citep{FominGolovachThilikos2011}. Such a graph
+has maximum degree at most $8$, so each vertex dominates at most nine vertices
+including itself and at least $l^2/9$ vertices are needed to dominate it. Now
+take $l = 3\lceil \sqrt{k+1}\, \rceil$, so that $l^2/9 > k$. If
+$\tw(G) > c\,l$ the answer is no; otherwise the treewidth is $\bigoh{\sqrt k}$
 and \cref{thm:tw-dominating-set} finishes in $2^{\bigoh{\sqrt k}} n^{\bigoh{1}}$
 time.
 \end{example}
@@ -772,7 +900,10 @@ time.
 The pattern in both examples --- either the treewidth is small and we compute,
 or it is large and the answer is forced --- is called \emph{bidimensionality},
 and it is the standard route to subexponential parameterized algorithms on
-planar graphs.
+planar graphs. The difference between the two is exactly the difference the
+second example had to work around: a $k$-path survives every minor operation,
+whereas a small dominating set survives only contractions, and the two versions
+of the grid theorem are what each of them needs.
 
 %==============================================================================
 \section{Notes and further reading}
@@ -793,9 +924,11 @@ $\bigoh{4^k n}$ dominating set algorithm is
 \citet{VanRooijBodlaenderRossmanith2009} and shown optimal under the strong
 exponential time hypothesis by \citet{LokshtanovMarxSaurabh2018}.
 \Cref{thm:fomin-hoie} is \citet{FominHoie2006}.
-\Cref{thm:grid-minor} is \citet{RobertsonSeymour1986}; the bound for general
-graphs was exponential in $l$ until \citet{ChekuriChuzhoy2016} made it
-polynomial.
+The two halves of \cref{thm:grid-minor} come from different papers: the linear
+bound $5l$ for planar graphs is \citet{RobertsonSeymourThomas1994}, while the
+statement for general graphs goes back to \citet{RobertsonSeymour1986}, where
+the bound was exponential in $l$; it stayed exponential until
+\citet{ChekuriChuzhoy2016} made it polynomial.
 
 The lecture closes with a bonus discussion, not examined and not reproduced
 here, of how fast \lang{Hamiltonian Cycle} can be solved on graphs of small

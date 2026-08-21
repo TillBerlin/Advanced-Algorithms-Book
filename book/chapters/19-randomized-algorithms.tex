@@ -250,19 +250,14 @@ $(2e)^k$ is $10^{20}$ against $10^7$ at $k = 10$.
 \label{sec:schoening}
 %==============================================================================
 
-Randomness helps outside the parameterized world too. Recall from
-\cref{ch:exact-i} the local search subroutine for satisfiability.
-
-\begin{lemma}[\Cref{ch:exact-i}]\label{lem:hamming-ball}
-Given a $k$-CNF formula $F$ and a truth assignment $a$, one can decide in
-$\Ostar(k^d)$ time whether $F$ has a satisfying assignment at Hamming distance
-at most $d$ from $a$.
-\end{lemma}
-
-The deterministic algorithm of \cref{ch:exact-i} applied this at the two
-assignments \textsc{all-true} and \textsc{all-false}, taking $d = n/2$, and got
-$\Ostar(3^{n/2}) = \bigoh{1.7321^n}$ for $3$-SAT. Randomness does better simply
-by choosing the centre at random and taking a much smaller radius.
+Randomness helps outside the parameterized world too, and the cleanest example
+reuses a subroutine we already have. By \cref{lem:hamming-ball}, one can decide
+in $\Ostar(k^d)$ time whether a $k$-CNF formula has a satisfying assignment
+within Hamming distance $d$ of a given assignment. \Cref{thm:local-search-3sat}
+called it at the two assignments \textsc{all-true} and \textsc{all-false} with
+$d = n/2$ and got $\Ostar(3^{n/2}) = \bigoh{1.7321^n}$ for $3$-SAT. Randomness
+does better simply by choosing the centre at random and taking a much smaller
+radius.
 
 \begin{algorithm}[ht]
 \caption{Sch\"oning's algorithm for $k$-SAT}
@@ -278,7 +273,7 @@ by choosing the centre at random and taking a much smaller radius.
 \end{algorithmic}
 \end{algorithm}
 
-\begin{theorem}[\citet{Schoening1999}]\label{thm:schoening}
+\begin{theorem}[\citet{DantsinEtAl2002}]\label{thm:schoening}
 \Cref{alg:schoening} decides $k$-SAT with constant one-sided error in
 \[ \Ostar\Bigl( \Bigl(\frac{2k}{k+1}\Bigr)^{\!n} \Bigr) \text{ time.} \]
 For $k = 3$ this is $\bigoh{1.5^n}$.
@@ -308,6 +303,18 @@ For $k = 100$ it is $(200/101)^n = 1.9802^n$ --- still below $2^n$, which is
 the point: the saving degrades as $k$ grows but never disappears.
 \Cref{ch:lower-bounds} explains why it must degrade.
 \end{example}
+
+\begin{remark}[Whose algorithm this is]\label{rem:schoening-attribution}
+The name is attached to two different algorithms and it is worth keeping them
+apart. The one above --- random centre, exhaustive search of the ball around it
+--- is the algorithm of \citet{DantsinEtAl2002}, whose paper also derandomises
+the choice of centre by taking the centres from a covering code, at the same
+bound $2 - 2/(k+1)$. What \citet{Schoening1999} actually gave is a random walk:
+start at a random assignment and repeatedly pick an unsatisfied clause and flip
+one of its literals at random, for $\bigoh{n}$ steps. That algorithm is both
+simpler and faster, at $\Ostar((2 - 2/k)^n)$, which is $\bigoh{1.3334^n}$ for
+$3$-SAT against the $1.5^n$ above. Uwe Sch\"oning is an author of both papers.
+\end{remark}
 
 %==============================================================================
 \section{Feedback vertex set}
@@ -525,9 +532,11 @@ here from the literature.
 
 Colour coding is \citet{AlonYusterZwick1995}, who also showed how to
 derandomise it using families of perfect hash functions, at the cost of a larger
-polynomial factor. \Cref{thm:schoening} is \citet{Schoening1999}; the algorithm
-as Sch\"oning gave it uses a random walk rather than the exhaustive search of
-\cref{lem:hamming-ball} and achieves the same bound.
+polynomial factor. \Cref{thm:schoening} is \citet{DantsinEtAl2002}; see
+\cref{rem:schoening-attribution} for how it relates to the random-walk algorithm
+of \citet{Schoening1999}. Both have since been improved: the fastest
+randomized algorithms known for $3$-SAT run in below $1.31^n$, and, as with
+every record quoted in this book, that number moves.
 \citet[Chapter~5]{CyganEtAl2015} covers colour coding, random separation and the
 feedback vertex set algorithm; \citet[Chapter~5]{FominKratsch2010} covers the
 exponential-time side.

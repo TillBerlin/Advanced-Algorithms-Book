@@ -73,8 +73,10 @@ help at all.
 \lang{Clique} asks whether $G$ has a clique of size at least $k$. It is solvable
 in $\bigoh{n^{k+1}}$ time by trying every $k$-set --- polynomial for each fixed
 $k$, but with $k$ in the exponent, so useless for $k = 20$ on a large graph.
-A more complicated algorithm gives $\bigoh{n^{2.23k/3}}$, and the exponent still
-grows with $k$.
+A more complicated algorithm, due to \citet{NesetrilPoljak1985}, uses fast
+matrix multiplication to bring this down to $\bigoh{n^{\omega k/3}}$, where
+$\omega < 2.373$ is the exponent of \cref{ch:exact-i} --- about $n^{0.79k}$ ---
+and the exponent still grows with $k$.
 
 \lang{Vertex Cover} asks whether $G$ has a vertex cover of size at most $k$. It
 is solvable in $\bigoh{2^k(n+m)}$ time, and that is a different shape of running
@@ -154,11 +156,29 @@ $\mathrm{XP}$, then fixing $k = 3$ would give a polynomial algorithm for an
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{4cm}{Nested regions: FPT innermost, then the W-hierarchy, then
-XP; para-NP drawn as a separate region overlapping XP only outside FPT, with
-\lang{Vertex Cover} in FPT, \lang{Clique} in W[1], \lang{Dominating Set} in
-W[2], and \lang{Graph Coloring} in para-NP.}
-\caption{The parameterized classes and where the examples of this chapter sit.}
+\begin{tikzpicture}[scale=0.62,every node/.style={font=\footnotesize},
+    prob/.style={font=\scriptsize}]
+  \draw[fill=black!3]  (0,0) ellipse (7.0 and 3.9);
+  \draw[fill=black!6]  (0,0) ellipse (5.6 and 3.0);
+  \draw[fill=black!9]  (0,0) ellipse (4.0 and 2.05);
+  \draw[fill=black!14] (0,0) ellipse (2.6 and 1.15);
+  \node[fill=black!3,inner sep=2pt] at (0,3.4)  {$\mathrm{XP}$};
+  \node[fill=black!6,inner sep=2pt] at (0,2.45) {$\mathrm{W}[2]$};
+  \node[fill=black!9,inner sep=2pt] at (0,1.55) {$\mathrm{W}[1]$};
+  \node at (0,0.45) {$\mathrm{FPT}$};
+  \node[prob] at (0,-0.4)  {\lang{Vertex Cover}};
+  \node[prob] at (0,-1.55) {\lang{Clique}};
+  \node[prob] at (0,-2.45) {\lang{Dominating Set}};
+  \node at (0,-3.4)  {$\cdots$};
+  % para-NP-hard sits outside XP altogether, unless P = NP
+  \draw[fill=black!3,rounded corners=6pt] (8.4,-1.7) rectangle (14.2,1.7);
+  \node at (11.3,0.6)  {para-\textrm{NP}-hard};
+  \node[prob] at (11.3,-0.4) {\lang{Graph Coloring}};
+\end{tikzpicture}
+\caption{The parameterized classes and where the examples of this chapter sit.
+The picture is drawn as if every inclusion were strict and $\mathrm{P} \neq
+\mathrm{NP}$; only the inclusions themselves are theorems, and a para-\textrm{NP}-hard
+problem lies outside $\mathrm{XP}$ exactly under that assumption.}
 \label{fig:fpt-classes}
 \end{figure}
 
@@ -322,9 +342,34 @@ depth $k$ and branching factor $3$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{4.5cm}{The three-vertex configuration $w - v - x$ with the
-missing edge $wx$ drawn dashed, and the three graphs the algorithm recurses on:
-$vw$ deleted, $vx$ deleted, $wx$ added.}
+\begin{tikzpicture}[scale=0.72,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    miss/.style={black!45,dashed},
+    every node/.style={font=\footnotesize}]
+  % the forbidden induced path w - v - x
+  \begin{scope}
+    \node[vtx,label=above:$v$]      (v) at (0,1) {};
+    \node[vtx,label=below left:$w$] (w) at (-1,0) {};
+    \node[vtx,label=below right:$x$](x) at (1,0) {};
+    \draw (w)--(v)--(x);
+    \draw[miss] (w)--(x);
+    \node at (0,-1.1) {forbidden $P_3$};
+  \end{scope}
+  % the three ways to destroy it
+  \foreach \s/\dx/\cpt in {1/5/{delete $vw$}, 2/8.6/{delete $vx$},
+      3/12.2/{add $wx$}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx,label=above:$v$]      (v\s) at (0,1) {};
+      \node[vtx,label=below left:$w$] (w\s) at (-1,0) {};
+      \node[vtx,label=below right:$x$](x\s) at (1,0) {};
+      \node at (0,-1.1) {\cpt};
+    \end{scope}
+  }
+  \draw[miss] (w1)--(v1); \draw (v1)--(x1); \draw[miss] (w1)--(x1);
+  \draw (w2)--(v2); \draw[miss] (v2)--(x2); \draw[miss] (w2)--(x2);
+  \draw (w3)--(v3)--(x3); \draw (w3)--(x3);
+  \node at (3.0,0.5) {$\Rightarrow$};
+\end{tikzpicture}
 \caption{The branching rule for \lang{Cluster Editing}. The induced path on
 three vertices must be destroyed, and there are only three ways to do it.}
 \label{fig:fpt-cluster}
@@ -450,15 +495,20 @@ rest.
 \end{proof}
 
 \begin{example}\label{ex:closest-string}
-Take $s_1 = 01113$, $s_2 = 02223$, $s_3 = 01221$ and $d = 2$. The first
-subproblem is $(01113, 2)$. It differs from $s_2$ in three positions, so it
-branches into
-\[ (02113,\,1), \qquad (01213,\,1), \qquad (01123,\,1). \]
-The first of these is rejected without branching: its distance to $s_3$ is $4$,
-and $4 > 2 + 1 = d + r$. The second branches into $(02213,0)$, $(01113,0)$,
-$(01223,0)$ and $(01211,0)$, of which $(01223,0)$ is a solution. Note that
-$(01113,0)$ merely undoes an earlier change, and a good implementation skips
-positions that have already been fixed.
+Take $s_1 = 02231$, $s_2 = 01210$, $s_3 = 20221$ and $d = 2$. The first
+subproblem is $(02231, 2)$. The candidate is at distance $0$, $3$ and $2$ from
+the three strings, so $s_2$ witnesses failure; the two strings differ in
+positions $2$, $4$ and $5$, and the call branches into
+\[ (01231,\,1), \qquad (02211,\,1), \qquad (02230,\,1), \]
+each obtained by copying one of those positions from $s_2$.
+
+Take the first. Its distances are $1$, $2$ and $3$, so now $s_3$ witnesses
+failure, and $3 \le d + r = 3$, so the rejection test lets it through. It
+differs from $s_3$ in positions $1$, $2$ and $4$, giving
+\[ (21231,\,0), \qquad (00231,\,0), \qquad (01221,\,0). \]
+The first two are rejected at once: both are at distance $3$ from $s_2$, and
+$3 > d + r = 2$. The third is at distance $2$ from all three strings, so
+\textsc{CS} returns it on line~2, and $01221$ is the answer.
 \end{example}
 
 \subsection{The recipe}
@@ -574,8 +624,11 @@ Three reduction rules, applied in order.
 of bad colours, return a trivial no-instance. This is correct because changing
 one character alters only the block it lies in and its two neighbours, and can
 turn at most one colour from bad to good; a case check shows the number of
-blocks of bad colours drops by at most $4$. For instance \texttt{abab} becomes
-\texttt{abbb}, and two bad blocks become none. So $k$ changes cannot remove more
+blocks of bad colours drops by at most $4$. The string \texttt{abab} is the
+tight case: it has four blocks and both of its colours are bad, so all four
+blocks are blocks of bad colours, and changing the third character to
+\texttt{b} gives \texttt{abbb}, in which both colours are good and no such block
+is left. So $k$ changes cannot remove more
 than $4k$ of them, and a convex string has none.
 
 \emph{Rule 2: merge adjacent good blocks.} If two consecutive blocks both carry

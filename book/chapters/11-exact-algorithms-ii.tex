@@ -281,15 +281,17 @@ and polynomial space.
 Take as objects the closed walks of length $n$ from $v_1$ to $v_1$ in $G$, and
 as requirements ``the walk visits $v$'', one for each vertex $v$. A walk of
 length $n$ that visits all $n$ vertices visits each exactly once, so the objects
-satisfying every requirement are precisely the Hamiltonian cycles, each counted
-once per starting direction.
+satisfying every requirement are precisely the Hamiltonian cycles --- but each
+of them appears twice, once for each of the two directions in which it can be
+traversed starting from $v_1$.
 
 For $R \subseteq V$, the objects satisfying none of the requirements in $R$ are
 the closed walks avoiding every vertex of $R$, that is the closed walks of
 length $n$ in $G[V \setminus R]$; call that count
 $\mathrm{CycleWalks}(V \setminus R)$. By \cref{thm:inclusion-exclusion} the
 number of Hamiltonian cycles is
-\[ \sum_{R \subseteq V} (-1)^{|R|}\, \mathrm{CycleWalks}(V \setminus R). \]
+\[ \frac{1}{2} \sum_{R \subseteq V} (-1)^{|R|}\,
+   \mathrm{CycleWalks}(V \setminus R). \]
 Each term is computed in polynomial time and space by
 \cref{lem:counting-walks}, and there are $2^n$ of them; the running sum needs
 one accumulator.
@@ -375,10 +377,19 @@ most $n$ values of $k$, so the total is $\Ostar(2^n)$.
 \begin{remark}[Polynomial space, at a price]\label{rem:colouring-poly-space}
 The table of $s(S)$ is the only exponential storage, and it can be dispensed
 with by recomputing $s(V \setminus R)$ from scratch for each $R$. The cost is
-whatever it takes to count independent sets in a graph, and doing that by the
-enumeration of \cref{cor:moon-moser} gives $\Ostar(2.4423^n)$ overall --- the
-same time as \cref{thm:lawler} but in polynomial space. Faster counting
-algorithms bring this down further.
+whatever it takes to \emph{count} the independent sets of a graph, which is a
+branching problem in its own right: split on a vertex $v$ of maximum degree,
+\[ s(S) \;=\; s(S \setminus \{v\}) \;+\; s(S \setminus N[v]), \]
+the two terms being the independent sets that avoid $v$ and those that contain
+it, and stop when every degree is at most $2$, where the graph is a disjoint
+union of paths and cycles and the count is a polynomial-time computation. Note
+that no reduction rule appears: the rules of \cref{obs:mis-reductions} preserve
+the \emph{maximum} and would destroy the count. When the recursion does branch,
+$v$ has degree at least $3$ and the vector is $(1,4)$, so counting costs
+$\bigoh{1.3803^n}$, and summing over all $R$ gives
+\[ \sum_{j=0}^{n} \binom{n}{j} 1.3803^{\,n-j} \;=\; 2.3803^n \]
+in total, in polynomial space. Faster counting algorithms bring this down
+further.
 \end{remark}
 
 \begin{figure}[ht]
@@ -499,8 +510,9 @@ instead?
 \end{exercise}
 
 \begin{exercise}
-\Cref{thm:ie-hamilton} counts each Hamiltonian cycle more than once. Exactly how
-many times, and how would you correct for it?
+\Cref{thm:ie-hamilton} divides by two at the end. Say exactly where the factor
+comes from, and what it becomes if the same argument is run on a \emph{directed}
+graph.
 \end{exercise}
 
 \begin{exercise}

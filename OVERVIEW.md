@@ -253,8 +253,8 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after chapter 18. **Three `\todo` markers**, 76 `\figplaceholder`
-boxes, 279 pages.
+Re-audited after the review pass. **Three `\todo` markers**, 68
+`\figplaceholder` boxes, 282 pages.
 
 **Every chapter of the book is drafted except the introduction.**
 
@@ -262,7 +262,7 @@ boxes, 279 pages.
 
 | What | Note |
 | --- | --- |
-| **76 figure placeholders** | By far the largest item, and the only one that cannot be written. Chapters 2 and 5 hold 18 each. |
+| **68 figure placeholders** | By far the largest item. Chapters 2 and 5 hold 18 each; eight of the argument-carrying ones in chapters 10, 12, 15 and 16 are now drawn in TikZ. |
 | Chapter 1, Introduction | Write last, once the notation has settled. No deck needed. |
 | Appendix B | A notation appendix, written from what the finished chapters use. No set theory. |
 | Preface | Acknowledgements. |
@@ -278,6 +278,52 @@ boxes, 279 pages.
 - **A full pass over the finished book** would be worth doing once the figures
   are in: cross-references between chapters have accumulated, and several
   chapters were written before the ones they now point at.
+
+## The review pass
+
+A rigorous read of the mathematics of chapters 10–19 was carried out, with
+every constant recomputed rather than eyeballed. Chapters 13, 14 and 17 came
+back clean; the rest did not. What was found and fixed, worst first:
+
+- **The clause gadget of the ETH → 3-colouring reduction did not work.** It had
+  five vertices where the count said six, and brute force over all eight literal
+  patterns showed it extended to a colouring only for two of the seven
+  satisfying ones. Replaced by the standard six-vertex gadget — two triangles
+  joined by an edge — with the or-gadget argument written out and the gadget
+  drawn, together with the forced collision when all three literals are false.
+- **Schöning's algorithm was misattributed.** The algorithm lectured (random
+  centre, exhaustive search of the Hamming ball of radius `n/(k+1)`) is
+  Dantsin et al. 2002, not Schöning 1999; Schöning's own random-walk algorithm
+  is *faster*, at `(2-2/k)^n` against `(2-2/(k+1))^n`. The theorem is now cited
+  correctly and a remark separates the two.
+- **The Hamming-ball local search was missing from chapter 10**, although
+  slides 39–41 of the exponential-time deck give it and Jesper's deck flashes
+  back to it. Added as §10.3.3, with the lemma, its proof, and the
+  `O*(3^{n/2}) = O(1.7321^n)` algorithm for 3-SAT.
+- **Planar `k`-dominating set used minor-monotonicity of the domination
+  number**, which is false — `K_{l²}` has the `l×l` grid as a minor and is
+  dominated by one vertex. The lecture slide makes the same claim. Rewritten
+  with contractions, the contraction form of the planar grid theorem, and the
+  partially triangulated grid, whose maximum degree 8 gives `l²/9`.
+- **The Hamiltonian-cycle inclusion–exclusion formula was off by a factor of
+  two** — the sum counts each cycle once per direction.
+- **The worked Closest String example was wrong**: its second subproblem was
+  already a solution, so the trace could not have happened. Replaced by a
+  machine-checked trace that branches twice, rejects twice and succeeds.
+- **The half-integrality perturbation sent coordinates at `0` to `−ε`.**
+  Restricted to the coordinates that are not already half-integral.
+- Smaller: the claimed Impagliazzo–Paturi bound `s_k ≤ c·s_3` for an absolute
+  `c` is not their theorem (the SETH ⇒ ETH proof now runs through
+  sparsification and clause splitting, with a `k`-dependent constant); the
+  ETH ⇒ P ≠ NP implication was stated backwards; the polynomial-space colouring
+  remark counted maximal independent sets where it needed all of them;
+  `O(n^{2.23k/3})` for clique is not a bound anyone has proved and is now
+  `O(n^{ωk/3})`; the linear planar grid bound is Robertson–Seymour–Thomas 1994,
+  not Graph Minors V; treewidth ≤ 1 ⇒ forest needed a proof and now has one;
+  the dominating-set running time over a tree decomposition is quoted
+  consistently as `4^k` naive and `3^k` with fast subset convolution; and the
+  `abab` example has four bad blocks, not two, which is the point of the
+  constant 4.
 
 ## Source material
 

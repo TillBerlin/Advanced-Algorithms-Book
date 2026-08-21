@@ -78,9 +78,10 @@ almost every question an algorithm designer actually has, that is not enough:
 \begin{itemize}[leftmargin=*]
   \item \emph{Is $\Ostar{}(2^n)$ for Hamiltonian cycle the end of the road, or
         should we be looking for $1.5^n$?}
-  \item \emph{The dynamic program of \cref{ch:treewidth} solves dominating set
-        in $\Ostar{}(3^k)$ on a tree decomposition of width $k$. Is the $3$ an
-        artefact of the three states, or is it forced?}
+  \item \emph{The dynamic program of \cref{ch:treewidth} carries three states
+        per bag vertex and, once its join step is done well, solves dominating
+        set in $\Ostar{}(3^k)$ on a tree decomposition of width $k$. Is the $3$
+        an artefact of the three states, or is it forced?}
   \item \emph{Edit distance, Fr\'echet distance and longest common subsequence
         all have textbook quadratic algorithms and no better one. Is that a gap
         in our knowledge or a fact about the problems?}
@@ -140,11 +141,29 @@ $\mathrm{P} \ne \mathrm{NP}$. Neither converse is known.
 \end{proposition}
 
 \begin{proof}
-\citet{ImpagliazzoPaturi2001} show that the sequence $(s_k)$ is controlled by
-its first term: $s_k \le c\, s_3$ for an absolute constant $c$ and every $k$.
-So if $s_3 = 0$ then $s_k = 0$ for all $k$ and $\lim_k s_k = 0 \ne 1$,
-contradicting SETH. For the second implication, a $2^{o(n)}$ algorithm for
-$3$-SAT is in particular not polynomial, so ETH is the stronger assumption.
+For the first implication we show the contrapositive: if ETH fails then so does
+SETH. Suppose $s_3 = 0$, so that for every $\varepsilon > 0$ there is an
+algorithm solving $3$-SAT in $\Ostar(2^{\varepsilon n})$ time, and fix a $k$.
+Given a $k$-CNF formula $F$ on $n$ variables, first apply the sparsification
+lemma (\cref{thm:sparsification}, proved in the next section) with parameter
+$\varepsilon$: it produces at most $2^{\varepsilon n}$ formulas, each a $k$-CNF
+on the same $n$ variables with at most $Cn$ clauses, one of which is
+satisfiable exactly when $F$ is. In each of them replace every clause of width
+$k$ by $k-2$ clauses of width $3$ in the standard way, at the cost of $k-3$
+fresh variables per clause. Because there are only $Cn$ clauses, the result is
+a $3$-CNF on at most $c_k n$ variables, where $c_k = 1 + C(k-3)$ depends on $k$
+but not on the formula. Solving each piece with the $3$-SAT algorithm run at
+$\varepsilon/c_k$ costs $\Ostar(2^{\varepsilon n})$, and the whole computation
+$\Ostar(2^{2\varepsilon n})$. As $\varepsilon$ was arbitrary, $s_k = 0$; as $k$
+was arbitrary, $\lim_k s_k = 0 \ne 1$ and SETH fails.
+
+The constant $c_k$ grows with $k$, and that is unavoidable: nothing here says
+that the $s_k$ are bounded by a fixed multiple of $s_3$, and whether faster
+$3$-SAT algorithms have any bearing on SETH at all is open.
+
+For the second implication, if $\mathrm{P} = \mathrm{NP}$ then $3$-SAT has a
+polynomial-time algorithm, which is in particular a $2^{o(n)}$ algorithm, so
+ETH fails.
 \end{proof}
 
 \begin{remark}[How much are they believed?]\label{rem:believing-eth}
@@ -266,12 +285,31 @@ $\neg x_i$, a colouring of these vertices is exactly a truth assignment.
 
 \emph{Clauses.} For a clause $C = \ell_1 \vee \ell_2 \vee \ell_3$ add the
 six-vertex gadget of \cref{fig:eth-clause-gadget}: two triangles
-$\{a_1,a_2,b_1\}$ and $\{b_1,b_2,b_3\}$, with $a_1$ adjacent to the vertex of
-$\ell_1$, $a_2$ adjacent to the vertex of $\ell_2$, $b_2$ adjacent to
-$\mathsf{F}$ and to $\mathsf{B}$, and $b_3$ adjacent to the vertex of
-$\ell_3$ and to $\mathsf{B}$. The gadget has the property that it can be
-$3$-coloured, given the colours of the three literal vertices, if and only if
-at least one literal vertex has the true colour.
+$\{a_1,a_2,a_3\}$ and $\{b_1,b_2,b_3\}$ joined by the edge $\{a_3,b_1\}$, with
+$a_1$ adjacent to the vertex of $\ell_1$, $a_2$ adjacent to the vertex of
+$\ell_2$, $b_2$ adjacent to the vertex of $\ell_3$, and $b_3$ adjacent to both
+$\mathsf{F}$ and $\mathsf{B}$.
+
+Each triangle is a small or-gadget, and the first one is worth doing by hand.
+Its three vertices get three different colours. If $a_3$ is true, then $a_1$
+and $a_2$ take the false and the base colour in some order, and whichever of
+them is false forces the literal vertex it is adjacent to be true. Conversely
+if $\ell_1$ is true, colouring $a_1$ false and $a_2$ base leaves the true
+colour free for $a_3$, and symmetrically for $\ell_2$. So $a_3$ can be true
+exactly when $\ell_1 \vee \ell_2$ holds; and when both literals are false, $a_1$
+and $a_2$ must take the true and the base colour, which forces $a_3$ to be
+false.
+
+In the second triangle $b_3$ is adjacent to both $\mathsf{F}$ and $\mathsf{B}$
+and so is forced to be true, leaving the false and the base colour for $b_1$
+and $b_2$. If $b_1$ is false and $b_2$ base, the only demand is that $a_3$ is
+not false; if $b_1$ is base and $b_2$ false, the demands are that $a_3$ is not
+base and that $\ell_3$ is not false. When $\ell_1$ or $\ell_2$ is true the
+first option is available, because $a_3$ may then be true; when both are false,
+$a_3$ is forced to be false and only the second option is left, which needs
+$\ell_3$ true. The gadget therefore extends to a $3$-colouring, given the
+colours of the three literal vertices, if and only if at least one of them has
+the true colour.
 
 \emph{Correctness.} If $F$ has a satisfying assignment, colour the literal
 vertices accordingly and extend over each clause gadget, which is possible
@@ -288,14 +326,41 @@ follows because $|E| = \bigoh{|V|}$ here.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5.5cm}{The six-vertex clause gadget: two triangles sharing the
-vertex $b_1$, the three literal vertices on the left attached to $a_1$, $a_2$
-and $b_3$, and the palette vertices $\mathsf{F}$ and $\mathsf{B}$ attached on
-the right. Beside it, the same gadget with all three literals coloured false
-and the resulting collision marked.}
+\begin{tikzpicture}[scale=0.66,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    pal/.style={circle,draw,fill=black!8,inner sep=1.5pt,font=\scriptsize},
+    every node/.style={font=\footnotesize}]
+  \foreach \dx/\zla/\zlb/\zlc/\zaa/\zab/\zac/\zba/\zbb/\zbc in {%
+      0/{\ell_1}/{\ell_2}/{\ell_3}/{a_1}/{a_2}/{a_3}/{b_1}/{b_2}/{b_3},
+      10.4/{\mathsf{F}}/{\mathsf{F}}/{\mathsf{F}}/{\mathsf{T}/\mathsf{B}}/{\mathsf{B}/\mathsf{T}}/{\mathsf{F}}/{\mathsf{B}}/{\mathsf{F}}/{\mathsf{T}}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx,label=left:$\zla$]        (l1) at (0,1) {};
+      \node[vtx,label=left:$\zlb$]        (l2) at (0,-1) {};
+      \node[vtx,label=above:$\zaa$]       (a1) at (1.5,1) {};
+      \node[vtx,label=below:$\zab$]       (a2) at (1.5,-1) {};
+      \node[vtx,label={[label distance=-1pt]above:$\zac$}] (a3) at (2.8,0) {};
+      \node[vtx,label={[label distance=-1pt]above:$\zba$}] (b1) at (4.3,0) {};
+      \node[vtx,label=above:$\zbb$]       (b2) at (5.6,0.9) {};
+      \node[vtx,label=below:$\zbc$]       (b3) at (5.6,-0.9) {};
+      \node[vtx,label=right:$\zlc$]       (l3) at (7.1,0.9) {};
+      \node[pal] (pF) at (7.1,-0.4) {$\mathsf{F}$};
+      \node[pal] (pB) at (7.1,-1.5) {$\mathsf{B}$};
+      \draw (a1)--(a2)--(a3)--(a1) (b1)--(b2)--(b3)--(b1) (a3)--(b1)
+            (l1)--(a1) (l2)--(a2) (b3)--(pF) (b3)--(pB);
+      \draw (b2)--(l3);
+    \end{scope}
+  }
+  \draw[red!75!black,line width=1pt] (16.0,0.9) -- (17.5,0.9);
+  \draw[red!75!black,line width=1pt] (16.55,1.45) -- (17.05,0.35)
+                                     (16.55,0.35) -- (17.05,1.45);
+  \node at (3.5,-2.9) {the gadget};
+  \node at (13.9,-2.9) {all three literals false: no colouring};
+\end{tikzpicture}
 \caption{The clause gadget of \cref{thm:eth-3col}. It extends to a
-$3$-colouring exactly when one of its three literal vertices is true; the
-picture on the right shows the collision that occurs otherwise.}
+$3$-colouring exactly when one of its three literal vertices is true. On the
+right all three literals are false: $b_3$ is forced true, $a_1$ and $a_2$ take
+the true and the base colour in one order or the other, and everything else is
+then forced, down to the collision on the edge into $\ell_3$.}
 \label{fig:eth-clause-gadget}
 \end{figure}
 
@@ -617,10 +682,36 @@ with $a_k = b_k = 1$, which is to say $a \cdot b = 0$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{6cm}{The $(2d+1) \times (2d+1)$ grid of free cells for two
-vector gadgets with $d = 4$: the checkerboard of blocked off-parity cells, the
-free diagonal, and one blocked diagonal cell where the two vectors share a
-$1$, with the resulting break in the path.}
+\begin{tikzpicture}[scale=0.62,every node/.style={font=\footnotesize}]
+  % a = (0,1,1,0), b = (1,0,1,1); the vectors share a 1 in coordinate 3.
+  \foreach \i in {1,...,9}{
+    \foreach \j in {1,...,9}{
+      \pgfmathtruncatemacro{\pty}{Mod(\i+\j,2)}
+      \ifnum\pty=1
+        \fill[black!12] (\i-1,\j-1) rectangle ++(1,1);
+      \fi
+    }
+  }
+  % even--even cells blocked because a_k = b_l = 1
+  \foreach \c in {{4,2},{4,6},{4,8},{6,2},{6,6},{6,8}}{
+    \fill[black!45] ($(\c)-(1,1)$) rectangle ++(1,1);
+  }
+  \draw[black!40] (0,0) grid (9,9);
+  \draw[thick] (0,0) rectangle (9,9);
+  % the forced diagonal, and the point where it breaks
+  \draw[line width=1.1pt,red!75!black] (0.5,0.5) -- (4.5,4.5);
+  \draw[line width=1.1pt,red!75!black,dashed] (4.5,4.5) -- (8.5,8.5);
+  \draw[line width=1.2pt,white] (5.15,5.15) -- (5.85,5.85)
+                                (5.15,5.85) -- (5.85,5.15);
+  \foreach \i/\l in {1/3,2/0,3/3,4/1,5/3,6/1,7/3,8/0,9/3}{
+    \node[below] at (\i-0.5,0) {$\l$};
+  }
+  \foreach \j/\l in {1/3,2/{-1},3/3,4/0,5/3,6/{-1},7/3,8/{-1},9/3}{
+    \node[left] at (0,\j-0.5) {$\l$};
+  }
+  \node[below=4mm] at (4.5,0) {$\mathrm{VG}(a)$, \quad $a = (0,1,1,0)$};
+  \node[rotate=90] at (-1.5,4.5) {$\mathrm{VG}(b)$, \quad $b = (1,0,1,1)$};
+\end{tikzpicture}
 \caption{The grid of free cells for two vector gadgets. Off-parity cells are
 blocked, which forces any traversal onto the diagonal; the traversal survives
 exactly when no diagonal cell is blocked, that is, exactly when the vectors are
@@ -798,9 +889,10 @@ $2^{\sqrt{\log n}}$ factors, are not excluded and in several cases are known.
 %==============================================================================
 
 The dominating set algorithm of \cref{ch:treewidth} carries three states per
-bag vertex --- in the solution, dominated, undecided --- and therefore runs in
-$\Ostar{}(3^k)$ on a tree decomposition of width $k$. Nothing in that chapter
-said whether a cleverer table might carry fewer.
+bag vertex --- in the solution, dominated, undecided --- so its tables have
+$3^k$ entries, and with the join step evaluated by fast subset convolution the
+running time is $\Ostar{}(3^k)$ as well. Nothing in that chapter said whether a
+cleverer table might carry fewer.
 
 \begin{theorem}[\citet{LokshtanovMarxSaurabh2018}]\label{thm:seth-treewidth}
 Assume $\mathrm{SETH}$ and let $\varepsilon > 0$. Then, given a tree

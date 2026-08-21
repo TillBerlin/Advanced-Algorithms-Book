@@ -107,20 +107,25 @@ every $v$, and it can be computed in polynomial time.
 \end{lemma}
 
 \begin{proof}
-Let $x$ be an optimal solution, and suppose some coordinate is not in
+Let $x$ be an optimal solution; as noted above we may assume
+$0 \le x_v \le 1$ for every $v$. Suppose some coordinate is not in
 $\{0,\frac12,1\}$. For $\varepsilon > 0$ define two points $x^{+}$ and $x^{-}$
 by
 \[ x^{\pm}_v = \begin{cases}
-     x_v \pm \varepsilon & \text{if } x_v > \tfrac12, \\
-     x_v \mp \varepsilon & \text{if } x_v < \tfrac12, \\
-     x_v & \text{if } x_v = \tfrac12.
+     x_v \pm \varepsilon & \text{if } \tfrac12 < x_v < 1, \\
+     x_v \mp \varepsilon & \text{if } 0 < x_v < \tfrac12, \\
+     x_v & \text{if } x_v \in \{0, \tfrac12, 1\}.
    \end{cases} \]
-Both are feasible for small enough $\varepsilon$. Take an edge $\{u,v\}$. If
-$x_u + x_v > 1$ strictly then a small perturbation cannot break it. If
-$x_u + x_v = 1$ then either both are $\frac12$, in which case nothing moves, or
-one is above $\frac12$ and the other below, in which case the two perturbations
-have opposite signs and cancel. Non-negativity survives for small $\varepsilon$
-as well.
+Only the coordinates that are not already half-integral move, which is what
+keeps the perturbation inside the box: a coordinate strictly between two of the
+values $0$, $\frac12$, $1$ stays between them for small enough $\varepsilon$,
+and the coordinates sitting on those values do not move at all. Now take an
+edge $\{u,v\}$. If $x_u + x_v > 1$ strictly then a small perturbation cannot
+break the constraint. If $x_u + x_v = 1$ then either both are $\frac12$, or one
+is $0$ and the other $1$ --- in both cases nothing moves --- or one is strictly
+between $\frac12$ and $1$ and the other strictly between $0$ and $\frac12$, in
+which case the two perturbations have opposite signs and cancel. So $x^{+}$ and
+$x^{-}$ are both feasible.
 
 Now $x = \frac12(x^{+} + x^{-})$, so the two costs average to that of $x$; as
 $x$ is optimal, neither can be smaller, so both are optimal too. Increase

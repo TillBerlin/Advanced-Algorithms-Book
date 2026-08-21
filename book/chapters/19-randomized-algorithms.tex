@@ -363,13 +363,13 @@ with at least one endpoint in $X$, and $E_F$ the set of edges with both
 endpoints in $F$. These partition $E$, so it suffices to show
 $|I| \ge |E_F|$.
 
-For $v \in F$ let $d_F(v)$ be the number of edges from $v$ into $F$. Since
-$\deg(v) \ge 3$, the vertex $v$ sends at least $3 - d_F(v)$ edges into $X$, and
+For $v \in F$ let $\deg_F(v)$ be the number of edges from $v$ into $F$. Since
+$\deg(v) \ge 3$, the vertex $v$ sends at least $3 - \deg_F(v)$ edges into $X$, and
 every such edge lies in $I$ and is counted at only one end. Hence
-\[ |I| \;\ge\; \sum_{v \in F} \max\bigl(0,\, 3 - d_F(v)\bigr)
+\[ |I| \;\ge\; \sum_{v \in F} \max\bigl(0,\, 3 - \deg_F(v)\bigr)
        \;\ge\; 2\,|F_{\le 1}| + |F_2|, \]
 where $F_{\le 1}$, $F_2$ and $F_{\ge 3}$ are the vertices of $F$ with
-$d_F(v) \le 1$, $=2$ and $\ge 3$ respectively.
+$\deg_F(v) \le 1$, $=2$ and $\ge 3$ respectively.
 
 Now use that $F$ is a forest. In any forest the vertices of degree at least
 three are strictly fewer than those of degree at most one: root each tree and

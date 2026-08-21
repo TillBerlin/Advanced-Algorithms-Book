@@ -163,7 +163,7 @@ $I \setminus \{u\}$ is a maximum independent set of $G \setminus N[u]$. The
 branch on that $u$ therefore returns the right value, and no branch can return
 too much.
 
-\emph{Running time.} Let $s = d(v)+1 = |N[v]|$. The algorithm makes $s$
+\emph{Running time.} Let $s = \deg(v)+1 = |N[v]|$. The algorithm makes $s$
 recursive calls, and each deletes $N[u]$ for a $u \in N[v]$; since $v$ has
 minimum degree, every such $u$ has $|N[u]| \ge s$. So, writing $T(n)$ for the
 number of leaves of the search tree,
@@ -296,9 +296,9 @@ where the branch is productive.
 \begin{observation}[Reduction rules for independent set]\label{obs:mis-reductions}
 Let $G$ be a graph and $v \in V$.
 \begin{enumerate}[label=(\roman*),leftmargin=*]
-  \item If $d(v) = 0$, some maximum independent set contains $v$: solve
+  \item If $\deg(v) = 0$, some maximum independent set contains $v$: solve
         $G - v$ and add $v$.
-  \item If $d(v) = 1$ with neighbour $w$, some maximum independent set contains
+  \item If $\deg(v) = 1$ with neighbour $w$, some maximum independent set contains
         $v$: solve $G - \{v,w\}$ and add $v$. Indeed, an independent set
         containing $w$ but not $v$ can exchange $w$ for $v$ without shrinking.
   \item If every vertex has degree at most $2$, the graph is a disjoint union
@@ -329,7 +329,7 @@ together with \cref{obs:mis-reductions}.
 
 For the analysis, note that once the reduction rules no longer apply, some
 vertex has degree at least $3$ --- otherwise rule (iii) would have solved the
-instance outright --- so the chosen $v$ of maximum degree has $d(v) \ge 3$. The
+instance outright --- so the chosen $v$ of maximum degree has $\deg(v) \ge 3$. The
 first branch deletes one vertex; the second deletes $N[v]$, which is at least
 $4$ vertices. The branching vector is therefore $(1,4)$ in the worst case, and
 $\tau(1,4) < 1.3803$.
@@ -358,7 +358,7 @@ have to store its output.
           (w3)--(x3) (w3)--(x4) (x3)--(x4) (x1)--(x3) (x2)--(x4);
     \draw[red!75!black,thick] (v) circle (9pt);
     \node[red!75!black] at (0.95,0.6) {$v$};
-    \node[font=\small] at (0,2.5) {$G$, \quad $d(v) = 3$};
+    \node[font=\small] at (0,2.5) {$G$, \quad $\deg(v) = 3$};
   \end{scope}
   % ---- left child: G - v ----
   \begin{scope}[xshift=-105pt,yshift=-185pt]
@@ -393,7 +393,7 @@ have to store its output.
         {branching vector $(1,4)$, \quad $\tau(1,4) < 1.3803$};
 \end{tikzpicture}
 \caption{One branching step of \cref{alg:exact-mis-branch}. The reduction rules
-guarantee $d(v) \ge 3$, which is what makes the second branch remove four
+guarantee $\deg(v) \ge 3$, which is what makes the second branch remove four
 vertices rather than two.}
 \label{fig:mis-branching}
 \end{figure}

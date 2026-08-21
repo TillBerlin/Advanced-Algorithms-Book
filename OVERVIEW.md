@@ -128,7 +128,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | File | Contents | Status |
 | --- | --- | --- |
 | `appendix/a-pool-questions.tex` | The exam pool, transcribed verbatim, with a question → chapter map | ✅ drafted |
-| `appendix/b-preliminaries.tex` | Notation only — see the policy note in the file | 🟡 deliberately deferred to the end |
+| `appendix/b-preliminaries.tex` | The assumed background: a ten-question self-check with three readings of the result, notation, graph vocabulary, asymptotics and `O*`, the machine model, P/NP/reductions, counting, probability, linear algebra and LP, the recurring proof moves, and where to read more | ✅ drafted |
 
 ## The exam pool
 
@@ -253,8 +253,8 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the review pass. **Three `\todo` markers**, 55
-`\figplaceholder` boxes, 281 pages.
+Re-audited after the preliminaries appendix. **Two `\todo` markers**, 55
+`\figplaceholder` boxes, 289 pages.
 
 **Every chapter of the book is drafted except the introduction.**
 
@@ -263,8 +263,7 @@ Re-audited after the review pass. **Three `\todo` markers**, 55
 | What | Note |
 | --- | --- |
 | **55 figure placeholders** | All of them are in chapters 2--6, which are waiting on uploads: 18 in chapter 2, 7 in chapter 3, 5 in chapter 4, 18 in chapter 5, 7 in chapter 6. Chapters 7--19 have none left; their 21 figures are drawn in TikZ. |
-| Chapter 1, Introduction | Write last, once the notation has settled. No deck needed. |
-| Appendix B | A notation appendix, written from what the finished chapters use. No set theory. |
+| Chapter 1, Introduction | Write last. No deck needed. The division of labour with appendix B is now fixed and recorded in the chapter's `\todo`: the appendix carries the background, the chapter carries what makes a problem hard and the four responses to it. |
 | Preface | Acknowledgements. |
 
 ### Also outstanding
@@ -278,6 +277,35 @@ Re-audited after the review pass. **Three `\todo` markers**, 55
 - **A full pass over the finished book** would be worth doing once the figures
   are in: cross-references between chapters have accumulated, and several
   chapters were written before the ones they now point at.
+
+## Appendix B, the preliminaries
+
+Written after the chapters, from what they actually use, as the policy note in
+the file always said it should be. It serves three readers at once and the
+first section is what sorts them out — not by telling anyone what they are, but
+by giving them ten concrete questions and then three readings of the answer:
+
+1. **A recap.** Someone with a recent bachelor's algorithms course needs the
+   notation and the `O*` convention and nothing else; they are told to read two
+   sections and start the book.
+2. **A syllabus.** Someone with the mathematics but not the algorithmics — the
+   usual profile from mathematics or physics — is missing vocabulary and one
+   model of computation, which is two evenings of work, and is told which four
+   sections and which reference chapters those are.
+3. **An honest measurement.** Someone missing both halves is told plainly what
+   the gap is (a bachelor's algorithms course plus discrete mathematics, about
+   a semester), and given three routes rather than a verdict: take the
+   prerequisite first, close the gap in parallel with a named reading list, or
+   read the book without the exam — with the parts that stand alone named.
+   The framing throughout is sequencing and preparation, never aptitude, and
+   the section says so in as many words.
+
+The rest is the background itself, and every fact in it is used somewhere in
+the book with a cross-reference saying where. Two notation clashes turned up
+while writing it and were fixed: degree was written `d(v)` in chapter 10 and
+`\deg(v)` elsewhere, while chapter 3 uses `d(u)` for a distance label — degree
+is now `\deg` throughout. Three general reference books were added to the
+bibliography (Sipser, Mitzenmacher–Upfal, and the free Lehman–Leighton–Meyer).
 
 ## The review pass
 

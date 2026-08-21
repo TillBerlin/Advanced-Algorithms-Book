@@ -64,6 +64,13 @@
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem*{intuition}{Intuition}
 
+% Inside \appendix, cleveref calls every sectional unit an "appendix"; but
+% "section B.2" is what a reader expects for a section of appendix B.
+\crefname{subappendix}{section}{sections}
+\Crefname{subappendix}{Section}{Sections}
+\crefname{subsubappendix}{section}{sections}
+\Crefname{subsubappendix}{Section}{Sections}
+
 % cleveref does not know our custom theorem types by itself.
 \crefname{exercise}{Exercise}{Exercises}
 \Crefname{exercise}{Exercise}{Exercises}

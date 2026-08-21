@@ -1,25 +1,489 @@
-%% Appendix B: background material that is assumed rather than taught.
+%% Appendix B: the background the book assumes, and how to acquire it.
 %%
 %% Policy, from the author: the reader is assumed to have general mathematical
 %% maturity, and only a few specific things are genuinely needed.  We do not
-%% repeat set theory.  What belongs here will be clear once the main text is
-%% finished -- write it then, from what the chapters actually use, not from a
-%% guess about what a reader might be missing.
+%% repeat set theory.  What is here was written from what the finished chapters
+%% actually use -- every fact below is used somewhere in the book, and the
+%% cross-references say where.
+%%
+%% The appendix serves three readers at once: one who has had a bachelor's
+%% algorithms course and wants a recap, one who has the mathematics but not the
+%% algorithmics, and one who is deciding whether to take the course at all.
+%% Section B.1 is the part that sorts them out, and it is deliberately written
+%% so that the reader does the sorting rather than being sorted.
 
-\chapter{Preliminaries and Notation}
+\chapter{Preliminaries}
 \label{app:preliminaries}
 
-This appendix fixes notation and nothing else. It is not a course in
-mathematics: the reader is assumed to have the general mathematical maturity of
-a bachelor's degree in computer science or mathematics, and standard material
---- sets, functions, induction, elementary probability --- is used without
-comment. What is collected here is only the notation this book uses in a way
-that might differ from another book's, and the small number of specific facts
-that several chapters lean on.
+This appendix is the background the rest of the book stands on. It is not a
+course in mathematics and it is not a summary of the course: everything here is
+assumed silently in the chapters, and nothing here is examined for its own
+sake. It is short because the list of things genuinely needed is short. What is
+long is the list of things a reader might reasonably \emph{expect} to be needed
+and which are not; those have been left out.
 
-\todo{Write this appendix last, from what the chapters actually turn out to
-use. At present the main text defines what it needs where it needs it, so this
-appendix is not yet load-bearing. The known candidates are the $\Ostar$
-convention, the graph-theoretic vocabulary and the statement of the
-complexity classes; a full pass over the finished chapters will settle the
-rest.}
+Every fact stated below is used somewhere in the book, and the cross-references
+say where. If a definition here looks unmotivated, follow the reference: the
+place it is used is the reason it is here.
+
+%==============================================================================
+\section{How to use this appendix}
+\label{sec:prelim-how-to-use}
+%==============================================================================
+
+Readers arrive at a course like this one from very different places, and the
+useful question is not how much mathematics somebody knows in general but
+whether a specific short list of things is fluent. The list is below, as ten
+questions. They are not a test to pass; they are a way of finding out, in
+fifteen minutes and in private, which of the sections of this appendix are
+worth your time.
+
+\begin{enumerate}[leftmargin=*]
+  \item Order these by growth: $n\log n$, $2^n$, $n^{1.5}$, $n!$, $1.5^n$,
+        $n^{\log n}$. Which two are closest?
+  \item Write out what $f(n) = \bigoh{g(n)}$ means, with its quantifiers.
+  \item A graph on $n$ vertices has no cycle. How many edges can it have, and
+        why?
+  \item What do breadth-first and depth-first search compute, in what running
+        time, and what does each need to store?
+  \item State what it means for a problem to be \textrm{NP}-complete, and name
+        one. If $A$ reduces to $B$ in polynomial time, what does that tell you
+        about $A$, and what about $B$?
+  \item Solve $T(n) = 2\,T(n/2) + \bigoh{n}$.
+  \item Flip $n$ fair coins. What is the expected number of heads, and does the
+        answer change if the coins are glued together in pairs?
+  \item What is $\sum_{k=0}^{n}\binom{n}{k}$, and roughly how big is
+        $\binom{n}{n/2}$?
+  \item What is a linear program, and what does it mean to \emph{relax} an
+        integer program to one?
+  \item Prove that a connected graph on $n$ vertices has at least $n-1$ edges.
+\end{enumerate}
+
+Questions~1, 2, 6, 7, 8 and~10 are mathematics; questions~3, 4, 5 and~9 are the
+vocabulary of algorithms. The split matters more than the score.
+
+\paragraph{If nearly all of them were routine.}
+Read \cref{sec:prelim-notation} for the notation, and
+\cref{sec:prelim-asymptotics} for the $\Ostar$ convention, which is used from
+\cref{ch:exact-i} onwards and is probably new even if everything else is not.
+Then start the book and come back only when a chapter sends you here.
+
+\paragraph{If the mathematics was routine and the algorithmics was not.}
+This is the common profile for a reader whose degree is in mathematics,
+physics, or another quantitative subject, and it is the easiest gap to close,
+because what is missing is vocabulary and one model of computation rather than
+technique. Read \cref{sec:prelim-graphs,sec:prelim-asymptotics,%
+sec:prelim-machine,sec:prelim-np} properly --- perhaps two evenings --- and
+keep \citet{CLRS2022} or \citet{KleinbergTardos2005} within reach for the
+standard algorithms named in passing: breadth-first and depth-first search,
+Dijkstra, minimum spanning trees, sorting, hash tables, and dynamic programming
+on arrays. The mathematical maturity you already have is the part that cannot
+be acquired in two evenings, and it is the part this book leans on hardest.
+
+\paragraph{If several items in both halves were unfamiliar.}
+Then what is missing is a full bachelor-level algorithms course, and that is a
+statement about sequencing, not about ability. It is worth being concrete about
+what that means for reading this book. The chapters are arguments, and each one
+assumes that the standard algorithms and the class \textrm{NP} are already
+familiar objects that can be used without being explained. Read without that,
+the book turns into a list of facts to memorise, which is both much harder and
+much less interesting than what is actually going on. Three honest options:
+
+\begin{itemize}[leftmargin=*]
+  \item \emph{Take the prerequisite first and this course later.} This is the
+        cheapest route by a wide margin, and it is a common one. An
+        introductory algorithms course plus a discrete mathematics course is
+        roughly one semester of work and makes the whole of this book
+        accessible rather than half of it.
+  \item \emph{Close the gap in parallel.} Possible, and people do it, but be
+        realistic about the size: working through Parts I and~IV of
+        \citet{CLRS2022}, or Chapters~1--6 of \citet{KleinbergTardos2005},
+        alongside the course is a second course's worth of effort on top of
+        this one. \citet{LehmanLeightonMeyer2018}, which is free, covers the
+        discrete mathematics.
+  \item \emph{Read it without the exam.} Several parts of the book were written
+        to be readable on their own. \Cref{ch:stable-marriage} needs almost
+        nothing; the opening sections of \cref{ch:planar,ch:approx-i} need
+        little; and the \emph{Intuition} boxes throughout are written to say
+        what an argument is really doing, in words, and can be read
+        independently of the proofs around them.
+\end{itemize}
+
+None of this is a judgement about who should be in the room. The variable is
+preparation and it is finite, which is exactly why it is worth measuring
+honestly at the start rather than discovering it in week six.
+
+%==============================================================================
+\section{Notation}
+\label{sec:prelim-notation}
+%==============================================================================
+
+Standard mathematical notation is used without comment. What follows is only
+the part where books differ from one another, so that no chapter has to stop
+and say which convention it is using.
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Notation & Meaning \\
+\midrule
+$\N, \Z, \Q, \R$ & the naturals (including $0$), integers, rationals, reals \\
+$[n]$ & the set $\{1, 2, \ldots, n\}$ \\
+$|S|$ & the number of elements of a finite set $S$ \\
+$2^{S}$ & the family of all subsets of $S$; hence $|2^S| = 2^{|S|}$ \\
+$S \setminus T$ & the elements of $S$ not in $T$ \\
+$S \subseteq T$ & containment, not necessarily strict \\
+$\binom{S}{k}$ & the family of $k$-element subsets of $S$ \\
+$\log$ & the logarithm to base $2$; $\ln$ is the natural one \\
+$a \bmod b$ & the remainder of $a$ on division by $b$ \\
+$\lfloor x \rfloor, \lceil x \rceil$ & rounding down and up \\
+$\poly(n)$ & some fixed polynomial in $n$, whose degree does not matter \\
+$\OPT$ & the value of an optimal solution to the instance at hand \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Two conventions about size. Throughout, $n$ is the size of the instance, and in
+a graph problem specifically $n = |V|$ and $m = |E|$; when a chapter needs a
+different meaning for $n$ it says so on the spot. And an algorithm's input is
+always a finite string: when we say a number is part of the input, we mean its
+binary representation is, which is what makes the distinction between
+polynomial and pseudo-polynomial running times in \cref{ch:approx-ii} a real
+one.
+
+%==============================================================================
+\section{Graphs}
+\label{sec:prelim-graphs}
+%==============================================================================
+
+Graphs are the single most common object in the book, and this section fixes
+their vocabulary once. Nothing here is deep; the point is that
+\cref{ch:matching} and \cref{ch:treewidth} should be able to say ``the closed
+neighbourhood of $v$'' without pausing.
+
+A \emph{graph} $G = (V,E)$ has a finite vertex set $V$ and an edge set $E$. In
+an \emph{undirected} graph an edge is an unordered pair $\{u,v\}$; in a
+\emph{directed} graph, or digraph, it is an ordered pair $(u,v)$, and we call
+it an \emph{arc}. Unless a chapter says otherwise, graphs are undirected,
+\emph{simple} --- no loops, no repeated edges --- and finite. Where multiple
+edges are allowed, as in \cref{ch:randomized}, the object is called a
+\emph{multigraph} and the text says so.
+
+Vertices $u$ and $v$ are \emph{adjacent}, or \emph{neighbours}, if
+$\{u,v\} \in E$; the edge is then \emph{incident} to both. The
+\emph{neighbourhood} of $v$ is $N(v) = \{u : \{u,v\} \in E\}$ and the
+\emph{closed neighbourhood} is $N[v] = N(v) \cup \{v\}$. The \emph{degree}
+$\deg(v)$ is $|N(v)|$, and $\deg_H(v)$ is the degree of $v$ counted only inside
+a subgraph $H$. Summing degrees counts every edge twice, so
+$\sum_{v} \deg(v) = 2m$; this two-line observation is used more often than any
+other fact about graphs.
+
+A \emph{path} is a sequence of distinct vertices consecutively adjacent, a
+\emph{cycle} is a path whose two ends are also adjacent, and a \emph{walk} is
+the same without the requirement that the vertices be distinct --- a
+distinction that matters exactly once, in \cref{sec:ie-hamilton}. A graph is
+\emph{connected} if every two vertices are joined by a path, a \emph{tree} if
+it is connected and has no cycle, and a \emph{forest} if it has no cycle. A
+tree on $n$ vertices has $n-1$ edges, a forest has fewer, and a connected graph
+has at least $n-1$; all three are the same induction.
+
+A \emph{subgraph} keeps some vertices and some of the edges among them; the
+\emph{induced} subgraph $G[S]$ on $S \subseteq V$ keeps \emph{all} edges with
+both ends in $S$. We write $G - v$ for $G[V \setminus \{v\}]$ and, for a set,
+$G \setminus S$ for $G[V \setminus S]$. A \emph{clique} is a set of pairwise
+adjacent vertices, an \emph{independent set} one of pairwise non-adjacent
+vertices, a \emph{vertex cover} a set meeting every edge, and a
+\emph{dominating set} a set $D$ with $N[D] = V$. A graph is \emph{bipartite} if
+its vertices split into two independent sets; equivalently, if it has no cycle
+of odd length.
+
+Two further notions are defined where they are needed rather than here, because
+both take a page to do properly: planarity in \cref{ch:planar} and treewidth in
+\cref{ch:treewidth}.
+
+%==============================================================================
+\section{Asymptotics, and the \texorpdfstring{$\Ostar$}{O*} convention}
+\label{sec:prelim-asymptotics}
+%==============================================================================
+
+Running times in this book are always asymptotic, and one of the four notations
+below is specific to the exponential-time literature and will be new to most
+readers. It is worth ten minutes even if the other three are old friends.
+
+For functions $f, g : \N \to \R_{\ge 0}$:
+\begin{itemize}[leftmargin=*,nosep]
+  \item $f = \bigoh{g}$ if there are $c > 0$ and $n_0$ with
+        $f(n) \le c\,g(n)$ for all $n \ge n_0$;
+  \item $f = \Omega(g)$ if $g = \bigoh{f}$;
+  \item $f = \Theta(g)$ if both;
+  \item $f = o(g)$ if $f(n)/g(n) \to 0$.
+\end{itemize}
+The equals sign is the traditional abuse: $\bigoh{g}$ is a set of functions and
+$f = \bigoh{g}$ means $f$ belongs to it. Read $2^{o(n)}$, which is the shape of
+the hypotheses in \cref{ch:lower-bounds}, as ``$2^{f(n)}$ for some $f$ with
+$f(n)/n \to 0$'' --- it is a statement about the exponent, and it is
+\emph{not} the same as $\bigoh{2^{\varepsilon n}}$ for one fixed $\varepsilon$.
+
+Now the fourth. Once running times are exponential, a polynomial factor is
+noise: $\bigoh{2^n \cdot n^{5}}$ and $\bigoh{2^n}$ differ by less than
+$\bigoh{2^{1.001n}}$ does from either. Carrying the polynomial through every
+proof costs attention and buys nothing, so it is suppressed.
+
+\begin{definition}[$\Ostar$ notation]\label{def:prelim-ostar}
+$f(n) = \Ostar(g(n))$ if $f(n) = \bigoh{g(n) \cdot \poly(n)}$.
+\end{definition}
+
+So $\Ostar(2^n)$ means $2^n$ up to a polynomial factor, and $\Ostar(1)$ is
+exactly ``polynomial''. The convention is safe only because the base of the
+exponential is what everything turns on; it would be indefensible for
+polynomial running times, and the book never uses it there. Two warnings that
+have caught people out. First, $\Ostar$ hides $\poly(n)$ and nothing else: a
+factor of $2^{n/2}$ is not polynomial no matter how it arose. Second, when a
+bound is stated as $\bigoh{1.3803^n}$ rather than $\Ostar(\tau^n)$, the base has
+usually been rounded up so as to swallow the polynomial factor, which is why
+such bases are quoted with a strict inequality; \cref{sec:branching}
+does this explicitly.
+
+%==============================================================================
+\section{The machine model}
+\label{sec:prelim-machine}
+%==============================================================================
+
+Every running time is a count of steps of some machine, and it is worth saying
+once which machine, because Part~II is about what happens when the choice is
+made differently.
+
+Unless stated otherwise we count steps of a \emph{word RAM}: memory is an array
+of cells holding integers of $w$ bits, with $w$ at least $\log n$ so that an
+index into the input fits in one cell, and reading a cell, writing a cell, and
+doing one arithmetic operation or comparison on cell contents each cost one
+step. This is the model in which sorting is $\bigoh{n \log n}$ and hashing is
+constant time per operation, and it is close enough to a real machine that the
+counts mean something.
+
+Two departures from it appear in the book, and both are deliberate. In
+\cref{ch:real-models} the cells hold arbitrary real numbers and arithmetic
+on them is exact and unit-cost; that is the \emph{real RAM}, and Part~II is
+about what it can and cannot do. In \cref{ch:lower-bounds} the model recedes
+entirely, because the hypotheses there are about the existence of algorithms in
+any reasonable model at all, and the polynomial differences between models are
+below the resolution of the statements.
+
+%==============================================================================
+\section{Problems, reductions, P and NP}
+\label{sec:prelim-np}
+%==============================================================================
+
+The whole book is a response to one fact --- that certain problems have no
+known efficient algorithm --- so the machinery for stating that fact precisely
+has to be available from the first page. This section is that machinery, in its
+standard form; \cref{ch:introduction} uses it and does not repeat it.
+
+A \emph{decision problem} is a set of instances, each labelled yes or no, with
+instances encoded as finite strings. \textrm{P} is the class of decision
+problems solvable in time polynomial in the length of the instance.
+\textrm{NP} is the class of decision problems whose yes-instances have short
+certificates: $A \in \mathrm{NP}$ if there is a polynomial-time algorithm $V$
+and a polynomial $p$ such that $x$ is a yes-instance exactly when
+$V(x,c)$ accepts for some certificate $c$ with $|c| \le p(|x|)$. A satisfying
+assignment, a Hamiltonian cycle, a $k$-clique: each is a certificate, and each
+can be checked quickly. Whether \textrm{P} $=$ \textrm{NP} is open, and the
+whole of this book is written on the assumption that it is not.
+
+Hardness is transported between problems by reduction, and the direction of
+the implication is the thing to keep straight.
+
+\begin{definition}[Polynomial-time reduction]\label{def:prelim-reduction}
+$A$ \emph{reduces} to $B$, written $A \le_p B$, if there is a polynomial-time
+computable map $f$ taking instances of $A$ to instances of $B$ such that $x$ is
+a yes-instance of $A$ exactly when $f(x)$ is a yes-instance of $B$.
+\end{definition}
+
+Read $A \le_p B$ as ``$B$ is at least as hard as $A$''. It gives one
+implication in each direction: an efficient algorithm for $B$ yields one for
+$A$, and a proof that $A$ is hard shows that $B$ is hard. A problem $B$ is
+\emph{\textrm{NP}-hard} if $A \le_p B$ for every $A \in \mathrm{NP}$, and
+\emph{\textrm{NP}-complete} if in addition $B \in \mathrm{NP}$. Since $\le_p$
+is transitive, showing $B$ \textrm{NP}-hard needs only one reduction, from a
+single problem already known to be \textrm{NP}-hard --- which is what every
+hardness proof in this book does. The first such problem was supplied by
+Cook and Levin: \lang{SAT} is \textrm{NP}-complete. \Citet{GareyJohnson1979} is
+still the standard catalogue of the rest.
+
+Three habits of speech are worth naming, because the book uses all three.
+An \emph{optimisation} problem is called \textrm{NP}-hard when its decision
+version is; a problem is \emph{\textrm{NP}-hard already for} some restricted
+class of instances when the reduction outputs only instances of that class,
+which is a stronger and more useful statement; and a running time is
+\emph{pseudo-polynomial} when it is polynomial in the numbers appearing in the
+instance rather than in their encoding length, a distinction that
+\cref{ch:approx-ii} turns into an algorithm.
+
+Everything else in the way of complexity classes --- $\ER$ in
+\cref{ch:etr}, $\mathrm{FPT}$ and $\mathrm{W}[1]$ in \cref{ch:fpt-i}, and the
+hypotheses ETH and SETH in \cref{ch:lower-bounds} --- is defined where it is
+introduced, and each is a variation on the pattern above: a class, a notion of
+reduction that preserves the resource in question, and a problem complete for
+it.
+
+%==============================================================================
+\section{Counting and estimating}
+\label{sec:prelim-counting}
+%==============================================================================
+
+Exponential running times are counted rather than derived, and the counting
+uses a handful of estimates over and over. They are collected here so that the
+chapters can use them in one line.
+
+The number of subsets of an $n$-element set is $2^n$, the number of
+$k$-element subsets is $\binom{n}{k}$, and the number of orderings is $n!$.
+The three identities used most are
+\[ \sum_{k=0}^{n}\binom{n}{k} = 2^n, \qquad
+   \binom{n}{k} \le \Bigl(\frac{en}{k}\Bigr)^{k}, \qquad
+   \binom{n}{n/2} = \Theta\Bigl(\frac{2^n}{\sqrt n}\Bigr). \]
+The middle one is the workhorse: it is what makes a bound like
+$\binom{n}{k} \le n^k$ unnecessary when $k$ is a parameter rather than a
+constant. The third says that the central binomial coefficient is, up to a
+polynomial factor, the whole of $2^n$ --- so under $\Ostar$ they are the same,
+which is used without comment in \cref{ch:exact-ii}.
+
+Two further estimates get their own statements in the text where they are
+needed, and are named here only so that a reader arriving from
+\cref{sec:prelim-how-to-use} knows they exist: Stirling's approximation
+$n! = \Ostar((n/e)^n)$, in \cref{prop:stirling}, and the entropy bound on a
+partial sum of binomial coefficients, in the proof of \cref{thm:schoening}.
+The inequality $1 + x \le e^{x}$, valid for every real $x$, is used throughout
+\cref{ch:randomized} and is worth memorising.
+
+Recurrences arising from divide and conquer, such as
+$T(n) = 2\,T(n/2) + \bigoh{n}$, are assumed familiar. Recurrences arising from
+branching, such as $T(n) \le T(n-1) + T(n-4)$, are not: they are solved by the
+method of \cref{sec:branching}, which is part of the course.
+
+%==============================================================================
+\section{Probability}
+\label{sec:prelim-probability}
+%==============================================================================
+
+Probability appears in one chapter, and only finite probability spaces are
+needed --- coins, uniform choices from a finite set, and independent
+repetitions. Four facts carry all of it.
+
+Write $\Pr[E]$ for the probability of an event and $\mathbb{E}[X]$ for the
+expectation of a random variable.
+\begin{itemize}[leftmargin=*]
+  \item \emph{Linearity of expectation.}
+        $\mathbb{E}[X + Y] = \mathbb{E}[X] + \mathbb{E}[Y]$, always, whether or
+        not $X$ and $Y$ are independent. This is the single most useful fact in
+        the subject, and its indifference to independence is the reason.
+  \item \emph{Independence.} Events are independent when the probability of
+        their conjunction is the product of their probabilities; the
+        probabilities of $n$ independent choices multiply, which is where a
+        factor like $(2/3)^n$ in \cref{sec:randomized-3col} comes from.
+  \item \emph{The union bound.} $\Pr[E_1 \cup \cdots \cup E_t] \le
+        \sum_i \Pr[E_i]$, for any events at all.
+  \item \emph{Amplification.} An algorithm that says yes correctly with
+        probability at least $p$ and never says yes wrongly can be run
+        $\lceil 1/p \rceil$ times to fail with probability at most $1/e$. This
+        is proved as \cref{lem:amplification}, and it is the reason a success
+        probability of $2^{-n}$ is a running time of $\Ostar(2^n)$ rather than
+        a defeat.
+\end{itemize}
+
+Nothing heavier is used: no concentration inequalities, no continuous
+distributions, no martingales. A reader wanting the subject properly will find
+it in \citet{MitzenmacherUpfal2017}.
+
+%==============================================================================
+\section{Linear algebra and linear programming}
+\label{sec:prelim-linear}
+%==============================================================================
+
+Two pieces of linear machinery appear, each in a small number of places, and
+both are used as black boxes rather than developed.
+
+From linear algebra, only this: two $n \times n$ matrices can be multiplied in
+$\bigoh{n^{\omega}}$ arithmetic operations, where $\omega < 2.373$ is the
+\emph{matrix multiplication exponent}. The value of $\omega$ is not known; the
+bound quoted is the one used in \cref{sec:bisection-width}, it has been improved
+repeatedly, and any statement whose truth depends on the third decimal place of
+$\omega$ should be read with that in mind. Rank over the two-element field
+$\mathrm{GF}(2)$ makes one appearance, in the closing notes of
+\cref{ch:treewidth}, and nothing is assumed about it beyond the definition.
+
+A \emph{linear program} asks for a vector $x \in \R^{d}$ maximising a linear
+objective $c^{\!\top} x$ subject to finitely many linear inequalities
+$Ax \le b$. Over the rationals it is solvable in time polynomial in the bit
+size of the input; the algorithms that do this are not in this book, and we use
+the fact and not the method. If the variables are additionally required to be
+integers, the problem is an \emph{integer} linear program and is
+\textrm{NP}-hard --- so integrality is exactly where the difficulty sits.
+
+That observation is used twice, in opposite directions. Dropping the
+integrality requirement gives the \emph{relaxation}, whose optimum bounds the
+integer optimum and whose solution can then be rounded, which is the
+$2$-approximation for \lang{Vertex Cover} in \cref{ch:approx-i}. And a
+relaxation whose optimal solutions happen to be almost integral gives more than
+a bound: it gives a decision, which is the Nemhauser--Trotter kernel of
+\cref{ch:kernelization}. Duality appears only in the form in which
+\cref{ch:max-flow} already presents it, as max-flow min-cut.
+
+%==============================================================================
+\section{What the proofs look like}
+\label{sec:prelim-proofs}
+%==============================================================================
+
+The last preliminary is not a fact but a habit. The proofs in this book are
+built from a small number of moves, and a reader who recognises the move is
+halfway through the proof. Naming them here also serves as a map of where to
+look for a worked instance of each.
+
+\begin{itemize}[leftmargin=*]
+  \item \emph{Induction}, usually on the size of the instance or the number of
+        steps an algorithm has taken. An invariant that holds initially and is
+        preserved by every step is the same argument wearing different clothes;
+        \cref{ch:max-flow} is full of them.
+  \item \emph{Exchange.} Take an optimal solution, show it can be modified to
+        look like the one the algorithm produces without getting worse, and
+        conclude the algorithm is optimal. \Cref{ch:stable-marriage} and
+        \cref{ch:matching} both turn on this.
+  \item \emph{Extremal choice.} Pick the largest, the smallest, or the
+        deepest object with some property and derive a contradiction from its
+        extremality. \Cref{prop:tw-forest} is a short example.
+  \item \emph{Counting two ways.} Bound one quantity by pairing its elements
+        with those of another and counting the pairs from both sides. Every
+        kernel bound in \cref{ch:kernelization} is this.
+  \item \emph{Reduction.} Transform an instance of one problem into an instance
+        of another so that the answers agree, and argue \emph{both} directions
+        --- yes maps to yes, and no maps to no. Half the errors in this
+        subject are a missing second direction, and every reduction in
+        \cref{ch:lower-bounds,ch:hardness} states it explicitly.
+\end{itemize}
+
+Finally, a proof in this book is expected to be a paragraph of prose that a
+reader can check, not a formal derivation. If a step feels like arithmetic, it
+should be written out; if it feels like bookkeeping, it should be summarised.
+Getting that line in the right place is what mathematical maturity means in
+practice, and it is the one prerequisite that no appendix can supply.
+
+%==============================================================================
+\section{Where to read more}
+\label{sec:prelim-reading}
+%==============================================================================
+
+The books below are the ones to reach for when something above needs to be
+learned rather than recalled. Each chapter's own notes point to the specialised
+literature; these are the general ones.
+
+\begin{itemize}[leftmargin=*]
+  \item \citet{CLRS2022} and \citet{KleinbergTardos2005} for the algorithms
+        course this book assumes. The first is the reference, the second the
+        better read.
+  \item \citet{LehmanLeightonMeyer2018} for the discrete mathematics ---
+        proofs, induction, counting, elementary probability. It is free.
+  \item \citet{Sipser2013} for \textrm{P}, \textrm{NP} and reductions done
+        slowly, and \citet{GareyJohnson1979} for the catalogue of what is known
+        to be \textrm{NP}-hard.
+  \item \citet{Diestel2017} for graph theory, and \citet{MitzenmacherUpfal2017}
+        for probability in the service of algorithms.
+\end{itemize}

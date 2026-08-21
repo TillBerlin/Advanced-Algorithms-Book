@@ -253,7 +253,7 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the review pass. **Three `\todo` markers**, 61
+Re-audited after the review pass. **Three `\todo` markers**, 55
 `\figplaceholder` boxes, 281 pages.
 
 **Every chapter of the book is drafted except the introduction.**
@@ -262,7 +262,7 @@ Re-audited after the review pass. **Three `\todo` markers**, 61
 
 | What | Note |
 | --- | --- |
-| **61 figure placeholders** | By far the largest item. Chapters 2--6 hold 55 of them and are the ones waiting on uploads; only six are left in chapters 10--19, and fifteen of the argument-carrying ones there are now drawn in TikZ. |
+| **55 figure placeholders** | All of them are in chapters 2--6, which are waiting on uploads: 18 in chapter 2, 7 in chapter 3, 5 in chapter 4, 18 in chapter 5, 7 in chapter 6. Chapters 7--19 have none left; their 21 figures are drawn in TikZ. |
 | Chapter 1, Introduction | Write last, once the notation has settled. No deck needed. |
 | Appendix B | A notation appendix, written from what the finished chapters use. No set theory. |
 | Preface | Acknowledgements. |

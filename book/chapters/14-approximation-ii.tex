@@ -325,9 +325,53 @@ planar embedding with at most $k$ levels.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5cm}{A planar embedding with its vertices grouped into
-concentric levels, level $1$ on the outer face, and the same drawing with one
-level class deleted, leaving a disjoint union of $k$-outerplanar pieces.}
+\begin{tikzpicture}[scale=0.78,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    gone/.style={circle,draw=black!40,dashed,thin,fill=white,inner sep=1.9pt},
+    ghost/.style={black!30,dotted,thick},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/6.4}{
+    \begin{scope}[xshift=\dx cm]
+      \foreach \l/\r in {1/2.2, 2/1.5, 3/0.8}{
+        \foreach \k in {0,...,5}{
+          \node[vtx] (\s\l\k) at ({\k*60}:\r) {};
+        }
+      }
+      \node[vtx] (\s4) at (0,0) {};
+    \end{scope}
+  }
+  % ---- panel a: the embedding with its four levels ----
+  \foreach \l in {1,2,3}{
+    \foreach \k [evaluate=\k as \kk using {int(mod(\k+1,6))}] in {0,...,5}{
+      \draw (a\l\k)--(a\l\kk);
+    }
+  }
+  \foreach \k in {0,...,5}{
+    \draw (a1\k)--(a2\k) (a2\k)--(a3\k) (a3\k)--(a4);
+  }
+  \foreach \l/\r in {1/2.2, 2/1.5, 3/0.8}{
+    \node[fill=white,inner sep=1pt] at ({150}:\r) {$\l$};
+  }
+  \node[fill=white,inner sep=1pt] at (0.34,-0.3) {$4$};
+  \node at (0,-2.9) {four levels};
+  % ---- panel b: level 3 deleted ----
+  \begin{scope}[xshift=6.4cm]
+    \foreach \l in {1,2}{
+      \foreach \k [evaluate=\k as \kk using {int(mod(\k+1,6))}] in {0,...,5}{
+        \draw (b\l\k)--(b\l\kk);
+      }
+    }
+    \foreach \k [evaluate=\k as \kk using {int(mod(\k+1,6))}] in {0,...,5}{
+      \draw[ghost] (b3\k)--(b3\kk);
+    }
+    \foreach \k in {0,...,5}{
+      \draw (b1\k)--(b2\k);
+      \draw[ghost] (b2\k)--(b3\k) (b3\k)--(b4);
+      \node[gone] at ({\k*60}:0.8) {};
+    }
+    \node at (0,-2.9) {level $3$ deleted: two pieces};
+  \end{scope}
+\end{tikzpicture}
 \caption{Levels of a planar embedding. Deleting every $(k+1)$st level breaks the
 graph into $k$-outerplanar components, each of which can be solved exactly.}
 \label{fig:planar-levels}

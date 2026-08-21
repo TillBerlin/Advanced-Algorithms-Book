@@ -230,9 +230,46 @@ uncovered.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5.5cm}{A small graph with a chosen edge $vw$ highlighted, and
-below it the two children of the search tree: the graph with $v$ deleted and the
-graph with $w$ deleted, each labelled with the decreased budget.}
+\begin{tikzpicture}[scale=0.66,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    gone/.style={circle,draw=black!45,dashed,thin,inner sep=2.2pt},
+    ghost/.style={black!30,dotted,thick},
+    every node/.style={font=\footnotesize}]
+  % the parent instance, with the chosen edge marked
+  \begin{scope}
+    \foreach \n/\x/\y in {a/-1.3/1.2, b/-1.3/-1.2, c/2.7/1.2, d/2.7/-1.2}
+      {\node[vtx] (\n) at (\x,\y) {};}
+    \node[vtx,label=below:$v$] (v) at (0,0) {};
+    \node[vtx,label=below:$w$] (w) at (1.4,0) {};
+    \draw (v)--(a) (v)--(b) (a)--(b) (w)--(c) (w)--(d) (c)--(d);
+    \draw[red!75!black,line width=1.1pt] (v)--(w);
+    \node[font=\small] at (0.7,2.1) {$(G,k)$};
+  \end{scope}
+  % child: v deleted
+  \begin{scope}[xshift=-100pt,yshift=-135pt]
+    \foreach \n/\x/\y in {a/-1.3/1.2, b/-1.3/-1.2, c/2.7/1.2, d/2.7/-1.2}
+      {\node[vtx] (l\n) at (\x,\y) {};}
+    \node[gone] (lv) at (0,0) {};
+    \node[vtx] (lw) at (1.4,0) {};
+    \draw[ghost] (lv)--(la) (lv)--(lb) (lv)--(lw);
+    \draw (la)--(lb) (lw)--(lc) (lw)--(ld) (lc)--(ld);
+    \node[font=\small] at (0.7,-2.3) {$(G - v,\ k-1)$};
+  \end{scope}
+  % child: w deleted
+  \begin{scope}[xshift=100pt,yshift=-135pt]
+    \foreach \n/\x/\y in {a/-1.3/1.2, b/-1.3/-1.2, c/2.7/1.2, d/2.7/-1.2}
+      {\node[vtx] (r\n) at (\x,\y) {};}
+    \node[vtx] (rv) at (0,0) {};
+    \node[gone] (rw) at (1.4,0) {};
+    \draw[ghost] (rw)--(rc) (rw)--(rd) (rv)--(rw);
+    \draw (rv)--(ra) (rv)--(rb) (ra)--(rb) (rc)--(rd);
+    \node[font=\small] at (0.7,-2.3) {$(G - w,\ k-1)$};
+  \end{scope}
+  \draw[-{Latex[length=2mm]}] (0.1,-1.9) -- (-1.5,-3.3)
+        node[midway,left=1pt] {$v$ in the cover};
+  \draw[-{Latex[length=2mm]}] (1.3,-1.9) -- (2.9,-3.3)
+        node[midway,right=1pt] {$w$ in the cover};
+\end{tikzpicture}
 \caption{One branching step for \lang{Vertex Cover}. Both children are smaller
 instances with a smaller budget, and at least one of them is a yes-instance
 whenever the parent is.}

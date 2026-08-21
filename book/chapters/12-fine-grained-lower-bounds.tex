@@ -599,10 +599,39 @@ whose grid of free cells has a monotone path exactly when we want one.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5cm}{Two polygonal curves in the plane with a traversal drawn
-as a sequence of leash segments between them, beside the grid of
-\cref{lem:frechet-reachability}: free cells white, blocked cells grey, and a
-monotone staircase path through the free ones.}
+\begin{tikzpicture}[every node/.style={font=\footnotesize}]
+  % ---- the two curves, with the leash drawn at each pair of the traversal ----
+  \begin{scope}[scale=1.75]
+    \foreach \i/\x/\y in {1/0/0.34, 2/1/0.02, 3/2/0.25, 4/3/0.21}{
+      \node[circle,fill=black,inner sep=1.3pt,label=below:{\scriptsize$p_\i$}]
+        (p\i) at (\x,\y) {};
+    }
+    \foreach \j/\x/\y in {1/-0.17/1.12, 2/1.3/1.1, 3/1.96/0.88, 4/2.83/0.95}{
+      \node[circle,fill=black,inner sep=1.3pt,label=above:{\scriptsize$q_\j$}]
+        (q\j) at (\x,\y) {};
+    }
+    \draw[thick] (p1)--(p2)--(p3)--(p4);
+    \draw[thick] (q1)--(q2)--(q3)--(q4);
+    \foreach \i/\j in {1/1, 2/2, 2/3, 3/3, 3/4, 4/4}{
+      \draw[red!75!black,dashed] (p\i)--(q\j);
+    }
+    \node at (1.4,-0.75) {two curves and a traversal};
+  \end{scope}
+  % ---- the grid of free cells ----
+  \begin{scope}[xshift=7.6cm,yshift=-0.7cm,scale=0.62]
+    \foreach \c in {{1,2},{1,3},{1,4},{2,1},{2,4},{3,1},{4,1},{4,2}}{
+      \fill[black!25] ($(\c)-(1,1)$) rectangle ++(1,1);
+    }
+    \draw[black!40] (0,0) grid (4,4);
+    \draw[thick] (0,0) rectangle (4,4);
+    \draw[red!75!black,line width=1.1pt]
+      (0.5,0.5) -- (1.5,1.5) -- (1.5,2.5) -- (2.5,2.5) -- (2.5,3.5)
+      -- (3.5,3.5);
+    \foreach \i in {1,...,4}{ \node[below] at (\i-0.5,0) {$p_\i$}; }
+    \foreach \j in {1,...,4}{ \node[left]  at (0,\j-0.5) {$q_\j$}; }
+    \node at (2,-1.5) {the grid of free cells};
+  \end{scope}
+\end{tikzpicture}
 \caption{A traversal of two curves and the corresponding monotone path in the
 grid of free cells.}
 \label{fig:frechet}

@@ -382,10 +382,35 @@ the last step because a forest has fewer edges than vertices.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5cm}{The vertex set split into $X$ on the left and the forest
-$F$ on the right; the edges of $F$ drawn thin, the edges from $F$ to $X$ drawn
-thick, with a leaf of $F$ shown sending two thick edges into $X$ because its
-degree in $G$ is at least three.}
+\begin{tikzpicture}[scale=0.8,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    cross/.style={line width=0.9pt,red!75!black},
+    every node/.style={font=\footnotesize}]
+  % the two sides
+  \draw[rounded corners=10pt,fill=black!6] (-2.4,-2.4) rectangle (-0.2,2.4);
+  \draw[rounded corners=10pt,fill=black!3] (1.0,-2.6) rectangle (6.4,2.6);
+  \node at (-1.3,2.8) {$X$};
+  \node at (3.7,3.0) {$F = V \setminus X$, a forest};
+  % X
+  \foreach \i/\y in {1/1.4, 2/0.0, 3/-1.4}{ \node[vtx] (x\i) at (-1.3,\y) {}; }
+  % the forest: a small tree
+  \node[vtx] (r)  at (3.0,1.6) {};
+  \node[vtx] (b)  at (2.2,0.4) {};
+  \node[vtx] (c)  at (4.2,0.4) {};
+  \node[vtx,label=below:$v$] (l1) at (1.6,-1.4) {};
+  \node[vtx] (l2) at (2.8,-1.4) {};
+  \node[vtx] (l3) at (3.8,-1.4) {};
+  \node[vtx] (l4) at (5.2,-1.4) {};
+  \draw (r)--(b) (r)--(c) (b)--(l1) (b)--(l2) (c)--(l3) (c)--(l4);
+  % edges into X, drawn thick: every leaf sends two
+  \draw[cross] (l1)--(x3) (l1)--(x2)
+               (l2)--(x3) (l2)--(x2)
+               (l3)--(x2) (l3)--(x1)
+               (l4)--(x1) (l4)--(x2)
+               (r)--(x1);
+  \node[align=left] at (3.7,-3.2)
+    {thin: edges inside $F$ \qquad thick: edges meeting $X$};
+\end{tikzpicture}
 \caption{\Cref{lem:fvs-half-edges}. Minimum degree three forces every leaf of
 the forest to send two edges into $X$, and a forest has more leaves than branch
 vertices.}

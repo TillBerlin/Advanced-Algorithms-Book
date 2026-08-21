@@ -129,10 +129,55 @@ what happens to the table.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{6cm}{Four panels showing one small graph part-way built: the
-done part shaded, the to-do part in outline, the separator ringed, and the table
-beside it. One panel per operation --- new graph, introduce, forget, join ---
-with the table before and after.}
+\begin{tikzpicture}[scale=0.62,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    done/.style={fill=black!12,draw=black!35},
+    todo/.style={draw=black!45,dashed},
+    sep/.style={draw=red!75!black,thick,rounded corners=5pt},
+    mv/.style={-{Latex[length=2mm]},red!75!black,thick},
+    every node/.style={font=\footnotesize}]
+  %------------------------------------------------ new graph (leaf)
+  \begin{scope}
+    \node[vtx] (n) at (2.6,0) {};
+    \draw[sep] (2.25,-0.5) rectangle (2.95,0.5);
+    \node at (2.6,1.1) {$S = \{v\}$};
+    \node at (2.6,-1.5) {nothing done, nothing to do};
+    \node at (2.6,-2.4) {\textbf{new graph:} two entries};
+  \end{scope}
+  %------------------------------------------------ introduce
+  \begin{scope}[xshift=9.4cm]
+    \draw[done] (1.0,0) ellipse (0.95 and 1.2); \node at (1.0,0) {done};
+    \draw[todo] (4.6,0) ellipse (0.95 and 1.2); \node at (4.6,0) {to do};
+    \draw[sep] (2.35,-1.3) rectangle (2.85,1.3);
+    \foreach \y in {0.85,0,-0.85}{ \node[vtx] at (2.6,\y) {}; }
+    \node at (2.6,1.7) {$S$};
+    \node[vtx,label=above:$v$] (v) at (3.75,0.55) {};
+    \draw[mv] (3.6,0.4) -- (2.95,0.05);
+    \node at (2.8,-2.4) {\textbf{introduce $v$:} entries split in two};
+  \end{scope}
+  %------------------------------------------------ forget
+  \begin{scope}[yshift=-6.0cm]
+    \draw[done] (1.0,0) ellipse (0.95 and 1.2); \node at (1.0,0) {done};
+    \draw[todo] (4.6,0) ellipse (0.95 and 1.2); \node at (4.6,0) {to do};
+    \draw[sep] (2.35,-1.3) rectangle (2.85,1.3);
+    \foreach \y in {0.85,-0.85}{ \node[vtx] at (2.6,\y) {}; }
+    \node[vtx,label=right:$v$] at (2.6,0) {};
+    \node at (2.6,1.7) {$S$};
+    \draw[mv] (2.35,-0.1) -- (1.75,-0.35);
+    \node at (2.8,-2.4) {\textbf{forget $v$:} entries merge in pairs};
+  \end{scope}
+  %------------------------------------------------ join
+  \begin{scope}[xshift=9.4cm,yshift=-6.0cm]
+    \draw[done] (1.0,0.75) ellipse (0.95 and 0.85); \node at (1.0,0.75) {done};
+    \draw[done] (1.0,-0.75) ellipse (0.95 and 0.85); \node at (1.0,-0.75) {done};
+    \draw[sep] (2.35,-1.3) rectangle (2.85,1.3);
+    \foreach \y in {0.85,0,-0.85}{ \node[vtx] at (2.6,\y) {}; }
+    \node at (2.6,1.7) {$S$};
+    \draw[mv] (1.95,0.75) -- (2.3,0.3);
+    \draw[mv] (1.95,-0.75) -- (2.3,-0.3);
+    \node at (2.8,-2.4) {\textbf{join:} the tables combine};
+  \end{scope}
+\end{tikzpicture}
 \caption{The four operations. The graph grows and the separator moves across it;
 the table is always indexed by what the solution does on the separator.}
 \label{fig:tw-four-operations}

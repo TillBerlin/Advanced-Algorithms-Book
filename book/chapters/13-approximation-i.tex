@@ -233,10 +233,39 @@ $\mathrm{ALG} \le 2\,\mathrm{MST}$. With \cref{lem:tsp-mst-lower-bound},
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5cm}{A minimum spanning tree of a small point set; the closed
-walk that traverses every tree edge twice; and the tour obtained by shortcutting
-repeated visits. The shortcuts are the only place the triangle inequality is
-used.}
+\begin{tikzpicture}[scale=0.72,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/5.6, c/11.2}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx] (p1\s) at (0.2,0)    {};
+      \node[vtx] (p2\s) at (1.5,0.9)  {};
+      \node[vtx] (p3\s) at (2.7,0.1)  {};
+      \node[vtx] (p4\s) at (1.0,-1.3) {};
+      \node[vtx] (p5\s) at (3.6,1.3)  {};
+      \node[vtx] (p6\s) at (3.9,-0.8) {};
+      \node[vtx] (p7\s) at (0.5,1.9)  {};
+      \node[vtx] (p8\s) at (2.3,-2.0) {};
+    \end{scope}
+  }
+  % panel 1: the minimum spanning tree
+  \draw (p1a)--(p2a) (p2a)--(p7a) (p2a)--(p3a) (p3a)--(p5a) (p3a)--(p6a)
+        (p1a)--(p4a) (p4a)--(p8a);
+  \node at (2.0,-3.0) {a minimum spanning tree};
+  % panel 2: every edge doubled, so every degree is even
+  \begin{scope}[every edge/.style={draw,-{Latex[length=1.6mm]}}]
+    \foreach \x/\y in {p1b/p2b, p2b/p7b, p2b/p3b, p3b/p5b,
+                       p3b/p6b, p1b/p4b, p4b/p8b}{
+      \path (\x) edge[bend left=14] (\y);
+      \path (\y) edge[bend left=14] (\x);
+    }
+  \end{scope}
+  \node at (7.6,-3.0) {doubled: a closed walk};
+  % panel 3: shortcut to a tour
+  \draw[red!75!black,thick]
+     (p1c)--(p2c)--(p7c)--(p3c)--(p5c)--(p6c)--(p4c)--(p8c)--(p1c);
+  \node at (13.2,-3.0) {shortcut: a tour};
+\end{tikzpicture}
 \caption{The double-tree algorithm. Doubling the tree makes every degree even,
 so a closed walk exists; shortcutting turns the walk into a tour and, by the
 triangle inequality, cannot make it longer.}
@@ -295,9 +324,44 @@ $\mathrm{ALG} \le \tfrac32\OPT$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{5.5cm}{Four panels: the minimum spanning tree $T$; the odd
-degree vertices $W$ marked; the minimum weight perfect matching $M$ on $W$ drawn
-in a second colour; and the Eulerian multigraph $T+M$ with its Euler tour.}
+\begin{tikzpicture}[scale=0.62,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    odd/.style={circle,draw=red!75!black,thick,minimum size=9pt,inner sep=0pt},
+    mat/.style={red!75!black,thick},
+    faint/.style={black!35},
+    every node/.style={font=\scriptsize}]
+  \foreach \s/\dx in {a/0, b/4.8, c/9.6, d/14.4}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx] (p1\s) at (0.2,0)    {};
+      \node[vtx] (p2\s) at (1.5,0.9)  {};
+      \node[vtx] (p3\s) at (2.7,0.1)  {};
+      \node[vtx] (p4\s) at (1.0,-1.3) {};
+      \node[vtx] (p5\s) at (3.6,1.3)  {};
+      \node[vtx] (p6\s) at (3.9,-0.8) {};
+      \node[vtx] (p7\s) at (0.5,1.9)  {};
+      \node[vtx] (p8\s) at (2.3,-2.0) {};
+    \end{scope}
+  }
+  \foreach \s in {a,b}{
+    \draw (p1\s)--(p2\s) (p2\s)--(p7\s) (p2\s)--(p3\s) (p3\s)--(p5\s)
+          (p3\s)--(p6\s) (p1\s)--(p4\s) (p4\s)--(p8\s);
+  }
+  \draw[faint] (p1c)--(p2c) (p2c)--(p7c) (p2c)--(p3c) (p3c)--(p5c)
+               (p3c)--(p6c) (p1c)--(p4c) (p4c)--(p8c);
+  \node at (2.0,-3.0) {the tree $T$};
+  \foreach \v in {p2b,p3b,p5b,p6b,p7b,p8b}{ \node[odd] at (\v) {}; }
+  \node at (6.8,-3.0) {odd vertices $W$};
+  \draw[mat] (p2c)--(p7c) (p3c)--(p5c) (p6c)--(p8c);
+  \node at (11.6,-3.0) {matching $M$};
+  % T + M, with the two doubled edges drawn as parallel arcs
+  \draw (p1d)--(p2d) (p2d)--(p3d) (p3d)--(p6d) (p1d)--(p4d) (p4d)--(p8d);
+  \draw (p2d) to[bend left=13] (p7d);
+  \draw (p3d) to[bend left=13] (p5d);
+  \draw[mat] (p2d) to[bend right=13] (p7d);
+  \draw[mat] (p3d) to[bend right=13] (p5d);
+  \draw[mat] (p6d)--(p8d);
+  \node at (16.4,-3.0) {$T+M$, all even};
+\end{tikzpicture}
 \caption{Christofides' algorithm. Only the odd-degree vertices need repairing,
 and repairing them costs at most half an optimal tour.}
 \label{fig:christofides}

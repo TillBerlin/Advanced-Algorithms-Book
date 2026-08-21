@@ -9,7 +9,7 @@
 %% dominating set; all four are given here in full.  The pool exercise --
 %% Max Cut on multigraphs -- is not in the deck and is worked at the end.
 
-\chapter{Complexity Theory for Approximation and Parameterization}
+\chapter[Complexity for Approximation and Parameterization]{Complexity Theory for Approximation and Parameterization}
 \label{ch:hardness}
 
 Every chapter of Parts~IV and~V has produced algorithms, and several have
@@ -387,10 +387,40 @@ of $H$ of size $k$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{6cm}{Two colour classes $V_1$ and $V_2$ drawn as shaded blobs,
-each a clique; $x_1,y_1$ hanging off $V_1$ and $x_2,y_2$ off $V_2$; one edge
-$uv$ between the classes with its vertex $w_{uv}$ joined to everything in
-$V_1 \cup V_2$ except $u$ and $v$.}
+\begin{tikzpicture}[scale=0.74,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    wed/.style={red!75!black},
+    every node/.style={font=\footnotesize}]
+  % the two colour classes, each a clique in H
+  \fill[black!7] (0.3,0) ellipse (1.15 and 1.65);
+  \fill[black!7] (5.1,0) ellipse (1.15 and 1.65);
+  \node at (0.3,2.0) {$V_1$};
+  \node at (5.1,2.0) {$V_2$};
+  \node[vtx] (a1) at (-0.1,1.1) {};
+  \node[vtx,label={[label distance=-2pt]below right:$u$}] (u) at (0.75,0) {};
+  \node[vtx] (a3) at (-0.1,-1.1) {};
+  \node[vtx] (b2) at (5.5,1.1) {};
+  \node[vtx,label={[label distance=-2pt]below left:$v$}] (v) at (4.65,0) {};
+  \node[vtx] (b3) at (5.5,-1.1) {};
+  \draw (a1)--(u)--(a3)--(a1);
+  \draw (b2)--(v)--(b3)--(b2);
+  % the forcing pairs
+  \node[vtx,label=left:$x_1$] (x1) at (-2.3,0.9) {};
+  \node[vtx,label=left:$y_1$] (y1) at (-2.3,-0.9) {};
+  \node[vtx,label=right:$x_2$] (x2) at (7.5,0.9) {};
+  \node[vtx,label=right:$y_2$] (y2) at (7.5,-0.9) {};
+  \foreach \z in {x1,y1}{ \draw (\z)--(a1) (\z)--(u) (\z)--(a3); }
+  \foreach \z in {x2,y2}{ \draw (\z)--(b2) (\z)--(v) (\z)--(b3); }
+  % the edge of G that the w vertex is built from -- it is not an edge of H
+  \draw[black!45,dotted,thick] (u)--(v)
+        node[midway,above=3pt,black!55] {an edge of $G$};
+  % the w vertex: joined to everything in V_1 cup V_2 except u and v
+  \node[vtx,label=below:$w_{uv}$] (w) at (2.6,-2.9) {};
+  \draw[wed] (w) to[bend left=24] (a1);
+  \draw[wed] (w) to[bend left=6] (a3);
+  \draw[wed] (w) to[bend right=24] (b2);
+  \draw[wed] (w) to[bend right=6] (b3);
+\end{tikzpicture}
 \caption{The gadgets of \cref{thm:dominating-set-w2}. The pair $x_i,y_i$ forces
 exactly one vertex to be chosen from each class; the vertex $w_{uv}$ is left
 undominated exactly when both ends of the edge $uv$ are chosen.}

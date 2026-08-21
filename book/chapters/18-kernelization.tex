@@ -1,23 +1,446 @@
 %% Chapter 18: Kernelization
-%% Status: skeleton.  Only the learning goals are fixed; they come from the
-%% exam pool.  The sectioning is deliberately not invented in advance --
-%% it will follow the source material once that has been read.
+%% Status: drafted; 1 figure placeholder.
+%%
+%% Written against "material/slides/aa-fpt.pdf" (Hans Bodlaender), slides
+%% 67-83: the Nemhauser-Trotter 2k kernel for vertex cover, and the quadratic
+%% kernel for cluster editing.  Slides 1-66 of the same deck are chapter 15.
+%%
+%% Two goals that used to be in this chapter's skeleton -- crown decompositions
+%% and the sunflower lemma -- are in no deck and have been dropped.  Kernel
+%% lower bounds are chapter 12's.
 
 \chapter{Kernelization}
 \label{ch:kernelization}
 
-Kernelization is preprocessing with a guarantee. We already saw a quadratic
-kernel for \lang{Vertex Cover}; here we push it to linear using linear
-programming, develop the general tools, and then show that for some problems no
-polynomial kernel exists at all.
+\Cref{ch:fpt-i} introduced kernelisation as preprocessing with a guarantee, and
+produced two kernels by hand: a string of $\bigoh{k^2}$ characters for convex
+recolouring, and a graph with $\bigoh{k^2}$ edges for vertex cover. Both came
+from staring at the problem until some reduction rules suggested themselves.
+
+This chapter does better on both counts. For vertex cover it replaces the ad hoc
+rules by linear programming and gets a kernel of $2k$ \emph{vertices}, which is
+best possible up to the constant. For cluster editing it gives a quadratic
+kernel, by rules whose correctness is easy and whose \emph{sufficiency} --- the
+proof that nothing large survives them --- is the interesting part.
 
 \begin{goals}
-  \poolgoal{define \lang{Integer Linear Programming} and show how \lang{Vertex Cover} can be encoded as one}
-  \goalitem{prove that the LP relaxation of \lang{Vertex Cover} is half-integral}
-  \poolgoal{show that \lang{Vertex Cover} has a linear sized kernel}
-  \goalitem{use crown decompositions and the sunflower lemma to obtain kernels}
-  \goalitem{explain how composition arguments rule out polynomial kernels}
+  \poolgoal{define \lang{Integer Linear Programming} and show how \lang{Vertex
+        Cover} is encoded as one}
+  \goalitem{prove that the LP relaxation of \lang{Vertex Cover} is
+        half-integral}
+  \goalitem{state and prove the Nemhauser--Trotter theorem}
+  \poolgoal{show that \lang{Vertex Cover} has a kernel with at most $2k$
+        vertices}
+  \goalitem{give the reduction rules for \lang{Cluster Editing} and prove that
+        they leave at most $3k^2$ vertices}
+  \goalitem{say what is known about the problems that have no polynomial kernel
+        at all}
 \end{goals}
 
-\todo{This chapter is not written yet. Write it against
-\texttt{material/slides/aa-fpt.pdf}.}
+%==============================================================================
+\section{What a kernel is, again}
+\label{sec:kernel-recap}
+%==============================================================================
+
+Recall \cref{def:kernel}: a kernelisation of a parameterized problem is a
+polynomial-time algorithm mapping an instance $(I,k)$ to an equivalent instance
+$(I',k')$ with $k' \le f(k)$ and $|I'| \le g(k)$. The kernel is
+\emph{polynomial} when $g$ is, and by \cref{thm:kernel-iff-fpt} some kernel
+always exists for a problem in $\mathrm{FPT}$ --- so the whole interest lies in
+how small $g$ can be made.
+
+For vertex cover, \cref{thm:fpt-vc-kernel} gave $g(k) = \bigoh{k^2}$ by two
+observations about degrees. We now get $g(k) = 2k$ vertices, and from a
+completely different direction.
+
+%==============================================================================
+\section{Vertex cover by linear programming}
+\label{sec:nemhauser-trotter}
+%==============================================================================
+
+\subsection{The program and its relaxation}
+
+\begin{definition}[Integer linear programming]\label{def:ilp}
+An \emph{integer linear program} asks for an assignment of integers to
+variables $x_1,\ldots,x_n$ minimising a linear objective
+$\sum_i c_i x_i$ subject to finitely many linear inequalities
+$\sum_i a_{ji} x_i \ge b_j$. Dropping the requirement that the $x_i$ be
+integers gives the \emph{linear relaxation}, which is a linear program.
+\end{definition}
+
+Solving an integer linear program is \textrm{NP}-hard --- as it must be, since
+we are about to encode an \textrm{NP}-hard problem in one. Solving a linear
+program is not: the ellipsoid method does it in polynomial time, and the
+simplex algorithm does it fast in practice though not in the worst case.
+
+\begin{proposition}\label{prop:vc-ilp}
+\lang{Vertex Cover} on $G = (V,E)$ is the integer linear program
+\[
+\begin{array}{lll}
+  \text{minimise}   & \displaystyle\sum_{v \in V} x_v & \\[2pt]
+  \text{subject to} & x_u + x_v \ge 1 & \text{for each } \{u,v\} \in E, \\[2pt]
+                    & x_v \in \{0,1\} & \text{for each } v \in V.
+\end{array}
+\]
+\end{proposition}
+
+\begin{proof}
+Read $x_v = 1$ as ``$v$ is in the cover''. The constraint says every edge has an
+endpoint in it, and the objective counts the cover.
+\end{proof}
+
+The relaxation replaces $x_v \in \{0,1\}$ by $x_v \ge 0$; the upper bound
+$x_v \le 1$ may be dropped, since lowering any $x_v$ to $1$ keeps the solution
+feasible and does not increase the cost. Write $z^{*}$ for the optimum of the
+relaxation. Since every vertex cover is an integral feasible point,
+\begin{equation}\label{eq:vc-lp-bound}
+  z^{*} \;\le\; \OPT .
+\end{equation}
+\Cref{ch:approx-i} already used this relaxation, rounding at $1/2$ to get a
+$2$-approximation. Here we exploit something stronger about it.
+
+\subsection{Half-integrality}
+
+\begin{lemma}\label{lem:half-integral}
+The relaxation has an optimal solution with $x_v \in \{0, \tfrac12, 1\}$ for
+every $v$, and it can be computed in polynomial time.
+\end{lemma}
+
+\begin{proof}
+Let $x$ be an optimal solution, and suppose some coordinate is not in
+$\{0,\frac12,1\}$. For $\varepsilon > 0$ define two points $x^{+}$ and $x^{-}$
+by
+\[ x^{\pm}_v = \begin{cases}
+     x_v \pm \varepsilon & \text{if } x_v > \tfrac12, \\
+     x_v \mp \varepsilon & \text{if } x_v < \tfrac12, \\
+     x_v & \text{if } x_v = \tfrac12.
+   \end{cases} \]
+Both are feasible for small enough $\varepsilon$. Take an edge $\{u,v\}$. If
+$x_u + x_v > 1$ strictly then a small perturbation cannot break it. If
+$x_u + x_v = 1$ then either both are $\frac12$, in which case nothing moves, or
+one is above $\frac12$ and the other below, in which case the two perturbations
+have opposite signs and cancel. Non-negativity survives for small $\varepsilon$
+as well.
+
+Now $x = \frac12(x^{+} + x^{-})$, so the two costs average to that of $x$; as
+$x$ is optimal, neither can be smaller, so both are optimal too. Increase
+$\varepsilon$ until some coordinate reaches $0$, $\frac12$ or $1$, and repeat.
+Each round fixes at least one coordinate, so the process stops. (Alternatively,
+half-integrality follows from the fact that the constraint matrix of the vertex
+cover relaxation is totally unimodular after a standard transformation, and a
+half-integral optimum is what the simplex method returns at a vertex of the
+polytope.)
+\end{proof}
+
+So we may split the vertices into three parts:
+\[ X_0 = \{v : x_v = 0\}, \qquad
+   X_{1/2} = \{v : x_v = \tfrac12\}, \qquad
+   X_1 = \{v : x_v = 1\}. \]
+Note at once that $X_0$ is an independent set --- an edge inside it would
+violate $x_u + x_v \ge 1$ --- and that every neighbour of a vertex of $X_0$ lies
+in $X_1$.
+
+\subsection{The Nemhauser--Trotter theorem}
+
+The relaxation does more than bound the optimum: it \emph{decides} part of the
+problem outright.
+
+\begin{theorem}[\citet{NemhauserTrotter1975}]\label{thm:nemhauser-trotter}
+There is a minimum vertex cover of $G$ that contains every vertex of $X_1$ and
+no vertex of $X_0$.
+\end{theorem}
+
+\begin{proof}
+Let $S$ be any minimum vertex cover and put
+\[ S^{*} \;=\; \bigl(S \cup X_1\bigr) \setminus X_0 . \]
+We show that $S^{*}$ is a vertex cover and that $|S^{*}| \le |S|$; since $S$ is
+minimum, $S^{*}$ is then a minimum vertex cover of the required shape.
+
+\emph{$S^{*}$ is a vertex cover.} Let $\{u,v\}$ be an edge and suppose neither
+endpoint lies in $S^{*}$. If $u \in X_0$ then $x_u = 0$, so $x_v \ge 1$ and
+$v \in X_1$; and $v \notin X_0$; so $v \in S^{*}$, a contradiction. So
+$u \notin X_0$, and symmetrically $v \notin X_0$. But then $u \notin S^{*}$ with
+$u \notin X_0$ forces $u \notin S \cup X_1$, in particular $u \notin S$, and
+likewise $v \notin S$ --- contradicting that $S$ covers $\{u,v\}$.
+
+\emph{$|S^{*}| \le |S|$.} Counting,
+\[ |S^{*}| \;=\; |S| + \bigl|X_1 \setminus S\bigr|
+                  - \bigl|X_0 \cap S\bigr|, \]
+so it suffices to prove $|X_1 \setminus S| \le |X_0 \cap S|$. Suppose not, and
+perturb the LP solution: for a small $\varepsilon > 0$ define
+\[ y_v = \begin{cases}
+     x_v + \varepsilon & \text{if } v \in X_0 \cap S, \\
+     x_v - \varepsilon & \text{if } v \in X_1 \setminus S, \\
+     x_v & \text{otherwise.}
+   \end{cases} \]
+The cost changes by $\varepsilon\bigl(|X_0 \cap S| - |X_1 \setminus S|\bigr)$,
+which is strictly negative by assumption. So it remains only to check that $y$
+is feasible for small $\varepsilon$, which contradicts the optimality of $x$.
+
+Non-negativity is clear, since the only decreases happen on $X_1$, where
+$x_v = 1$. For an edge $\{u,v\}$, the sum $y_u + y_v$ can only drop if an
+endpoint lies in $X_1 \setminus S$; say $u \in X_1 \setminus S$. Since $u
+\notin S$ and $S$ covers the edge, $v \in S$. Now either $x_v = 0$, so
+$v \in X_0 \cap S$ and the two perturbations cancel exactly; or $x_v \ge
+\frac12$, in which case $x_u + x_v \ge 1 + \frac12 > 1$ and there is slack to
+absorb $\varepsilon$. Choosing $\varepsilon$ smaller than every such slack, and
+smaller than $\frac12$, makes $y$ feasible.
+\end{proof}
+
+\begin{intuition}
+This is a stronger statement than it may look. A $2$-approximation, which is
+what \cref{ch:approx-i} extracted from the same relaxation, gives a cover that
+is good; \cref{thm:nemhauser-trotter} gives \emph{certainty} about part of an
+optimal cover. The vertices the relaxation is sure about --- those it sets to
+$0$ or $1$ --- it is right about. Only where it hedges, at $\frac12$, is there
+anything left to decide.
+\end{intuition}
+
+\subsection{The kernel}
+
+\begin{theorem}\label{thm:vc-2k-kernel}
+\lang{Vertex Cover} has a kernel with at most $2k$ vertices, computable in
+polynomial time.
+\end{theorem}
+
+\begin{proof}
+Compute a half-integral optimum $x$ by \cref{lem:half-integral} and let
+$z^{*} = |X_1| + \frac12|X_{1/2}|$ be its value.
+
+If $z^{*} > k$, report a no-instance: by \eqref{eq:vc-lp-bound} every vertex
+cover has at least $z^{*} > k$ vertices.
+
+Otherwise, by \cref{thm:nemhauser-trotter} some minimum vertex cover takes all
+of $X_1$ and none of $X_0$. So put $X_1$ into the solution, delete
+$X_0 \cup X_1$ from the graph and set $k' = k - |X_1|$; if $k' < 0$, report a
+no-instance. Nothing is lost by the deletion: every edge with an endpoint in
+$X_0$ has its other endpoint in $X_1$ and is therefore already covered, and
+$X_0$ has no internal edges.
+
+What remains is $G[X_{1/2}]$ with budget $k'$, and
+\[ \tfrac12 |X_{1/2}| \;=\; z^{*} - |X_1| \;\le\; k - |X_1| \;=\; k', \]
+so $|X_{1/2}| \le 2k' \le 2k$.
+\end{proof}
+
+\begin{remark}\label{rem:kernel-vertices-vs-edges}
+The kernel has at most $2k$ \emph{vertices} and may still have a quadratic
+number of \emph{edges} --- up to $\binom{2k}{2}$. That is not a defect of the
+construction: \cref{ch:lower-bounds} would be the place to ask whether the
+number of edges can also be made linear, and the answer is that it cannot,
+under the usual assumptions. When a kernel size is quoted, always ask in what
+unit.
+\end{remark}
+
+Compare the two kernels for the same problem. The elementary rules of
+\cref{thm:fpt-vc-kernel} gave $\bigoh{k^2}$ edges and hence $\bigoh{k^2}$
+vertices; linear programming gives $2k$ vertices. Feeding the smaller kernel to
+the branching algorithm of \cref{alg:fpt-vc} gives
+$\bigoh{2^k k^2 + \poly(n)}$ time --- the same shape, with a much smaller
+instance to branch on.
+
+%==============================================================================
+\section{A kernel for cluster editing}
+\label{sec:cluster-editing-kernel}
+%==============================================================================
+
+\Cref{ch:fpt-i} solved \lang{Cluster Editing} by branching on an induced path
+on three vertices, in $\bigoh{3^k \poly(n)}$ time. Here is a kernel for the
+same problem. Recall the problem: make every connected component a clique using
+at most $k$ edge additions and deletions, and recall from
+\cref{lem:cluster-p3} that a graph is a \emph{cluster graph} --- every component
+a clique --- exactly when it has no induced path on three vertices, which we
+write $P_3$.
+
+\begin{observation}\label{obs:cluster-rules}
+The following rules are sound.
+\begin{enumerate}[label=\textbf{R\arabic*.},leftmargin=*]
+  \item Delete a connected component that is already a clique. It needs no
+        modification and can interact with nothing else.
+  \item If $G$ is not a cluster graph and $k \le 0$, report a no-instance.
+  \item If $\{v,w\} \in E$ and at least $k+1$ vertices are adjacent to exactly
+        one of $v$ and $w$, then delete the edge $\{v,w\}$ and set
+        $k \gets k-1$.
+  \item If $\{v,w\} \notin E$ and at least $k+1$ vertices are adjacent to both
+        $v$ and $w$, then add the edge $\{v,w\}$ and set $k \gets k-1$.
+  \item If none of R1--R4 applies and $|V| > 3k^2$, report a no-instance.
+\end{enumerate}
+\end{observation}
+
+\begin{proof}[Soundness of R3 and R4]
+For R3, suppose $\{v,w\}$ is an edge and $u_1,\ldots,u_{k+1}$ are adjacent to
+exactly one of $v,w$. Each $u_i$ forms an induced $P_3$ with $v$ and $w$, and
+these $k+1$ paths share only the edge $\{v,w\}$. If the solution does not delete
+$\{v,w\}$, it must repair each of the $k+1$ paths separately, at a cost of at
+least one modification each --- more than the budget. So every solution deletes
+$\{v,w\}$.
+
+R4 is the mirror image: if $u_1,\ldots,u_{k+1}$ are adjacent to both $v$ and $w$
+and $\{v,w\}$ is absent, then each $u_i$ is the centre of an induced $P_3$
+through $v$ and $w$, and repairing them separately costs more than $k$. So every
+solution adds $\{v,w\}$.
+\end{proof}
+
+\begin{theorem}\label{thm:cluster-kernel}
+\lang{Cluster Editing} has a kernel with at most $3k^2$ vertices.
+\end{theorem}
+
+\begin{proof}
+Apply R1--R4 exhaustively; each application either removes a component or
+decreases $k$, so this terminates in polynomially many rounds. It remains to
+justify R5, that is, to show that a yes-instance to which R1--R4 no longer apply
+has at most $3k^2$ vertices.
+
+\emph{Every vertex lies in an induced $P_3$.} Suppose $v$ lies in none. Then
+$N(v)$ is a clique: two non-adjacent neighbours $u,u'$ of $v$ would give the
+induced path $u - v - u'$. And no neighbour of a neighbour of $v$ lies outside
+$N[v]$: if $u \in N(v)$ and $w \in N(u) \setminus N[v]$ then $v - u - w$ is an
+induced $P_3$. So $N[v]$ is a clique and is a whole connected component, and R1
+would have removed it.
+
+\emph{There are at most $k^2$ induced $P_3$'s.} Fix a solution using at most $k$
+modifications. Every induced $P_3$ of $G$ must be destroyed by at least one of
+them, since the final graph is a cluster graph and has none. A given
+modification destroys only a limited number:
+\begin{itemize}[leftmargin=*,nosep]
+  \item deleting an edge $\{v,w\}$ destroys only induced $P_3$'s containing that
+        edge, and these are the paths through a vertex adjacent to exactly one
+        of $v,w$; since R3 does not apply, there are at most $k$ of them;
+  \item adding an edge $\{v,w\}$ destroys only induced $P_3$'s with endpoints
+        $v$ and $w$, whose centres are adjacent to both; since R4 does not
+        apply, there are at most $k$ of them.
+\end{itemize}
+So at most $k$ modifications destroy at most $k \cdot k = k^2$ induced $P_3$'s,
+and $G$ has at most that many.
+
+\emph{Conclusion.} Every vertex lies in some induced $P_3$, each $P_3$ has three
+vertices, so $|V| \le 3k^2$.
+\end{proof}
+
+\begin{figure}[ht]
+\centering
+\figplaceholder{5cm}{Left: the configuration of R3 --- an edge $vw$ with $k+1$
+vertices each joined to exactly one of $v$ and $w$, drawn as a fan, and the
+$k+1$ induced paths highlighted. Right: the configuration of R4 --- a
+non-adjacent pair $v,w$ with $k+1$ common neighbours.}
+\caption{The two interesting reduction rules for \lang{Cluster Editing}. In each
+case $k+1$ induced paths share a single modifiable pair, so the budget forces
+the modification.}
+\label{fig:cluster-rules}
+\end{figure}
+
+\begin{intuition}
+Notice the shape of the argument, because it is the shape of most kernel size
+proofs. The rules themselves are easy to justify: each says ``too many witnesses
+force a single decision''. The work is in the \emph{converse} --- showing that
+once no rule applies, the instance is small. That direction always argues from a
+hypothetical solution: assume one exists, observe that it must account for
+every witness in the instance, and bound how many witnesses one modification can
+account for. Here the witnesses are induced paths on three vertices, and the
+bound is exactly what R3 and R4 were designed to give.
+\end{intuition}
+
+Linear kernels for cluster editing are known, with a considerably more involved
+analysis, but the quadratic one above is the one to remember: it is short, and
+the technique generalises.
+
+%==============================================================================
+\section{The limits of kernelisation}
+\label{sec:kernel-limits}
+%==============================================================================
+
+Every problem in $\mathrm{FPT}$ has a kernel, by
+\cref{thm:kernel-iff-fpt}, and the two problems of this chapter have polynomial
+ones. Not every problem does.
+
+\Cref{sec:kernel-lower-bounds} showed that \lang{$k$-Path} --- which is in
+$\mathrm{FPT}$, by \cref{ch:randomized} --- has no kernel of size polynomial in
+$k$ unless $\mathrm{NP} \subseteq \mathrm{coNP}/\poly$, and hence unless the
+polynomial hierarchy collapses. The obstruction is informational: a polynomial
+kernel would let one compress many independent instances into too few bits.
+
+So the picture for a problem in $\mathrm{FPT}$ has three levels, and all three
+occur: a linear kernel, as for vertex cover; a polynomial kernel and no known
+linear one, as for cluster editing; or provably no polynomial kernel at all, as
+for $k$-path.
+
+%==============================================================================
+\section{Notes and further reading}
+\label{sec:kernelization-further-reading}
+%==============================================================================
+
+This chapter follows Hans Bodlaender's lecture slides.
+\Cref{thm:nemhauser-trotter} is \citet{NemhauserTrotter1975}, who proved it for
+the weighted problem and in the language of vertex packings --- independent sets
+--- rather than covers. Its use as a kernelisation is later, and is the standard
+example of linear programming used for preprocessing rather than for
+approximation.
+
+\citet[Chapter~2]{CyganEtAl2015} is the textbook account of kernelisation,
+including the crown decomposition and the sunflower lemma, two further general
+techniques not covered here; \citet[Chapter~15]{CyganEtAl2015} covers the lower
+bound theory sketched in \cref{sec:kernel-limits}.
+\citet{ShamirSharanTsur2002} proved \lang{Cluster Editing} \textrm{NP}-complete;
+the quadratic kernel above has since been improved to a linear number of
+vertices.
+
+%==============================================================================
+\section{Exercises}
+\label{sec:ex-kernelization}
+%==============================================================================
+
+\begin{exercise}
+Write down the integer linear program for \lang{Independent Set} and for
+\lang{Dominating Set}. Is either relaxation half-integral?
+\end{exercise}
+
+\begin{exercise}
+In \cref{lem:half-integral} the upper bound $x_v \le 1$ was dropped as
+unnecessary. Check this, and say what would change for a \emph{maximisation}
+problem.
+\end{exercise}
+
+\begin{exercise}
+Compute the half-integral optimum of the vertex cover relaxation on the complete
+graph $K_n$ and on an odd cycle $C_{2t+1}$. What does
+\cref{thm:nemhauser-trotter} give in each case, and what does the kernel look
+like?
+\end{exercise}
+
+\begin{exercise}
+Show that on a bipartite graph the vertex cover relaxation has an integral
+optimum, so that \cref{thm:vc-2k-kernel} solves the problem outright. Which
+classical theorem is this?
+\end{exercise}
+
+\begin{exercise}
+The proof of \cref{thm:nemhauser-trotter} chooses $\varepsilon$ smaller than
+several quantities. List them, and check that each is strictly positive.
+\end{exercise}
+
+\begin{exercise}
+Give a graph on which the kernel of \cref{thm:vc-2k-kernel} is strictly smaller
+than the kernel of \cref{thm:fpt-vc-kernel}, and one on which they agree.
+\end{exercise}
+
+\begin{exercise}
+Rule R3 requires $k+1$ vertices adjacent to exactly one of $v,w$. Show that the
+rule becomes unsound with $k$ in place of $k+1$.
+\end{exercise}
+
+\begin{exercise}
+In the proof of \cref{thm:cluster-kernel} it is claimed that deleting an edge
+destroys only induced $P_3$'s containing that edge. Deleting an edge can also
+\emph{create} induced $P_3$'s. Why does that not break the counting?
+\end{exercise}
+
+\begin{exercise}
+Combine \cref{thm:cluster-kernel} with the branching algorithm of
+\cref{alg:fpt-cluster}. What running time does the combination have, and is it
+better than either alone?
+\end{exercise}
+
+\begin{exercise}
+A problem has a kernel with $\bigoh{k^2}$ vertices and is solvable in
+$\bigoh{2^n}$ time on an $n$-vertex graph. What running time does kernelising
+first give, and for which $k$ is that better than $\bigoh{2^n}$?
+\end{exercise}

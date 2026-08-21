@@ -120,7 +120,7 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 | 15 | Parameterized Algorithms I | `15-fpt-i.tex` | W7 Thu | Parameterized Complexity | ✅ drafted; 3 figure placeholders |
 | 16 | Treewidth | `16-treewidth.tex` | W8 Tue | Treewidth ×3 | ✅ drafted; 4 figure placeholders |
 | 17 | Complexity Theory for Approximation and Parameterization | `17-hardness-of-approximation-and-fpt.tex` | W9 Tue | L-reduction, Complexity for Approximation and FPT | ✅ drafted; 2 figure placeholders |
-| 18 | Kernelization | `18-kernelization.tex` | W9 Thu (FPT 2) | Vertex Cover Kernel (first half) | 🔲 |
+| 18 | Kernelization | `18-kernelization.tex` | W9 Thu (FPT 2) | Vertex Cover Kernel (first half) | ✅ drafted; 1 figure placeholder |
 | 19 | Randomized Algorithms | `19-randomized-algorithms.tex` | W9 Thu | Vertex Cover Kernel (second half), Directed k-Path | ✅ drafted; 2 figure placeholders |
 
 ### Appendices
@@ -253,36 +253,31 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after chapters 17 and 19. **Four `\todo` markers** and 75
-`\figplaceholder` boxes remain, over 273 pages.
+Re-audited after chapter 18. **Three `\todo` markers**, 76 `\figplaceholder`
+boxes, 279 pages.
 
-### Chapters not yet written
+**Every chapter of the book is drafted except the introduction.**
 
-| # | Chapter | Source |
-| --- | --- | --- |
-| 18 | Kernelization | ✅ `aa-fpt.pdf` 67–83 — Nemhauser–Trotter, cluster editing kernel |
-| 1 | Introduction | none needed; write last, once the notation has settled |
+### Remaining
 
-That is the whole list. Every other chapter is drafted.
+| What | Note |
+| --- | --- |
+| **76 figure placeholders** | By far the largest item, and the only one that cannot be written. Chapters 2 and 5 hold 18 each. |
+| Chapter 1, Introduction | Write last, once the notation has settled. No deck needed. |
+| Appendix B | A notation appendix, written from what the finished chapters use. No set theory. |
+| Preface | Acknowledgements. |
 
-### Other open work
+### Also outstanding
 
-- **75 figure placeholders**, and this is now by far the largest item. Chapters
-  2 and 5 hold 18 each. They need drawing; nothing else is blocking.
 - **Five uploaded figures are unused**: `er-annulus`,
   `er-different-embedding`, `er-non-parallel-addition`,
   `er-staudt-construction`, `etr-cube-poset`. Place or delete.
-- **Appendix B** — a notation appendix, written from what the finished chapters
-  actually use, at the end. No set theory.
-- **The preface** needs its acknowledgements, at the end.
-
-### One gap worth naming
-
-The pool question *Vertex Cover Kernel* has four items. Items 3 and 4 — 2-list
-colouring and the randomized `O(1.5^n)` 3-colouring — are **not in any deck**;
-they were lectured at the blackboard. They are now written in §19.5 from the
-literature, using the random-two-colour-lists argument, which gives exactly
-`(3/2)^n`. Worth checking against what was actually lectured.
+- **§19.5 needs checking against the lecture.** 2-list colouring and the
+  randomized `O(1.5^n)` 3-colouring are in no deck — blackboard material — so
+  they were written from the literature.
+- **A full pass over the finished book** would be worth doing once the figures
+  are in: cross-references between chapters have accumulated, and several
+  chapters were written before the ones they now point at.
 
 ## Source material
 
@@ -325,6 +320,23 @@ mathematical slides unzip it and read `ppt/slides/slideN.xml` directly.
   bound) and Menger (the deck has the two recipes, not the named theorem).
 - **8 figure placeholders.** The augmenting-path figure and the push/lift
   landscape are the two that carry real argument.
+
+### Chapter 18 — Kernelization
+
+- Written from `aa-fpt.pdf` slides 67–83: the Nemhauser–Trotter `2k`-vertex
+  kernel for vertex cover, and the quadratic kernel for cluster editing.
+- The LP route is given in full: the ILP, half-integrality with the
+  perturbation proof, Nemhauser–Trotter with both halves (that `S*` is a cover,
+  and that it is no larger), and then the kernel. Worth noting in the lecture
+  that the theorem is stronger than the 2-approximation extracted from the same
+  relaxation in chapter 13 — where the LP is *certain*, it is *right*.
+- **Two skeleton goals were dropped**: crown decompositions and the sunflower
+  lemma are in no deck. Kernel lower bounds moved to chapter 12, and §18.4 now
+  just points there.
+- The cluster editing proof is presented with its shape called out: the rules
+  are easy, and the work is the converse — bounding the instance once no rule
+  applies, by arguing from a hypothetical solution about how many witnesses one
+  modification can account for.
 
 ### Chapter 17 — Complexity for Approximation and Parameterization
 

@@ -1,15 +1,14 @@
 %% Chapter 2: Combinatorics via Algorithms and Stable Marriage
-%% Status: drafted; 18 figures are still placeholders.
+%% Status: drafted; one figure placeholder left, and it is a photograph.
 %%
 %% Euler tours were dropped from the course, so the section and the pool item
 %% that asked for them are gone.
 %%
 %% The stable marriage sections are integrated from stablemarriagenotes.tex
-%% (kept in material/notes/).  19 figures are still \figplaceholder boxes --
-%% drop the artwork into book/figures/ and replace the placeholder line,
-%% keeping the surrounding \caption and \label.  See book/figures/README.md.
+%% (kept in material/notes/).  All figures are drawn in TikZ except
+%% fig:sm-shapley, which is a photograph and cannot be.
 
-\chapter{Combinatorics via Algorithms and Stable Marriage}
+\chapter[Combinatorics via Algorithms]{Combinatorics via Algorithms and Stable Marriage}
 \label{ch:stable-marriage}
 
 Many combinatorial theorems are most cleanly proved by exhibiting an algorithm
@@ -107,11 +106,23 @@ Roth, in 1984.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{A timeline / context figure for the residency match:
-``1940s: offers creep to 2 years before graduation, exploding deadlines,
-market unravels'' $\to$ ``1952: centralised clearinghouse (NRMP)'' $\to$
-``1962: Gale \& Shapley explain why it works'' $\to$ ``2012: Nobel Prize''.
-Could be a simple horizontal arrow with four labelled milestones.}
+\begin{tikzpicture}[scale=1.0,every node/.style={font=\footnotesize}]
+  \draw[-{Latex[length=2.5mm]},thick] (-0.4,0) -- (13.4,0);
+  \foreach \x/\y in {0.6/1940s, 3.6/1952, 6.6/1962, 9.6/1984, 12.6/2012}{
+    \draw[thick] (\x,-0.16) -- (\x,0.16);
+    \node[above=2pt,font=\footnotesize\bfseries] at (\x,0.16) {\y};
+  }
+  \node[below=5pt,align=center,text width=2.7cm] at (0.6,-0.16)
+    {offers creep years ahead of graduation; the market unravels};
+  \node[below=5pt,align=center,text width=2.7cm] at (3.6,-0.16)
+    {a central clearinghouse is adopted, and it works};
+  \node[below=5pt,align=center,text width=2.7cm] at (6.6,-0.16)
+    {Gale and Shapley publish the algorithm and prove it works};
+  \node[below=5pt,align=center,text width=2.7cm] at (9.6,-0.16)
+    {Roth notices the clearinghouse had been running it all along};
+  \node[below=5pt,align=center,text width=2.7cm] at (12.6,-0.16)
+    {the Nobel Memorial Prize in Economic Sciences};
+\end{tikzpicture}
 \caption{The stable marriage problem was solved in practice before it was
 solved in theory.}
 \label{fig:sm-history}
@@ -132,7 +143,8 @@ posthumously.
 \figplaceholder{45mm}{Portrait of Lloyd Shapley (Nobel Prize in Economics,
 2012). The Wikimedia Commons photograph by Bengt Nyman,
 \url{http://en.wikipedia.org/wiki/File:Lloyd_Shapley_2_2012.jpg}, is suitable
---- check the CC licence terms and reproduce the attribution with the figure.}
+--- check the CC licence terms and reproduce the attribution with the figure.
+A photograph is the one figure in this book that cannot be drawn.}
 \caption{Lloyd Shapley (1923--2016).}
 \label{fig:sm-shapley}
 \end{figure}
@@ -224,11 +236,21 @@ partner. A matching is \emph{stable} if it admits no blocking pair.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{42mm}{The anatomy of a blocking pair. Draw two matched pairs
-as horizontal solid edges: $m$--$w'$ on top, $m'$--$w$ below. Then draw the
-diagonal $m$--$w$ as a dashed/red edge. Annotate the diagonal with two arrows:
-``$m$: $w \succ w'$'' and ``$w$: $m \succ m'$''. Caption idea: both endpoints
-of the dashed edge want to switch, so they will.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  \node[vtx,label=left:$m$]   (m)  at (0,1.3) {};
+  \node[vtx,label=right:$w'$] (wp) at (4,1.3) {};
+  \node[vtx,label=left:$m'$]  (mp) at (0,0) {};
+  \node[vtx,label=right:$w$]  (w)  at (4,0) {};
+  \draw[thick] (m)--(wp) node[midway,above] {matched};
+  \draw[thick] (mp)--(w) node[midway,below] {matched};
+  \draw[red!75!black,thick,dashed] (m)--(w);
+  \node[red!75!black,align=center] at (2.75,0.95)
+    {$m$ prefers $w$ to $w'$};
+  \node[red!75!black,align=center] at (1.25,0.35)
+    {$w$ prefers $m$ to $m'$};
+\end{tikzpicture}
 \caption{A blocking pair: an unmatched couple who both prefer each other to
 what the matching gave them.}
 \label{fig:sm-blockingpair}
@@ -301,12 +323,26 @@ what everybody else is doing}.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{The instance of Example~\ref{ex:sm-main} drawn as a
-bipartite graph. Men in a column on the left (Arie, Bert, Carl), women on the
-right (Ann, Betty, Cindy). Each man's preference list written next to his node
-in order, likewise for the women. Optionally draw all nine potential edges
-very faintly to emphasise that any of the $3! = 6$ perfect matchings is a
-candidate.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \i/\n/\p in {1/Arie/{Ann, Cindy, Betty}, 2/Bert/{Betty, Ann, Cindy},
+                        3/Carl/{Betty, Ann, Cindy}}{
+    \node[vtx] (m\i) at (0,-1.1*\i) {};
+    \node[left=4pt] at (m\i) {\n};
+    \node[left=1.05cm,font=\scriptsize\itshape] at (m\i) {\p};
+  }
+  \foreach \i/\n/\p in {1/Ann/{Bert, Carl, Arie}, 2/Betty/{Carl, Bert, Arie},
+                        3/Cindy/{Bert, Carl, Arie}}{
+    \node[vtx] (w\i) at (4,-1.1*\i) {};
+    \node[right=4pt] at (w\i) {\n};
+    \node[right=1.15cm,font=\scriptsize\itshape] at (w\i) {\p};
+  }
+  \foreach \i in {1,2,3}{ \foreach \j in {1,2,3}{
+    \draw[black!22] (m\i)--(w\j);
+  }}
+  \node at (2,-0.45) {all nine pairs are available};
+\end{tikzpicture}
 \caption{The instance of Example~\ref{ex:sm-main}.}
 \label{fig:sm-instance}
 \end{figure}
@@ -352,10 +388,31 @@ of everything that follows.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{Side-by-side comparison of $\mu_{\mathrm{bad}}$ (left)
-and $\mu^*$ (right) on the bipartite graph. On the left, highlight the
-blocking edge Carl--Betty in red with the two ``I prefer you'' arrows; on the
-right, no red edge. Same node layout in both panels so the eye can compare.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/7.4}{
+    \begin{scope}[xshift=\dx cm]
+      \foreach \i/\n in {1/Arie, 2/Bert, 3/Carl}{
+        \node[vtx] (m\s\i) at (0,-1.0*\i) {};
+        \node[left=3pt] at (m\s\i) {\n};
+      }
+      \foreach \i/\n in {1/Ann, 2/Betty, 3/Cindy}{
+        \node[vtx] (w\s\i) at (3.2,-1.0*\i) {};
+        \node[right=3pt] at (w\s\i) {\n};
+      }
+    \end{scope}
+  }
+  % left: mu_bad = Arie-Cindy, Bert-Betty, Carl-Ann, with the blocking pair
+  \draw[thick] (ma1)--(wa3) (ma2)--(wa2) (ma3)--(wa1);
+  \draw[red!75!black,thick,dashed] (ma3)--(wa2);
+  \node[red!75!black] at (1.6,-3.9) {Carl and Betty block};
+  \node at (1.6,-0.45) {$\mu_{\mathrm{bad}}$};
+  % right: mu* = Arie-Cindy, Bert-Ann, Carl-Betty
+  \draw[thick] (mb1)--(wb3) (mb2)--(wb1) (mb3)--(wb2);
+  \node at (9.0,-3.9) {no blocking pair};
+  \node at (9.0,-0.45) {$\mu^{*}$};
+\end{tikzpicture}
 \caption{An unstable and a stable matching on the same instance. The red edge
 on the left is a blocking pair.}
 \label{fig:sm-stable-vs-unstable}
@@ -455,12 +512,39 @@ $\{1B, 2A, 3C\}$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{The cycle of Example~\ref{ex:sm-cycle} drawn as a directed
-4-cycle. Place the four matchings $\{1A,2B,3C\}$, $\{1B,2A,3C\}$,
-$\{1B,2C,3A\}$, $\{1C,2B,3A\}$ at the corners of a square, each drawn as a
-small bipartite picture. Label each arrow with the blocking pair that is
-resolved: $(2,A)$, $(2,C)$, $(1,C)$, $(1,A)$. Big circular arrow in the middle
-to emphasise that this loops forever.}
+\begin{tikzpicture}[scale=0.9,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    every node/.style={font=\scriptsize}]
+  \foreach \s/\dx/\dy/\ea/\eb/\ec/\ttl in {%
+      p/0/0/1/2/3/{$\{1A,\,2B,\,3C\}$},
+      q/6.6/0/2/1/3/{$\{1B,\,2A,\,3C\}$},
+      r/6.6/-5.0/2/3/1/{$\{1B,\,2C,\,3A\}$},
+      s/0/-5.0/3/2/1/{$\{1C,\,2B,\,3A\}$}}{
+    \begin{scope}[xshift=\dx cm,yshift=\dy cm]
+      \foreach \i/\n in {1/1, 2/2, 3/3}{
+        \node[vtx,label=left:$\n$] (m\s\i) at (0,-0.62*\i) {};
+      }
+      \foreach \i/\n in {1/A, 2/B, 3/C}{
+        \node[vtx,label=right:$\n$] (w\s\i) at (1.7,-0.62*\i) {};
+      }
+      \draw (m\s1)--(w\s\ea);
+      \draw (m\s2)--(w\s\eb);
+      \draw (m\s3)--(w\s\ec);
+      \node at (0.85,-0.2) {\ttl};
+    \end{scope}
+  }
+  \draw[-{Latex[length=2mm]},thick] (2.9,-1.3) -- (4.1,-1.3)
+        node[midway,above] {$(2,A)$};
+  \draw[-{Latex[length=2mm]},thick] (7.45,-2.5) -- (7.45,-3.7)
+        node[midway,right] {$(2,C)$};
+  \draw[-{Latex[length=2mm]},thick] (4.1,-6.3) -- (2.9,-6.3)
+        node[midway,below] {$(1,C)$};
+  \draw[-{Latex[length=2mm]},thick] (-0.45,-3.7) -- (-0.45,-2.5)
+        node[midway,left] {$(1,A)$};
+  \node[font=\footnotesize,align=center] at (3.5,-3.0)
+        {and round\\ again};
+  \draw[-{Latex[length=2mm]},black!55] (3.5,-3.75) arc (-90:200:0.62);
+\end{tikzpicture}
 \caption{Greedy repair can cycle: resolving blocking pairs one at a time
 returns to its starting point.}
 \label{fig:sm-cycle}
@@ -524,11 +608,37 @@ matching exists.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{The roommates counterexample. Draw $a$, $b$, $c$ as a
-triangle with cyclic arrows $a \to b \to c \to a$ labelled ``prefers'', and
-$d$ off to the side, with all three arrows pointing at $d$ labelled ``last
-choice''. Beside it, show one of the three matchings (say $\{ad, bc\}$) with
-the blocking edge $ac$ highlighted.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  % the cyclic preferences among a, b, c, with d last for all three
+  \node[vtx,label=above:$a$] (a) at (0,1.5) {};
+  \node[vtx,label=below left:$b$]  (b) at (-1.15,-0.4) {};
+  \node[vtx,label=below right:$c$] (c) at (1.15,-0.4) {};
+  \node[vtx,label=right:$d$] (d) at (3.6,0.55) {};
+  \draw[-{Latex[length=2mm]},thick] (a) to[bend left=18] (b);
+  \draw[-{Latex[length=2mm]},thick] (b) to[bend left=18] (c);
+  \draw[-{Latex[length=2mm]},thick] (c) to[bend left=18] (a);
+  \node at (0,0.35) {each prefers};
+  \node at (0,-0.05) {the next};
+  \draw[-{Latex[length=2mm]},black!45] (a) to[bend left=8] (d);
+  \draw[-{Latex[length=2mm]},black!45] (c) to[bend right=8] (d);
+  \draw[-{Latex[length=2mm]},black!45] (b) to[bend right=22] (d);
+  \node[black!55,align=center] at (2.5,-1.35) {and all three\\ rank $d$ last};
+  % one matching, with its blocking pair
+  \begin{scope}[xshift=7.4cm]
+    \node[vtx,label=above:$a$] (a2) at (0,1.5) {};
+    \node[vtx,label=below left:$b$]  (b2) at (-1.15,-0.4) {};
+    \node[vtx,label=below right:$c$] (c2) at (1.15,-0.4) {};
+    \node[vtx,label=right:$d$] (d2) at (2.6,1.5) {};
+    \draw[thick] (a2)--(d2);
+    \draw[thick] (b2)--(c2);
+    \draw[red!75!black,thick,dashed] (a2)--(c2);
+    \node[align=center] at (0.7,-1.35)
+      {$\{ad,\,bc\}$, and $(a,c)$ blocks:\\ $a$ has his last choice,
+       $c$ has her first};
+  \end{scope}
+\end{tikzpicture}
 \caption{The stable roommates problem: an instance with no stable matching at
 all.}
 \label{fig:sm-roommates}
@@ -608,13 +718,30 @@ Three points of clarification, each of which is a common source of confusion:
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{48mm}{One iteration of the algorithm, in three small panels.
-Panel 1: free man $m$ with his list, arrow pointing at the next unproposed
-woman $w$; $w$ currently engaged to $m''$. Panel 2: $w$ compares $m$ and $m''$
-on her list. Panel 3(a): $m \succ_w m''$, so the edge to $m''$ is cut (dashed,
-$m''$ drops back into the pool of free men) and a new edge to $m$ is drawn.
-Panel 3(b): otherwise $m$ is rejected and returns to the pool with his pointer
-advanced by one.}
+\begin{tikzpicture}[scale=0.92,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    gone/.style={black!35,dashed},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/5.2, c/10.4}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx,label=left:$m$]    (m\s)  at (0,0) {};
+      \node[vtx,label=left:$m''$]  (mm\s) at (0,-1.3) {};
+      \node[vtx,label=right:$w$]   (w\s)  at (2.1,-0.65) {};
+    \end{scope}
+  }
+  % before
+  \draw[thick] (mma)--(wa);
+  \draw[red!75!black,-{Latex[length=2mm]},thick] (ma)--(wa);
+  \node[align=center] at (1.05,-2.3) {$m$ is free and proposes\\ to $w$, who holds $m''$};
+  % w prefers m
+  \draw[gone] (mmb)--(wb);
+  \draw[thick] (mb)--(wb);
+  \node[align=center] at (6.25,-2.3) {if $w$ prefers $m$: she trades\\ up, and $m''$ is free again};
+  % w keeps m''
+  \draw[thick] (mmc)--(wc);
+  \draw[gone] (mc)--(wc);
+  \node[align=center] at (11.45,-2.3) {otherwise $m$ is rejected\\ and moves down his list};
+\end{tikzpicture}
 \caption{A single proposal step. The woman always ends up at least as well off
 as before; the man's pointer only ever moves down his list.}
 \label{fig:sm-step}
@@ -664,11 +791,31 @@ proofs.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{65mm}{The five-step trace as a strip of five small bipartite
-snapshots, left to right. In each snapshot: solid edges for current
-engagements, a bold arrow for the proposal being made, and a red cross on the
-edge that gets broken. Below each snapshot write the proposal, e.g.\
-``Carl $\to$ Betty: accepted, Bert jilted''.}
+\begin{tikzpicture}[scale=0.72,
+    vtx/.style={circle,fill=black,inner sep=1.4pt},
+    cut/.style={black!35,dashed},
+    every node/.style={font=\scriptsize}]
+  \foreach \s/\dx/\hd in {a/0/{$1$: $A \to a$}, b/2.9/{$2$: $B \to b$},
+      c/5.8/{$3$: $C \to b$}, d/8.7/{$4$: $B \to a$}, e/11.6/{$5$: $A \to c$}}{
+    \begin{scope}[xshift=\dx cm]
+      \foreach \i/\n in {1/A, 2/B, 3/C}{
+        \node[vtx,label={[label distance=-3pt]left:$\n$}] (m\s\i) at (0,-0.8*\i) {};
+      }
+      \foreach \i/\n in {1/a, 2/b, 3/c}{
+        \node[vtx,label={[label distance=-3pt]right:$\n$}] (w\s\i) at (1.3,-0.8*\i) {};
+      }
+      \node at (0.65,-0.15) {\hd};
+    \end{scope}
+  }
+  \draw[thick] (ma1)--(wa1);
+  \draw[thick] (mb1)--(wb1) (mb2)--(wb2);
+  \draw[thick] (mc1)--(wc1) (mc3)--(wc2); \draw[cut] (mc2)--(wc2);
+  \draw[thick] (md2)--(wd1) (md3)--(wd2); \draw[cut] (md1)--(wd1);
+  \draw[thick] (me1)--(we3) (me2)--(we1) (me3)--(we2);
+  \node[font=\scriptsize] at (7.0,-3.5)
+    {$A$ Arie, $B$ Bert, $C$ Carl; \quad $a$ Ann, $b$ Betty, $c$ Cindy;
+     \quad dashed: the engagement just broken};
+\end{tikzpicture}
 \caption{Execution of Gale--Shapley on Example~\ref{ex:sm-main}.}
 \label{fig:sm-trace}
 \end{figure}
@@ -725,13 +872,35 @@ to, and once proposed to, a woman is struck off his list forever.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{The two ratchets. On the left, a man's preference list
-drawn as a vertical column with an arrow moving strictly downward over time
-(Observation~\ref{obs:sm-3}); on the right, a woman's preference list with an
-arrow moving strictly upward (Observation~\ref{obs:sm-2}). A caption such as
-``men get worse off, women get better off, and neither can ever go back''
-makes the point. This single picture explains termination, the $n^2$ bound,
-and half of the stability proof.}
+\begin{tikzpicture}[scale=1.0,every node/.style={font=\footnotesize}]
+  % a man's list: the pointer only descends
+  \begin{scope}
+    \node[font=\footnotesize\bfseries] at (0,0.9) {a man's list};
+    \foreach \i/\n in {1/{best}, 2/{}, 3/{}, 4/{}, 5/{worst}}{
+      \draw[black!45] (-0.85,-0.62*\i+0.31) rectangle (0.85,-0.62*\i-0.31);
+      \node[black!55] at (0,-0.62*\i) {\n};
+    }
+    \draw[-{Latex[length=2.5mm]},red!75!black,line width=1pt]
+      (1.25,-0.5) -- (1.25,-3.4);
+    \node[red!75!black,right=2pt,align=left] at (1.3,-1.95)
+      {he proposes\\ strictly\\ downwards};
+  \end{scope}
+  % a woman's list: her partner only ascends
+  \begin{scope}[xshift=7.2cm]
+    \node[font=\footnotesize\bfseries] at (0,0.9) {a woman's list};
+    \foreach \i/\n in {1/{best}, 2/{}, 3/{}, 4/{}, 5/{worst}}{
+      \draw[black!45] (-0.85,-0.62*\i+0.31) rectangle (0.85,-0.62*\i-0.31);
+      \node[black!55] at (0,-0.62*\i) {\n};
+    }
+    \draw[-{Latex[length=2.5mm]},red!75!black,line width=1pt]
+      (1.25,-3.4) -- (1.25,-0.5);
+    \node[red!75!black,right=2pt,align=left] at (1.3,-1.95)
+      {she is held\\ strictly\\ upwards};
+  \end{scope}
+  \node[align=center] at (4.5,-4.5)
+    {every proposal moves one man down and one woman up,\\
+     and neither can ever go back};
+\end{tikzpicture}
 \caption{The monotonicity that makes the algorithm work.}
 \label{fig:sm-ratchets}
 \end{figure}
@@ -771,12 +940,24 @@ free.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{42mm}{The counting argument of Lemma~\ref{lem:sm-notstuck}.
-Left column: $n$ men with $m$ singled out and marked ``free''. Right column:
-all $n$ women, each drawn with a solid engagement edge. The picture should
-make it visually absurd that $n$ women are matched to $n$ distinct men while
-one man is left over --- perhaps with a large ``$n$ edges, $n$ men, but $m$ is
-not among them?'' annotation.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.7pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \i in {1,...,4}{ \node[vtx] (m\i) at (0,-0.8*\i) {}; }
+  \node[vtx,fill=red!75!black] (mf) at (0,-4.0) {};
+  \node[red!75!black,left=4pt] at (mf) {$m$, free};
+  \foreach \i in {1,...,5}{ \node[vtx] (w\i) at (3.4,-0.8*\i) {}; }
+  \draw[thick] (w1)--(m1) (w2)--(m2) (w3)--(m3) (w4)--(m4);
+  \draw[red!75!black,thick] (w5)--(m4);
+  \node[left=4pt] at (m1) {the other};
+  \node[left=4pt] at (m2) {$n-1$ men};
+  \node[right=4pt] at (w1) {all $n$ women,};
+  \node[right=4pt] at (w2) {each engaged};
+  \node[red!75!black,align=center] at (2.1,-4.6) {two women, one man};
+  \node[align=center] at (1.7,-5.5)
+    {$n$ engagements cannot end at $n-1$ distinct men,\\
+     so $m$ cannot have proposed to everybody};
+\end{tikzpicture}
 \caption{A free man cannot have exhausted his list: that would mean all women
 are engaged, hence all men are engaged.}
 \label{fig:sm-counting}
@@ -894,13 +1075,33 @@ arbitrary, $\mu$ is stable.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{The stability proof in one picture. Draw the two matched
-pairs $m$--$w$ (top) and $m'$--$w'$ (bottom), with the potential blocking edge
-$m$--$w'$ dashed across the middle. Then two annotated branches: Case~1 ``$m$
-never proposed to $w'$'' with the label ``$\Rightarrow w \succ_m w'$: he is
-not interested'', and Case~2 ``$m$ proposed and was turned down'' with the
-label ``$\Rightarrow m' \succ_{w'} m$: she is not interested''. This is the
-figure students remember; it is worth making it large.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx/\hd in {a/0/{Case 1: $m$ never proposed to $w'$},
+                          b/7.6/{Case 2: $m$ proposed and lost her}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx,label=left:$m$]   (m\s)  at (0,1.3) {};
+      \node[vtx,label=right:$w$]  (w\s)  at (3.4,1.3) {};
+      \node[vtx,label=left:$m'$]  (mp\s) at (0,0) {};
+      \node[vtx,label=right:$w'$] (wp\s) at (3.4,0) {};
+      \draw[thick] (m\s)--(w\s);
+      \draw[thick] (mp\s)--(wp\s);
+      \draw[black!45,dashed] (m\s)--(wp\s);
+      \node[font=\footnotesize\bfseries] at (1.7,2.1) {\hd};
+    \end{scope}
+  }
+  % case 1: his list stops above w'
+  \node[align=center] at (1.7,-0.95)
+    {he proposed to everyone above $w$,\\
+     and $w'$ was not among them, so $w \pr{m} w'$};
+  \node[red!75!black] at (1.7,0.65) {he is not interested};
+  % case 2: she has only improved since
+  \node[align=center] at (9.3,-0.95)
+    {from that moment she held someone\\
+     better than $m$, and only improved: $m' \pr{w'} m$};
+  \node[red!75!black] at (9.3,0.65) {she is not interested};
+\end{tikzpicture}
 \caption{Why no blocking pair can survive: either he never asked (so he does
 not want her), or he asked and was refused (so she does not want him).}
 \label{fig:sm-stabilityproof}
@@ -982,11 +1183,28 @@ which side was given the right to propose.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{The two stable matchings of Example~\ref{ex:sm-2x2}, side
-by side. Left: $\mu_{\Men}$, with little happy faces on the men and sad faces
-on the women; right: $\mu_{\Women}$, the reverse. Below, an axis labelled
-``men's welfare'' pointing one way and ``women's welfare'' pointing the other,
-to convey that the two are in direct opposition.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx/\hd in {a/0/{$\mu_{\Men}$: men propose}, b/6.6/{$\mu_{\Women}$: women propose}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx,label=left:Arie]  (m1\s) at (0,0) {};
+      \node[vtx,label=left:Bert]  (m2\s) at (0,-1.1) {};
+      \node[vtx,label=right:Ann]   (w1\s) at (2.6,0) {};
+      \node[vtx,label=right:Betty] (w2\s) at (2.6,-1.1) {};
+      \node[font=\footnotesize\bfseries] at (1.3,0.75) {\hd};
+    \end{scope}
+  }
+  \draw[thick] (m1a)--(w1a) (m2a)--(w2a);
+  \draw[thick] (m1b)--(w2b) (m2b)--(w1b);
+  \node[align=center] at (1.3,-2.0) {both men first choice,\\ both women last};
+  \node[align=center] at (7.9,-2.0) {both women first choice,\\ both men last};
+  \draw[{Latex[length=2mm]}-{Latex[length=2mm]}] (1.3,-3.0) -- (7.9,-3.0);
+  \node[below] at (1.3,-3.1) {men better off};
+  \node[below] at (7.9,-3.1) {women better off};
+  \node[above,font=\scriptsize\itshape] at (4.6,-3.0)
+    {and there is nothing in between};
+\end{tikzpicture}
 \caption{The same instance, both stable matchings. Whoever proposes, wins.}
 \label{fig:sm-2x2}
 \end{figure}
@@ -1120,14 +1338,32 @@ $\mu(m) = \mathrm{best}(m)$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{The man-optimality proof. Suggested layout: a horizontal
-time axis for the execution, with a marked point ``first rejection of a man by
-a stable partner: $w$ rejects $m$ in favour of $m'$''. Everything to the left
-shaded as ``no stable partner has rejected anyone yet''. Below the axis, draw
-the stable matching $S$ as two solid edges $m$--$w$ and $m'$--$w'$, and mark
-the blocking pair $(m',w)$ as a red dashed edge, annotated with the two
-preferences $w \succ_{m'} w'$ and $m' \succ_w m$. Arrows connecting the two
-halves would show how the timeline fact yields the preference on the left.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  % the execution, with the first bad rejection marked
+  \fill[black!8] (-0.2,1.9) rectangle (5.4,2.9);
+  \draw[-{Latex[length=2.5mm]},thick] (-0.4,2.4) -- (10.6,2.4);
+  \node[below=1pt] at (10.4,2.35) {time};
+  \draw[red!75!black,thick] (5.4,2.05) -- (5.4,2.75);
+  \node[align=center] at (2.6,2.4) {no stable partner has\\ rejected anybody yet};
+  \node[red!75!black,right=3pt,align=left] at (5.45,2.4)
+    {the \emph{first} time one does:\\ $w$ rejects $m$ for $m'$};
+  % the stable matching S, in which m has w
+  \node[vtx,label=left:$m$]   (m)  at (1.4,0.9) {};
+  \node[vtx,label=right:$w$]  (w)  at (4.8,0.9) {};
+  \node[vtx,label=left:$m'$]  (mp) at (1.4,-0.4) {};
+  \node[vtx,label=right:$w'$] (wp) at (4.8,-0.4) {};
+  \draw[thick] (m)--(w) node[midway,above] {in $S$};
+  \draw[thick] (mp)--(wp) node[midway,below] {in $S$};
+  \draw[red!75!black,thick,dashed] (mp)--(w);
+  \node[red!75!black,align=left,right=4pt] at (5.6,0.25)
+    {$m' \pr{w} m$ \ (she just chose him)\\
+     $w \pr{m'} w'$ \ (or $w'$ would have\\
+     \phantom{$w \pr{m'} w'$ \ (}rejected him earlier)};
+  \node[align=center] at (3.1,-1.5)
+    {so $(m',w)$ blocks the stable matching $S$ --- which is impossible};
+\end{tikzpicture}
 \caption{The first rejection by a stable partner would create a blocking pair
 in a stable matching.}
 \label{fig:sm-optproof}
@@ -1197,13 +1433,32 @@ blocking pair for $S$, contradicting the stability of $S$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{The proof of Corollary~\ref{cor:sm-3}. Two panels. Left
-panel, the Gale--Shapley output $\mu$: edge $m$--$w$, annotated ``$w$ is $m$'s
-\emph{best} stable partner (Theorem~\ref{thm:sm-manoptimal})''. Right panel, the
-hypothetical stable matching $S$: edges $m$--$w'$ and $m'$--$w$, with the red
-dashed blocking edge $m$--$w$ across it and the two labels $w \succ_m w'$ and
-$m \succ_w m'$. An arrow from the left panel to the right showing where
-$w \succ_m w'$ comes from.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,fill=black,inner sep=1.8pt},
+    every node/.style={font=\footnotesize}]
+  % left: the Gale-Shapley output
+  \node[vtx,label=left:$m$]  (m1) at (0,0.7) {};
+  \node[vtx,label=right:$w$] (w1) at (2.4,0.7) {};
+  \draw[thick] (m1)--(w1);
+  \node[font=\footnotesize\bfseries] at (1.2,1.5) {$\mu_{\Men}$};
+  \node[align=center] at (1.2,-0.35) {$w$ is $m$'s \emph{best}\\ stable partner};
+  % right: the hypothetical stable matching S
+  \begin{scope}[xshift=6.6cm]
+    \node[vtx,label=left:$m$]   (m2)  at (0,1.3) {};
+    \node[vtx,label=right:$w'$] (wp2) at (2.4,1.3) {};
+    \node[vtx,label=left:$m'$]  (mp2) at (0,0) {};
+    \node[vtx,label=right:$w$]  (w2)  at (2.4,0) {};
+    \draw[thick] (m2)--(wp2);
+    \draw[thick] (mp2)--(w2);
+    \draw[red!75!black,thick,dashed] (m2)--(w2);
+    \node[font=\footnotesize\bfseries] at (1.2,2.1) {a stable matching $S$};
+  \end{scope}
+  \draw[-{Latex[length=2mm]},black!55] (2.9,0.9) to[bend left=12] (6.1,1.6);
+  \node[black!55,above,font=\scriptsize] at (4.5,1.55) {so $w \pr{m} w'$};
+  \node[red!75!black,align=center] at (7.8,-1.0)
+    {and if $S$ gave $w$ someone worse than $m$, then $m \pr{w} m'$:\\
+     $(m,w)$ would block $S$};
+\end{tikzpicture}
 \caption{If some woman could do worse in a stable matching than
 Gale--Shapley gives her, that matching would not be stable.}
 \label{fig:sm-cor3proof}
@@ -1230,13 +1485,25 @@ compromises stretching between the two algorithmic extremes.)
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{Optional but useful mental picture: the set of all
-stable matchings drawn as a lattice diagram (a diamond-ish Hasse diagram),
-with $\mu_{\Men}$ at the top labelled ``best for all men / worst for all
-women'' and $\mu_{\Women}$ at the bottom labelled ``worst for all men / best
-for all women'', and a few unnamed compromise matchings in between. Mark
-clearly that only the two extremes are computed by the algorithms of this
-lecture.}
+\begin{tikzpicture}[scale=1.0,
+    mt/.style={circle,fill=black,inner sep=1.9pt},
+    every node/.style={font=\footnotesize}]
+  \node[mt] (top) at (0,2.6) {};
+  \node[mt] (a)   at (-1.3,1.3) {};
+  \node[mt] (b)   at (1.3,1.3) {};
+  \node[mt] (c)   at (0,0.0) {};
+  \node[mt] (bot) at (0,-1.3) {};
+  \draw (top)--(a)--(c)--(b)--(top);
+  \draw (c)--(bot);
+  \node[right=4pt,align=left] at (top)
+    {$\mu_{\Men}$: best for every man,\\ worst for every woman};
+  \node[right=4pt,align=left] at (bot)
+    {$\mu_{\Women}$: best for every woman,\\ worst for every man};
+  \node[right=4pt,align=left,black!60] at (b)
+    {other stable matchings,\\ of which there may be many};
+  \draw[-{Latex[length=2mm]}] (-2.6,-1.3) -- (-2.6,2.6);
+  \node[rotate=90,above] at (-2.6,0.65) {better for the men};
+\end{tikzpicture}
 \caption{Between the two extremes computed by Gale--Shapley there may be many
 other stable matchings.}
 \label{fig:sm-lattice}
@@ -1283,11 +1550,21 @@ choice analysed above.)
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{Two identical clearinghouse boxes, one labelled
-``hospitals propose'' with an arrow to a happy hospital and a resigned
-applicant, the other labelled ``applicants propose'' with the reverse. Caption
-underneath: ``the same data, the same algorithm, a different answer to who
-gets the benefit of the doubt''.}
+\begin{tikzpicture}[scale=1.0,
+    box/.style={draw,rounded corners=4pt,minimum width=3.2cm,minimum height=1.0cm,
+                align=center,font=\footnotesize},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx/\lbl/\win/\lose in {%
+      a/0/{hospitals propose}/{every hospital gets the best}/{every applicant gets the worst},
+      b/7.4/{applicants propose}/{every applicant gets the best}/{every hospital gets the worst}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[align=center] at (1.6,1.85) {the same preference lists};
+      \node[box] (c\s) at (1.6,0.75) {deferred acceptance\\ \emph{\lbl}};
+      \draw[-{Latex[length=2mm]}] (1.6,0.2) -- (1.6,-0.45);
+      \node[align=center] at (1.6,-0.95) {\win\\ stable partner it can have,\\ \lose};
+    \end{scope}
+  }
+\end{tikzpicture}
 \caption{The direction of proposal is a policy decision, not a technical
 detail.}
 \label{fig:sm-whoproposes}

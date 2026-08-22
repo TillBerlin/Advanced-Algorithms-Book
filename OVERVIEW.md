@@ -253,18 +253,44 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the introduction. **No `\todo` markers left**, 55
-`\figplaceholder` boxes, 294 pages.
+Re-audited after the figures. **No `\todo` markers left**, **2
+`\figplaceholder` boxes**, 293 pages.
 
-**Every chapter, both appendices and the preface are drafted.** The only work
-the text still needs from outside is the artwork for chapters 2--6.
+**Every chapter, both appendices and the preface are drafted, and every figure
+but two is drawn.**
 
 ### Remaining
 
 | What | Note |
 | --- | --- |
-| **55 figure placeholders** | All of them are in chapters 2--6, which are waiting on uploads: 18 in chapter 2, 7 in chapter 3, 5 in chapter 4, 18 in chapter 5, 7 in chapter 6. Chapters 7--19 have none left; their 21 figures are drawn in TikZ. |
+| **2 figure placeholders** | `fig:sm-shapley`, a photograph of Lloyd Shapley — it cannot be drawn, only licensed and dropped in. And `fig:planar-gadget`, the Garey–Johnson–Stockmeyer crossover gadget: that one is a specific 13-vertex graph to be copied from the paper or the slides, and a guess that looks plausible would be worse than a gap. I searched several planar templates exhaustively and two million randomly generated planar graphs for a graph with the two required colouring properties and found none. |
 | Nothing else | The four `\todo`s that stood here have been answered by the author and the text now says so: errata go to `t.miltzow@uu.nl`, there are no teaching-assistant or student acknowledgements, the sentence about industrial practice is gone, and the affiliations are stated plainly as Utrecht University. |
+
+### The figures
+
+All 76 figures are now drawn in TikZ except the two above. They are drawn from
+the mathematics rather than copied, and where a figure asserts something the
+assertion is checked:
+
+- the Christofides matching is the true minimum over all fifteen perfect
+  matchings on the six odd vertices of the point set drawn;
+- the Fréchet curves were found by search, so the free grid really does have
+  the staircase shown;
+- the circulation example in chapter 3 is verified end to end — bounds,
+  conservation, transformed capacities, the flow of value 6, the recovered
+  circulation;
+- the circle packing in chapter 5 is a real one (three unit disks in mutual
+  contact, the inner Soddy disk of radius `2/sqrt(3) - 1`, a fourth unit disk
+  and the Soddy disk of that gap), and the ninety-five disks of the separator
+  proof are placed by a script that enforces disjointness, so the disks the
+  random circle cuts are the ones it really cuts;
+- the ETH clause gadget was brute-forced over all eight literal patterns.
+
+Two errors surfaced while drawing. Chapter 4's arc reversal added its
+compensating arcs at the wrong ends — `(s,u)` and `(v,t)` where conservation
+needs `(s,v)` and `(u,t)`. And chapter 6's four-kinds figure needed a seventh
+vertex, because on the six-vertex graph the maximum matching is perfect, so
+"maximum but not perfect" and "perfect" cannot be the same picture.
 
 ### Also outstanding
 

@@ -71,11 +71,24 @@ answer.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{A small flow network, six or seven vertices, with each
-arc labelled $f(e)/c(e)$. Choose a flow that is feasible but not maximum, so
-that the same picture can be reused later to illustrate an augmenting path.
-Mark $s$ and $t$ clearly and put at least one pair of antiparallel arcs in,
-since the definitions allow them.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,draw,fill=white,inner sep=1.5pt,minimum size=15pt,
+                font=\footnotesize},
+    arc/.style={-{Latex[length=2mm]},thick},
+    every node/.style={font=\footnotesize}]
+  \node[vtx] (s) at (0,0)    {$s$};
+  \node[vtx] (a) at (2.2,1.3)  {$a$};
+  \node[vtx] (b) at (2.2,-1.3) {$b$};
+  \node[vtx] (c) at (4.4,1.3)  {$c$};
+  \node[vtx] (t) at (6.6,0)  {$t$};
+  \draw[arc] (s)--(a) node[midway,above left=-2pt] {$3/3$};
+  \draw[arc] (s)--(b) node[midway,below left=-2pt] {$1/2$};
+  \draw[arc] (a)--(b) node[midway,left] {$2/2$};
+  \draw[arc] (a)--(c) node[midway,above] {$1/2$};
+  \draw[arc] (b)--(t) node[midway,below right=-2pt] {$3/3$};
+  \draw[arc] (c)--(t) node[midway,above right=-2pt] {$1/2$};
+  \node at (3.3,-2.3) {value $4$};
+\end{tikzpicture}
 \caption{A flow network with a feasible flow. Arc labels are
 \emph{flow\,/\,capacity}.}
 \label{fig:flow-network}
@@ -160,13 +173,47 @@ constant factor, and it can be built in $\bigoh{m}$ time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{IMPORTANT. Two panels sharing the same network. Left: the
-flow of \cref{fig:flow-network} with an augmenting path highlighted in the
-residual graph --- draw forward residual arcs solid and backward residual arcs
-dashed in a second colour, so that the ``undo'' step is visibly different from
-the ``push'' step. Right: the flow after augmenting, with the changed arc
-labels emphasised. The reader should be able to see one arc whose flow went
-\emph{down}.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,draw,fill=white,inner sep=1.5pt,minimum size=15pt,
+                font=\footnotesize},
+    arc/.style={-{Latex[length=2mm]},thick},
+    res/.style={-{Latex[length=2mm]},black!45},
+    back/.style={-{Latex[length=2mm]},red!75!black,thick,dashed},
+    fwd/.style={-{Latex[length=2mm]},red!75!black,thick},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/8.8}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx] (s\s) at (0,0)    {$s$};
+      \node[vtx] (a\s) at (2.0,1.25)  {$a$};
+      \node[vtx] (b\s) at (2.0,-1.25) {$b$};
+      \node[vtx] (c\s) at (4.0,1.25)  {$c$};
+      \node[vtx] (t\s) at (6.0,0)  {$t$};
+    \end{scope}
+  }
+  % left: the residual graph, with the augmenting path
+  \draw[res] (aa) to[bend left=12] node[midway,above=1pt]{$3$} (sa);
+  \draw[fwd] (sa)--(ba) node[midway,below left=-2pt] {$1$};
+  \draw[res] (ba) to[bend left=12] node[midway,below=1pt]{$1$} (sa);
+  \draw[back] (ba)--(aa) node[midway,left] {$2$};
+  \draw[fwd] (aa)--(ca) node[midway,above] {$1$};
+  \draw[res] (ca) to[bend left=14] node[midway,below]{$1$} (aa);
+  \draw[res] (ta) to[bend left=12] node[midway,below right=-3pt]{$3$} (ba);
+  \draw[fwd] (ca)--(ta) node[midway,above right=-2pt] {$1$};
+  \draw[res] (ta) to[bend left=12] node[midway,right=-1pt]{$1$} (ca);
+  \node[align=center] at (3.0,-2.4)
+    {the residual graph, and an augmenting path\\
+     of bottleneck $1$ that runs \emph{backwards} along $ab$};
+  % right: the flow after augmenting
+  \draw[arc] (sb)--(ab) node[midway,above left=-2pt] {$3/3$};
+  \draw[arc] (sb)--(bb) node[midway,below left=-2pt] {$\mathbf{2}/2$};
+  \draw[arc] (ab)--(bb) node[midway,left] {$\mathbf{1}/2$};
+  \draw[arc] (ab)--(cb) node[midway,above] {$\mathbf{2}/2$};
+  \draw[arc] (bb)--(tb) node[midway,below right=-2pt] {$3/3$};
+  \draw[arc] (cb)--(tb) node[midway,above right=-2pt] {$\mathbf{2}/2$};
+  \node[align=center] at (11.8,-2.4)
+    {value $5$, and the flow on $ab$ has gone \emph{down}:\\
+     the augmentation cancelled a unit sent earlier};
+\end{tikzpicture}
 \caption{Augmenting along a path in the residual graph. Dashed arcs are
 backward arcs: routing along one of them cancels flow that was previously
 sent.}
@@ -316,11 +363,41 @@ performance detail. It is what makes the algorithm an algorithm.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{The classical bad instance for Ford--Fulkerson: four
-vertices $s, a, b, t$, arcs $s\!\to\!a$, $s\!\to\!b$, $a\!\to\!t$,
-$b\!\to\!t$ of capacity $C$ and the middle arc $a\!\to\!b$ of capacity $1$.
-Show two successive augmenting paths that use the middle arc forwards and then
-backwards, each pushing a single unit.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,draw,fill=white,inner sep=1.5pt,minimum size=15pt,
+                font=\footnotesize},
+    arc/.style={-{Latex[length=2mm]},thick},
+    hi/.style={-{Latex[length=2mm]},red!75!black,line width=1pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx/\hd in {a/0/{the network}, b/5.6/{first augmentation},
+      c/11.2/{second augmentation}}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx] (s\s) at (0,0)     {$s$};
+      \node[vtx] (u\s) at (1.6,1.1) {$a$};
+      \node[vtx] (v\s) at (1.6,-1.1){$b$};
+      \node[vtx] (t\s) at (3.2,0)   {$t$};
+      \node at (1.6,2.1) {\hd};
+    \end{scope}
+  }
+  \draw[arc] (sa)--(ua) node[midway,above left=-3pt] {$C$};
+  \draw[arc] (sa)--(va) node[midway,below left=-3pt] {$C$};
+  \draw[arc] (ua)--(ta) node[midway,above right=-3pt] {$C$};
+  \draw[arc] (va)--(ta) node[midway,below right=-3pt] {$C$};
+  \draw[arc] (ua)--(va) node[midway,left] {$1$};
+  % first augmentation: s a b t, one unit through the middle arc
+  \draw[arc,black!30] (sb)--(vb); \draw[arc,black!30] (ub)--(tb);
+  \draw[hi] (sb)--(ub);
+  \draw[hi] (ub)--(vb) node[midway,left,black] {$1$};
+  \draw[hi] (vb)--(tb);
+  % second augmentation: s b a t, undoing the middle arc
+  \draw[arc,black!30] (sc)--(uc); \draw[arc,black!30] (vc)--(tc);
+  \draw[hi] (sc)--(vc);
+  \draw[hi,dashed] (vc)--(uc) node[midway,left,black] {$1$};
+  \draw[hi] (uc)--(tc);
+  \node[align=center] at (8.4,-2.4)
+    {each pair of augmentations moves two units, so $2C$ of them are needed;\\
+     the middle arc is filled and emptied every time};
+\end{tikzpicture}
 \caption{Capacity $C$, and $2C$ augmentations if the middle arc is chosen every
 time.}
 \label{fig:flow-bad-instance}
@@ -506,13 +583,50 @@ satisfy, since $h(u)$ went up. Allowed.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{IMPORTANT. The two operations, in a landscape drawing
-with vertices at their heights on a vertical axis. Left panel, push: an
-overflowing $u$ at height $h(v)+1$ with a residual arc down to $v$, excess shown
-as a stack on top of $u$, and the amount $\delta$ moving across. Right panel,
-lift: an overflowing $u$ whose residual neighbours are all at or above its
-height, being raised to one above the lowest of them. Draw the height axis in
-both panels so the ``downhill by at most one'' rule is visible.}
+\begin{tikzpicture}[scale=1.0,
+    vtx/.style={circle,draw,fill=white,inner sep=1.5pt,minimum size=15pt,
+                font=\footnotesize},
+    exc/.style={fill=red!70!black,draw=none},
+    every node/.style={font=\footnotesize}]
+  % ---------------------------------------------------------------- push
+  \begin{scope}
+    \foreach \y in {0,1,2,3}{
+      \draw[black!25] (-0.3,\y) -- (4.3,\y);
+      \node[black!45,left=1pt,font=\scriptsize] at (-0.3,\y) {$\y$};
+    }
+    \draw[-{Latex[length=2mm]}] (-0.9,-0.2) -- (-0.9,3.3) node[above] {$h$};
+    \node[vtx] (u) at (1.0,2) {$u$};
+    \node[vtx] (v) at (3.4,1) {$v$};
+    \draw[-{Latex[length=2mm]},thick] (u)--(v);
+    \fill[exc] (0.72,2.32) rectangle ++(0.56,0.22);
+    \fill[exc] (0.72,2.60) rectangle ++(0.56,0.22);
+    \node[red!70!black,left=2pt,font=\scriptsize] at (0.72,2.6) {excess};
+    \node[red!70!black,above right=-1pt] at (2.1,1.55) {$\delta$};
+    \node[align=center] at (1.9,-0.9)
+      {\textbf{push}: $u$ overflows and has a residual arc\\
+       to a vertex one step lower, so send $\delta$ across};
+  \end{scope}
+  % ---------------------------------------------------------------- lift
+  \begin{scope}[xshift=7.6cm]
+    \foreach \y in {0,1,2,3}{
+      \draw[black!25] (-0.3,\y) -- (4.3,\y);
+      \node[black!45,left=1pt,font=\scriptsize] at (-0.3,\y) {$\y$};
+    }
+    \draw[-{Latex[length=2mm]}] (-0.9,-0.2) -- (-0.9,3.3) node[above] {$h$};
+    \node[vtx] (u2)  at (1.0,1) {$u$};
+    \node[vtx] (v1)  at (3.0,1) {};
+    \node[vtx] (v2)  at (3.9,2) {};
+    \draw[-{Latex[length=2mm]},thick] (u2)--(v1);
+    \draw[-{Latex[length=2mm]},thick] (u2)--(v2);
+    \fill[exc] (0.72,1.32) rectangle ++(0.56,0.22);
+    \fill[exc] (0.72,1.60) rectangle ++(0.56,0.22);
+    \node[vtx,draw=red!70!black,dashed] (u3) at (1.0,2) {$u$};
+    \draw[-{Latex[length=2.5mm]},red!70!black,thick] (1.0,1.35) -- (1.0,1.72);
+    \node[align=center] at (1.9,-0.9)
+      {\textbf{lift}: nothing is downhill from $u$, so raise it\\
+       to one above its lowest residual neighbour};
+  \end{scope}
+\end{tikzpicture}
 \caption{Push moves excess one step downhill; lift raises a stuck vertex until
 a downhill step exists.}
 \label{fig:flow-push-lift}
@@ -809,15 +923,79 @@ $\sum_{e} \ell(e)$, and if they agree, add the lower bounds back.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{IMPORTANT --- worked example, three panels left to right.
-Panel 1: a small circulation network on four vertices $a,b,c,d$ with arcs
-labelled $[\ell, c]$, for instance $[1,9]$, $[2,5]$, $[2,3]$, $[0,6]$,
-$[3,10]$. Panel 2: the transformed network of
-\cref{lem:flow-circulation-to-maxflow}, with the new source and sink, each
-original arc replaced by three, and arcs of capacity zero omitted. Panel 3: a
-maximum flow in the transformed network, with all arcs out of $s'$ saturated,
-and beside it the admissible circulation obtained by adding the lower bounds
-back. Label flows and capacities distinguishably.}
+\begin{tikzpicture}[scale=0.82,
+    vtx/.style={circle,draw,fill=white,inner sep=1.2pt,minimum size=16pt,
+                font=\footnotesize},
+    arc/.style={-{Latex[length=1.8mm]}},
+    fan/.style={-{Latex[length=1.8mm]},black!55},
+    every node/.style={font=\scriptsize}]
+  %------------------------------------------------ panel 1: the bounds
+  \begin{scope}
+    \node[vtx] (a) at (1.8,1.6)  {$a$};
+    \node[vtx] (b) at (0,0)      {$b$};
+    \node[vtx] (c) at (1.8,-1.6) {$c$};
+    \node[vtx] (d) at (3.6,0)    {$d$};
+    \draw[arc] (a)--(b) node[midway,above left=-3pt] {$[1,4]$};
+    \draw[arc] (b)--(c) node[midway,below left=-3pt] {$[2,5]$};
+    \draw[arc] (c)--(d) node[midway,below right=-3pt] {$[1,3]$};
+    \draw[arc] (d)--(a) node[midway,above right=-3pt] {$[2,6]$};
+    \draw[arc] (b)--(d) node[midway,above] {$[0,2]$};
+    \node[font=\footnotesize,right=8pt,align=left] at (4.2,0)
+      {$H$, with bounds $[\ell,c]$ and no source or sink.\\
+       Is there a circulation obeying all five?};
+  \end{scope}
+  %------------------------------------------------ panel 2: the transform
+  \begin{scope}[yshift=-5.6cm]
+    \node[vtx] (a2) at (1.8,1.6)  {$a$};
+    \node[vtx] (b2) at (0,0)      {$b$};
+    \node[vtx] (c2) at (1.8,-1.6) {$c$};
+    \node[vtx] (d2) at (3.6,0)    {$d$};
+    \node[vtx] (s2) at (-2.8,0)   {$s'$};
+    \node[vtx] (t2) at (6.4,0)    {$t'$};
+    \draw[arc] (a2)--(b2) node[midway,above left=-3pt] {$3$};
+    \draw[arc] (b2)--(c2) node[midway,below left=-3pt] {$3$};
+    \draw[arc] (c2)--(d2) node[midway,below right=-3pt] {$2$};
+    \draw[arc] (d2)--(a2) node[midway,above right=-3pt] {$4$};
+    \draw[arc] (b2)--(d2) node[midway,above] {$2$};
+    \draw[fan] (s2)--(b2) node[midway,below] {$1$};
+    \draw[fan] (s2) to[bend left=30] node[midway,above left=-2pt]{$2$} (a2);
+    \draw[fan] (s2) to[bend right=30] node[midway,below left=-2pt]{$2$} (c2);
+    \draw[fan] (s2) to[bend left=52] node[midway,above]{$1$} (d2);
+    \draw[fan] (d2)--(t2) node[midway,below] {$2$};
+    \draw[fan] (a2) to[bend left=30] node[midway,above right=-2pt]{$1$} (t2);
+    \draw[fan] (c2) to[bend right=30] node[midway,below right=-2pt]{$1$} (t2);
+    \draw[fan] (b2) to[bend right=52] node[midway,below]{$2$} (t2);
+    \node[font=\footnotesize] at (1.8,-3.3)
+      {$H'$: each arc keeps $c-\ell$, and $\ell$ is injected at its head and
+       drained from its tail};
+  \end{scope}
+  %------------------------------------------------ panel 3: the flow
+  \begin{scope}[yshift=-11.6cm]
+    \node[vtx] (a3) at (1.8,1.6)  {$a$};
+    \node[vtx] (b3) at (0,0)      {$b$};
+    \node[vtx] (c3) at (1.8,-1.6) {$c$};
+    \node[vtx] (d3) at (3.6,0)    {$d$};
+    \node[vtx] (s3) at (-2.8,0)   {$s'$};
+    \node[vtx] (t3) at (6.4,0)    {$t'$};
+    \draw[arc] (a3)--(b3) node[midway,above left=-3pt] {$2/3$};
+    \draw[arc] (b3)--(c3) node[midway,below left=-3pt] {$0/3$};
+    \draw[arc] (c3)--(d3) node[midway,below right=-3pt] {$1/2$};
+    \draw[arc] (d3)--(a3) node[midway,above right=-3pt] {$1/4$};
+    \draw[arc] (b3)--(d3) node[midway,above] {$1/2$};
+    \draw[fan,red!75!black] (s3)--(b3) node[midway,below,black] {$1/1$};
+    \draw[fan,red!75!black] (s3) to[bend left=30] node[midway,above left=-2pt,black]{$2/2$} (a3);
+    \draw[fan,red!75!black] (s3) to[bend right=30] node[midway,below left=-2pt,black]{$2/2$} (c3);
+    \draw[fan,red!75!black] (s3) to[bend left=52] node[midway,above,black]{$1/1$} (d3);
+    \draw[fan] (d3)--(t3) node[midway,below] {$2/2$};
+    \draw[fan] (a3) to[bend left=30] node[midway,above right=-2pt]{$1/1$} (t3);
+    \draw[fan] (c3) to[bend right=30] node[midway,below right=-2pt]{$1/1$} (t3);
+    \draw[fan] (b3) to[bend right=52] node[midway,below]{$2/2$} (t3);
+    \node[font=\footnotesize,align=center] at (1.8,-3.5)
+      {a maximum flow of value $6 = \sum_e \ell(e)$: every arc out of $s'$ is
+       saturated,\\ so adding $\ell$ back gives the circulation
+       $f(ab)=3$, $f(bc)=2$, $f(cd)=2$, $f(da)=3$, $f(bd)=1$};
+  \end{scope}
+\end{tikzpicture}
 \caption{Finding an admissible circulation by one ordinary maximum-flow
 computation.}
 \label{fig:flow-lower-bound-example}
@@ -923,11 +1101,41 @@ vertex-capacitated problem in polynomial time.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{40mm}{Vertex splitting. Left: a vertex $v$ with capacity
-$c_V(v)$ and three entering and two leaving arcs. Right: the same, with $v$
-replaced by $v_{\text{in}} \to v_{\text{out}}$ carrying capacity $c_V(v)$, the
-three arcs now entering $v_{\text{in}}$ and the two leaving $v_{\text{out}}$.
-Label the split arc with its capacity.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,draw,fill=white,inner sep=1.5pt,minimum size=16pt,
+                font=\footnotesize},
+    sm/.style={circle,fill=black,inner sep=1.5pt},
+    arc/.style={-{Latex[length=2mm]},thick},
+    every node/.style={font=\footnotesize}]
+  % before
+  \node[vtx] (v) at (1.7,0) {$v$};
+  \node[above=1pt] at (v) {$c_V(v)$};
+  \foreach \i/\y in {1/1.0, 2/0, 3/-1.0}{
+    \node[sm] (i\i) at (0,\y) {};
+    \draw[arc] (i\i)--(v);
+  }
+  \foreach \i/\y in {1/0.6, 2/-0.6}{
+    \node[sm] (o\i) at (3.4,\y) {};
+    \draw[arc] (v)--(o\i);
+  }
+  \node at (1.7,-1.9) {a vertex capacity};
+  % after
+  \begin{scope}[xshift=6.4cm]
+    \node[vtx] (vi) at (1.4,0) {$v_{\mathrm{in}}$};
+    \node[vtx] (vo) at (3.4,0) {$v_{\mathrm{out}}$};
+    \draw[arc,red!75!black,line width=1pt] (vi)--(vo)
+          node[midway,above] {$c_V(v)$};
+    \foreach \i/\y in {1/1.0, 2/0, 3/-1.0}{
+      \node[sm] (j\i) at (-0.2,\y) {};
+      \draw[arc] (j\i)--(vi);
+    }
+    \foreach \i/\y in {1/0.6, 2/-0.6}{
+      \node[sm] (p\i) at (5.0,\y) {};
+      \draw[arc] (vo)--(p\i);
+    }
+    \node at (2.4,-1.9) {an arc capacity};
+  \end{scope}
+\end{tikzpicture}
 \caption{Splitting a vertex turns a vertex capacity into an arc capacity.}
 \label{fig:flow-vertex-split}
 \end{figure}
@@ -1143,12 +1351,35 @@ mentions flows.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{Two grids side by side, as in the exam question. Starting
-points as large filled disks, other grid vertices as small circles. Left: an
-instance together with a solution --- draw the escape paths as thick coloured
-routes so that their disjointness is visible. Right: an instance with no
-solution, ideally one where the obstruction is a small separating set of
-vertices, so that the picture also illustrates why the answer is no.}
+\begin{tikzpicture}[scale=0.62,
+    sm/.style={circle,draw=black!55,fill=white,inner sep=1.2pt},
+    st/.style={circle,fill=black,inner sep=2.4pt},
+    esc/.style={red!75!black,line width=1.6pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \s/\dx in {a/0, b/9.0}{
+    \begin{scope}[xshift=\dx cm]
+      \foreach \i in {1,...,5}{
+        \draw[black!35] (1,-\i) -- (5,-\i);
+        \draw[black!35] (\i,-1) -- (\i,-5);
+      }
+      \foreach \i in {1,...,5}{ \foreach \j in {1,...,5}{
+        \node[sm] (\s\i\j) at (\j,-\i) {};
+      }}
+    \end{scope}
+  }
+  % ---- left: solvable ----
+  \draw[esc] (a22)--(a21);
+  \draw[esc] (a24)--(a14);
+  \draw[esc] (a43)--(a53);
+  \foreach \c in {a22,a24,a43}{ \node[st] at (\c) {}; }
+  \node[align=center] at (3,-6.1) {three starting points,\\ three disjoint escapes};
+  % ---- right: unsolvable ----
+  \foreach \c in {b33,b23,b43,b32,b34}{ \node[st] at (\c) {}; }
+  \draw[red!75!black,thick] (b33) circle (7pt);
+  \node[align=center] at (12,-6.1)
+    {the centre is enclosed by the other four:\\
+     any escape from it must reuse one of them};
+\end{tikzpicture}
 \caption{Grid escape. The left instance is solvable; the right one is not.}
 \label{fig:flow-grid-escape}
 \end{figure}

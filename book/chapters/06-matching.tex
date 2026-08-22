@@ -1,5 +1,5 @@
 %% Chapter 6: Matching
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted.
 %%
 %% Written against slides 92-141 of "material/slides/Flows and Matching 2026.pptx".
 %% The pool exercise Partition into Cycles is worked in the last section.
@@ -77,13 +77,49 @@ entire chapter.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{IMPORTANT --- four small panels on the same graph,
-following the slides, each with the chosen edges thickened. Panel 1: a matching
-that is neither maximal nor maximum nor perfect. Panel 2: a matching that is
-maximal but not maximum (the classic path on four vertices with the middle edge
-chosen). Panel 3: maximal and maximum but not perfect. Panel 4: perfect.
-Caption each panel with the three yes/no answers so the distinctions can be
-read off.}
+\begin{tikzpicture}[scale=0.8,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    fr/.style={circle,draw=red!75!black,thick,minimum size=10pt,inner sep=0pt},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!55},
+    every node/.style={font=\scriptsize}]
+  \foreach \s/\dx in {a/0, b/4.2, c/8.4, d/12.6}{
+    \begin{scope}[xshift=\dx cm]
+      \node[vtx] (\s1) at (0,1.1) {};
+      \node[vtx] (\s2) at (1.5,1.1) {};
+      \node[vtx] (\s3) at (0,0) {};
+      \node[vtx] (\s4) at (1.5,0) {};
+      \node[vtx] (\s5) at (0.75,-1.1) {};
+      \node[vtx] (\s6) at (2.6,-0.55) {};
+      \draw[nn] (\s1)--(\s2) (\s1)--(\s3) (\s2)--(\s4) (\s3)--(\s4)
+                (\s3)--(\s5) (\s4)--(\s5) (\s4)--(\s6);
+    \end{scope}
+  }
+  % 1: not maximal
+  \draw[mm] (a1)--(a2);
+  \foreach \v in {a3,a4,a5,a6}{ \node[fr] at (\v) {}; }
+  \node[align=center] at (1.1,-2.3) {not maximal:\\ the edge below is free};
+  % 2: maximal but not maximum
+  \draw[mm] (b1)--(b3);
+  \draw[mm] (b4)--(b5);
+  \foreach \v in {b2,b6}{ \node[fr] at (\v) {}; }
+  \node[align=center] at (5.3,-2.3) {maximal but not maximum:\\ nothing can be added,
+    yet three fit};
+  % 3: maximum and perfect
+  \draw[mm] (c1)--(c2);
+  \draw[mm] (c3)--(c5);
+  \draw[mm] (c4)--(c6);
+  \node[align=center] at (9.5,-2.3) {maximum, and here also\\ perfect: nobody is free};
+  % 4: the same graph with one more vertex
+  \node[vtx] (d7) at (3.6,-1.35) {};
+  \draw[nn] (d6)--(d7);
+  \draw[mm] (d1)--(d2);
+  \draw[mm] (d3)--(d5);
+  \draw[mm] (d4)--(d6);
+  \node[fr] at (d7) {};
+  \node[align=center] at (13.9,-2.3) {maximum but not perfect:\\ seven vertices, so
+    one is left};
+\end{tikzpicture}
 \caption{Maximal, maximum, perfect. The second panel is the one worth staring
 at: nothing can be \emph{added} to that matching, and yet it is half the size
 of the best one.}
@@ -206,11 +242,36 @@ vertex of $W$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{45mm}{One flow-augmentation step on a bipartite graph, drawn as
-the slides do: the two sides as columns, matched edges thick, the augmenting
-path highlighted from a free vertex on the left to a free vertex on the right,
-alternating between unmatched and matched edges. Label the two free endpoints
-and mark the matched vertices in between.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    fr/.style={circle,draw=red!75!black,thick,minimum size=10pt,inner sep=0pt},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!45},
+    aug/.style={red!75!black,line width=1.4pt},
+    every node/.style={font=\footnotesize}]
+  \foreach \i in {1,...,4}{
+    \node[vtx] (l\i) at (0,-\i) {};
+    \node[vtx] (r\i) at (2.6,-\i) {};
+  }
+  \draw[nn] (l1)--(r2) (l2)--(r1) (l2)--(r2) (l3)--(r2) (l3)--(r3)
+            (l4)--(r3) (l4)--(r4);
+  \draw[mm] (l2)--(r1);
+  \draw[mm] (l3)--(r2);
+  \draw[mm] (l4)--(r3);
+  \node[fr] at (l1) {};
+  \node[fr] at (r4) {};
+  \node[red!75!black,left=6pt] at (l1) {free};
+  \node[red!75!black,right=6pt] at (r4) {free};
+  \draw[aug] (l1)--(r2);
+  \draw[aug] (r2)--(l3);
+  \draw[aug] (l3)--(r3);
+  \draw[aug] (r3)--(l4);
+  \draw[aug] (l4)--(r4);
+  \node[align=left,right=10pt] at (3.4,-2.5)
+    {the path alternates unmatched, matched,\\
+     unmatched, \ldots, and both ends are free;\\
+     swapping along it gains one edge};
+\end{tikzpicture}
 \caption{In a bipartite graph, a flow-augmenting path is an $M$-augmenting
 path.}
 \label{fig:matching-bipartite-augment}
@@ -245,12 +306,34 @@ the stem is empty --- is left unmatched within the cycle.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{IMPORTANT. An $M$-flower: a free vertex on the left, a
-stem of alternating edges running right, and an odd cycle at the end. Draw
-matching edges thick and non-matching edges thin, mark the free vertex, label
-the stem and the blossom, and mark the single vertex of the blossom that is not
-matched inside it. Keep the alternation visibly correct --- the stem must arrive
-at the blossom along a matching edge.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    fr/.style={circle,draw=red!75!black,thick,minimum size=10pt,inner sep=0pt},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!55},
+    every node/.style={font=\footnotesize}]
+  \node[vtx,label=below:$f$] (f) at (0,0) {};
+  \node[fr] at (f) {};
+  \node[vtx] (x) at (1.3,0) {};
+  \node[vtx,label=below right:$b$] (b) at (2.6,0) {};
+  \draw[nn] (f)--(x);
+  \draw[mm] (x)--(b);
+  \foreach \i in {1,...,4}{
+    \node[vtx] (c\i) at ({180-72*\i}:1.25) [xshift=3.85cm] {};
+  }
+  \draw[nn] (b)--(c1);
+  \draw[mm] (c1)--(c2);
+  \draw[nn] (c2)--(c3);
+  \draw[mm] (c3)--(c4);
+  \draw[nn] (c4)--(b);
+  \node[below] at (1.3,-0.25) {stem};
+  \node at (3.85,-1.85) {blossom};
+  \node[align=left,right=8pt] at (5.3,0.9)
+    {thick edges are in $M$; the stem\\
+     arrives at $b$ along a matching edge,\\
+     so $b$ is the one vertex of the cycle\\
+     left unmatched inside it};
+\end{tikzpicture}
 \caption{An $M$-flower. The blossom is the odd cycle; the stem is what leads to
 it.}
 \label{fig:matching-flower}
@@ -312,11 +395,51 @@ $M$-flower.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{Two panels. Left: the good case --- the walk is simple and
-is an augmenting path. Right: the walk revisits a vertex and closes an odd
-cycle, drawn as a flower. Underneath, a third small panel showing the even-cycle
-case being cut out of the walk, with the shortcut drawn as a dashed line, to
-illustrate why a shortest walk never produces one.}
+\begin{tikzpicture}[scale=0.85,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    fr/.style={circle,draw=red!75!black,thick,minimum size=10pt,inner sep=0pt},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!55},
+    every node/.style={font=\scriptsize}]
+  % left: simple, so an augmenting path
+  \begin{scope}
+    \foreach \i in {0,...,5}{ \node[vtx] (p\i) at (0.95*\i,0) {}; }
+    \node[fr] at (p0) {}; \node[fr] at (p5) {};
+    \draw[nn] (p0)--(p1); \draw[mm] (p1)--(p2); \draw[nn] (p2)--(p3);
+    \draw[mm] (p3)--(p4); \draw[nn] (p4)--(p5);
+    \node at (2.4,-1.0) {simple: an augmenting path};
+  \end{scope}
+  % right: revisits a vertex, closing an odd cycle
+  \begin{scope}[xshift=7.4cm]
+    \node[vtx] (q0) at (0,0) {}; \node[fr] at (q0) {};
+    \node[vtx] (q1) at (0.95,0) {};
+    \node[vtx] (q2) at (1.9,0) {};
+    \draw[nn] (q0)--(q1); \draw[mm] (q1)--(q2);
+    \foreach \i in {1,...,4}{ \node[vtx] (r\i) at ({180-72*\i}:1.05) [xshift=2.95cm] {}; }
+    \draw[nn] (q2)--(r1); \draw[mm] (r1)--(r2); \draw[nn] (r2)--(r3);
+    \draw[mm] (r3)--(r4); \draw[nn] (r4)--(q2);
+    \node at (2.3,-1.6) {a revisit closing an odd cycle: a flower};
+  \end{scope}
+  % below: the even cycle can be cut out
+  \begin{scope}[yshift=-3.4cm,xshift=2.6cm]
+    \node[vtx] (s0) at (0,0) {}; \node[fr] at (s0) {};
+    \node[vtx] (s1) at (0.95,0) {};
+    \node[vtx] (s2) at (1.9,0) {};
+    \node[vtx] (s3) at (2.85,0.75) {};
+    \node[vtx] (s4) at (3.8,0) {};
+    \node[vtx] (s5) at (2.85,-0.75) {};
+    \node[vtx] (s6) at (4.75,0) {};
+    \node[vtx] (s7) at (5.7,0) {}; \node[fr] at (s7) {};
+    \draw[nn] (s0)--(s1); \draw[mm] (s1)--(s2);
+    \draw[nn] (s2)--(s3); \draw[mm] (s3)--(s4);
+    \draw[nn] (s4)--(s5); \draw[mm] (s5)--(s2);
+    \draw[nn] (s4)--(s6); \draw[mm] (s6)--(s7);
+    \draw[red!75!black,dashed,thick] (s2) to[bend left=45] (s4);
+    \node[align=center] at (2.85,-1.7)
+      {an \emph{even} cycle could be cut out (dashed shortcut),\\
+       so a shortest walk never has one};
+  \end{scope}
+\end{tikzpicture}
 \caption{A shortest alternating walk between free vertices is either an
 augmenting path or a flower.}
 \label{fig:matching-path-or-flower}
@@ -375,14 +498,95 @@ $G/B$.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{IMPORTANT --- this is the picture the argument cannot do
-without. Three panels, each showing an $M/B$-augmenting path in $G/B$ on the
-left and its lift to an $M$-augmenting path in $G$ on the right. Case 1a: the
-path passes through the blossom and leaves along the stem. Case 1b: the same,
-entering at a different vertex of the cycle, so that the other way round is
-taken. Case 2: the path ends at the contracted vertex. In each lift, draw the
-chosen way round the odd cycle thickly and the discarded way faintly, so it is
-visible that exactly one of the two alternates correctly.}
+\begin{tikzpicture}[scale=0.8,
+    vtx/.style={circle,fill=black,inner sep=1.4pt},
+    fr/.style={circle,draw=red!75!black,thick,minimum size=10pt,inner sep=0pt},
+    bl/.style={circle,draw=black!60,fill=black!10,minimum size=17pt,inner sep=0pt,
+               font=\scriptsize},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!55},
+    on/.style={red!75!black,line width=1.3pt},
+    off/.style={black!22},
+    every node/.style={font=\scriptsize}]
+  %================================================= row 1: through, long way
+  \begin{scope}
+    % G/B
+    \node[vtx] (u) at (0,0) {}; \node[fr] at (u) {};
+    \node[bl] (be) at (1.4,0) {$\beta$};
+    \node[vtx] (s) at (2.9,0) {};
+    \node[vtx] (f) at (4.3,0) {}; \node[fr] at (f) {};
+    \draw[on] (u)--(be); \draw[mm] (be)--(s); \draw[on] (s)--(f);
+    \node at (2.1,-0.9) {in $G/B$};
+    % G
+    \begin{scope}[xshift=7.4cm]
+      \node[vtx] (f2) at (0,0) {}; \node[fr] at (f2) {};
+      \node[vtx] (s2) at (1.3,0) {};
+      \foreach \i/\a in {0/180, 1/108, 2/36, 3/-36, 4/-108}{
+        \node[vtx] (c\i) at ({\a}:1.15) [xshift=3.75cm] {};
+      }
+      \node[vtx] (u2) at (2.9,1.9) {}; \node[fr] at (u2) {};
+      \draw[nn] (f2)--(s2); \draw[mm] (s2)--(c0);
+      \draw[mm] (c1)--(c2); \draw[mm] (c3)--(c4);
+      \draw[nn] (c0)--(c1) (c2)--(c3) (c4)--(c0);
+      \draw[on] (f2)--(s2); \draw[on,mm] (s2)--(c0);
+      \draw[on] (u2)--(c1);
+      \draw[on,mm] (c1)--(c2); \draw[on] (c2)--(c3);
+      \draw[on,mm] (c3)--(c4); \draw[on] (c4)--(c0);
+      \draw[off,line width=2pt] (c0)--(c1);
+      \node at (3.7,-1.9) {in $G$: the long way round};
+    \end{scope}
+  \end{scope}
+  %================================================= row 2: through, short way
+  \begin{scope}[yshift=-5.0cm]
+    \node[vtx] (v) at (0,0) {}; \node[fr] at (v) {};
+    \node[bl] (be2) at (1.4,0) {$\beta$};
+    \node[vtx] (t) at (2.9,0) {};
+    \node[vtx] (g) at (4.3,0) {}; \node[fr] at (g) {};
+    \draw[on] (v)--(be2); \draw[mm] (be2)--(t); \draw[on] (t)--(g);
+    \node at (2.1,-0.9) {the same picture in $G/B$};
+    \begin{scope}[xshift=7.4cm]
+      \node[vtx] (g2) at (0,0) {}; \node[fr] at (g2) {};
+      \node[vtx] (t2) at (1.3,0) {};
+      \foreach \i/\a in {0/180, 1/108, 2/36, 3/-36, 4/-108}{
+        \node[vtx] (d\i) at ({\a}:1.15) [xshift=3.75cm] {};
+      }
+      \node[vtx] (v2) at (5.3,1.4) {}; \node[fr] at (v2) {};
+      \draw[nn] (g2)--(t2); \draw[mm] (t2)--(d0);
+      \draw[mm] (d1)--(d2); \draw[mm] (d3)--(d4);
+      \draw[nn] (d0)--(d1) (d2)--(d3) (d4)--(d0);
+      \draw[on] (g2)--(t2); \draw[on,mm] (t2)--(d0);
+      \draw[on] (v2)--(d2);
+      \draw[on,mm] (d2)--(d1); \draw[on] (d1)--(d0);
+      \draw[off,line width=2pt] (d2)--(d3);
+      \node at (3.7,-1.9) {entering elsewhere: the short way round};
+    \end{scope}
+  \end{scope}
+  %================================================= row 3: ends at the blossom
+  \begin{scope}[yshift=-10.0cm]
+    \node[vtx] (w) at (0,0) {}; \node[fr] at (w) {};
+    \node[bl] (be3) at (1.4,0) {$\beta$};
+    \node[fr,minimum size=21pt] at (be3) {};
+    \draw[on] (w)--(be3);
+    \node at (0.7,-0.9) {in $G/B$: $\beta$ is free};
+    \begin{scope}[xshift=7.4cm]
+      \foreach \i/\a in {0/180, 1/108, 2/36, 3/-36, 4/-108}{
+        \node[vtx] (e\i) at ({\a}:1.15) [xshift=3.75cm] {};
+      }
+      \node[fr] at (e0) {};
+      \node[vtx] (w2) at (2.9,1.9) {}; \node[fr] at (w2) {};
+      \draw[mm] (e1)--(e2); \draw[mm] (e3)--(e4);
+      \draw[nn] (e0)--(e1) (e2)--(e3) (e4)--(e0);
+      \draw[on] (w2)--(e1);
+      \draw[on,mm] (e1)--(e2); \draw[on] (e2)--(e3);
+      \draw[on,mm] (e3)--(e4); \draw[on] (e4)--(e0);
+      \draw[off,line width=2pt] (e0)--(e1);
+      \node at (3.7,-1.9) {in $G$: the path ends at the free vertex of $B$};
+    \end{scope}
+  \end{scope}
+  \node[align=center] at (6.0,-12.6)
+    {thick edges are in $M$; the red route is the augmenting path;\\
+     the pale edge is the way round that fails to alternate};
+\end{tikzpicture}
 \caption{Lifting an augmenting path back through a contracted blossom.}
 \label{fig:matching-blossom-lift}
 \end{figure}
@@ -595,12 +799,51 @@ $\bigoh{nd^2}$ each by \cref{thm:matching-schrijver}.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{50mm}{Two panels. Left: a small teacher/group table, three
-teachers across the top and three groups down the side, with crosses marking who
-teaches whom --- as on the slides. Right: the same data as a bipartite graph
-with the edges coloured, one colour per hour, showing that no vertex has two
-edges of the same colour. Use three or four clearly distinguishable colours and
-add a small legend mapping colour to hour.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    h1/.style={red!75!black,line width=1.3pt},
+    h2/.style={blue!60!black,line width=1.3pt},
+    h3/.style={green!45!black,line width=1.3pt},
+    every node/.style={font=\footnotesize}]
+  % the table
+  \begin{scope}[yshift=-0.1cm]
+    \draw[black!40] (0,0) grid (3,3);
+    \foreach \i/\n in {1/$T_1$, 2/$T_2$, 3/$T_3$}{
+      \node[above] at (\i-0.5,3) {\n};
+    }
+    \foreach \j/\n in {1/$G_1$, 2/$G_2$, 3/$G_3$}{
+      \node[left] at (0,3.5-\j) {\n};
+    }
+    \foreach \c in {{1,3},{2,3},{3,3},{1,2},{2,2},{3,2},{1,1},{2,1}}{
+      \node at ($(\c)-(0.5,0.5)$) {$\times$};
+    }
+    \node at (1.5,-0.8) {who teaches whom};
+  \end{scope}
+  % the coloured bipartite graph
+  \begin{scope}[xshift=6.4cm]
+    \foreach \i/\n in {1/$T_1$, 2/$T_2$, 3/$T_3$}{
+      \node[vtx,label=left:\n] (t\i) at (0,3-\i) {};
+    }
+    \foreach \j/\n in {1/$G_1$, 2/$G_2$, 3/$G_3$}{
+      \node[vtx,label=right:\n] (g\j) at (2.6,3-\j) {};
+    }
+    \draw[h3] (t1)--(g1);
+    \draw[h1] (t1)--(g2);
+    \draw[h2] (t1)--(g3);
+    \draw[h2] (t2)--(g1);
+    \draw[h3] (t2)--(g2);
+    \draw[h1] (t2)--(g3);
+    \draw[h1] (t3)--(g1);
+    \draw[h2] (t3)--(g2);
+    \node at (1.3,-0.8) {one colour per hour};
+  \end{scope}
+  \node[align=left,right=8pt] at (9.6,1.5)
+    {\textcolor{red!75!black}{\rule{9pt}{2pt}}\ hour $1$\\[2pt]
+     \textcolor{blue!60!black}{\rule{9pt}{2pt}}\ hour $2$\\[2pt]
+     \textcolor{green!45!black}{\rule{9pt}{2pt}}\ hour $3$\\[4pt]
+     no vertex sees a colour twice,\\
+     so nobody is in two rooms at once};
+\end{tikzpicture}
 \caption{A timetable is an edge colouring; the number of hours is the number of
 colours.}
 \label{fig:matching-edge-colouring}
@@ -683,12 +926,44 @@ is doing real work.
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{55mm}{The $2$-factor gadget. Left: a vertex $v$ of degree $4$ in
-$G$ with its four incident edges. Right: its gadget in $H$ --- four external
-vertices in a row, two internal vertices below them, all eight
-internal--external pairs joined, and the four external vertices continuing out
-to the gadgets of the neighbours. Highlight one perfect matching of the gadget
-and mark which two of the four edges of $G$ it selects.}
+\begin{tikzpicture}[scale=0.9,
+    vtx/.style={circle,fill=black,inner sep=1.6pt},
+    ex/.style={circle,draw,fill=white,inner sep=1.2pt,minimum size=9pt},
+    inn/.style={circle,fill=black!55,inner sep=1.8pt},
+    mm/.style={line width=1.6pt},
+    nn/.style={black!45},
+    sel/.style={red!75!black,line width=1.4pt},
+    every node/.style={font=\scriptsize}]
+  % v in G
+  \begin{scope}
+    \node[vtx,label=below:$v$] (v) at (0,0) {};
+    \foreach \a in {50,130,220,310}{
+      \draw[nn] (v) -- ({\a}:1.35);
+      \node[vtx] at ({\a}:1.35) {};
+    }
+    \node at (0,-2.2) {$v$ has degree $4$ in $G$};
+  \end{scope}
+  % the gadget in H
+  \begin{scope}[xshift=5.6cm]
+    \foreach \i in {1,...,4}{
+      \node[ex] (e\i) at (0.95*\i-2.4,0.7) {};
+      \draw[nn] (e\i) -- ++(0,1.0);
+    }
+    \node[above] at (0,1.8) {out to the neighbours' gadgets};
+    \node[red!75!black,right=2pt] at (1.45,1.4) {the two selected};
+    \node[inn] (i1) at (-0.95,-0.8) {};
+    \node[inn] (i2) at (0.95,-0.8) {};
+    \foreach \i in {1,...,4}{ \draw[nn] (i1)--(e\i); \draw[nn] (i2)--(e\i); }
+    \draw[mm] (i1)--(e1);
+    \draw[mm] (i2)--(e4);
+    \draw[sel] (e2) -- ++(0,1.0);
+    \draw[sel] (e3) -- ++(0,1.0);
+    \node[align=center] at (0,-2.2)
+      {two internal vertices soak up two of the four;\\
+       the other two are matched across, and those\\
+       are the two edges of $G$ selected at $v$};
+  \end{scope}
+\end{tikzpicture}
 \caption{Forcing degree exactly two: the two external vertices left over after
 the internal ones are matched are the two selected edges.}
 \label{fig:matching-two-factor}

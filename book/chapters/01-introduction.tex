@@ -63,13 +63,12 @@ So there are two motivations, and they point the same way. The practical one is
 that the techniques in Parts~III--V are what people use when the problem is
 hard and the answer is due on Friday: branch and reduce, dynamic programming
 over subsets, approximation with a guarantee, exploiting the small parameter
-that the application happens to supply. One of the two lecturers on this course
-spends most of his week doing exactly that outside the university, which is
-worth knowing when a running time of $\bigoh{1.38^n}$ looks like a curiosity: on
-$n = 60$ it is the difference between an answer and no answer.\todo{Johan: say
-if you would rather this sentence went. It is here because the industrial half
-of your week is the best argument the chapter has, and it is already on
-slide~2 of your own deck.}
+that the application happens to supply. It is worth doing the arithmetic once,
+because a running time of $\bigoh{1.38^n}$ can look like a curiosity rather
+than an algorithm. At $n = 60$ it is about $2 \times 10^{8}$ operations, which
+is a second or so; the trivial $2^n$ is about $10^{18}$, which is not a wait
+but a refusal. The whole of \cref{ch:exact-i} is spent moving a base from $2$
+to $1.38$, and that is why.
 
 The intellectual motivation is the one that makes the subject a subject.
 Hardness is a mathematical property of a problem, and it can be measured with
@@ -245,13 +244,14 @@ simpler than their deterministic counterparts.
 %==============================================================================
 
 A course is a selection, and it is fair to ask who made it and why these topics
-rather than others. The answer here is unusually direct: the selection is the
-research of the group that teaches it, and a reader who follows the citations
-will keep meeting the same department.
+rather than others. The answer here is unusually direct. Both authors of this
+book are at Utrecht University, in the group that teaches the course, and the
+selection is that group's research: a reader who follows the citations will
+keep meeting the same department.
 
 The treewidth chapter is the clearest case. That a graph of treewidth $k$ admits
 a tree decomposition computable in linear time for fixed $k$ is
-\citet{Bodlaender1996}, proved in this department; the fact that a planar graph
+\citet{Bodlaender1996}, proved at Utrecht; the fact that a planar graph
 on $n$ vertices has treewidth $\bigoh{\sqrt n}$, which
 \cref{ch:approx-ii} uses to build a polynomial-time approximation scheme,
 appeared first in a 1988 Utrecht technical report \citep{Bodlaender1988}; the
@@ -261,8 +261,8 @@ is one of the authors of this book; and the result that
 \cref{sec:tw-further-reading} mentions as the reason \lang{Hamiltonian Cycle}
 is not as expensive over a tree decomposition as it looks ---
 that the matchings connectivity matrix has rank $2^{k/2-1}$ over
-$\mathrm{GF}(2)$ --- is \citet{CyganKratschNederlof2018}, whose last author
-designed much of this course. The kernelisation lower bounds that
+$\mathrm{GF}(2)$ --- is \citet{CyganKratschNederlof2018}, whose last author is
+at Utrecht and built much of this course. The kernelisation lower bounds that
 \cref{ch:lower-bounds} states without proof are
 \citet{BodlaenderDowneyFellowsHermelin2009}.
 
@@ -283,13 +283,6 @@ problems whose $\ER$-completeness is not known; \cref{ch:lower-bounds} lists
 running times that nobody can match with a lower bound; and the notes at the
 end of most chapters say where the current record stands, which is another way
 of saying where it might move.
-
-\todo{Two things to check in this section. First, the affiliations are stated
-loosely on purpose (``this department'', ``designed much of this course'')
-rather than as claims about who currently works where --- say if you would
-rather they were sharper or vaguer. Second, add anything I have missed: this is
-written from the citations that happen to appear in the book, so a result of
-the group that the book does not cite is invisible to it.}
 
 %==============================================================================
 \section{How to read this book}

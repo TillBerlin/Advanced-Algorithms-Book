@@ -1,15 +1,37 @@
 %% Chapter 1: Introduction
-%% Status: skeleton.  Only the learning goals are fixed; they come from the
-%% exam pool.  The sectioning is deliberately not invented in advance --
-%% it will follow the source material once that has been read.
+%% Status: drafted.
+%%
+%% SOURCE.  There is no deck for this chapter: the introduction was given at
+%% the blackboard as the opening half-hour of the first lecture, together with
+%% "Combinatorics via algorithms" (which is chapter 2).  Two things here do come
+%% from the source material and are marked as such in the text: the
+%% quality-against-time picture of figure 1.1 is slides 2-3 of
+%% "Exponential Time Algorithms 2026.pptx", and the division of the course into
+%% its tracks follows material/schedule.md.  Everything else is framing.
+%%
+%% DIVISION OF LABOUR with appendix B.  The appendix carries the background --
+%% notation, graph vocabulary, the O* convention, the machine model, and the
+%% definitions of P, NP and polynomial-time reduction -- and a self-check that
+%% tells a reader which of it they need.  This chapter recalls only as much as
+%% it needs to make its own argument and points there for the rest.
 
 \chapter{Introduction}
 \label{ch:introduction}
 
-This chapter sets the stage. We fix notation, recall the complexity-theoretic
-background the rest of the book assumes, and lay out the four strategies for
-dealing with computationally hard problems that structure Parts~III--V. Nothing
-here is deep; the point is to agree on a common language.
+A first course in algorithms is mostly good news. It shows that sorting,
+shortest paths, spanning trees, string matching and a dozen other problems have
+fast algorithms, and it teaches the handful of design principles --- greedy,
+divide and conquer, dynamic programming --- that produce them. It usually ends
+with the bad news, in the last two weeks: most problems are not like that, and
+for the great majority of the problems anyone actually wants to solve, no fast
+algorithm is known and none is expected.
+
+This book starts where that ends. Its subject is what a person who needs an
+answer does next, and the perhaps surprising fact that there is a great deal to
+say. \textrm{NP}-hardness is not the end of a conversation; it is the beginning
+of a more interesting one, in which the question stops being ``can this be
+solved efficiently'' and becomes ``efficiently in which respect, and at what
+price''.
 
 \begin{goals}
   \goalitem{state what is assumed as background and what is not}
@@ -19,12 +41,306 @@ here is deep; the point is to agree on a common language.
   \goalitem{name the four standard responses to NP-hardness and say when each is appropriate}
 \end{goals}
 
-\todo{This chapter is not written yet. Note the division of labour with
-\cref{app:preliminaries}, which is written: the appendix carries the
-\emph{background} --- notation, graph vocabulary, the $\Ostar$ convention, the
-machine model, and the definitions of \textrm{P}, \textrm{NP} and
-polynomial-time reduction --- together with a self-check that tells a reader
-which of those they need to read. This chapter should point there for all of
-it and spend its own pages on the part the appendix deliberately does not
-carry: what makes a problem hard, the four responses to hardness that organise
-Parts~III--V, and how the parts of the book fit together.}
+%==============================================================================
+\section{Why a second course}
+\label{sec:intro-why}
+%==============================================================================
+
+The honest motivation for this material is not that the algorithms in it are
+beautiful, although several are. It is that the situation it addresses is the
+normal one.
+
+Scheduling, routing, packing, layout, assignment under side constraints,
+clustering, and almost every optimisation problem that arises from a real
+process is \textrm{NP}-hard, usually for a reason that has nothing to do with
+the application and everything to do with a small combinatorial core hiding
+inside it. A first algorithms course leaves you able to recognise this and
+otherwise empty-handed. That is an uncomfortable place to stand, because the
+instance on your desk does not stop existing when you prove that its problem is
+hard. Somebody still has to route the vehicles.
+
+So there are two motivations, and they point the same way. The practical one is
+that the techniques in Parts~III--V are what people use when the problem is
+hard and the answer is due on Friday: branch and reduce, dynamic programming
+over subsets, approximation with a guarantee, exploiting the small parameter
+that the application happens to supply. One of the two lecturers on this course
+spends most of his week doing exactly that outside the university, which is
+worth knowing when a running time of $\bigoh{1.38^n}$ looks like a curiosity: on
+$n = 60$ it is the difference between an answer and no answer.\todo{Johan: say
+if you would rather this sentence went. It is here because the industrial half
+of your week is the best argument the chapter has, and it is already on
+slide~2 of your own deck.}
+
+The intellectual motivation is the one that makes the subject a subject.
+Hardness is a mathematical property of a problem, and it can be measured with
+the same precision as anything else. We will prove that certain problems need
+exponential time under a stated hypothesis; that others admit a $2$-approximation
+but no better unless $\mathrm{P} = \mathrm{NP}$; that a problem which is hard in
+general becomes easy the moment one number in the input is small; and, in
+Part~II, that a family of geometric problems is not merely hard but hard in a
+way that the classical theory cannot express at all. Each of these is a
+theorem, not a rule of thumb, and the fact that such theorems exist is the
+reason this is a course rather than a collection of tricks.
+
+%==============================================================================
+\section{What hardness is a statement about}
+\label{sec:intro-hardness}
+%==============================================================================
+
+Everything in this book is organised by a single observation, so it is worth
+making it slowly. Take the usual sentence and read it one word at a time:
+assuming $\mathrm{P} \ne \mathrm{NP}$, an \textrm{NP}-hard problem has no
+\emph{algorithm} that is \emph{correct on every instance}, returns an
+\emph{exactly optimal} answer, and runs in \emph{polynomial time}. Formal
+definitions of the terms are in \cref{sec:prelim-np}; what matters here is that
+the sentence contains three separate promises, and hardness only says that they
+cannot all be kept at once.
+
+Give up any one of them and the theorem stops applying. That is not a loophole;
+it is the design space, and the parts of this book are its coordinates.
+
+\paragraph{Give up polynomial time.} Keep exact answers on all instances and pay
+in running time --- but pay as little as possible. The trivial algorithm for
+most of these problems is $\Ostar(2^n)$, and the subject of
+\cref{ch:exact-i,ch:exact-ii} is that one can often do better: $\bigoh{1.3803^n}$
+for maximum independent set, $\Ostar(2^n)$ for graph colouring, and a variant
+of the latter that gives up almost no time in exchange for polynomial space. The base of the exponent is the whole game, and
+\cref{ch:lower-bounds} shows that the game has a floor: under the exponential
+time hypothesis, some of these bases cannot be improved to $1$, and under its
+strong form some cannot be improved at all.
+
+\paragraph{Give up exactness.} Keep polynomial time and return a solution
+guaranteed to be within a stated factor of optimal.
+\Cref{ch:approx-i,ch:approx-ii} build such algorithms and, just as importantly,
+classify how good a guarantee is achievable: some problems admit any factor you
+like, some admit one specific factor and no better, and some admit no constant
+factor at all. \Cref{ch:hardness} proves the negative half.
+
+\paragraph{Give up generality.} Keep exactness and polynomial dependence on the
+input size, and let the cost blow up only in some other quantity --- a
+parameter $k$ that is small in the instances you care about, or a structural
+measure such as treewidth or planarity. This is Part~V. Its central definition
+is that a running time of $f(k)\cdot\poly(n)$ is a completely different animal
+from $n^{f(k)}$, and its central negative result is that the difference is
+believed to be real.
+
+Randomness is deliberately not on this list. It is a fourth technique and it
+runs through \cref{ch:randomized}, but it is not a fourth way out: nobody
+expects a randomized polynomial-time algorithm for an \textrm{NP}-hard problem.
+What randomness buys is a cheaper version of the other three --- a
+$\Ostar((2e)^k)$ algorithm where the deterministic one costs $\Ostar(k^k)$ ---
+and that is how the chapter uses it.
+
+There is a fifth response, and this course does not cover it: give up the
+guarantee entirely and use a heuristic that usually works. Local search, genetic
+algorithms and their relatives are important and are somebody else's course.
+The distinction is drawn in \cref{fig:intro-landscape}, which is the picture the
+lectures open with.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[scale=0.95,
+    cell/.style={draw=black!45,rounded corners=3pt,align=center,
+                 text width=3.5cm,inner sep=5pt,font=\footnotesize},
+    ours/.style={cell,fill=black!8},
+    theirs/.style={cell,fill=white,text=black!55},
+    hd/.style={font=\footnotesize\itshape},
+    every node/.style={font=\footnotesize}]
+  \node[hd] at (0.0,2.35) {optimal};
+  \node[hd] at (4.1,2.35) {guaranteed quality};
+  \node[hd] at (8.2,2.35) {no guarantee};
+  \node[hd,rotate=90] at (-2.65,1.15) {polynomial};
+  \node[hd,rotate=90] at (-2.65,-1.6) {superpolynomial};
+  \node[ours]  at (0.0,1.15) {a first algorithms course\\ \textsc{Part I}};
+  \node[ours]  at (4.1,1.15) {approximation algorithms\\ \textsc{Part IV}};
+  \node[theirs] at (8.2,1.15) {construction heuristics};
+  \node[ours]  at (0.0,-1.6) {exact exponential and\\ parameterized algorithms\\
+                              \textsc{Parts III, V}};
+  \node[theirs] at (4.1,-1.6) {hybrid methods};
+  \node[theirs] at (8.2,-1.6) {metaheuristics:\\ local search,\\ genetic algorithms};
+  \draw[-{Latex[length=2mm]}] (-2.15,2.0) -- (-2.15,-2.6);
+  \node[hd] at (-2.15,-2.95) {more time};
+  \draw[-{Latex[length=2mm]}] (-1.9,2.95) -- (9.9,2.95);
+  \node[hd,above] at (8.2,2.98) {less quality};
+\end{tikzpicture}
+\caption{What can be given up, and what the course covers. Shaded cells are in
+this book; the others are real and useful and are not. The lower-left cell is
+the one that the last thirty years of research have split in two: an exact
+algorithm may be exponential in the input size, or exponential only in a
+parameter, and \cref{ch:fpt-i} is about how much difference that makes. How far
+each shaded cell can be pushed is itself a theory, and it is in
+\cref{ch:lower-bounds,ch:hardness}.}
+\label{fig:intro-landscape}
+\end{figure}
+
+Part~II sits outside this picture entirely, and it is the part of the course
+that surprises people. It asks a prior question: what \emph{is} an algorithm,
+when the input is a set of real numbers? A computer that stores real numbers
+exactly and compares them in one step is not a Turing machine, and the problems
+that are complete for it --- deciding whether a system of polynomial
+inequalities has a real solution, and a growing list of natural geometric
+problems that turn out to be equivalent to it --- are not known to be in
+\textrm{NP} at all. The classical theory does not say they are hard; it says it
+cannot see them.
+
+%==============================================================================
+\section{The five parts}
+\label{sec:intro-map}
+%==============================================================================
+
+With that in hand, the shape of the book is short to describe. Each part
+answers one question, and the parts are largely independent of one another
+after the first.
+
+\paragraph{Part I: combinatorial algorithms.}
+The part where the news is still good. Maximum flow, minimum cost flow,
+matching and planar graphs are the classical polynomial-time theory, and they
+are here for two reasons. They are worth knowing: flows and matchings are the
+two most reusable modelling tools in the subject, and every one of these
+chapters ends by turning a problem that does not look like a flow problem into
+one. And they are used later: the planar separator theorem of
+\cref{ch:planar} is what bounds the treewidth of a planar graph in
+\cref{ch:treewidth}, and the matching algorithm of \cref{ch:matching} is a
+subroutine of Christofides' algorithm in \cref{ch:approx-i}. It also opens with
+the cleanest illustration of what an algorithm is good for besides computing:
+in \cref{ch:stable-marriage} an algorithm is used to prove a theorem that says
+nothing about computation.
+
+\paragraph{Part II: real computation and the existential theory of the reals.}
+The prior question above, done properly. \Cref{ch:real-models} builds the real
+RAM and says what changes; \cref{ch:etr} introduces the class $\ER$ and the
+complete problem it is named after; \cref{ch:geometric-er} shows that a series
+of geometric problems --- packing convex shapes, drawing graphs with straight
+edges, guarding an art gallery --- are $\ER$-complete, which is to say exactly
+as hard as the algebra.
+
+\paragraph{Part III: exact exponential-time algorithms and lower bounds.}
+Branching and reduction rules, dynamic programming over subsets,
+inclusion--exclusion, meeting in the middle: the toolkit for beating $2^n$, and
+the analysis techniques that make the improvements provable. Then
+\cref{ch:lower-bounds} turns around and proves that the improvements have to
+stop, conditionally on the exponential time hypothesis and its strong form ---
+including, in one of the more striking results in the book, that a textbook
+quadratic algorithm for comparing two curves cannot be improved to
+$\bigoh{n^{1.99}}$.
+
+\paragraph{Part IV: approximation algorithms.}
+Guarantees, and the machinery for proving them: bounding the optimum you cannot
+compute by something you can, and then bounding what the algorithm produces
+against the same thing. The part builds up to approximation schemes, where the
+guarantee is a knob the user turns, and to the gap technique, which shows when
+no such knob can exist.
+
+\paragraph{Part V: parameterized algorithms and complexity.}
+The last and largest response. Branching and kernelisation put problems into
+$\mathrm{FPT}$; treewidth explains what makes a graph tractable and supplies the
+dynamic programming that exploits it; \cref{ch:hardness} supplies the negative
+theory for both this part and the previous one; and \cref{ch:randomized} closes
+the book with the technique that makes several of these algorithms much
+simpler than their deterministic counterparts.
+
+%==============================================================================
+\section{Where the material comes from}
+\label{sec:intro-research}
+%==============================================================================
+
+A course is a selection, and it is fair to ask who made it and why these topics
+rather than others. The answer here is unusually direct: the selection is the
+research of the group that teaches it, and a reader who follows the citations
+will keep meeting the same department.
+
+The treewidth chapter is the clearest case. That a graph of treewidth $k$ admits
+a tree decomposition computable in linear time for fixed $k$ is
+\citet{Bodlaender1996}, proved in this department; the fact that a planar graph
+on $n$ vertices has treewidth $\bigoh{\sqrt n}$, which
+\cref{ch:approx-ii} uses to build a polynomial-time approximation scheme,
+appeared first in a 1988 Utrecht technical report \citep{Bodlaender1988}; the
+improvement of dominating set over a tree decomposition from $\bigoh{4^k}$ to
+$\Ostar(3^k)$ is \citet{VanRooijBodlaenderRossmanith2009}, whose first author
+is one of the authors of this book; and the result that
+\cref{sec:tw-further-reading} mentions as the reason \lang{Hamiltonian Cycle}
+is not as expensive over a tree decomposition as it looks ---
+that the matchings connectivity matrix has rank $2^{k/2-1}$ over
+$\mathrm{GF}(2)$ --- is \citet{CyganKratschNederlof2018}, whose last author
+designed much of this course. The kernelisation lower bounds that
+\cref{ch:lower-bounds} states without proof are
+\citet{BodlaenderDowneyFellowsHermelin2009}.
+
+Part~II is the other case, and it is younger. That the art gallery problem is
+$\ER$-complete --- that deciding how many guards a polygon needs is exactly as
+hard as deciding a system of polynomial inequalities over the reals --- is
+\citet{AbrahamsenAdamaszekMiltzow2022}, whose last author is the other author
+of this book; and the machine-model characterisation of $\ER$ that
+\cref{ch:etr} proves --- the one that makes membership arguments bearable ---
+was established for a real RAM close to ours by
+\citet{EricksonVanDerHoogMiltzow2024}. Part~II is a third of the course because
+the field itself is about ten years old and is being built partly here.
+
+This has a consequence worth stating for anyone considering a thesis. The
+distance between the last section of a chapter and an open problem is, in
+several places in this book, one conversation. \Cref{ch:geometric-er} lists
+problems whose $\ER$-completeness is not known; \cref{ch:lower-bounds} lists
+running times that nobody can match with a lower bound; and the notes at the
+end of most chapters say where the current record stands, which is another way
+of saying where it might move.
+
+\todo{Two things to check in this section. First, the affiliations are stated
+loosely on purpose (``this department'', ``designed much of this course'')
+rather than as claims about who currently works where --- say if you would
+rather they were sharper or vaguer. Second, add anything I have missed: this is
+written from the citations that happen to appear in the book, so a result of
+the group that the book does not cite is invisible to it.}
+
+%==============================================================================
+\section{How to read this book}
+\label{sec:intro-how-to-read}
+%==============================================================================
+
+Three features of the book are worth knowing about before rather than after.
+
+\paragraph{The exam pool is the learning goals.}
+The course is examined with the
+\href{https://openpoolexams.science.uu.nl/}{open pool exam method}: a pool of
+questions is published in advance and at least $30\%$ of the questions on the
+midterm and the final are taken from it word for word. The pool is reproduced
+in \cref{app:pool}. Rather than keep two lists, this book keeps one: the
+learning goals at the head of each chapter \emph{are} the pool questions, and a
+goal marked \pooltag{} can appear on the exam exactly as written. So the list
+at the start of a chapter is not decoration. It is the contract, and everything
+needed to satisfy it is in the body of that chapter.
+
+The pool is a floor and not a ceiling. The remaining questions test the same
+material on instances you have not seen, which is what the exercises at the end
+of each chapter are for; and a section whose heading says
+\emph{(non-examinable)} is outside the contract in both directions --- it will
+not be examined, and it is there because a note under the heading says why it
+earns its place.
+
+\paragraph{Some things are assumed.}
+\Cref{app:preliminaries} lists exactly what: notation, graph vocabulary,
+asymptotics, the machine model, and the classical complexity classes. It opens
+with ten questions that take about fifteen minutes and tell you which of its
+sections you need to read --- which for most readers of this book will be one
+of them, the $\Ostar$ convention of \cref{sec:prelim-asymptotics}, because it
+is specific to the exponential-time literature and is used from
+\cref{ch:exact-i} onwards.
+
+Running times quoted as current records will go out of date, and some of them
+already have between one edition of the course and the next. Where a chapter
+quotes one it says so; treat every such number as a snapshot.
+
+\paragraph{The proofs are the content, and the intuition boxes are not proofs.}
+This is a theory course, and an algorithm without its correctness proof and its
+analysis is not an answer to anything here. But most arguments in this book have
+one idea and a page of bookkeeping, and a reader who has just finished the
+bookkeeping is often no wiser about the idea. The passages marked
+\emph{Intuition} exist to say, in words and without rigour, what the preceding
+argument was really doing and why it had to be done that way. They can be read
+on their own, before or after the proof, and skipping them costs nothing on the
+exam and quite a lot everywhere else.
+
+Finally: this is a first edition of a book written quickly, and it will contain
+mistakes. The preface says how it was made, which is relevant to what kind of
+mistakes to expect, and how to report the ones you find. Reporting them is a
+real contribution and it is the fastest way to make the next edition better
+than this one.

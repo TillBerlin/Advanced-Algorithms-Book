@@ -64,6 +64,15 @@
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem*{intuition}{Intuition}
 
+% Two-digit chapter numbers make entries like "12.10" wider than the book
+% class's default box, so the number runs into the title in the table of
+% contents.  Widen the boxes.
+\makeatletter
+\renewcommand*\l@section{\@dottedtocline{1}{1.5em}{2.9em}}
+\renewcommand*\l@subsection{\@dottedtocline{2}{4.4em}{3.6em}}
+\renewcommand*\l@subsubsection{\@dottedtocline{3}{8.0em}{4.4em}}
+\makeatother
+
 % Inside \appendix, cleveref calls every sectional unit an "appendix"; but
 % "section B.2" is what a reader expects for a section of appendix B.
 \crefname{subappendix}{section}{sections}

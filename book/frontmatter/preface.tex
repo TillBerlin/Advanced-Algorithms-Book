@@ -2,67 +2,101 @@
 \addcontentsline{toc}{chapter}{Preface}
 
 This book accompanies the course \emph{Advanced Algorithms} at Utrecht
-University. It is written for students who have seen a first algorithms course:
-we assume familiarity with asymptotic notation, basic graph algorithms, dynamic
-programming, and the notions of \textbf{P}, \textbf{NP} and NP-completeness.
-Everything beyond that is developed from scratch.
+University, and it has no other purpose. It is not a reference work, not a
+research monograph, and not an attempt to survey a field. It is the book for
+one course, written for the people taking it, and that single purpose is the
+reason it can be as short as it is: a topic is in this book if the course
+covers it, and out if it does not, however interesting.
 
-\section*{What this book is about}
+\section*{Who it is for}
 
-A first algorithms course teaches you how to solve problems that admit
-efficient algorithms. This book is about what to do when a problem does
-\emph{not} admit one --- and about the surprisingly rich set of tools that has
-been developed for exactly that situation. Broadly, there are four answers, and
-they make up the four main parts of this book after the introductory part on
-combinatorial algorithms:
+It is written for students who have had a first algorithms course. We assume
+asymptotic notation, the standard graph algorithms, dynamic programming, and
+the notions of \textbf{P}, \textbf{NP} and \textrm{NP}-completeness; everything
+beyond that is developed here. \Cref{app:preliminaries} says precisely what is
+assumed, and it opens with ten questions that take about a quarter of an hour
+and tell you which of its sections you need to read --- including the case
+where the honest answer is that a prerequisite is missing, which it treats as a
+question of sequencing rather than of ability, and answers with routes rather
+than a verdict.
 
-\begin{itemize}
-  \item \textbf{Solve the problem exactly anyway,} but accept super-polynomial
-        running time --- and then fight for the base of the exponent
-        (Part III).
-  \item \textbf{Give up on optimality} and settle for a solution that is
-        provably close to optimal (Part IV).
-  \item \textbf{Give up on generality} and exploit structure in the input:
-        a small parameter, or bounded treewidth (Part V).
-  \item \textbf{Give up on determinism} and use randomness (Chapter on
-        randomized algorithms).
-\end{itemize}
+The course draws people from several degree programmes and the book is written
+in the knowledge that the mathematical background in the room is uneven.
+Nothing here needs mathematics beyond a bachelor's degree in a quantitative
+subject. What it does need, and cannot supply, is the willingness to read a
+proof slowly.
 
-Running through all of this is a complexity-theoretic thread. For each
-technique we also ask when it \emph{cannot} work: hardness of approximation,
-W[1]-hardness, and --- in Part II --- the class $\ER$, which captures problems
-whose natural formulation quantifies over real numbers.
+\section*{How this book was written}
 
-\section*{How to use this book}
+This book was drafted by Claude, an AI system made by Anthropic, working from
+the lecture slides and notes of the course under the direction of its authors.
+The instructions it worked to are in the repository, and the short version is:
+every chapter was written against a specific source deck and checked against it
+in both directions, so that nothing lectured is missing and nothing is here that
+the lectures do not cover; every running time quoted from a slide was verified
+against the literature rather than copied, because several had gone stale and
+one was wrong; and every \textsc{doi} in the bibliography was checked against
+the publisher's record rather than written from memory.
 
-The course is examined using the
+That process catches a great deal and it does not catch everything. A
+mathematical review of the second half of the book found a clause gadget that
+did not work, a reduction quoted in the wrong direction, an algorithm
+attributed to the wrong paper, a worked example whose arithmetic was impossible,
+and a factor of two --- all of which are now fixed, and all of which were the
+kind of error that survives a confident-sounding paragraph. The reader should
+expect that others remain, and should read accordingly: the proofs in this book
+are meant to be checked, not believed. Where something looks wrong, it may
+be.
+
+We think the trade is worth making. A course book that exists and is being
+corrected is more use than a better one that never gets written, and this one
+was assembled in a fraction of the time it would otherwise have taken. But the
+reader is entitled to know how it was made, which is why this section is here
+rather than in a footnote.
+
+\todo{Add the errata channel: where should a student send a mistake? An email
+address, a GitHub issue on the course repository, or a note to the teaching
+assistants --- whichever you prefer, but it should be named here in one
+sentence, because the section above asks people to report errors and then does
+not say how.}
+
+\section*{How to use it}
+
+The course is examined with the
 \href{https://openpoolexams.science.uu.nl/}{open pool exam method}: the pool of
 possible exam questions is published in advance, and at least $30\%$ of the
-questions on the midterm and final exam are taken \emph{verbatim} from that
+questions on the midterm and the final exam are taken \emph{verbatim} from that
 pool. The pool is reproduced in \cref{app:pool}.
 
-This shapes the book. Every chapter ends with a section listing the pool
-questions it covers, and the material needed to answer those questions is
-developed in the body of that chapter. Where a section goes beyond what the
-lectures cover, its heading says \emph{(non-examinable)} and a note underneath
-says why it is there anyway. Nothing marked that way is needed for the pool. If you can answer every pool question
-using only this book, you have understood the course. The pool is a floor, not
-a ceiling: the remaining exam questions test the same material on problems you
-have not seen before, which is what the exercises in each chapter are for.
+This shapes the book more than anything else about it. Rather than keep two
+lists that would drift apart, the book keeps one: the learning goals at the head
+of each chapter \emph{are} the pool questions, and a goal marked \pooltag{} can
+be set on the exam word for word. Everything needed to answer it is in the body
+of that chapter. Where a section goes beyond what the lectures cover, its
+heading says \emph{(non-examinable)} and a note underneath says why it earns its
+place; nothing marked that way is needed for the pool.
+
+If you can answer every pool question using only this book, you have understood
+the course. The pool is a floor and not a ceiling: the remaining exam questions
+test the same material on problems you have not seen before, which is what the
+exercises at the end of each chapter are for.
+
+\Cref{ch:introduction} says what the subject is and how the five parts fit
+together, and is the place to start.
 
 \section*{Sources and acknowledgements}
 
 This book did not start from nothing. The course \emph{Advanced Algorithms} was
-built by \textbf{Jesper Nederlof} and \textbf{Johan van Rooij}, and most of this
-book is based on their slides: the selection of topics, the order they come in,
-and a good number of the individual arguments are theirs. Where a chapter leans
-on their material particularly heavily, its ``Notes and further reading''
-section says so.
+built by \textbf{Jesper Nederlof} and \textbf{Johan van Rooij}, and most of it
+is based on their lecture slides: the selection of topics, the order they come
+in, and a good number of the individual arguments are theirs. Each chapter's
+``Notes and further reading'' says which material it follows.
 
 Part~II --- real models of computation, the existential theory of the reals,
 and its geometric consequences --- is based on lecture notes by
 \textbf{Tillmann Miltzow}.
 
-\todo{Still to acknowledge: teaching assistants, students who report errata,
-and the textbook sources for the individual chapters once the bibliography
-exists.}
+\todo{Still to acknowledge: the teaching assistants, and the students who
+report errata --- the second list is worth keeping from the first year onwards,
+because naming people who found mistakes is the cheapest way to get more of
+them found.}

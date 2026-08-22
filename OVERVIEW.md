@@ -77,13 +77,13 @@ A chapter is ✅ only when it has no `\todo` markers **and** no
 
 | File | Status |
 | --- | --- |
-| `book/frontmatter/preface.tex` | ✅ drafted |
+| `book/frontmatter/preface.tex` | 🟡 drafted; 2 `\todo`s — the errata channel and the acknowledgements list |
 
 ### Part I — Combinatorial Algorithms
 
 | # | Chapter | File | Lecture | Pool Q | Status |
 | --- | --- | --- | --- | --- | --- |
-| 1 | Introduction | `01-introduction.tex` | W1 Tue | — | 🔲 |
+| 1 | Introduction | `01-introduction.tex` | W1 Tue (blackboard, no deck) | — | 🟡 drafted; 2 `\todo`s for the authors to answer |
 | 2 | Combinatorics via Algorithms and Stable Marriage | `02-stable-marriage.tex` | W1 Tue | Stable Matchings | ✅ drafted; 18 figure placeholders |
 | 3 | Maximum Flow and Minimum Cut | `03-maximum-flow.tex` | W1 Thu | 2, 3 | 🟡 prose complete; 8 figures open |
 | 4 | Minimum Cost Flow | `04-minimum-cost-flow.tex` | W2 Tue | 4 | 🟡 prose complete; 6 figures open |
@@ -253,18 +253,18 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the preliminaries appendix. **Two `\todo` markers**, 55
-`\figplaceholder` boxes, 289 pages.
+Re-audited after the introduction. **Four `\todo` markers**, all of them
+questions for the authors rather than unwritten text, 55 `\figplaceholder`
+boxes, 294 pages.
 
-**Every chapter of the book is drafted except the introduction.**
+**Every chapter of the book is now drafted.**
 
 ### Remaining
 
 | What | Note |
 | --- | --- |
 | **55 figure placeholders** | All of them are in chapters 2--6, which are waiting on uploads: 18 in chapter 2, 7 in chapter 3, 5 in chapter 4, 18 in chapter 5, 7 in chapter 6. Chapters 7--19 have none left; their 21 figures are drawn in TikZ. |
-| Chapter 1, Introduction | Write last. No deck needed. The division of labour with appendix B is now fixed and recorded in the chapter's `\todo`: the appendix carries the background, the chapter carries what makes a problem hard and the four responses to it. |
-| Preface | Acknowledgements. |
+| Four `\todo`s | Two in chapter 1 (whether the sentence about Johan's industrial week may stay; whether the research section names the right results and states affiliations at the right sharpness), two in the preface (the errata channel — the text asks students to report mistakes and does not say where; and the acknowledgements list). All four need the authors, not more writing. |
 
 ### Also outstanding
 
@@ -306,6 +306,40 @@ while writing it and were fixed: degree was written `d(v)` in chapter 10 and
 `\deg(v)` elsewhere, while chapter 3 uses `d(u)` for a distance label — degree
 is now `\deg` throughout. Three general reference books were added to the
 bibliography (Sipser, Mitzenmacher–Upfal, and the free Lehman–Leighton–Meyer).
+
+## Chapter 1 and the preface
+
+The introduction was written last, as planned, and the two front pieces were
+divided as follows.
+
+**Chapter 1 is about the subject.** Why a second algorithms course (the
+practical argument and the intellectual one); what hardness is a statement
+about, read one word at a time, so that the parts of the book fall out as the
+three things that can be given up rather than as a list to memorise; the
+quality-against-time picture from the lecturers' own opening slide, redrawn,
+with the cells this course covers shaded and the ones it does not left plain;
+the five parts; where the material comes from; and how to read the book.
+Randomness is explicitly *not* presented as a fourth way out of NP-hardness —
+it is a technique that makes the other three cheaper — and the fifth response,
+heuristics without guarantees, is named and declared out of scope.
+
+**The research section** answers "why these topics". It follows the citations:
+Bodlaender's linear-time treewidth algorithm and his 1988 Utrecht technical
+report on planar treewidth, the van Rooij–Bodlaender–Rossmanith `3^k` dominating
+set, Cygan–Kratsch–Nederlof on Hamiltonicity (added to the bibliography and
+cited in chapter 16, where the result was previously stated with no source), the
+Bodlaender–Downey–Fellows–Hermelin kernel lower bounds, the ∃R-completeness of
+the art gallery problem, and the real-RAM machine model. It closes by pointing
+out that in several places the distance from the last section of a chapter to an
+open problem is one conversation.
+
+**The preface is about the book.** Its single purpose, who it is for, and — in
+its own section — *how it was written*: drafted by Claude from the lecture
+material under the authors' direction, what that process does catch (source
+decks checked in both directions, running times verified rather than copied,
+DOIs checked against publisher records) and what it does not, with the review
+pass's findings given as concrete evidence of the second. It asks the reader to
+check rather than believe.
 
 ## The review pass
 
@@ -378,6 +412,7 @@ rewrite.
 | `material/notes/Real-Compuation.pdf` | ch. 1 | 7 (real models of computation) ✅ checked |
 | ("Beyond Bits", Till's manuscript) | ch. 2 | 8 (ETR) |
 | | ch. 3–4 | 9 (duality, ETR-AM/ETR-INV, unit disk graphs, curve straightening, art gallery; order types and stretchability at the end, non-examinable) ✅ |
+| **no source** | — | 1 (introduction — given at the blackboard; the quality-against-time picture of figure 1.1 is slides 2–3 of the exponential-time deck, the rest is framing) |
 | **no source** | — | 12 (ETH/SETH — new chapter, written from the literature) |
 | **no source** | — | 19 also needs the blackboard `O(1.5^n)` 3-colouring, if the new deck lacks it |
 

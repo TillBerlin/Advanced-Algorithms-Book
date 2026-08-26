@@ -188,7 +188,8 @@ along $a$ does not'', and it costs $+x$ because that unit forgoes the saving.
     \node[vtx] (v2) at (2.4,0)  {$v$};
     \node[vtx] (s2) at (2.4,1.7) {$s$};
     \node[vtx] (t2) at (0,-1.7) {$t$};
-    \draw[arc] (v2) to[bend right=18] node[midway,below]{$c$, cost $+x$} (u2);
+    \draw[arc] (v2) to[bend right=28]
+      node[midway,above=1pt,fill=white,inner sep=1.5pt]{$c$, cost $+x$} (u2);
     \draw[nw] (s2)--(v2) node[midway,right,black] {$c$, cost $0$};
     \draw[nw] (u2)--(t2) node[midway,left,black] {$c$, cost $0$};
     \node[align=center] at (1.2,-2.8)
@@ -337,9 +338,10 @@ about.
   \begin{scope}[xshift=7.4cm]
     \node[vtx] (u2) at (0,0)   {$u$};
     \node[vtx] (v2) at (3.0,0) {$v$};
-    \draw[arc] (u2) to[bend left=30] node[midway,above]{$4$, cost $3$} (v2);
-    \draw[arc] (v2) to[bend left=30] node[midway,below]{$2$, cost $6$} (u2);
-    \draw[nw] (v2)--(u2) node[midway,above,black] {$1$, cost $-3$};
+    \draw[arc] (u2) to[bend left=42] node[midway,above]{$4$, cost $3$} (v2);
+    \draw[arc] (v2) to[bend left=42] node[midway,below]{$2$, cost $6$} (u2);
+    \draw[nw] (v2)--(u2)
+      node[midway,above=1pt,black,fill=white,inner sep=1.5pt] {$1$, cost $-3$};
     \node[align=center] at (1.5,-1.6)
       {after one unit crosses: the refund arc is new,\\
        and does \emph{not} merge with the arc already there};
@@ -616,8 +618,8 @@ source and sink by \cref{sec:mcf-demands}.
   \node[dem] (d14) at (6.5,4.3)  {$14$};
   \foreach \d/\i/\j in {d12/c1/c2, d23/c2/c3, d34/c3/c4,
                         d13/c1/c3, d24/c2/c4, d14/c1/c4}{
-    \draw[board] (\d)--(\i);
-    \draw[refuse] (\d)--(\j);
+    \draw[board] (\d) to[bend right=14] (\i);
+    \draw[refuse] (\d) to[bend left=14] (\j);
   }
   \node[red!75!black,left=1pt] at (3.0,0.95) {board: cost $-f_{ij}$};
   \node[black!55,right=1pt] at (10.0,0.95) {refuse: cost $0$};
@@ -732,10 +734,11 @@ bounds.
     \draw[ch] (y\i) to[bend left=22]
       node[midway,above]{$d(\i)$, cost $-(r_\i+h_\i)$} (y\j);
     \draw[ch] (y\i) to[bend right=22]
-      node[midway,below]{$N$, cost $-r_\i$} (y\j);
+      node[pos=0.6,below,fill=white,inner sep=2.5pt]{$N$, cost $-r_\i$} (y\j);
   }
   \node[yr] (t) at (6.9,-3.0) {$\tau$};
-  \foreach \i in {1,2,3,4}{ \draw[sale] (y\i)--(t); }
+  % bent so that they drop away from the lower parallel arcs at once
+  \foreach \i in {1,2,3,4}{ \draw[sale] (y\i) to[bend right=22] (t); }
   \node[black!55] at (1.2,-3.0) {sale arcs: capacity $N$, cost $-s_i$};
   \node[align=center] at (5.2,-4.1)
     {the flow on the link out of year $i$ is the number of ships still owned;

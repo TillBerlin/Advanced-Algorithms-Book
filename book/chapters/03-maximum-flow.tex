@@ -618,10 +618,10 @@ satisfy, since $h(u)$ went up. Allowed.
     \node[vtx] (v2)  at (3.9,2) {};
     \draw[-{Latex[length=2mm]},thick] (u2)--(v1);
     \draw[-{Latex[length=2mm]},thick] (u2)--(v2);
-    \fill[exc] (0.72,1.32) rectangle ++(0.56,0.22);
-    \fill[exc] (0.72,1.60) rectangle ++(0.56,0.22);
+    \fill[exc] (0.10,1.32) rectangle ++(0.56,0.22);
+    \fill[exc] (0.10,1.60) rectangle ++(0.56,0.22);
     \node[vtx,draw=red!70!black,dashed] (u3) at (1.0,2) {$u$};
-    \draw[-{Latex[length=2.5mm]},red!70!black,thick] (1.0,1.35) -- (1.0,1.72);
+    \draw[-{Latex[length=2.5mm]},red!70!black,thick] (1.0,1.32) -- (1.0,1.72);
     \node[align=center] at (1.9,-0.9)
       {\textbf{lift}: nothing is downhill from $u$, so raise it\\
        to one above its lowest residual neighbour};
@@ -1109,7 +1109,7 @@ vertex-capacitated problem in polynomial time.
     every node/.style={font=\footnotesize}]
   % before
   \node[vtx] (v) at (1.7,0) {$v$};
-  \node[above=1pt] at (v) {$c_V(v)$};
+  \node[above=9pt] at (v) {$c_V(v)$};
   \foreach \i/\y in {1/1.0, 2/0, 3/-1.0}{
     \node[sm] (i\i) at (0,\y) {};
     \draw[arc] (i\i)--(v);

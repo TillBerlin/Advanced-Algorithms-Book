@@ -187,8 +187,10 @@ Let $P = \max_i v(i)$, so that no solution has value more than $nP$. Tabulate
    \text{ of total value exactly } Q, \]
 for $0 \le i \le n$ and $0 \le Q \le nP$, with $M(i,Q) = \infty$ when no such
 subset exists. The recurrence is
-\[ M(0,0) = 0, \qquad M(0,Q) = \infty \ (Q > 0), \qquad
-   M(i+1,Q) = \min\bigl\{ M(i,Q),\; M(i,Q-v(i+1)) + w(i+1) \bigr\}, \]
+\[ \begin{aligned}
+     M(0,0) &= 0, \qquad M(0,Q) = \infty \ (Q > 0), \\
+     M(i+1,Q) &= \min\bigl\{ M(i,Q),\; M(i,Q-v(i+1)) + w(i+1) \bigr\},
+   \end{aligned} \]
 where the second term is omitted if $Q < v(i+1)$. The answer is the largest $Q$
 with $M(n,Q) \le W$. The table has $\bigoh{n^2 P}$ entries and each costs
 constant time, so the algorithm runs in $\bigoh{n^2 P}$ time.

@@ -246,9 +246,9 @@ partner. A matching is \emph{stable} if it admits no blocking pair.
   \draw[thick] (m)--(wp) node[midway,above] {matched};
   \draw[thick] (mp)--(w) node[midway,below] {matched};
   \draw[red!75!black,thick,dashed] (m)--(w);
-  \node[red!75!black,align=center] at (2.75,0.95)
+  \node[red!75!black,align=center,fill=white,inner sep=2pt] at (2.75,0.95)
     {$m$ prefers $w$ to $w'$};
-  \node[red!75!black,align=center] at (1.25,0.35)
+  \node[red!75!black,align=center,fill=white,inner sep=2pt] at (1.25,0.35)
     {$w$ prefers $m$ to $m'$};
 \end{tikzpicture}
 \caption{A blocking pair: an unmatched couple who both prefer each other to
@@ -541,9 +541,9 @@ $\{1B, 2A, 3C\}$.
         node[midway,below] {$(1,C)$};
   \draw[-{Latex[length=2mm]},thick] (-0.45,-3.7) -- (-0.45,-2.5)
         node[midway,left] {$(1,A)$};
-  \node[font=\footnotesize,align=center] at (3.5,-3.0)
+  \draw[-{Latex[length=2mm]},black!55] (3.5,-3.42) arc (-90:200:0.62);
+  \node[font=\footnotesize,align=center,fill=white,inner sep=2pt] at (3.5,-2.8)
         {and round\\ again};
-  \draw[-{Latex[length=2mm]},black!55] (3.5,-3.75) arc (-90:200:0.62);
 \end{tikzpicture}
 \caption{Greedy repair can cycle: resolving blocking pairs one at a time
 returns to its starting point.}
@@ -619,8 +619,8 @@ matching exists.
   \draw[-{Latex[length=2mm]},thick] (a) to[bend left=18] (b);
   \draw[-{Latex[length=2mm]},thick] (b) to[bend left=18] (c);
   \draw[-{Latex[length=2mm]},thick] (c) to[bend left=18] (a);
-  \node at (0,0.35) {each prefers};
-  \node at (0,-0.05) {the next};
+  \node[align=center,fill=white,inner sep=2pt] at (0,0.2)
+       {each prefers\\ the next};
   \draw[-{Latex[length=2mm]},black!45] (a) to[bend left=8] (d);
   \draw[-{Latex[length=2mm]},black!45] (c) to[bend right=8] (d);
   \draw[-{Latex[length=2mm]},black!45] (b) to[bend right=22] (d);
@@ -1095,12 +1095,14 @@ arbitrary, $\mu$ is stable.
   \node[align=center] at (1.7,-0.95)
     {he proposed to everyone above $w$,\\
      and $w'$ was not among them, so $w \pr{m} w'$};
-  \node[red!75!black] at (1.7,0.65) {he is not interested};
+  \node[red!75!black,fill=white,inner sep=2pt] at (1.7,0.65)
+    {he is not interested};
   % case 2: she has only improved since
   \node[align=center] at (9.3,-0.95)
     {from that moment she held someone\\
      better than $m$, and only improved: $m' \pr{w'} m$};
-  \node[red!75!black] at (9.3,0.65) {she is not interested};
+  \node[red!75!black,fill=white,inner sep=2pt] at (9.3,0.65)
+    {she is not interested};
 \end{tikzpicture}
 \caption{Why no blocking pair can survive: either he never asked (so he does
 not want her), or he asked and was refused (so she does not want him).}

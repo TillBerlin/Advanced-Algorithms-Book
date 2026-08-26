@@ -502,13 +502,15 @@ We do not prove this --- it is one of the deepest theorems in complexity theory
 problem, and everything afterwards is a reduction.
 
 \begin{center}
-\begin{tabular}{@{}ll@{}}
+\begin{tabular}{@{}p{0.46\textwidth}p{0.46\textwidth}@{}}
 \toprule
 \textbf{Classical} & \textbf{Approximation} \\
 \midrule
 if one \textrm{NP}-complete problem is in $\mathrm{P}$, all are
   & if one APX-complete problem has a PTAS, all do \\
+\addlinespace
 polynomial-time reductions & L-reductions \\
+\addlinespace
 Cook: \lang{SAT} is \textrm{NP}-complete
   & PCP: \lang{Max 3-SAT} is APX-complete \\
 \bottomrule

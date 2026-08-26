@@ -268,7 +268,8 @@ but two is drawn.**
 
 ### The figures
 
-All 76 figures are now drawn in TikZ except the two above. They are drawn from
+All 97 figures were checked as they render; all but the two above
+are drawn in TikZ or supplied as uploaded PDFs. They are drawn from
 the mathematics rather than copied, and where a figure asserts something the
 assertion is checked:
 
@@ -292,11 +293,50 @@ needs `(s,v)` and `(u,t)`. And chapter 6's four-kinds figure needed a seventh
 vertex, because on the six-vertex graph the maximum matching is perfect, so
 "maximum but not perfect" and "perfect" cannot be the same picture.
 
+#### The proofreading pass over the rendered pages
+
+Every one of the 97 figures was then looked at as it renders, page by page.
+That found four things a source reading would not have:
+
+- **`fig:matching-kinds`**: the seventh vertex of the fourth panel was placed
+  outside the shifted scope, so it landed underneath the *second* panel and its
+  edge stretched across the whole figure. The four sub-captions also overlapped:
+  `text width` in a node is not affected by the picture's `scale`, so the boxes
+  were wider than the 3.36 cm the panels are actually apart on the page.
+- **`fig:planar-segments`**: the interlacement panel coloured `S_2` blue and the
+  rest green, while the drawing panel put `S_2` outside and the rest inside —
+  the two panels contradicted each other. Both are valid 2-colourings; the
+  figure now uses one of them throughout, and the drawing carries its own
+  segment labels so the panels can be compared.
+- **`fig:er-duality`** used `er-linear-transformations.pdf`, three houses under
+  linear maps, under a caption about point–line duality. Replaced by a drawing
+  of the duality itself: three collinear points and a point off the line, with
+  their three concurrent dual lines and one that misses. (So
+  `er-linear-transformations` joins the unused list below.)
+- **`fig:matching-bipartite-augment`** drew the whole augmenting path in one
+  colour, which hid the alternation the caption is about. It now follows the
+  convention of `fig:matching-blossom-lift`: thick for edges of `M`, red for
+  the rest.
+
+The rest was legibility — a dozen labels struck through by the lines they
+annotate (now `fill=white`), boarding arcs in the hopping-plane figure that ran
+straight through the demand nodes on their diagonal (now bent), an excess bar
+sitting where the lift arrow goes, and one edge in `fig:fvs-lemma` that passed
+exactly through the vertex `v` and read as an edge incident to it.
+
+A scan of every page for ink outside the text block found three real overflows:
+`fig:planar-crossings` (2 cm, now on two rows), `fig:planar-segments` (0.9 cm,
+now at `scale=0.63`), and the APX/classical comparison table in chapter 17.
+Two display formulas — the Held–Karp definition and the knapsack recurrence —
+overflowed as well and are now wrapped. Overfull boxes: 12 → 8, none above
+10 pt. Nothing else in the book leaves the text block by more than 5 pt.
+
 ### Also outstanding
 
-- **Five uploaded figures are unused**: `er-annulus`,
-  `er-different-embedding`, `er-non-parallel-addition`,
-  `er-staudt-construction`, `etr-cube-poset`. Place or delete.
+- **Six uploaded figures are unused**: `er-annulus`,
+  `er-different-embedding`, `er-linear-transformations`,
+  `er-non-parallel-addition`, `er-staudt-construction`, `etr-cube-poset`.
+  Place or delete.
 - **§19.5 needs checking against the lecture.** 2-list colouring and the
   randomized `O(1.5^n)` 3-colouring are in no deck — blackboard material — so
   they were written from the literature.

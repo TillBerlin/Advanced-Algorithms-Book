@@ -408,7 +408,7 @@ the grid is of one of these two kinds.
 \centering
 \begin{tikzpicture}[scale=0.95,
     vtx/.style={circle,fill=black,inner sep=1.5pt},
-    win/.style={draw=red!75!black,thick,circle,minimum size=13pt,inner sep=0pt},
+    win/.style={thick,circle,minimum size=13pt,inner sep=0pt},
     every node/.style={font=\footnotesize}]
   % the 4 x 6 grid, with v_{i,j} in row i and column j
   \foreach \j in {1,...,6}{
@@ -427,12 +427,13 @@ the grid is of one of these two kinds.
       ($(v1\j)+(0.09,0)$) -- ($(v4\j)+(0.09,0)$);
   }
   % three successive positions of the window of p+1 = 5 consecutive vertices
-  \foreach \c in {v11,v21,v31,v41,v12}{ \node[win] at (\c) {}; }
-  \foreach \c in {v42,v13,v23,v33,v43}{ \node[win] at (\c) {}; }
-  \foreach \c in {v34,v44,v15,v25,v35}{ \node[win] at (\c) {}; }
+  % one colour per position, so it is clear which circles belong together
+  \foreach \c in {v11,v21,v31,v41,v12}{ \node[win,draw=red!75!black] at (\c) {}; }
+  \foreach \c in {v42,v13,v23,v33,v43}{ \node[win,draw=blue!65!black] at (\c) {}; }
+  \foreach \c in {v34,v44,v15,v25,v35}{ \node[win,draw=green!45!black] at (\c) {}; }
   \node[red!75!black] at (0.35,-2.5) {$X_1$};
-  \node[red!75!black] at (2.5,-4.75) {$X_8$};
-  \node[red!75!black] at (4.5,-4.75) {$X_{15}$};
+  \node[blue!65!black] at (2.5,-4.75) {$X_8$};
+  \node[green!45!black] at (4.5,-4.75) {$X_{15}$};
   \node at (3.5,0.45) {$u_1, u_2, \ldots, u_{24}$ in column-major order};
 \end{tikzpicture}
 \caption{The window of $p+1$ consecutive vertices sweeping across a $p \times q$

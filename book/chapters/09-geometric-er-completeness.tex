@@ -658,9 +658,47 @@ We write $p^{*}$ for $\chi(p)$ and $\ell^{*}$ for $\chi^{-1}(\ell)$.
 
 \begin{figure}[ht]
 \centering
-\includegraphics[width=0.9\textwidth]{er-linear-transformations}
-\caption{A small point--line configuration, and the same configuration after
-applying the duality. Each point becomes a line and each line a point.}
+\begin{tikzpicture}[scale=0.95,
+    vtx/.style={circle,fill=black,inner sep=1.5pt},
+    ln/.style={blue!60!black,thick},
+    every node/.style={font=\scriptsize}]
+  %-------------------------------------------------- primal
+  \begin{scope}
+    \draw[->,black!35] (-0.9,0) -- (2.9,0);
+    \draw[->,black!35] (0,-1.7) -- (0,2.0);
+    % the line y = x - 1
+    \draw[ln] (-0.5,-1.5) -- (2.7,1.7) node[right] {$\ell$};
+    \node[vtx] (a) at (0.5,-0.5) {};  \node[below right=0pt] at (a) {$p_1$};
+    \node[vtx] (b) at (1.5,0.5)  {};  \node[below right=0pt] at (b) {$p_2$};
+    \node[vtx] (c) at (2,1)      {};  \node[below right=0pt] at (c) {$p_3$};
+    \node[vtx,red!70!black] (q) at (0,1) {};
+    \node[red!70!black,above left=0pt] at (q) {$q$};
+    \node[align=center] at (1.0,-2.6)
+      {three points on a line $\ell$,\\ and a fourth point $q$ off it};
+  \end{scope}
+  %-------------------------------------------------- dual
+  \begin{scope}[xshift=7.6cm]
+    \draw[->,black!35] (-0.9,0) -- (2.9,0);
+    \draw[->,black!35] (0,-1.7) -- (0,2.6);
+    % p_1^* : y = 0.5x + 0.5
+    \draw[ln] (-0.8,0.1) -- (2.7,1.85) node[right] {$p_1^{*}$};
+    % p_2^* : y = 1.5x - 0.5
+    \draw[ln] (-0.8,-1.7) -- (2.0,2.5) node[above right=-2pt] {$p_2^{*}$};
+    % p_3^* : y = 2x - 1
+    \draw[ln] (-0.35,-1.7) -- (1.75,2.5) node[above left=-2pt] {$p_3^{*}$};
+    % q^* : y = -1
+    \draw[red!70!black,thick] (-0.8,-1) -- (2.7,-1) node[right] {$q^{*}$};
+    \node[vtx] (l) at (1,1) {};
+    \node[above left=1pt,fill=white,inner sep=1pt] at (l) {$\ell^{*}$};
+    \node[align=center] at (1.0,-2.6)
+      {three concurrent lines through $\ell^{*}$,\\
+       and a fourth line missing it};
+  \end{scope}
+\end{tikzpicture}
+\caption{Duality under $\chi$, with $\ell : y = x - 1$ and
+$p_1 = (\tfrac12,-\tfrac12)$, $p_2 = (\tfrac32,\tfrac12)$, $p_3 = (2,1)$,
+$q = (0,1)$. Points on a common line become lines through a common point;
+$q$ misses $\ell$, so $q^{*}$ misses $\ell^{*}$.}
 \label{fig:er-duality}
 \end{figure}
 

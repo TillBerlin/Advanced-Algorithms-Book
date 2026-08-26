@@ -98,27 +98,29 @@ entire chapter.
   % 1: not maximal
   \draw[mm] (a1)--(a2);
   \foreach \v in {a3,a4,a5,a6}{ \node[fr] at (\v) {}; }
-  \node[align=center] at (1.1,-2.3) {not maximal:\\ the edge below is free};
+  \node[align=center,text width=3.2cm,anchor=north] at (1.1,-2.2)
+    {not maximal:\\ the edge below is free};
   % 2: maximal but not maximum
   \draw[mm] (b1)--(b3);
   \draw[mm] (b4)--(b5);
   \foreach \v in {b2,b6}{ \node[fr] at (\v) {}; }
-  \node[align=center] at (5.3,-2.3) {maximal but not maximum:\\ nothing can be added,
-    yet three fit};
+  \node[align=center,text width=3.2cm,anchor=north] at (5.3,-2.2)
+    {maximal but not maximum:\\ nothing can be added, yet three fit};
   % 3: maximum and perfect
   \draw[mm] (c1)--(c2);
   \draw[mm] (c3)--(c5);
   \draw[mm] (c4)--(c6);
-  \node[align=center] at (9.5,-2.3) {maximum, and here also\\ perfect: nobody is free};
+  \node[align=center,text width=3.2cm,anchor=north] at (9.5,-2.2)
+    {maximum, and here also\\ perfect: nobody is free};
   % 4: the same graph with one more vertex
-  \node[vtx] (d7) at (3.6,-1.35) {};
+  \node[vtx] (d7) at (16.1,-1.35) {};
   \draw[nn] (d6)--(d7);
   \draw[mm] (d1)--(d2);
   \draw[mm] (d3)--(d5);
   \draw[mm] (d4)--(d6);
   \node[fr] at (d7) {};
-  \node[align=center] at (13.9,-2.3) {maximum but not perfect:\\ seven vertices, so
-    one is left};
+  \node[align=center,text width=3.2cm,anchor=north] at (13.9,-2.2)
+    {maximum but not perfect:\\ seven vertices, so one is left};
 \end{tikzpicture}
 \caption{Maximal, maximum, perfect. The second panel is the one worth staring
 at: nothing can be \emph{added} to that matching, and yet it is half the size
@@ -262,13 +264,16 @@ vertex of $W$.
   \node[fr] at (r4) {};
   \node[red!75!black,left=6pt] at (l1) {free};
   \node[red!75!black,right=6pt] at (r4) {free};
+  % the path: red where it uses a non-matching edge, thick black where it uses
+  % a matching one, so the alternation is visible in the picture itself
   \draw[aug] (l1)--(r2);
-  \draw[aug] (r2)--(l3);
+  \draw[mm] (r2)--(l3);
   \draw[aug] (l3)--(r3);
-  \draw[aug] (r3)--(l4);
+  \draw[mm] (r3)--(l4);
   \draw[aug] (l4)--(r4);
   \node[align=left,right=10pt] at (3.4,-2.5)
-    {the path alternates unmatched, matched,\\
+    {thick edges are in $M$, red ones are not:\\
+     the path alternates unmatched, matched,\\
      unmatched, \ldots, and both ends are free;\\
      swapping along it gains one edge};
 \end{tikzpicture}
@@ -315,7 +320,7 @@ the stem is empty --- is left unmatched within the cycle.
   \node[vtx,label=below:$f$] (f) at (0,0) {};
   \node[fr] at (f) {};
   \node[vtx] (x) at (1.3,0) {};
-  \node[vtx,label=below right:$b$] (b) at (2.6,0) {};
+  \node[vtx,label={[label distance=1pt]above left:$b$}] (b) at (2.6,0) {};
   \draw[nn] (f)--(x);
   \draw[mm] (x)--(b);
   \foreach \i in {1,...,4}{

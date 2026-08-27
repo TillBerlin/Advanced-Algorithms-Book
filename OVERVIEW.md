@@ -253,23 +253,24 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the figures. **No `\todo` markers left**, **1
-`\figplaceholder` box**, 293 pages.
+Re-audited after the figures. **No `\todo` markers left**, **no
+`\figplaceholder` boxes left**, 293 pages. `make todos` reports a true zero on
+both counts.
 
 **Every chapter, both appendices and the preface are drafted, and every figure
-but one is in place.**
+is in place.**
 
 ### Remaining
 
 | What | Note |
 | --- | --- |
-| **1 figure placeholder** | `fig:planar-gadget`, the Garey–Johnson–Stockmeyer crossover gadget: a specific 13-vertex graph to be copied from the paper or the slides, where a guess that looks plausible would be worse than a gap. I searched several planar templates exhaustively and two million randomly generated planar graphs for a graph with the two required colouring properties and found none. |
+| ~~`fig:planar-gadget`~~ | Done. The author supplied the gadget; see *The crossover gadget* below. |
 | ~~`fig:sm-shapley`~~ | Done. The author supplied the licence; see *The Shapley photograph* below. |
-| Nothing else | The four `\todo`s that stood here have been answered by the author and the text now says so: errata go to `t.miltzow@uu.nl`, there are no teaching-assistant or student acknowledgements, the sentence about industrial practice is gone, and the affiliations are stated plainly as Utrecht University. |
+| Nothing blocking | The four `\todo`s that stood here have been answered by the author and the text now says so: errata go to `t.miltzow@uu.nl`, there are no teaching-assistant or student acknowledgements, the sentence about industrial practice is gone, and the affiliations are stated plainly as Utrecht University. What is left is listed under *Also outstanding*, and none of it stops the book being read. |
 
 ### The figures
 
-All 97 figures were checked as they render; all but the two above
+All 97 figures were checked as they render; all of them
 are drawn in TikZ or supplied as uploaded PDFs. They are drawn from
 the mathematics rather than copied, and where a figure asserts something the
 assertion is checked:
@@ -331,6 +332,52 @@ now at `scale=0.63`), and the APX/classical comparison table in chapter 17.
 Two display formulas — the Held–Karp definition and the knapsack recurrence —
 overflowed as well and are now wrapped. Overfull boxes: 12 → 8, none above
 10 pt. Nothing else in the book leaves the text block by more than 5 pt.
+
+#### The crossover gadget
+
+`fig:planar-gadget` was the last placeholder, and the one thing in the book I
+could not derive: the gadget is a specific graph, and a plausible-looking guess
+that fails the two colouring properties would be worse than an empty box. I had
+searched a 9-vertex annulus template exhaustively, a 13-vertex symmetric one,
+32 candidate edges by hill-climbing, and two million random planar graphs,
+without finding it. The author supplied a picture of it with both colourings.
+
+The drawing was reconstructed from that picture and then **checked before being
+believed** by brute force over all $3^{13}$ assignments. Naming the terminals
+`n, w, e, s` and the 3×3 grid `a b c / d x f / g h i` row by row, the edge set
+is
+
+```
+na aw wg gs si ie ec cn   # the diamond, through the four grid corners
+nb wd ef sh               # each terminal, to the grid vertex facing it
+ab hi dg cf               # two horizontals and two verticals in the grid
+xb xd xf xh               # the centre star
+bd bf hd hf               # the four diagonals
+```
+
+and the checks were:
+
+- 13 vertices, 24 edges. Four terminals on the outer face at the points of a
+  diamond, a 3×3 grid inside, and the four grid corners sitting on the four
+  sides of the diamond. Degrees 3, 4 and 5; the graph is invariant under the
+  180° rotation, which is what makes the picture's two-fold symmetry real
+  rather than apparent.
+- Exactly **12** proper 3-colourings. Permuting the three colours acts on them
+  with **two orbits of six** — which is the claim's "only two colourings up to
+  renaming", now verified rather than asserted.
+- **Property (a)**: all 12 have `c(a) = c(a')` and `c(b) = c(b')`. Not one
+  exception.
+- **Property (b)**: all 9 ways of choosing a colour for `{a,a'}` and one for
+  `{b,b'}` are realised.
+- Both colourings in the author's picture are among the 12, which is the check
+  that the edge set was read off the picture correctly.
+- No two edges cross at the coordinates used, so what is drawn is a plane
+  drawing and not merely a planar graph.
+
+The numbers 1, 2, 3 are printed inside the vertices as well as coloured, so the
+figure survives greyscale printing. The claim's text now states the counts (12
+colourings, two orbits) instead of waving at "a finite case check", so a reader
+can repeat the verification.
 
 #### The Shapley photograph
 

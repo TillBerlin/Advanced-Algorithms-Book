@@ -1911,23 +1911,146 @@ opposite $b'$) such that:
 \end{enumerate}
 \end{claim}
 
-The verification is a finite case check, best carried out on the picture: up to
-permuting the three colours, $W$ admits only two colourings --- one in which
-all four corners get the same colour, and one in which they use two colours
-($a,a'$ one colour and $b,b'$ another).
+The verification is a finite case check, and a small one. $W$ has exactly
+twelve proper $3$-colourings, and permuting the three colours acts on them with
+two orbits of six: one orbit gives all four corners the same colour, the other
+gives $a,a'$ one colour and $b,b'$ another. \Cref{fig:planar-gadget} shows one
+colouring from each orbit. Both parts of the claim can be read off that
+statement --- every one of the twelve has $c(a) = c(a')$ and $c(b) = c(b')$,
+which is (a); and the twelve realise all nine ways of choosing a colour for
+$\{a,a'\}$ and a colour for $\{b,b'\}$, which is (b).
 
 \begin{figure}[ht]
 \centering
-\figplaceholder{60mm}{The one figure in this chapter that is not drawn here.
-It needs the crossover gadget $W$ itself --- the $13$-vertex planar graph of
-\citet[Figure~2]{GareyJohnsonStockmeyer1976}, which is also the one on the
-lecture slides --- with its four corners $a,a'$ (left/right) and $b,b'$
-(top/bottom) on the outer face. Copy that graph, and beside it show the two
-essentially different $3$-colourings of Claim~\ref{claim:planar-gadget}: all
-four corners the same colour, and $a,a'$ one colour with $b,b'$ another. A
-guessed gadget is worse than none: the two properties are a finite case check,
-so whatever is drawn should be checked against them before it goes in.}
-\caption{The crossover gadget $W$ and its only two $3$-colourings.}
+\begin{tikzpicture}[scale=1.0,
+    ed/.style={black!70},
+    cv/.style={circle,draw=black!75,minimum size=15pt,inner sep=0pt,
+               font=\scriptsize},
+    c1/.style={cv,fill=red!25},
+    c2/.style={cv,fill=green!30!white},
+    c3/.style={cv,fill=blue!20},
+    trm/.style={font=\footnotesize,inner sep=1pt},
+    every node/.style={font=\scriptsize}]
+  \begin{scope}
+    \coordinate (nL) at (0.00,2.70);
+    \coordinate (wL) at (-2.70,0.00);
+    \coordinate (eL) at (2.70,0.00);
+    \coordinate (sL) at (0.00,-2.70);
+    \coordinate (aL) at (-1.35,1.35);
+    \coordinate (bL) at (0.00,1.35);
+    \coordinate (cL) at (1.35,1.35);
+    \coordinate (dL) at (-1.35,0.00);
+    \coordinate (xL) at (0.00,0.00);
+    \coordinate (fL) at (1.35,0.00);
+    \coordinate (gL) at (-1.35,-1.35);
+    \coordinate (hL) at (0.00,-1.35);
+    \coordinate (iL) at (1.35,-1.35);
+    \draw[ed] (nL) -- (aL);
+    \draw[ed] (aL) -- (wL);
+    \draw[ed] (wL) -- (gL);
+    \draw[ed] (gL) -- (sL);
+    \draw[ed] (sL) -- (iL);
+    \draw[ed] (iL) -- (eL);
+    \draw[ed] (eL) -- (cL);
+    \draw[ed] (cL) -- (nL);
+    \draw[ed] (nL) -- (bL);
+    \draw[ed] (wL) -- (dL);
+    \draw[ed] (eL) -- (fL);
+    \draw[ed] (sL) -- (hL);
+    \draw[ed] (aL) -- (bL);
+    \draw[ed] (hL) -- (iL);
+    \draw[ed] (dL) -- (gL);
+    \draw[ed] (cL) -- (fL);
+    \draw[ed] (xL) -- (bL);
+    \draw[ed] (xL) -- (dL);
+    \draw[ed] (xL) -- (fL);
+    \draw[ed] (xL) -- (hL);
+    \draw[ed] (bL) -- (dL);
+    \draw[ed] (bL) -- (fL);
+    \draw[ed] (hL) -- (dL);
+    \draw[ed] (hL) -- (fL);
+    \node[c1] (vnL) at (nL) {1};
+    \node[c1] (vwL) at (wL) {1};
+    \node[c1] (veL) at (eL) {1};
+    \node[c1] (vsL) at (sL) {1};
+    \node[c3] (vaL) at (aL) {3};
+    \node[c2] (vbL) at (bL) {2};
+    \node[c2] (vcL) at (cL) {2};
+    \node[c3] (vdL) at (dL) {3};
+    \node[c1] (vxL) at (xL) {1};
+    \node[c3] (vfL) at (fL) {3};
+    \node[c2] (vgL) at (gL) {2};
+    \node[c2] (vhL) at (hL) {2};
+    \node[c3] (viL) at (iL) {3};
+    \node[trm,above=1pt of vnL] {$b$};
+    \node[trm,left=1pt of vwL] {$a$};
+    \node[trm,right=1pt of veL] {$a'$};
+    \node[trm,below=1pt of vsL] {$b'$};
+    \node[align=center,text width=5cm] at (0,-3.90) {all four corners take\\ the same colour};
+  \end{scope}
+  \begin{scope}[xshift=6.9cm]
+    \coordinate (nR) at (0.00,2.70);
+    \coordinate (wR) at (-2.70,0.00);
+    \coordinate (eR) at (2.70,0.00);
+    \coordinate (sR) at (0.00,-2.70);
+    \coordinate (aR) at (-1.35,1.35);
+    \coordinate (bR) at (0.00,1.35);
+    \coordinate (cR) at (1.35,1.35);
+    \coordinate (dR) at (-1.35,0.00);
+    \coordinate (xR) at (0.00,0.00);
+    \coordinate (fR) at (1.35,0.00);
+    \coordinate (gR) at (-1.35,-1.35);
+    \coordinate (hR) at (0.00,-1.35);
+    \coordinate (iR) at (1.35,-1.35);
+    \draw[ed] (nR) -- (aR);
+    \draw[ed] (aR) -- (wR);
+    \draw[ed] (wR) -- (gR);
+    \draw[ed] (gR) -- (sR);
+    \draw[ed] (sR) -- (iR);
+    \draw[ed] (iR) -- (eR);
+    \draw[ed] (eR) -- (cR);
+    \draw[ed] (cR) -- (nR);
+    \draw[ed] (nR) -- (bR);
+    \draw[ed] (wR) -- (dR);
+    \draw[ed] (eR) -- (fR);
+    \draw[ed] (sR) -- (hR);
+    \draw[ed] (aR) -- (bR);
+    \draw[ed] (hR) -- (iR);
+    \draw[ed] (dR) -- (gR);
+    \draw[ed] (cR) -- (fR);
+    \draw[ed] (xR) -- (bR);
+    \draw[ed] (xR) -- (dR);
+    \draw[ed] (xR) -- (fR);
+    \draw[ed] (xR) -- (hR);
+    \draw[ed] (bR) -- (dR);
+    \draw[ed] (bR) -- (fR);
+    \draw[ed] (hR) -- (dR);
+    \draw[ed] (hR) -- (fR);
+    \node[c3] (vnR) at (nR) {3};
+    \node[c2] (vwR) at (wR) {2};
+    \node[c2] (veR) at (eR) {2};
+    \node[c3] (vsR) at (sR) {3};
+    \node[c1] (vaR) at (aR) {1};
+    \node[c2] (vbR) at (bR) {2};
+    \node[c1] (vcR) at (cR) {1};
+    \node[c3] (vdR) at (dR) {3};
+    \node[c1] (vxR) at (xR) {1};
+    \node[c3] (vfR) at (fR) {3};
+    \node[c1] (vgR) at (gR) {1};
+    \node[c2] (vhR) at (hR) {2};
+    \node[c1] (viR) at (iR) {1};
+    \node[trm,above=1pt of vnR] {$b$};
+    \node[trm,left=1pt of vwR] {$a$};
+    \node[trm,right=1pt of veR] {$a'$};
+    \node[trm,below=1pt of vsR] {$b'$};
+    \node[align=center,text width=5cm] at (0,-3.90) {$a,a'$ take one colour\\ and $b,b'$ another};
+  \end{scope}
+\end{tikzpicture}
+\caption{The crossover gadget $W$ of
+\citet{GareyJohnsonStockmeyer1976}, with its two $3$-colourings.
+Thirteen vertices, twenty-four edges; the numbers are the three colours. The
+four corners lie on the outer face, so a gadget can be dropped into a disc
+around a crossing and wired up to its neighbours.}
 \label{fig:planar-gadget}
 \end{figure}
 

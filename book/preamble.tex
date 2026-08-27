@@ -138,7 +138,9 @@
 \newcommand{\MIS}{\lang{Max-Independent-Set}}
 
 % --- Authoring helpers ------------------------------------------------------
-% \todo{...} marks work in progress and is deliberately visible in the PDF.
+% The \todo macro below marks work in progress and is deliberately visible in
+% the PDF.  (Written without its braces so that `make todos', which greps for
+% the literal, reports a true zero when nothing is outstanding.)
 % \long so that a TODO may span several paragraphs.
 \long\def\todo#1{{\color{red}\bfseries[TODO: #1]}}
 

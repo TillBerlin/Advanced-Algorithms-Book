@@ -19,7 +19,27 @@ label. A figure labelled `\label{fig:planar-k33-cycle}` lives in
 ## Formats
 
 Vector (`.pdf`, or `.tex`/TikZ compiled inline) is strongly preferred — the book
-is printed. Use `.png` only for photographs or screenshots, at 300 dpi or more.
+is printed. Use a raster format (`.png`, or `.jpg` for a photograph — pdfTeX
+embeds JPEG without recompressing it) only for photographs and screenshots, and
+size them for 300 dpi or more at the printed size. Where the source simply has
+no more pixels, cap the printed size instead and record the real figure here.
+
+## Third-party images
+
+Everything in this directory is the authors' own except one file, which carries
+a licence with conditions that must survive future edits:
+
+`sm-shapley.jpg` — Lloyd Shapley, Erlangen, 1980. Photograph by **Konrad
+Jacobs**, copyright **Mathematisches Forschungsinstitut Oberwolfach**, from the
+[Oberwolfach Photo Collection](https://opc.mfo.de/detail?photoID=3808) (photo
+3808), via
+[Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Shapley,_Lloyd_(1980).jpg),
+licensed **CC BY-SA 2.0 Germany**. The credit under the caption in chapter 2 is
+what the licence requires; do not remove it. The image is used **unaltered** —
+cropping or retouching it creates a derivative work that CC BY-SA 2.0 DE
+requires to be released under the same or a compatible licence, so leave it
+alone. The Commons original is 284×400 px, the largest that is public, so it is
+printed at `height=38mm` (about 267 dpi) rather than the usual 300.
 
 ## Replacing a placeholder
 

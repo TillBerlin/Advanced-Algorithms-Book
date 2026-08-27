@@ -253,17 +253,18 @@ PDF as an artefact.
 
 ## What is left
 
-Re-audited after the figures. **No `\todo` markers left**, **2
-`\figplaceholder` boxes**, 293 pages.
+Re-audited after the figures. **No `\todo` markers left**, **1
+`\figplaceholder` box**, 293 pages.
 
 **Every chapter, both appendices and the preface are drafted, and every figure
-but two is drawn.**
+but one is in place.**
 
 ### Remaining
 
 | What | Note |
 | --- | --- |
-| **2 figure placeholders** | `fig:sm-shapley`, a photograph of Lloyd Shapley — it cannot be drawn, only licensed and dropped in. And `fig:planar-gadget`, the Garey–Johnson–Stockmeyer crossover gadget: that one is a specific 13-vertex graph to be copied from the paper or the slides, and a guess that looks plausible would be worse than a gap. I searched several planar templates exhaustively and two million randomly generated planar graphs for a graph with the two required colouring properties and found none. |
+| **1 figure placeholder** | `fig:planar-gadget`, the Garey–Johnson–Stockmeyer crossover gadget: a specific 13-vertex graph to be copied from the paper or the slides, where a guess that looks plausible would be worse than a gap. I searched several planar templates exhaustively and two million randomly generated planar graphs for a graph with the two required colouring properties and found none. |
+| ~~`fig:sm-shapley`~~ | Done. The author supplied the licence; see *The Shapley photograph* below. |
 | Nothing else | The four `\todo`s that stood here have been answered by the author and the text now says so: errata go to `t.miltzow@uu.nl`, there are no teaching-assistant or student acknowledgements, the sentence about industrial practice is gone, and the affiliations are stated plainly as Utrecht University. |
 
 ### The figures
@@ -330,6 +331,32 @@ now at `scale=0.63`), and the APX/classical comparison table in chapter 17.
 Two display formulas — the Held–Karp definition and the knapsack recurrence —
 overflowed as well and are now wrapped. Overfull boxes: 12 → 8, none above
 10 pt. Nothing else in the book leaves the text block by more than 5 pt.
+
+#### The Shapley photograph
+
+`book/figures/sm-shapley.jpg` is the one image in the book that is not ours.
+It is
+[`File:Shapley,_Lloyd_(1980).jpg`](https://commons.wikimedia.org/wiki/File:Shapley,_Lloyd_(1980).jpg)
+on Wikimedia Commons: Konrad Jacobs, Erlangen, 1980, copyright Mathematisches
+Forschungsinstitut Oberwolfach, from the
+[Oberwolfach Photo Collection](https://opc.mfo.de/detail?photoID=3808)
+(photo 3808), under **CC BY-SA 2.0 Germany**. The author read the licence and
+approved the use.
+
+The licence needs the credit to travel with the image, so it sits under the
+caption rather than in a credits list at the back. Three things follow from it
+and should survive future edits:
+
+- the photographer, the copyright holder and the licence must all stay named;
+- the image is reproduced **unaltered**, and the caption says so. Cropping or
+  retouching it would make a derivative work, which CC BY-SA 2.0 DE requires to
+  be released under the same or a compatible licence — so do not crop it;
+- ShareAlike attaches to the photograph, not to the book. Including a
+  separately-licensed image in a collection is not an adaptation, so nothing
+  here obliges the textbook itself to be CC-licensed.
+
+The Commons original is 284×400 px and no larger version is public (MFO's own
+copy is 283×400), so it is set at `height=38mm`, about 267 dpi.
 
 ### Also outstanding
 
@@ -758,8 +785,8 @@ kernel lower bounds.
   proof-by-algorithm theme, and Euler tours with Hierholzer's algorithm. Until
   they are written, item 1 of pool question 1 is not answered anywhere in the
   book.
-- **19 figure placeholders**, including a portrait of Lloyd Shapley whose
-  licence terms need checking before use.
+- **19 figure placeholders**, including a portrait of Lloyd Shapley. (All
+  drawn since; the portrait is now placed under a verified licence.)
 
 ### Chapter 5 — Planar Graphs
 

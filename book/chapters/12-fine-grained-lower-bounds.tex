@@ -1,5 +1,5 @@
 %% Chapter 12: Fine-Grained Lower Bounds
-%% Status: drafted; 3 figure placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% NEW MATERIAL.  There is no deck for this chapter.  It was written on the
 %% author's request for a lecture on ETH and SETH.  Everything here is from the
@@ -16,7 +16,8 @@
 \chapter{Fine-Grained Lower Bounds}
 \label{ch:lower-bounds}
 
-\Cref{ch:exact-i,ch:exact-ii} produced a table of running times: $1.3217^n$ for
+\Cref{ch:exact-i,ch:exact-ii} produced a table of running times: $1.3217^n$
+quoted as the record for
 $3$-colouring, $\Ostar{}(2^n)$ for Hamiltonian cycle, $\Ostar{}(2^{n/2})$ for
 subset sum. Every one of them is an upper bound, and every one of them raises
 the same question --- is this the truth, or have we simply not been clever
@@ -145,7 +146,7 @@ For the first implication we show the contrapositive: if ETH fails then so does
 SETH. Suppose $s_3 = 0$, so that for every $\varepsilon > 0$ there is an
 algorithm solving $3$-SAT in $\Ostar(2^{\varepsilon n})$ time, and fix a $k$.
 Given a $k$-CNF formula $F$ on $n$ variables, first apply the sparsification
-lemma (\cref{thm:sparsification}, proved in the next section) with parameter
+lemma (\cref{thm:sparsification}, stated in the next section) with parameter
 $\varepsilon$: it produces at most $2^{\varepsilon n}$ formulas, each a $k$-CNF
 on the same $n$ variables with at most $Cn$ clauses, one of which is
 satisfiable exactly when $F$ is. In each of them replace every clause of width
@@ -252,8 +253,8 @@ and almost none uses anything else about it.
 \label{sec:eth-3col}
 %==============================================================================
 
-The first lower bound. \Cref{ch:exact-i} gave a $\bigoh{1.3217^n}$ algorithm
-for $3$-colouring, the last in a long chain of improvements; the following says
+The first lower bound. \Cref{ch:exact-i} quoted $\bigoh{1.3217^n}$ as the
+current record for $3$-colouring, the last in a long chain of improvements; the following says
 the chain cannot converge to $1$.
 
 \begin{theorem}\label{thm:eth-3col}
@@ -382,7 +383,7 @@ this for vertex cover and independent set.
 %==============================================================================
 
 Before turning to SETH, two further consequences of ETH. The first closes a
-gap the book has been carrying since \cref{ch:planar}; the second explains a
+question left open in \cref{ch:planar}; the second explains a
 running time in \cref{ch:fpt-i}.
 
 \subsection{Planar problems and the square root}
@@ -1133,7 +1134,7 @@ statements in this chapter survive, and which are lost?
 \begin{exercise}
 \Cref{thm:seth-treewidth} says there is no $\bigoh{(2-\varepsilon)^k}$
 algorithm for independent set on a tree decomposition of width $k$. Reconcile
-this with the $\bigoh{1.3217^n}$ algorithm for $3$-colouring of
+this with the $\bigoh{1.3217^n}$ record for $3$-colouring quoted in
 \cref{ch:exact-i}, in which the base of the exponent \emph{is} below the number
 of colours.
 \end{exercise}

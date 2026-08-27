@@ -1,5 +1,5 @@
 %% Chapter 6: Matching
-%% Status: drafted.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against slides 92-141 of "material/slides/Flows and Matching 2026.pptx".
 %% The pool exercise Partition into Cycles is worked in the last section.
@@ -710,10 +710,12 @@ total incident weight $d$ by \cref{lem:matching-schrijver-invariant}, so every
 vertex has at least one incident edge in $G_w$; a forest in which every vertex
 has degree at least one and which has no vertex of degree greater than one would
 be a perfect matching, so it suffices to rule out a vertex of degree $\ge 2$ in
-$G_w$. Suppose $v$ had two incident edges of positive weight. Following
-positive-weight edges from $v$, the invariant guarantees that every vertex
-reached again has another positive-weight edge to continue along, so the walk
-cannot stop, and in a finite graph it must repeat a vertex --- a cycle,
+$G_w$. Suppose $v$ had two incident edges of positive weight. Each of them then has
+weight strictly less than $d$, since the two together sum to at most $d$. Walk
+along one of them. Whenever the walk enters a vertex $u$ along an edge of weight
+less than $d$, the weights at $u$ still sum to $d$, so $u$ has a second
+positive-weight edge --- and it too has weight less than $d$. The walk therefore
+never stops, and in a finite graph it must repeat a vertex --- a cycle,
 contradicting termination. Hence every vertex of $G_w$ has degree exactly one,
 and, weights being integers summing to $d$ at each vertex, that single edge has
 weight $d$. So $G_w$ is a perfect matching.
@@ -725,8 +727,11 @@ $w(M) \ge w(N)$ and updating changes $\Phi$ by
  + \sum_{e \in N}\bigl((w(e)-1)^2 - w(e)^2\bigr)
  \;=\; |C| + 2\bigl(w(M) - w(N)\bigr) \;\ge\; |C|, \]
 using $|M| + |N| = |C|$. So every iteration increases $\Phi$ by at least $|C|$.
-Initially $\Phi = m$, and it never exceeds $nd^2$, since no weight exceeds $d$
-and there are at most $nd/2$ edges. A cycle in $G_w$ can be found in
+Initially $\Phi = m$, and it never exceeds $nd^2$: summing
+\cref{lem:matching-schrijver-invariant} over all vertices gives
+$\sum_e w(e) = nd/2$, and no single weight exceeds $d$ --- one edge at $v$
+cannot carry more than the total $d$ at $v$ --- so
+$\sum_e w(e)^2 \le d \sum_e w(e) = nd^2/2$. A cycle in $G_w$ can be found in
 $\bigoh{|C|}$ amortised time by maintaining a path of edges of weight strictly
 between $0$ and $d$ and extending it until it closes, with $\bigoh{n+m}$
 overhead. Charging each cycle's cost against the increase in $\Phi$ gives
@@ -779,8 +784,16 @@ both of degree less than $d$ and add the edge $\{v,w\}$. Such a pair exists
 whenever any vertex is deficient: the two sides have equal size, so
 $\sum_{V_1} \deg = \sum_{V_2} \deg$, and if some vertex of $V_1$ has degree
 below $d$ then the sum over $V_1$ is below $d|V_1|$, hence so is the sum over
-$V_2$, so some vertex of $V_2$ is deficient too. The graph stays bipartite and
-simple, and the process terminates because the number of edges increases.
+$V_2$, so some vertex of $V_2$ is deficient too. The graph stays bipartite,
+and the process terminates because the number of edges increases. It need not
+stay \emph{simple}: if $G$ is a single edge $vw$ together with a disjoint
+$4$-cycle then $d = 2$, the two sides already have equal size, and the only
+deficient vertices are $v$ and $w$, which are already adjacent --- so the
+completion has to add a second copy of $vw$. That costs nothing. Neither
+\cref{thm:mcf-regular-bipartite} nor its proof uses simplicity: the flow model
+gives every parallel edge its own unit-capacity arc, and an integral maximum
+flow still selects one edge at each vertex. Read the completed graph as a
+bipartite multigraph.
 
 Now repeat $d$ times: the graph is regular bipartite, so by
 \cref{thm:mcf-regular-bipartite} it has a perfect matching $M$; take $M$ as the
@@ -1010,7 +1023,7 @@ has an even number of vertices, and show that the converse fails.
 \end{exercise}
 
 \begin{exercise}
-Answer the three questions the lecture leaves open about
+Three questions about
 \cref{fig:matching-blossom-lift}: what happens if the lifted path would leave
 the blossom one vertex further round; must the lifted path always pass through
 the stem; and when does the case where the path \emph{ends} at the contracted

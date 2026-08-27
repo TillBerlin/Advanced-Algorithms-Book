@@ -1,12 +1,14 @@
 %% Chapter 2: Combinatorics via Algorithms and Stable Marriage
-%% Status: drafted; one figure placeholder left, and it is a photograph.
+%% Status: drafted; all figures drawn.
 %%
 %% Euler tours were dropped from the course, so the section and the pool item
 %% that asked for them are gone.
 %%
 %% The stable marriage sections are integrated from stablemarriagenotes.tex
 %% (kept in material/notes/).  All figures are drawn in TikZ except
-%% fig:sm-shapley, which is a photograph and cannot be.
+%% fig:sm-shapley, a photograph: Konrad Jacobs / MFO, CC BY-SA 2.0 DE.  Its
+%% credit under the caption is required by that licence -- do not remove it,
+%% and do not crop the image.  See book/figures/README.md.
 
 \chapter[Combinatorics via Algorithms]{Combinatorics via Algorithms and Stable Marriage}
 \label{ch:stable-marriage}
@@ -14,7 +16,8 @@
 Many combinatorial theorems are most cleanly proved by exhibiting an algorithm
 and arguing that it terminates with the object we wanted. This chapter develops
 that idea on one long example: stable matchings, where the Gale--Shapley
-algorithm proves --- and this is the only known proof --- that a stable matching
+algorithm proves --- and this is by far the simplest proof known --- that a
+stable matching
 always exists.
 
 \begin{goals}
@@ -39,7 +42,7 @@ existence proof alone would not have revealed.
 This chapter is a sustained example of the second kind. The theorem is that
 every instance of the stable marriage problem has a solution. It is a purely
 combinatorial statement --- no algorithms, no running times, nothing about
-computation --- and the only proof anybody knows is to run the Gale--Shapley
+computation --- and the proof everyone gives is to run the Gale--Shapley
 algorithm and watch what it does. Along the way that proof hands us three
 things the statement did not ask for: the algorithm is fast, its answer does not
 depend on the order in which it does things, and the answer it produces is the
@@ -1728,8 +1731,9 @@ not to the proposing side.
 Implement Gale--Shapley as described in Section~\ref{sec:sm-impl} and verify
 empirically, on random instances with $n = 1000$, roughly how many proposals
 are actually made and how good the men's and women's average partner ranks
-are. (The behaviour on random instances is strikingly asymmetric; the men do
-about $\ln n$ times better than the women.)
+are. (The behaviour on random instances is strikingly asymmetric: the
+proposing side's average partner rank stays around $\ln n$ while the other
+side's grows like $n/\ln n$.)
 \end{exercise}
 
 %==============================================================================

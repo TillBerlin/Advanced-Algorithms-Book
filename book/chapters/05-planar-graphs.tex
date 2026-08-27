@@ -1,11 +1,11 @@
 %% Chapter 5: Planar Graphs
-%% Status: drafted.
+%% Status: drafted; all figures drawn.
 %%
 %% Integrated from planar-graphs-notes.tex (kept in material/notes/ for
-%% reference).  All figures are drawn in TikZ except fig:planar-gadget, the
-%% crossover gadget of Garey-Johnson-Stockmeyer, which has to be copied from
-%% the paper or the slides rather than guessed: it is a finite case check and
-%% a wrong graph would look right.
+%% reference).  All figures are drawn in TikZ.  fig:planar-gadget is the
+%% crossover gadget of Garey-Johnson-Stockmeyer; its edge list was checked by
+%% brute force over all 3^13 assignments (12 proper colourings, two orbits,
+%% both required properties) and is recorded in OVERVIEW.md.
 
 \chapter{Planar Graphs}
 \label{ch:planar}
@@ -326,7 +326,7 @@ are created.
 
 So the class of planar graphs is \emph{minor-closed}, and any minor of a planar
 graph is a legitimate certificate: exhibiting a non-planar minor proves
-non-planarity. Two small examples of what minors can express:
+non-planarity. A small example of what minors can express:
 
 \begin{example}
 $K_3$ (a triangle) is a minor of $G$ if and only if $G$ contains a cycle.
@@ -469,9 +469,12 @@ adjacent, so they form a $K_5$ subgraph of $G$, contradicting
 Corollary~\ref{cor:planar-k5}. Fix two non-adjacent neighbours $x$ and $y$.
 
 Let $G'$ be obtained from $G$ by deleting $v$ and \emph{identifying} $x$ with
-$y$. Then $G'$ is a minor of $G$: contract the two edges $\{v,x\}$ and
-$\{v,y\}$ --- which merges $x$, $v$ and $y$ into a single vertex --- and delete
-the edges from $v$ to its three other neighbours. By
+$y$. Then $G'$ is a minor of $G$: first delete the three edges from $v$ to its
+neighbours other than $x$ and $y$, and then contract the two remaining edges
+$\{v,x\}$ and $\{v,y\}$, which merges $x$, $v$ and $y$ into a single vertex.
+(The order matters. After the contraction, the edge from the merged vertex to a
+former neighbour of $v$ may equally have come from $x$, and deleting it would
+remove more than we want.) By
 Observation~\ref{obs:planar-minor-closed}, $G'$ is planar. It also has $n - 2 < n$
 vertices, so by induction it has a $5$-colouring $c'$.
 
@@ -1027,7 +1030,8 @@ The \emph{interlacement graph} $I$ has one vertex per segment, with an edge
 between two segments exactly when they conflict.
 \end{definition}
 
-\begin{remark}[A case the slides gloss over]\label{rem:planar-threeattach}
+\begin{remark}[Segments with three attachments in common]%
+\label{rem:planar-threeattach}
 There is a second way two segments can fail to share a side: if they have
 \emph{three or more attachments in common}. Suppose $S$ and $S'$ both attach at
 $a,b,c$. Drawing $S$ inside $C$ cuts the disc into three regions, each of whose
@@ -1035,8 +1039,8 @@ boundary contains only two of $a,b,c$; so $S'$, which must live in one region,
 cannot reach all three. These pairs are not always caught by
 Definition~\ref{def:planar-interlace} (the four witnesses would have to repeat a
 vertex), so a correct implementation must add them to $I$ explicitly. This is
-standard in the literature; see the optional Auslander--Parter reading in the
-course archive.
+standard in the literature; the exercises at the end of the chapter ask you to
+build a pair of segments that shows it is needed.
 \end{remark}
 
 \begin{figure}[ht]
@@ -1304,9 +1308,10 @@ non-path segment.}
 
 Each recursive call does a bounded amount of graph work: find a separating
 cycle (linear), compute the segments (a connected-components computation,
-linear), build the interlacement graph (at most $\bigoh{n^2}$, since there are
-$\bigoh{n}$ segments and comparing two segments' attachment patterns takes
-linear time), and $2$-colour it (linear in its size, $\bigoh{n^2}$). So a call
+linear), build the interlacement graph (at most $\bigoh{n^2}$: comparing two segments
+costs time proportional to the lengths of their two attachment lists, all the
+attachment lists together have total length $\bigoh{m} = \bigoh{n}$, and each
+of the $\bigoh{n}$ segments is compared against all the others), and $2$-colour it (linear in its size, $\bigoh{n^2}$). So a call
 costs $\bigoh{n^2}$.
 
 How many calls are there? Each call passes a strictly smaller graph
@@ -2047,7 +2052,8 @@ $\{a,a'\}$ and a colour for $\{b,b'\}$, which is (b).
   \end{scope}
 \end{tikzpicture}
 \caption{The crossover gadget $W$ of
-\citet{GareyJohnsonStockmeyer1976}, with its two $3$-colourings.
+\citet{GareyJohnsonStockmeyer1976}, with one colouring from each of its two
+classes.
 Thirteen vertices, twenty-four edges; the numbers are the three colours. The
 four corners lie on the outer face, so a gadget can be dropped into a disc
 around a crossing and wired up to its neighbours.}
@@ -2072,9 +2078,9 @@ Now build a planar graph $G'$: keep all vertices of $G$, and walk along each
 drawn edge $\{u,v\}$ from $u$ to $v$, replacing every crossing it takes part in
 by a copy of the gadget $W$, chained so that the colour is handed on from one
 gadget to the next. Concretely, an edge that participates in $\ell$ crossings
-becomes a chain of $\ell$ gadgets, entering the first at corner $a$ and leaving
-the last at corner $a'$, with consecutive gadgets identified at those corners;
-the final terminal is joined to $v$ by a real edge. The crossing pair of wires
+becomes a chain of $\ell$ gadgets: the vertex $u$ \emph{is} the corner $a$ of
+the first gadget, the corner $a'$ of each gadget \emph{is} the corner $a$ of the
+next, and only the last corner $a'$ is joined to $v$ by a real edge. The crossing pair of wires
 enters and leaves the same gadget through $b$ and $b'$. The result is planar by
 construction, since each gadget is planar and drawn inside a small disc around
 the crossing it replaced, and its size is polynomial in $|G|$.

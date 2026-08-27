@@ -1,5 +1,5 @@
 %% Chapter 3: Maximum Flow and Minimum Cut
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% The pool exercises Minimum Vertex Cut and Escaping a Grid live here.  Both
 %% are modelling questions, which is why Section "Modelling with flows" is the
@@ -349,7 +349,7 @@ termination is \cref{thm:flow-mfmc}.
 \end{proof}
 
 That bound is \emph{pseudopolynomial}: it depends on the capacity values, not
-just on their encoding length. It is genuinely bad. There is a five-vertex
+just on their encoding length. It is genuinely bad. There is a four-vertex, five-arc
 network with capacities $\{1, C\}$ on which a careless choice of augmenting
 paths takes $2C$ augmentations, alternating along a single middle arc, and $C$
 may be astronomically large while the input is short.
@@ -414,7 +414,7 @@ recurs.}
 \begin{theorem}[\citet{EdmondsKarp1972}]\label{thm:flow-ek}
 If every augmenting path is chosen to have the fewest arcs --- that is, found
 by breadth-first search in $G_f$ --- then the number of augmentations is at
-most $nm/2$, and the total running time is $\bigoh{nm^2}$, independent of the
+most $nm$, and the total running time is $\bigoh{nm^2}$, independent of the
 capacities.
 \end{theorem}
 
@@ -436,9 +436,9 @@ $d_{f'}(u) = d_{f'}(v) + 1 \ge d_f(v) + 1 = d_f(u) + 2$. So between two
 critical events for the same arc, $d(u)$ grows by at least $2$; as
 $d(u) \le n$, each of the $2m$ residual arcs is critical at most $n/2$ times.
 
-Every augmentation makes at least one arc critical, so there are at most
-$nm$ augmentations --- $nm/2$ counting the two directions of each arc as one
---- and each costs $\bigoh{m}$.
+Every augmentation makes at least one arc critical, and there are at most $2m$
+residual arcs, so there are at most $nm$ augmentations, each costing
+$\bigoh{m}$.
 \end{proof}
 
 \subsection{Dinic: augment in phases (non-examinable)}

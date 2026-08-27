@@ -1,5 +1,5 @@
 %% Chapter 1: Introduction
-%% Status: drafted.
+%% Status: drafted; all figures drawn.
 %%
 %% SOURCE.  There is no deck for this chapter: the introduction was given at
 %% the blackboard as the opening half-hour of the first lecture, together with
@@ -73,8 +73,8 @@ to $1.38$, and that is why.
 The intellectual motivation is the one that makes the subject a subject.
 Hardness is a mathematical property of a problem, and it can be measured with
 the same precision as anything else. We will prove that certain problems need
-exponential time under a stated hypothesis; that others admit a $2$-approximation
-but no better unless $\mathrm{P} = \mathrm{NP}$; that a problem which is hard in
+exponential time under a stated hypothesis; that others admit a constant-factor
+approximation but no approximation scheme unless $\mathrm{P} = \mathrm{NP}$; that a problem which is hard in
 general becomes easy the moment one number in the input is small; and, in
 Part~II, that a family of geometric problems is not merely hard but hard in a
 way that the classical theory cannot express at all. Each of these is a
@@ -102,8 +102,10 @@ it is the design space, and the parts of this book are its coordinates.
 in running time --- but pay as little as possible. The trivial algorithm for
 most of these problems is $\Ostar(2^n)$, and the subject of
 \cref{ch:exact-i,ch:exact-ii} is that one can often do better: $\bigoh{1.3803^n}$
-for maximum independent set, $\Ostar(2^n)$ for graph colouring, and a variant
-of the latter that gives up almost no time in exchange for polynomial space. The base of the exponent is the whole game, and
+for maximum independent set and $\Ostar(2^n)$ for graph colouring --- and that
+the exponential \emph{space} such algorithms usually want can sometimes be
+traded away, though colouring pays for it with a larger base,
+$\bigoh{2.3803^n}$. The base of the exponent is the whole game, and
 \cref{ch:lower-bounds} shows that the game has a floor: under the exponential
 time hypothesis, some of these bases cannot be improved to $1$, and under its
 strong form some cannot be improved at all.
@@ -126,15 +128,15 @@ believed to be real.
 Randomness is deliberately not on this list. It is a fourth technique and it
 runs through \cref{ch:randomized}, but it is not a fourth way out: nobody
 expects a randomized polynomial-time algorithm for an \textrm{NP}-hard problem.
-What randomness buys is a cheaper version of the other three --- a
-$\Ostar((2e)^k)$ algorithm where the deterministic one costs $\Ostar(k^k)$ ---
+What randomness buys is a cheaper version of the other three --- an
+$\Ostar((2e)^k)$ algorithm for finding a $k$-vertex path, where the first
+colouring argument costs $\Ostar(k^k)$ ---
 and that is how the chapter uses it.
 
 There is a fifth response, and this course does not cover it: give up the
 guarantee entirely and use a heuristic that usually works. Local search, genetic
 algorithms and their relatives are important and are somebody else's course.
-The distinction is drawn in \cref{fig:intro-landscape}, which is the picture the
-lectures open with.
+The distinction is drawn in \cref{fig:intro-landscape}.
 
 \begin{figure}[ht]
 \centering
@@ -195,9 +197,8 @@ after the first.
 The part where the news is still good. Maximum flow, minimum cost flow,
 matching and planar graphs are the classical polynomial-time theory, and they
 are here for two reasons. They are worth knowing: flows and matchings are the
-two most reusable modelling tools in the subject, and every one of these
-chapters ends by turning a problem that does not look like a flow problem into
-one. And they are used later: the planar separator theorem of
+two most reusable modelling tools in the subject, and the flow and matching
+chapters each end by turning a problem that does not look like one into one. And they are used later: the planar separator theorem of
 \cref{ch:planar} is what bounds the treewidth of a planar graph in
 \cref{ch:treewidth}, and the matching algorithm of \cref{ch:matching} is a
 subroutine of Christofides' algorithm in \cref{ch:approx-i}. It also opens with
@@ -252,9 +253,10 @@ keep meeting the same department.
 The treewidth chapter is the clearest case. That a graph of treewidth $k$ admits
 a tree decomposition computable in linear time for fixed $k$ is
 \citet{Bodlaender1996}, proved at Utrecht; the fact that a planar graph
-on $n$ vertices has treewidth $\bigoh{\sqrt n}$, which
-\cref{ch:approx-ii} uses to build a polynomial-time approximation scheme,
-appeared first in a 1988 Utrecht technical report \citep{Bodlaender1988}; the
+on $n$ vertices has treewidth $\bigoh{\sqrt n}$, which \cref{ch:treewidth}
+turns into $2^{\bigoh{\sqrt n}}$ algorithms for independent set and dominating
+set on planar graphs, appeared first in a 1988 Utrecht technical report
+\citep{Bodlaender1988}; the
 improvement of dominating set over a tree decomposition from $\bigoh{4^k}$ to
 $\Ostar(3^k)$ is \citet{VanRooijBodlaenderRossmanith2009}, whose first author
 is one of the authors of this book; and the result that
@@ -332,8 +334,8 @@ argument was really doing and why it had to be done that way. They can be read
 on their own, before or after the proof, and skipping them costs nothing on the
 exam and quite a lot everywhere else.
 
-Finally: this is a first edition of a book written quickly, and it will contain
-mistakes. The preface says how it was made, which is relevant to what kind of
-mistakes to expect, and how to report the ones you find. Reporting them is a
-real contribution and it is the fastest way to make the next edition better
-than this one.
+Finally: the proofs in this book are meant to be checked, not believed. Where
+something looks wrong, it may be. If you find a mistake, please send it to
+\href{mailto:t.miltzow@uu.nl}{\texttt{t.miltzow@uu.nl}} --- a sentence saying
+which page and what is wrong is plenty, and errors reported during a course are
+fixed for the next one.

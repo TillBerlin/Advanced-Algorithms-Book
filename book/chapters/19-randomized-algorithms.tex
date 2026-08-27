@@ -1,5 +1,5 @@
 %% Chapter 19: Randomized Algorithms
-%% Status: drafted; 2 figure placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against "material/slides/an-randomized2122(1).pptx"
 %% (Jesper Nederlof), 18 slides: one-sided error, Stirling, colour coding for
@@ -242,7 +242,7 @@ order, which happens with probability $k^{-k}$ and buys a polynomial-time
 subroutine. The second wants only distinctness, which happens with probability
 $e^{-k}$ --- exponentially likelier --- and pays for it with a $2^k$ subroutine.
 The product is what matters, and the trade is worth making: $k^k$ against
-$(2e)^k$ is $10^{20}$ against $10^7$ at $k = 10$.
+$(2e)^k$ is $10^{10}$ against $10^7$ at $k = 10$.
 \end{intuition}
 
 %==============================================================================
@@ -374,10 +374,12 @@ $\deg_F(v) \le 1$, $=2$ and $\ge 3$ respectively.
 Now use that $F$ is a forest. In any forest the vertices of degree at least
 three are strictly fewer than those of degree at most one: root each tree and
 induct, replacing a lowest branch vertex and everything below it by a single
-leaf. So $|F_{\ge 3}| < |F_{\le 1}|$ and
+leaf. So $|F_{\ge 3}| \le |F_{\le 1}|$ and
 \[ |I| \;\ge\; 2|F_{\le 1}| + |F_2|
-       \;>\; |F_{\le 1}| + |F_2| + |F_{\ge 3}| \;=\; |F| \;>\; |E_F|, \]
-the last step because a forest has fewer edges than vertices.
+       \;\ge\; |F_{\le 1}| + |F_2| + |F_{\ge 3}| \;=\; |F| \;\ge\; |E_F|, \]
+the last step because a forest has at most as many edges as vertices. (When
+$X = V$ the set $F$ is empty and every inequality is an equality, which is
+correct: every edge then meets $X$.)
 \end{proof}
 
 \begin{figure}[ht]

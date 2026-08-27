@@ -1,5 +1,5 @@
 %% Chapter 16: Treewidth
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against "material/slides/Treewidth 2026.pptx" (Johan van Rooij),
 %% slides 1-65.  Slides 66-69 are marked "Bonus Topic" in the deck and carry no
@@ -485,8 +485,11 @@ Five steps, each preserving the three conditions of
         $j_1,\ldots,j_q$ and $q > 2$ is replaced by a binary caterpillar of
         $q-1$ copies of $i$, all with the bag $X_i$, each carrying one of the
         $j_t$ as its other child.
-  \item Every node with exactly two children now has the same bag as its two
-        copies, so it is already a join node.
+  \item Make every binary node a join node. Above each child $j$ of a node
+        with two children, insert a new node carrying its parent's bag. The
+        parent then has two children with its own bag, which is a join node,
+        and each inserted node has a single child, which the next step
+        handles.
   \item A node $i$ with one child $j$ is replaced by a path: first forget, one
         at a time, the vertices of $X_j \setminus X_i$, then introduce, one at
         a time, the vertices of $X_i \setminus X_j$. Every intermediate bag is
@@ -729,9 +732,9 @@ We do not prove this; the hard direction is genuinely hard. But it is a useful
 way to \emph{estimate} treewidth, because the strategies are concrete. On a
 tree two cops suffice: one stands on a vertex, the other on the neighbour into
 whose component the robber has fled, and the robber's territory shrinks every
-turn. On the $l \times l$ grid, $l$ cops can hold one row and sweep, and $l$
-cops are needed --- which recovers the lower bound of \cref{prop:tw-grid}
-without any bag-counting.
+turn. On the $l \times l$ grid, $l+1$ cops can hold one row and sweep, and
+$l+1$ cops are needed --- which gives the lower bound quoted after
+\cref{prop:tw-grid} without any bag-counting.
 
 %==============================================================================
 \section{Computing a tree decomposition}
@@ -976,9 +979,8 @@ statement for general graphs goes back to \citet{RobertsonSeymour1986}, where
 the bound was exponential in $l$; it stayed exponential until
 \citet{ChekuriChuzhoy2016} made it polynomial.
 
-The lecture closes with a bonus discussion, not examined and not reproduced
-here, of how fast \lang{Hamiltonian Cycle} can be solved on graphs of small
-treewidth. The naive dynamic program remembers a matching on the bag and costs
+One direction this chapter does not take: how fast \lang{Hamiltonian Cycle}
+can be solved on graphs of small treewidth. The naive dynamic program remembers a matching on the bag and costs
 $k^{\bigoh{k}}$; the matchings connectivity matrix turns out to have rank
 $2^{k/2-1}$ over $\mathrm{GF}(2)$, which brings the running time down to
 single-exponential. That is \citet{CyganKratschNederlof2018}.

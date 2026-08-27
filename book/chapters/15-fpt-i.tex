@@ -1,5 +1,5 @@
 %% Chapter 15: Parameterized Algorithms I
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against "material/slides/aa-fpt.pdf" (Hans Bodlaender), slides 1-66:
 %% definitions, four branching algorithms, kernelisation, and the first two
@@ -80,8 +80,10 @@ and the exponent still grows with $k$.
 
 \lang{Vertex Cover} asks whether $G$ has a vertex cover of size at most $k$. It
 is solvable in $\bigoh{2^k(n+m)}$ time, and that is a different shape of running
-time entirely: for $k = 20$ and a graph of a million edges it is a few hundred
-million steps, which is a second's work.
+time entirely: for $k = 20$ the exponential factor is only
+$2^{20} \approx 10^{6}$, and it multiplies the input size instead of sitting in
+its exponent. \Cref{thm:fpt-vc-kernel} will cut it further, to
+$\bigoh{kn + 2^k k^2}$.
 \end{example}
 
 \begin{intuition}
@@ -126,17 +128,20 @@ proof, but by a hardness theory.
 There is a chain of classes
 \[ \mathrm{FPT} \subseteq \mathrm{W}[1] \subseteq \mathrm{W}[2] \subseteq
    \cdots \subseteq \mathrm{W}[P] \subseteq \mathrm{XP}, \]
-defined by the depth of the Boolean circuits whose weighted satisfiability a
-problem reduces to. A problem hard for $\mathrm{W}[1]$ or above is assumed not
+defined by the \emph{weft} of the Boolean circuits whose weighted
+satisfiability a problem reduces to --- the largest number of unbounded-fan-in
+gates on any path from an input to the output, with the total depth held to a
+constant. A problem hard for $\mathrm{W}[1]$ or above is assumed not
 to be in $\mathrm{FPT}$, exactly as an \textrm{NP}-hard problem is assumed not
 to be in $\mathrm{P}$.
 \end{definition}
 
 \lang{Clique} and \lang{Independent Set} are $\mathrm{W}[1]$-complete, and so
-is the following version of satisfiability: given a set of clauses and a
-parameter $k$, can at most $k$ variables be set to true and all others to false
-so that every clause is satisfied? \lang{Dominating Set} is
-$\mathrm{W}[2]$-complete. All of them are in $\mathrm{XP}$, by trying every
+is the following version of satisfiability: given a set of clauses \emph{each
+containing at most two literals} and a parameter $k$, can at most $k$ variables
+be set to true and all others to false so that every clause is satisfied? Drop
+the restriction on the clause width and the same problem becomes
+$\mathrm{W}[2]$-complete, as does \lang{Dominating Set}. All of them are in $\mathrm{XP}$, by trying every
 $k$-set.
 
 One class sits outside the hierarchy, and it is where the parameter is of no use
@@ -533,7 +538,7 @@ rest.
 
 \begin{example}\label{ex:closest-string}
 Take $s_1 = 02231$, $s_2 = 01210$, $s_3 = 20221$ and $d = 2$. The first
-subproblem is $(02231, 2)$. The candidate is at distance $0$, $3$ and $2$ from
+subproblem is $(02231, 2)$. The candidate is at distance $0$, $3$ and $3$ from
 the three strings, so $s_2$ witnesses failure; the two strings differ in
 positions $2$, $4$ and $5$, and the call branches into
 \[ (01231,\,1), \qquad (02211,\,1), \qquad (02230,\,1), \]
@@ -660,7 +665,8 @@ Three reduction rules, applied in order.
 \emph{Rule 1: bound the number of bad blocks.} If $s$ has more than $4k$ blocks
 of bad colours, return a trivial no-instance. This is correct because changing
 one character alters only the block it lies in and its two neighbours, and can
-turn at most one colour from bad to good; a case check shows the number of
+change the status of only the colour it leaves and the colour it joins; a case
+check shows the number of
 blocks of bad colours drops by at most $4$. The string \texttt{abab} is the
 tight case: it has four blocks and both of its colours are bad, so all four
 blocks are blocks of bad colours, and changing the third character to

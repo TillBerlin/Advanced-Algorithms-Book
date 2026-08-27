@@ -1,5 +1,5 @@
 %% Chapter 14: Approximation Algorithms II
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against slides 30-74 of "material/slides/Approximation Algorithms 2026.pdf"
 %% (Johan van Rooij).  The pool exercise on Steiner tree is worked in the last
@@ -213,6 +213,7 @@ the values, and to pay for the damage in the approximation ratio.
 \label{alg:knapsack-fptas}
 \begin{algorithmic}[1]
   \State discard every item with $w(i) > W$, since no solution uses one
+  \State $P \gets \max_i v(i)$ over the items that remain
   \State let $c > 0$ be a scaling constant, fixed below
   \State build a new instance with the same weights and values
          $v'(i) = \lfloor v(i)/c \rfloor$
@@ -450,16 +451,19 @@ an FPTAS, then $\Pi$ can be solved exactly in polynomial time.
 \end{theorem}
 
 \begin{proof}
-Run the FPTAS with $\varepsilon = 1/p(n)$. Its running time is polynomial in $n$
-and in $1/\varepsilon = p(n)$, hence polynomial in $n$.
+Run the FPTAS with $\varepsilon = 1/(p(n)+1)$. Its running time is polynomial
+in $n$ and in $1/\varepsilon = p(n)+1$, hence polynomial in $n$.
 
 For a maximisation problem the guarantee gives
-$\OPT/\mathrm{ALG} \le 1 + 1/p(n) = (p(n)+1)/p(n)$, so
-\[ \mathrm{ALG} \;\ge\; \OPT \cdot \frac{p(n)}{p(n)+1}
-   \;=\; \OPT - \frac{\OPT}{p(n)+1} \;>\; \OPT - 1, \]
+$\OPT/\mathrm{ALG} \le 1 + 1/(p(n)+1)$, so
+\[ \mathrm{ALG} \;\ge\; \OPT \cdot \frac{p(n)+1}{p(n)+2}
+   \;=\; \OPT - \frac{\OPT}{p(n)+2} \;>\; \OPT - 1, \]
 using $\OPT \le p(n)$ in the last step. Since solution values are integers and
-$\mathrm{ALG} \le \OPT$, this forces $\mathrm{ALG} = \OPT$. The minimisation
-case is identical.
+$\mathrm{ALG} \le \OPT$, this forces $\mathrm{ALG} = \OPT$. For a minimisation
+problem the same choice gives
+$\mathrm{ALG} \le \OPT + \OPT/(p(n)+1) < \OPT + 1$, and since
+$\mathrm{ALG} \ge \OPT$ the conclusion is the same. The strict inequality is
+why $p(n)+1$ was chosen rather than $p(n)$.
 \end{proof}
 
 \begin{corollary}\label{cor:no-fptas-is}

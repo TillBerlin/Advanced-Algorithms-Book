@@ -1,5 +1,5 @@
 %% Chapter 4: Minimum Cost Flow
-%% Status: drafted; figures are still placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against slides 57-91 of "material/slides/Flows and Matching 2026.pptx".
 %% The pool exercise Phasing out capital equipment is worked in full in the
@@ -88,12 +88,15 @@ removed.
 If no negative-cost cycle consists entirely of unbounded arcs, then replacing
 every unbounded capacity by
 \[ r + \sum_{a : c(a) < \infty} c(a) \]
-changes neither the optimal cost nor the set of optimal flows.
+changes neither the optimal cost nor the answer: every flow of the new
+instance is a flow of the old one, and at least one optimal flow of the old
+instance already obeys the new capacities.
 \end{lemma}
 
 \begin{proof}[Proof idea]
 No arc ever needs to carry more than this. By the decomposition of
-\cref{thm:mcf-decomposition} below, an optimal flow can be taken to consist of
+\cref{cor:mcf-decomposition-flow} below, an optimal flow can be taken to
+consist of
 $r$ units along $s$--$t$ paths plus cycles; the paths put at most $r$ on any
 arc, and any cycle carrying flow either has non-negative cost --- in which case
 dropping it does not hurt --- or uses at least one bounded arc, which limits it.
@@ -227,9 +230,12 @@ complexity of both problems. Three remarks on why we do not stop here.
         algorithms exploit structure a general solver cannot see.
   \item \textbf{Integrality is not free from an LP solver.} Our algorithms
         return integral flows on integral data automatically
-        (\cref{cor:mcf-integrality}); a general LP solver returns a vertex of
-        the polytope, which happens to be integral here, but that is a theorem
-        about the constraint matrix rather than something the solver promises.
+        (\cref{cor:mcf-integrality}); an LP solver returns \emph{some} optimal
+        point, and only one that returns a \emph{vertex} of the polytope ---
+        the simplex method does, the polynomial-time interior-point methods do
+        not without a crossover step --- returns an integral one. Even then,
+        integrality is a theorem about the constraint matrix rather than
+        something the solver promises.
   \item \textbf{The connection runs deeper than convenience.} Preflow-push is a
         \emph{dual} algorithm: the height function is a dual solution, and the
         algorithm maintains dual feasibility --- that is what the height
@@ -459,7 +465,7 @@ A minimum mean cycle can be found in $\bigoh{nm}$ time by a dynamic program
 over walks of each length, which is left as an exercise. The number of
 iterations needed is $\bigoh{nm^2\log^2 n}$, which gives an
 $\bigoh{n^2m^3\log^2 n}$ algorithm overall. That bound is generous; sharper
-analyses and sharper algorithms exist, and \citet{GoldbergTarjan1988} is the
+analyses and sharper algorithms exist, and \citet{GoldbergTarjan1989} is the
 place to start.
 
 %==============================================================================
@@ -833,8 +839,9 @@ Rooij.
 
 Cycle cancelling and the optimality criterion of \cref{thm:mcf-optimality} go
 back to Klein; the minimum-mean variant that makes it polynomial, and the
-dual view of preflow-push mentioned in \cref{sec:mcf-lp}, are
-\citet{GoldbergTarjan1988}. Successive shortest paths is in
+minimum-mean variant that makes it polynomial is
+\citet{GoldbergTarjan1989}, and the dual view of preflow-push mentioned in
+\cref{sec:mcf-lp} is \citet{GoldbergTarjan1988}. Successive shortest paths is in
 \citet{EdmondsKarp1972}, the same paper that gave us the shortest-augmenting-path
 rule for maximum flow.
 
@@ -852,7 +859,8 @@ practitioner's one --- and, again, the source of several exercises here.
 \begin{exercise}
 Show how to find a minimum mean cost cycle in $\bigoh{nm}$ time. Hint: let
 $D_k(v)$ be the minimum cost of a walk of exactly $k$ arcs from a fixed vertex
-to $v$, and consider $\max_k \frac{D_n(v)-D_k(v)}{n-k}$.
+to $v$, and consider $\min_{v} \max_{0 \le k < n}
+\frac{D_n(v)-D_k(v)}{n-k}$.
 \end{exercise}
 
 \begin{exercise}

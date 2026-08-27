@@ -1,13 +1,10 @@
 %% Chapter 8: The Existential Theory of the Reals
-%% Status: drafted, figures in place.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against chapter 2 of material/notes/Real-Compuation.pdf ("Beyond Bits", Tillmann
 %% Miltzow), plus the ETR-AM normal form from its chapter 3.  The four
 %% membership proofs in section "Showing membership" are new material, added
 %% because the exam needs worked examples of both definitions.
-%%
-%% The order type section is deliberately marked non-examinable: the lecture no
-%% longer covers it, and the two order-type items of the pool are withdrawn.
 
 \chapter{The Existential Theory of the Reals}
 \label{ch:etr}
@@ -157,7 +154,8 @@ steps to follow the program.}
 
 It is hard to say when this theorem was first established. The proof ideas go
 back to the original arguments of Cook and Levin; for real models they were
-first adapted by Blum, Shub and Smale, whose model does not quite match ours.
+first adapted by Blum, Shub and Smale, in a model with arbitrary real
+constants.
 The theorem is distinctly easier to prove for the real Turing machine than for
 the real RAM, simply because the Turing machine has fewer operations to
 simulate --- indirect addressing is the hard case, and
@@ -491,8 +489,8 @@ This chapter follows \citet{Miltzow2026}.
 
 \Cref{thm:er-machine-model} has no single clean origin. The ideas go back to
 Cook and Levin; they were first adapted to real models by
-\citet{BlumCuckerShubSmale1998}, whose model differs from ours, and proved for
-a real RAM model close to this one by
+\citet{BlumCuckerShubSmale1998}, in a model with arbitrary real constants, and
+proved for a real RAM with constants $0$ and $1$ by
 \citet{EricksonVanDerHoogMiltzow2024}. The inclusion
 $\ER \subseteq \mathrm{PSPACE}$ is \citet{Canny1988}. The name $\ER$, and the
 unification of the early completeness results under it, are

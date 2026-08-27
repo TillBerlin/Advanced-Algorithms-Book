@@ -1,5 +1,5 @@
 %% Chapter 9: Geometric exists-R-Completeness
-%% Status: drafted, figures in place.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against chapters 3 and 4 of material/notes/Real-Compuation.pdf ("Beyond Bits",
 %% Tillmann Miltzow).
@@ -157,7 +157,7 @@ For the second, observe that
    \frac{1}{\;\frac1x - \frac1{x+1}\;} - x \;=\; x^2 . \]
 So a constraint $x^2 = y$ is replaced by
 \[ A \cdot x = 1, \quad B = x+1, \quad C \cdot B = 1, \quad D + C = A, \quad
-   E \cdot D = 1, \quad y = E + x, \]
+   E \cdot D = 1, \quad E = y + x, \]
 which uses only addition and inversion. Both replacements are local and there
 are linearly many of them.
 \end{proof}
@@ -192,7 +192,8 @@ $\R$, because the two are not homeomorphic. What is needed instead is a bound on
 how far from the origin a solution can be forced to lie.
 
 \begin{theorem}[Ball theorem]\label{thm:ball-theorem}
-Every semi-algebraic set in $\R^n$ of complexity at most $L \ge 4$ contains a
+Every non-empty semi-algebraic set in $\R^n$ of complexity at most $L \ge 4$
+contains a
 point at distance at most $2^{L^{8n}}$ from the origin.
 \end{theorem}
 
@@ -218,7 +219,7 @@ It remains to shrink the cube to $[-1,1]^n$, which the bijection
 $f(x) = x/\varepsilon$ with $\varepsilon = 1/M$ does. We cannot write $M$ down
 --- it is doubly exponential --- but we can \emph{construct} $\varepsilon$ by
 repeated squaring: set $x_1 = \tfrac12$ and $x_{i+1} = x_i^2$, so that
-$x_k = 2^{-2^k}$, and choose $k = \bigoh{n \log L}$ so that
+$x_k = 2^{-2^{k-1}}$, and choose $k = \bigoh{n \log L}$ so that
 $\varepsilon^{-1} \ge M$. That is a formula of size $\bigoh{k}$. Now replace
 every variable $x$ by $x/\varepsilon$ throughout $\varphi$ and clear
 denominators: $x \cdot y = z$ becomes $xy = z\varepsilon$, and so on.
@@ -743,9 +744,9 @@ Duality preserves above and below. Order types are about left and right, so one
 more notion is needed before the two can be connected.
 
 \begin{definition}[Cyclic order]
-Let $P$ be a point set and $p$ a point. Rotate a vertical line clockwise around
-$p$; the order in which it meets the points of $P$ is the \emph{cyclic order} of
-$P$ around $p$.
+Let $P$ be a point set and $p$ a point. Rotate a vertical line
+counterclockwise around $p$; the order in which it meets the points of $P$ is
+the \emph{cyclic order} of $P$ around $p$.
 \end{definition}
 
 \begin{lemma}\label{lem:er-cyclic-order}

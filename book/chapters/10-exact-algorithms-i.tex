@@ -1,5 +1,5 @@
 %% Chapter 10: Exact Exponential-Time Algorithms I: Branching
-%% Status: drafted; 2 figure placeholders.
+%% Status: drafted; all figures drawn.
 %%
 %% Written against "material/slides/Exponential Time Algorithms 2026.pptx",
 %% slides 1-53 (introduction, clever enumeration, branching, meet in the
@@ -18,9 +18,9 @@
 
 If a problem is \textrm{NP}-hard and we still need the exact optimum, the
 question is no longer polynomial versus exponential. It is $2^n$ versus
-$1.5^n$ --- and that is not a small difference. At $n = 100$ the ratio is
-$10^{13}$; at $n = 40$ it is already a factor of a million, which is the
-difference between a coffee break and a fortnight. This chapter is about
+$1.5^n$ --- and that is not a small difference. At $n = 100$ the ratio is over
+$3 \cdot 10^{12}$; at $n = 40$ it is already a factor of $10^5$, which is the
+difference between a coffee break and a week. This chapter is about
 techniques for pushing the base of the exponent down.
 
 \begin{goals}
@@ -823,8 +823,8 @@ $\bigoh{1.2109^n}$ exponential-space algorithm of \citet{Robson1986}; a further
 improvement to $1.1844^n$ was announced by Robson in an unpublished 2001
 report and is often quoted, but has not been refereed. For $3$-colouring the
 current record is $\bigoh{1.3217^n}$ \citep{Meijer2023}. Numbers of this kind
-move, and a reader consulting this paragraph some years after it was written
-should assume it is out of date.
+move. Any list of records dates quickly, and the figures above should be
+checked against the current literature before being repeated.
 
 The analysis of branch-and-reduce algorithms by branching vectors is crude,
 because it measures an instance by its number of vertices and nothing else.
@@ -832,7 +832,7 @@ because it measures an instance by its number of vertices and nothing else.
 weighted measure in which, for instance, a degree-three vertex counts for less
 than a degree-five one, and re-analyses the \emph{same} algorithm to a much
 better bound. It is the reason a simple algorithm can be shown to run in
-$\bigoh{1.2201^n}$ where the naive analysis gives $1.38^n$.
+$\bigoh{1.2210^n}$ where the naive analysis gives $1.38^n$.
 
 %==============================================================================
 \section{Exercises}
